@@ -70,7 +70,7 @@ input{width:100%;margin-top:6px;margin-bottom:14px;padding:12px;border:none;bord
 
 <!-- Script unico: importa le funzioni dall'auth v2 (cache-buster) -->
 <script type="module">
-import { emailSignUp, setDisplayName, saveDOB, calcAge } from '/auth.v2.js?v=3';
+import { emailSignUp, setDisplayName, saveDOB, calcAge } from './auth.v2.js?v=3';
 
 const getParam = (n)=> new URLSearchParams(location.search).get(n);
 const $ = (q)=>document.querySelector(q);
