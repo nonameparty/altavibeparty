@@ -1,10 +1,9 @@
-// auth.js (pulito)
-
+// /auth.js  (modulo ES puro — nessun <script> qui dentro!)
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-app.js";
 import {
-  getAuth, onAuthStateChanged, updateProfile,
+  getAuth, setPersistence, browserLocalPersistence, onAuthStateChanged,
   signInWithEmailAndPassword, createUserWithEmailAndPassword,
-  sendPasswordResetEmail, signOut
+  sendPasswordResetEmail, signOut, updateProfile
 } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-auth.js";
 
 const firebaseConfig = {
@@ -17,39 +16,36 @@ const firebaseConfig = {
   measurementId: "G-BDBRZQ6J8S"
 };
 
-const app = initializeApp(firebaseConfig);
+const app  = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
+await setPersistence(auth, browserLocalPersistence);
 
-// --- AUTH API usata dagli HTML ---
-export function onUser(cb){ return onAuthStateChanged(auth, cb); }
-export async function emailSignUp(email, pwd){ return createUserWithEmailAndPassword(auth, email, pwd); }
-export async function emailSignIn(email, pwd){ return signInWithEmailAndPassword(auth, email, pwd); }
-export async function sendReset(email){ return sendPasswordResetEmail(auth, email); }
-export async function doSignOut(){ return signOut(auth); }
-export async function setDisplayName(user, fullName){
-  if(!user) return;
-  try{ await updateProfile(user, { displayName: fullName }); }catch{}
-}
+// API che usano le tue pagine
+export const emailSignUp   = (e,p) => createUserWithEmailAndPassword(auth,e,p);
+export const emailSignIn   = (e,p) => signInWithEmailAndPassword(auth,e,p);
+export const sendReset     = (e)   => sendPasswordResetEmail(auth,e);
+export const doSignOut     = ()    => signOut(auth);
+export const onUser        = (cb)  => onAuthStateChanged(auth, cb);
+export const setDisplayName= (u,n) => updateProfile(u, { displayName: n });
+
 export function saveDOB(uid, dobISO){
   if(uid && dobISO) localStorage.setItem(`trapperreo_profile_${uid}`, JSON.stringify({ dob: dobISO }));
 }
 export function loadProfile(uid){
-  try{ return JSON.parse(localStorage.getItem(`trapperreo_profile_${uid}`) || "null"); }catch{ return null; }
+  try{ return JSON.parse(localStorage.getItem(`trapperreo_profile_${uid}`) || "null"); }catch{ return null }
 }
 export function calcAge(dobISO){
   const d=new Date(dobISO), t=new Date();
   let a=t.getFullYear()-d.getFullYear();
   const m=t.getMonth()-d.getMonth();
-  if(m<0 || (m===0 && t.getDate()<d.getDate())) a--;
+  if(m<0||(m===0&&t.getDate()<d.getDate())) a--;
   return a;
 }
-export function requireAuth(redirect="login.html"){
-  return new Promise(res => onAuthStateChanged(auth, (u)=>{
+export function requireAuth(redirect="/login.html"){
+  return new Promise(res=>onAuthStateChanged(auth,(u)=>{
     if(!u){
-      const back = encodeURIComponent(location.pathname + location.search);
-      location.href = `${redirect}?from=${back}`;
-    } else {
-      res(u);
-    }
+      const back=encodeURIComponent(location.pathname+location.search);
+      location.href=`${redirect}?from=${back}`;
+    } else res(u);
   }));
 }
