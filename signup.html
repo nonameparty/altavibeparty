@@ -68,25 +68,45 @@ input{width:100%;margin-top:6px;margin-bottom:14px;padding:12px;border:none;bord
   </div>
 </div>
 
-<script type="module" src="/auth.js"></script>
+<script type="module">
 import { emailSignUp, setDisplayName, saveDOB, calcAge } from '/auth.js';
+
 const getParam = (n)=> new URLSearchParams(location.search).get(n);
 const $ = (q)=>document.querySelector(q);
 
-$('#signUpBtn').addEventListener('click', async (e)=>{
+// DEBUG: così vediamo subito se il modulo è caricato
+console.log('signup.js loaded — functions:', {
+  emailSignUp: typeof emailSignUp,
+  setDisplayName: typeof setDisplayName,
+  saveDOB: typeof saveDOB,
+  calcAge: typeof calcAge
+});
+
+function showError(msg){
+  const box = document.getElementById('err');
+  box.textContent = msg;
+  box.style.display = 'block';
+}
+
+document.getElementById('signUpBtn').addEventListener('click', async (e)=>{
   e.preventDefault();
-  $('#err').style.display='none';
+  document.getElementById('err').style.display='none';
+
   try{
-    const first = $('#firstName').value.trim();
-    const last  = $('#lastName').value.trim();
-    const dob   = $('#dob').value;
-    const email = $('#email').value.trim();
-    const pwd   = $('#password').value;
+    const first = $('#firstName')?.value.trim();
+    const last  = $('#lastName')?.value.trim();
+    const dob   = $('#dob')?.value;
+    const email = $('#email')?.value.trim();
+    const pwd   = $('#password')?.value;
 
     if(!first || !last) throw new Error("Inserisci nome e cognome.");
     if(!dob) throw new Error("Inserisci la data di nascita.");
+
     const age = calcAge(dob);
     if(age < 16) throw new Error("Età minima 16 anni.");
+
+    // DEBUG clic
+    console.log('signup click OK, calling emailSignUp', {email});
 
     const cred = await emailSignUp(email, pwd);
     const user = cred.user;
@@ -94,11 +114,11 @@ $('#signUpBtn').addEventListener('click', async (e)=>{
     await setDisplayName(user, `${first} ${last}`);
     saveDOB(user.uid, dob);
 
-    const dest = getParam('from') || './checkout.html';
+    const dest = getParam('from') || '/checkout.html';
     location.assign(dest);
   }catch(err){
-    $('#err').textContent = err.message;
-    $('#err').style.display = 'block';
+    console.error('signup error:', err);
+    showError(err?.message || 'Errore imprevisto');
   }
 });
 </script>
