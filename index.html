@@ -3,172 +3,173 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>ALTAVIBE – Biella</title>
+<title>ALTAVIBE — Biella</title>
+<meta name="description" content="ALTAVIBE • Club night a Biella. Ingresso su lista o prevendita.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' fill='black'/%3E%3Ctext x='50%25' y='50%25' dy='.35em' text-anchor='middle' font-size='36' fill='%23facc15' font-family='Arial, Helvetica, sans-serif'%3EA%3C/text%3E%3C/svg%3E">
 <style>
-  :root {
-    --yellow:#facc15;
-    --bg:#000;
-    --text:#fff;
-  }
-  *{box-sizing:border-box;margin:0;padding:0;}
-  body{background:var(--bg);color:var(--text);font-family:Arial,Helvetica,sans-serif;line-height:1.5;}
-  header{position:sticky;top:0;background:rgba(0,0,0,.9);border-bottom:1px solid rgba(255,255,255,.1);z-index:10;}
-  header .inner{max-width:1100px;margin:auto;display:flex;justify-content:space-between;align-items:center;padding:15px;}
-  header h1{font-size:20px;font-weight:900;letter-spacing:-.5px;}
-  header nav a{color:#fff;text-decoration:none;margin:0 10px;font-size:14px;}
-  header nav a:hover{color:var(--yellow);}
-  section{padding:60px 20px;border-top:1px solid rgba(255,255,255,.1);}
-  .btn{display:inline-block;margin-top:20px;padding:12px 20px;background:var(--yellow);color:#000;font-weight:700;border-radius:6px;text-decoration:none;}
-  .concept{max-width:1100px;margin:auto;}
-  .concept h3{font-size:28px;font-weight:900;margin-bottom:30px;}
-  .concept-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:20px;}
-  .box{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:10px;padding:20px;}
-  .box h4{margin-bottom:10px;color:var(--yellow);}
-  .packages{max-width:1100px;margin:auto;}
-  .pack-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:20px;}
-  .pack{background:#000;border:1px solid rgba(255,255,255,.1);border-radius:14px;padding:25px;}
-  .pack h4{font-size:20px;font-weight:900;margin-bottom:8px;}
-  .pack .price{font-size:28px;font-weight:900;color:var(--yellow);}
-  form{max-width:450px;margin:auto;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);padding:25px;border-radius:10px;}
-  form label{font-size:14px;color:rgba(255,255,255,.7);}
-  form input,form select{width:100%;margin-top:4px;margin-bottom:15px;padding:8px;border:none;border-radius:6px;background:#111;color:#fff;}
-  form button{background:var(--yellow);color:#000;font-weight:700;border:none;padding:10px 20px;border-radius:6px;cursor:pointer;}
-  footer{border-top:1px solid rgba(255,255,255,.1);padding:25px;text-align:center;color:rgba(255,255,255,.6);font-size:14px;}
+:root{ --yellow:#facc15; --bg:#000; --text:#fff; }
+*{ box-sizing:border-box; margin:0; padding:0; }
+html,body{ height:100%; scroll-behavior:smooth; }
+body{ background:var(--bg); color:var(--text); font-family:Arial,Helvetica,sans-serif; line-height:1.5; }
 
-  /* HERO - sfondo discoteca */
-  .hero{
-    position: relative;
-    min-height: 80vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background-image:
-      linear-gradient(rgba(0,0,0,.55), rgba(0,0,0,.55)),
-      url('https://images.unsplash.com/photo-1518972559570-0b1adfbf5a3b?q=80&w=1600&auto=format&fit=crop');
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-    border-top: none;
-    padding: 80px 20px;
-  }
-  .hero-content{
-    max-width: 760px;
-    padding: 40px;
-    border-radius: 16px;
-    background: rgba(0,0,0,0.35);
-  }
-  .hero-content h2{font-size:46px;font-weight:900;line-height:1.1;}
-  .hero-content span{color:var(--yellow);}
-  .hero-content p{margin-top:10px;color:rgba(255,255,255,.85);}
-  @media (max-width:600px){
-    .hero{min-height:70vh;}
-    .hero-content{padding:24px;}
-    .hero-content h2{font-size:32px;}
-  }
+/* NAV */
+header{ position:sticky; top:0; z-index:50; backdrop-filter:saturate(140%) blur(6px);
+  background:rgba(0,0,0,.6); border-bottom:1px solid rgba(255,255,255,.08); }
+.nav{ max-width:1200px; margin:auto; padding:14px 20px; display:flex; align-items:center; justify-content:space-between; }
+.brand{ display:flex; align-items:center; gap:10px; font-weight:900; letter-spacing:-.3px; }
+.brand-badge{ width:22px; height:22px; background:var(--yellow); transform:skew(-6deg); border-radius:3px; }
+nav a{ color:#fff; text-decoration:none; margin-left:18px; font-size:14px; opacity:.9; }
+nav a:hover{ color:var(--yellow); }
+
+/* HERO — full-bleed photo + overlay title */
+.hero{
+  min-height: 94vh;
+  position: relative;
+  display:flex; align-items:center; justify-content:center;
+  color:#fff;
+  background-image:
+    linear-gradient(rgba(0,0,0,.45), rgba(0,0,0,.65)),
+    url('https://images.unsplash.com/photo-1518972559570-0b1adfbf5a3b?q=80&w=2000&auto=format&fit=crop');
+  background-size: cover; background-position: center; background-attachment: fixed; /* leggero “parallax” */
+}
+.hero-inner{ text-align:left; width:min(90%, 900px); }
+.kicker{ opacity:.9; margin-bottom:10px; }
+h1{ font-size: clamp(40px, 6vw, 72px); line-height:1.05; font-weight:900; }
+h1 .accent{ color:var(--yellow); }
+.hero p{ margin-top:12px; color:rgba(255,255,255,.9); font-size: clamp(16px,2.3vw,18px); }
+.btn{ display:inline-block; margin-top:24px; padding:13px 22px; background:var(--yellow); color:#000;
+  font-weight:800; border-radius:10px; text-decoration:none; }
+
+/* SECTIONS */
+section{ padding:72px 20px; border-top:1px solid rgba(255,255,255,.08); }
+.container{ max-width:1100px; margin:auto; }
+h2{ font-size:32px; font-weight:900; margin-bottom:18px; }
+.lead{ color:rgba(255,255,255,.78); max-width:760px; }
+
+/* Cards grid */
+.grid{ display:grid; grid-template-columns:repeat(12,1fr); gap:18px; margin-top:26px; }
+.card{ grid-column: span 12; background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.1);
+  border-radius:14px; padding:20px; }
+@media(min-width:720px){ .card{ grid-column: span 4; } }
+
+/* “Tickets” strip */
+.strip{ background:linear-gradient(90deg, rgba(250,204,21,.12), transparent), #0a0a0a; }
+
+/* Gallery */
+.gallery{ display:grid; grid-template-columns:repeat(2,1fr); gap:10px; margin-top:18px; }
+.gallery img{ width:100%; height:220px; object-fit:cover; border-radius:10px; }
+@media(min-width:900px){ .gallery{ grid-template-columns:repeat(4,1fr); } }
+
+/* FORM */
+form{ max-width:520px; background:rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.12);
+  padding:22px; border-radius:12px; }
+label{ font-size:13px; color:rgba(255,255,255,.7); }
+input,select{ width:100%; margin-top:4px; margin-bottom:14px; padding:10px 12px;
+  border:none; border-radius:8px; background:#121212; color:#fff; }
+button{ background:var(--yellow); color:#000; font-weight:800; border:none; padding:12px 18px; border-radius:10px; cursor:pointer; }
+
+/* Reveal on scroll */
+.reveal{ opacity:0; transform: translateY(22px); transition: all .7s ease; }
+.reveal.show{ opacity:1; transform: translateY(0); }
+
+/* Footer */
+footer{ padding:28px 20px; text-align:center; color:rgba(255,255,255,.6); border-top:1px solid rgba(255,255,255,.08); }
 </style>
 </head>
 <body>
 
 <header>
-  <div class="inner">
-    <h1>ALTAVIBE</h1>
+  <div class="nav">
+    <div class="brand"><div class="brand-badge"></div><div>ALTAVIBE</div></div>
     <nav>
-      <a href="#concept">Concept</a>
-      <a href="#packages">Pacchetti</a>
-      <a href="#form">Lista</a>
+      <a href="#about">Il Concept</a>
+      <a href="#nights">Le Serate</a>
+      <a href="#join">Lista</a>
     </nav>
   </div>
 </header>
 
-<!-- HERO -->
+<!-- HERO: solo foto + nome sopra -->
 <section class="hero" id="home">
-  <div class="hero-content">
-    <p>Biella • Evento Privato su lista</p>
-    <h2>La notte <span>che alza l’asticella</span></h2>
-    <p>Musica, energia e zero caos alla porta: ingresso solo con prevendita o lista nominativa.</p>
-    <a href="#form" class="btn">Prenota ora</a>
+  <div class="hero-inner">
+    <div class="kicker">Biella • Evento su lista</div>
+    <h1>ALTAVIBE — <span class="accent">La notte</span> che alza l’asticella</h1>
+    <p>House / Tech / Urban. Accesso con prevendita o lista nominativa. Location a numero chiuso.</p>
+    <a class="btn" href="#join">Prenota ora</a>
   </div>
 </section>
 
-<!-- CONCEPT -->
-<section id="concept">
-  <div class="concept">
-    <h3>Perché è diverso</h3>
-    <div class="concept-grid">
-      <div class="box">
-        <h4>Ingresso smart</h4>
-        <p>Lista o prevendita nominativa: entri veloce, zero fila inutile.</p>
-      </div>
-      <div class="box">
-        <h4>Esperienza curata</h4>
-        <p>Audio/luci seri, line-up pensata e vibe da viaggio di maturità (ma fatta bene).</p>
-      </div>
-      <div class="box">
-        <h4>Sicurezza & privacy</h4>
-        <p>Location a norma, controllo accessi, evento privato a numero chiuso.</p>
-      </div>
+<!-- ABOUT -->
+<section id="about">
+  <div class="container">
+    <h2 class="reveal">Alle origini del divertimento</h2>
+    <p class="lead reveal">Spazio industriale che diventa club. Audio e luci seri, selezione all’ingresso, fluidità ai varchi. Vogliamo un’esperienza pulita, veloce, curata — senza caos.</p>
+
+    <div class="grid" style="margin-top:26px;">
+      <div class="card reveal"><strong>Ingresso smart</strong><br>Lista o prevendita nominativa per zero fila inutile.</div>
+      <div class="card reveal"><strong>Vibes</strong><br>House/Tech, special guest + local heroes. Luci, visual, stage design.</div>
+      <div class="card reveal"><strong>Safe</strong><br>Location a norma, addetti accreditati, RC evento, privacy.</div>
     </div>
   </div>
 </section>
 
-<!-- PACCHETTI -->
-<section id="packages">
-  <div class="packages">
-    <h3 style="font-size:28px;font-weight:900;margin-bottom:30px;">Scegli il tuo mood</h3>
-    <div class="pack-grid">
-      <div class="pack">
-        <h4>Standard</h4>
-        <div class="price">15 €</div>
-        <ul>
-          <li>Accesso rapido</li>
-          <li>QR nominativo</li>
-          <li>Supporto PR</li>
-        </ul>
-      </div>
-      <div class="pack">
-        <h4>Crew 5</h4>
-        <div class="price">65 €</div>
-        <ul>
-          <li>5 ingressi</li>
-          <li>1 cambio nome</li>
-          <li>Supporto PR dedicato</li>
-        </ul>
-      </div>
-      <div class="pack">
-        <h4>VIP Table</h4>
-        <div class="price">da 120 €</div>
-        <ul>
-          <li>Tavolo riservato</li>
-          <li>Bottiglia</li>
-          <li>Host dedicato</li>
-        </ul>
-      </div>
+<!-- NIGHTS -->
+<section id="nights" class="strip">
+  <div class="container">
+    <h2 class="reveal">Le Serate</h2>
+    <p class="lead reveal">Calendario in aggiornamento: selezione su lista, tavoli su richiesta.</p>
+
+    <div class="gallery">
+      <img class="reveal" src="https://images.unsplash.com/photo-1514525253161-7a46d19cd819?q=80&w=1000&auto=format&fit=crop" alt="">
+      <img class="reveal" src="https://images.unsplash.com/photo-1507874457470-272b3c8d8ee2?q=80&w=1000&auto=format&fit=crop" alt="">
+      <img class="reveal" src="https://images.unsplash.com/photo-1492684223066-81342ee5ff30?q=80&w=1000&auto=format&fit=crop" alt="">
+      <img class="reveal" src="https://images.unsplash.com/photo-1470225620780-dba8ba36b745?q=80&w=1000&auto=format&fit=crop" alt="">
+    </div>
+
+    <div class="reveal" style="margin-top:22px;">
+      <a class="btn" href="#join">Vai alla lista</a>
     </div>
   </div>
 </section>
 
-<!-- FORM -->
-<section id="form">
-  <h3 style="text-align:center;font-size:28px;font-weight:900;margin-bottom:20px;">Lista nominativa / Prevendita</h3>
-  <form onsubmit="alert('Simulazione: iscrizione inviata!');return false;">
-    <label>Nome e cognome</label>
-    <input required placeholder="Mario Rossi">
-    <label>Email</label>
-    <input type="email" required placeholder="mario@email.it">
-    <label>Telefono</label>
-    <input type="tel" placeholder="3331234567">
-    <label>PR di riferimento (opzionale)</label>
-    <select>
-      <option>Nessuno</option><option>Giulia</option><option>Luca</option><option>Andre</option>
-    </select>
-    <label><input type="checkbox" required> Accetto privacy e ricevere il QR via email</label><br><br>
-    <button type="submit">Invia richiesta</button>
-  </form>
+<!-- JOIN / FORM -->
+<section id="join">
+  <div class="container">
+    <h2 class="reveal">Lista nominativa / Prevendita</h2>
+    <p class="lead reveal">Compila i dati: riceverai conferma via email. Paghi in cassa se preferisci. Puoi modificare nome fino a 24h prima.</p>
+    <br>
+    <form onsubmit="alert('Simulazione invio: lista/prevendita registrata!'); return false;" class="reveal">
+      <label>Nome e cognome</label>
+      <input required placeholder="Mario Rossi">
+      <label>Email</label>
+      <input type="email" required placeholder="mario@email.it">
+      <label>Telefono</label>
+      <input type="tel" placeholder="3331234567">
+      <label>PR di riferimento (opzionale)</label>
+      <select>
+        <option>Nessuno</option><option>Giulia</option><option>Luca</option><option>Andre</option>
+      </select>
+      <label><input type="checkbox" required> Accetto privacy e ricevere info sull’evento</label><br><br>
+      <button type="submit">Invia richiesta</button>
+    </form>
+  </div>
 </section>
 
 <footer>
-  © 2025 ALTAVIBE • Biella
+  © <span id="y"></span> ALTAVIBE • Biella
 </footer>
 
+<script>
+  // anno footer
+  document.getElementById('y').textContent = new Date().getFullYear();
+
+  // reveal-on-scroll semplice
+  const io = new IntersectionObserver((entries)=>{
+    entries.forEach(e=>{
+      if(e.isIntersecting){ e.target.classList.add('show'); io.unobserve(e.target); }
+    });
+  }, {threshold: .14});
+  document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+</script>
 </body>
 </html>
