@@ -7,11 +7,7 @@
 <meta name="description" content="TRAPPERREO • Trap & Reggaeton Club Night a Biella.">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' fill='black'/%3E%3Ctext x='50%25' y='50%25' dy='.35em' text-anchor='middle' font-size='28' fill='%238b5cf6' font-family='Arial, Helvetica, sans-serif'%3ETR%3C/text%3E%3C/svg%3E">
 <style>
-:root{
-  --accent:#8b5cf6;  /* viola */
-  --accent-weak: rgba(139,92,246,.12);
-  --bg:#000; --text:#fff;
-}
+:root{--accent:#8b5cf6;--accent-weak: rgba(139,92,246,.12);--bg:#000;--text:#fff;}
 *{box-sizing:border-box;margin:0;padding:0;}
 html,body{height:100%;scroll-behavior:smooth;}
 body{background:var(--bg);color:var(--text);font-family:Arial,Helvetica,sans-serif;line-height:1.5;}
@@ -62,11 +58,9 @@ h2{font-size:32px;font-weight:900;margin-bottom:18px;}
 .meta-v{font-weight:900;margin-top:6px;}
 @media(max-width:720px){.event-meta{grid-template-columns:1fr;}}
 
-/* BANNER “zero sbatti” */
+/* BANNER */
 .banner-grid{display:grid;grid-template-columns:repeat(12,1fr);gap:18px;margin-top:18px;}
-.banner{
-  grid-column:span 12;background:var(--accent);color:#000;border-radius:16px;padding:22px;border:3px solid #000;
-}
+.banner{grid-column:span 12;background:var(--accent);color:#000;border-radius:16px;padding:22px;border:3px solid #000;}
 .banner h3{font-size:22px;font-weight:900;margin-bottom:6px;}
 .banner p{color:#111}
 @media(min-width:900px){.banner{grid-column:span 6;}}
@@ -105,26 +99,15 @@ footer{padding:0;border-top:1px solid rgba(255,255,255,.08);}
 <header>
   <div class="nav">
     <div class="brand"><div class="brand-badge"></div><div>TRAPPERREO</div></div>
-<nav style="display:flex;align-items:center;gap:16px">
-  <a href="/login.html?from=%2Fcheckout.html">Acquista il tuo biglietto</a>
-  <span style="opacity:.4">|</span>
-  <span id="userArea">
-    <span style="display:inline-flex;align-items:center;gap:6px">
-      <!-- omino -->
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="#fff" aria-hidden="true">
-        <circle cx="12" cy="8" r="4"></circle>
-        <path d="M4 20c0-4 4-6 8-6s8 2 8 6" fill="none" stroke="#fff" stroke-width="2"/>
-      </svg>
-      <a id="loginLink" href="/login.html">Accedi</a>
-      <span>/</span>
-      <a id="signupLink" href="/signup.html">Registrati</a>
-    </span>
-  </span>
-</nav>
+    <nav id="navArea">
+      <!-- verrà popolata dallo script -->
+      <a href="/login.html?from=%2Fcheckout.html">Acquista il tuo biglietto</a>
+      <a href="/login.html">Accedi</a>
+      <a href="/signup.html">Registrati</a>
+    </nav>
   </div>
 </header>
 
-<!-- HERO -->
 <section class="hero" id="home">
   <div class="hero-inner">
     <div class="kicker">Biella • Trap & Reggaeton</div>
@@ -134,7 +117,6 @@ footer{padding:0;border-top:1px solid rgba(255,255,255,.08);}
   </div>
 </section>
 
-<!-- PERCHE' PRENOTARE (versione discoteca) -->
 <section id="why">
   <div class="container">
     <h2 class="reveal">Perché prenotare con TRAPPERREO</h2>
@@ -157,7 +139,6 @@ footer{padding:0;border-top:1px solid rgba(255,255,255,.08);}
   </div>
 </section>
 
-<!-- EVENT ANNOUNCEMENT -->
 <section id="event">
   <div class="container">
     <h2 class="reveal">Prossimo evento</h2>
@@ -178,43 +159,24 @@ footer{padding:0;border-top:1px solid rgba(255,255,255,.08);}
       <div>
         <div style="opacity:.85;margin-bottom:6px">Paga con</div>
         <div class="pay">
-          <!-- VISA -->
+          <!-- icone semplificate -->
           <svg viewBox="0 0 64 24" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Visa">
-            <rect width="64" height="24" rx="8" fill="#0a0a0a"/>
-            <text x="10" y="16" font-size="12" font-weight="800" fill="#1a73e8" font-family="Arial">VISA</text>
+            <rect width="64" height="24" rx="8" fill="#0a0a0a"/><text x="10" y="16" font-size="12" font-weight="800" fill="#1a73e8" font-family="Arial">VISA</text>
           </svg>
-          <!-- Mastercard -->
           <svg viewBox="0 0 64 24" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Mastercard">
-            <rect width="64" height="24" rx="8" fill="#0a0a0a"/>
-            <circle cx="28" cy="12" r="7" fill="#eb001b"/>
-            <circle cx="36" cy="12" r="7" fill="#f79e1b" opacity=".9"/>
+            <rect width="64" height="24" rx="8" fill="#0a0a0a"/><circle cx="28" cy="12" r="7" fill="#eb001b"/><circle cx="36" cy="12" r="7" fill="#f79e1b" opacity=".9"/>
           </svg>
-          <!-- PayPal -->
           <svg viewBox="0 0 64 24" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="PayPal">
-            <rect width="64" height="24" rx="8" fill="#0a0a0a"/>
-            <text x="10" y="16" font-size="12" font-weight="800" fill="#003087" font-family="Arial">Pay</text>
-            <text x="34" y="16" font-size="12" font-weight="800" fill="#009cde" font-family="Arial">Pal</text>
+            <rect width="64" height="24" rx="8" fill="#0a0a0a"/><text x="10" y="16" font-size="12" font-weight="800" fill="#003087" font-family="Arial">Pay</text><text x="34" y="16" font-size="12" font-weight="800" fill="#009cde" font-family="Arial">Pal</text>
           </svg>
-          <!-- Satispay (semplificato) -->
           <svg viewBox="0 0 64 24" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Satispay">
-            <rect width="64" height="24" rx="8" fill="#0a0a0a"/>
-            <path d="M14 8 l6 4 -6 4 2-4z" fill="#ff2e2e"/>
-            <text x="28" y="16" font-size="12" font-weight="800" fill="#ff2e2e" font-family="Arial">Satispay</text>
+            <rect width="64" height="24" rx="8" fill="#0a0a0a"/><path d="M14 8 l6 4 -6 4 2-4z" fill="#ff2e2e"/><text x="28" y="16" font-size="12" font-weight="800" fill="#ff2e2e" font-family="Arial">Satispay</text>
           </svg>
-          <!-- Apple Pay -->
           <svg viewBox="0 0 64 24" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Apple Pay">
-            <rect width="64" height="24" rx="8" fill="#0a0a0a"/>
-            <circle cx="14" cy="12" r="5" fill="#fff"/>
-            <rect x="12" y="6" width="5" height="3" rx="1.5" fill="#fff"/>
-            <text x="26" y="16" font-size="12" font-weight="800" fill="#fff" font-family="Arial">Pay</text>
+            <rect width="64" height="24" rx="8" fill="#0a0a0a"/><circle cx="14" cy="12" r="5" fill="#fff"/><rect x="12" y="6" width="5" height="3" rx="1.5" fill="#fff"/><text x="26" y="16" font-size="12" font-weight="800" fill="#fff" font-family="Arial">Pay</text>
           </svg>
-          <!-- Google Pay -->
           <svg viewBox="0 0 64 24" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Google Pay">
-            <rect width="64" height="24" rx="8" fill="#0a0a0a"/>
-            <circle cx="14" cy="12" r="5" fill="#34a853"/>
-            <circle cx="18" cy="12" r="5" fill="#fbbc05"/>
-            <circle cx="22" cy="12" r="5" fill="#ea4335"/>
-            <text x="30" y="16" font-size="12" font-weight="800" fill="#fff" font-family="Arial">Pay</text>
+            <rect width="64" height="24" rx="8" fill="#0a0a0a"/><circle cx="14" cy="12" r="5" fill="#34a853"/><circle cx="18" cy="12" r="5" fill="#fbbc05"/><circle cx="22" cy="12" r="5" fill="#ea4335"/><text x="30" y="16" font-size="12" font-weight="800" fill="#fff" font-family="Arial">Pay</text>
           </svg>
         </div>
       </div>
@@ -222,7 +184,6 @@ footer{padding:0;border-top:1px solid rgba(255,255,255,.08);}
   </div>
 </section>
 
-<!-- ZERO SBATTI (aggiornato) -->
 <section id="policies">
   <div class="container">
     <h2 class="reveal">Zero sbatti</h2>
@@ -241,7 +202,6 @@ footer{padding:0;border-top:1px solid rgba(255,255,255,.08);}
   </div>
 </section>
 
-<!-- FAQ -->
 <section id="faq">
   <div class="container">
     <h2>Domande frequenti</h2>
@@ -309,26 +269,44 @@ document.querySelectorAll('.faq-q').forEach(btn=>{
   btn.addEventListener('click', ()=>btn.parentElement.classList.toggle('open'));
 });
 </script>
-  <script type="module" src="auth.js"></script>
+
+<!-- Navbar dinamica (Firebase inline) -->
 <script type="module">
-  import { onUser, doSignOut } from './auth.js';
-  onUser((u)=>{
-    const area = document.getElementById('userArea');
-    if(!area) return;
-    if(u){
-      const name = u.displayName || (u.email ? u.email.split('@')[0] : 'utente');
-      area.innerHTML = `
-        <span style="display:inline-flex;align-items:center;gap:8px">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="#fff"><circle cx="12" cy="8" r="4"></circle><path d="M4 20c0-4 4-6 8-6s8 2 8 6" fill="none" stroke="#fff" stroke-width="2"/></svg>
-          <span>Ciao <strong>${name}</strong></span>
-          <a href="/checkout.html" class="btn" style="padding:6px 10px;border-radius:8px">Vai al checkout</a>
-          <a href="#" id="logoutLink" style="color:#8b5cf6">Logout</a>
-        </span>`;
-      document.getElementById('logoutLink')?.addEventListener('click', async (e)=>{
-        e.preventDefault(); await doSignOut(); location.reload();
-      });
-    }
-  });
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-app.js";
+  import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-auth.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyDF6BiYXreDirGnT3RPkGwDNlwj5ploUyo",
+    authDomain: "trappereo.firebaseapp.com",
+    projectId: "trappereo",
+    storageBucket: "trappereo.firebasestorage.app",
+    messagingSenderId: "767231932063",
+    appId: "1:767231932063:web:b1431de1c04bbe5dc0d4aa",
+    measurementId: "G-BDBRZQ6J8S"
+  };
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+
+  const nav = document.getElementById('navArea');
+  function renderLoggedOut(){
+    nav.innerHTML = `
+      <a href="/login.html?from=%2Fcheckout.html">Acquista il tuo biglietto</a>
+      <a href="/login.html">Accedi</a>
+      <a href="/signup.html">Registrati</a>
+    `;
+  }
+  function renderLoggedIn(user){
+    const name = user.displayName || (user.email ? user.email.split('@')[0] : 'Utente');
+    nav.innerHTML = `
+      <span style="opacity:.9;margin-right:8px">Ciao, ${name.split(' ')[0]}</span>
+      <a href="/checkout.html">Vai al checkout</a>
+      <a href="#" id="logoutLink" style="color:#8b5cf6">Logout</a>
+    `;
+    document.getElementById('logoutLink')?.addEventListener('click', async (e)=>{
+      e.preventDefault(); await signOut(auth); renderLoggedOut();
+    });
+  }
+  onAuthStateChanged(auth, (u)=> u ? renderLoggedIn(u) : renderLoggedOut());
 </script>
 </body>
 </html>
