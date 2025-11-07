@@ -1,1 +1,48 @@
-
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Checkout — TRAPPERREO</title>
+<style>
+:root{--accent:#8b5cf6;--bg:#000;--text:#fff}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:Arial,Helvetica,sans-serif;line-height:1.5;min-height:100vh;display:grid;place-items:center}
+.card{width:min(92%,520px);background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);border-radius:16px;padding:26px}
+h1{font-size:24px;font-weight:900;margin-bottom:8px}.row{display:flex;gap:12px;flex-wrap:wrap;margin-top:12px}
+.badge{border:1px solid rgba(255,255,255,.25);border-radius:8px;padding:8px 10px;background:rgba(255,255,255,.06)}
+.btn{display:inline-block;padding:12px 16px;border:none;border-radius:10px;background:var(--accent);color:#000;font-weight:900;text-decoration:none;cursor:pointer}
+.link{color:var(--accent);text-decoration:none}
+</style>
+<!-- GUARD: SOLO QUI (non in login.html, non in index.html) -->
+<script>
+(function(){
+  try{
+    const u = JSON.parse(localStorage.getItem("trapperreo_user")||"null");
+    if(!u){ location.href = "login.html?from=checkout.html"; }
+    window._user = u;
+  }catch(_){
+    location.href = "login.html?from=checkout.html";
+  }
+})();
+</script>
+</head>
+<body>
+  <div class="card">
+    <h1>Checkout TRAPPERREO</h1>
+    <div>Accesso come: <strong id="uemail"></strong></div>
+    <div class="row" style="margin-top:14px">
+      <div class="badge">Sab 21 Mar 2026</div>
+      <div class="badge">22:30 → 04:30</div>
+      <div class="badge">Via Italia 38, Biella</div>
+      <div class="badge">Ticket Standard • 15€</div>
+    </div>
+    <div class="row" style="margin-top:18px">
+      <a class="btn" href="#">Procedi al pagamento</a>
+      <a class="link" href="#" onclick="localStorage.removeItem('trapperreo_user');location.href='index.html'">Logout</a>
+    </div>
+  </div>
+<script>
+document.getElementById('uemail').textContent = (window._user && window._user.email) || '';
+</script>
+</body>
+</html>
