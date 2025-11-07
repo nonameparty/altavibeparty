@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>ALTAVIBE – Evento Privato Biella</title>
+<title>ALTAVIBE – Biella</title>
 <style>
   :root {
     --yellow:#facc15;
@@ -18,9 +18,6 @@
   header nav a{color:#fff;text-decoration:none;margin:0 10px;font-size:14px;}
   header nav a:hover{color:var(--yellow);}
   section{padding:60px 20px;border-top:1px solid rgba(255,255,255,.1);}
-  .hero{display:grid;max-width:1100px;margin:auto;gap:40px;align-items:center;}
-  .hero-text h2{font-size:42px;font-weight:900;}
-  .hero-text span{color:var(--yellow);}
   .btn{display:inline-block;margin-top:20px;padding:12px 20px;background:var(--yellow);color:#000;font-weight:700;border-radius:6px;text-decoration:none;}
   .concept{max-width:1100px;margin:auto;}
   .concept h3{font-size:28px;font-weight:900;margin-bottom:30px;}
@@ -37,8 +34,32 @@
   form input,form select{width:100%;margin-top:4px;margin-bottom:15px;padding:8px;border:none;border-radius:6px;background:#111;color:#fff;}
   form button{background:var(--yellow);color:#000;font-weight:700;border:none;padding:10px 20px;border-radius:6px;cursor:pointer;}
   footer{border-top:1px solid rgba(255,255,255,.1);padding:25px;text-align:center;color:rgba(255,255,255,.6);font-size:14px;}
-  /* poster */
-  .poster {width:100%;max-width:600px;border-radius:12px;display:block;margin:auto;}
+  /* HERO background discoteca */
+  .hero {
+    position: relative;
+    background-image: url('https://images.unsplash.com/photo-1518972559570-0b1adfbf5a3b?q=80&w=1600&auto=format&fit=crop');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    min-height: 80vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .hero-content {
+    background: rgba(0,0,0,0.65);
+    padding: 40px;
+    border-radius: 16px;
+    max-width: 700px;
+    text-align: left;
+  }
+  .hero-content h2{font-size:46px;font-weight:900;line-height:1.1;}
+  .hero-content span{color:var(--yellow);}
+  .hero-content p{margin-top:10px;color:rgba(255,255,255,0.8);}
+  @media(max-width:600px){
+    .hero-content{padding:25px;}
+    .hero-content h2{font-size:32px;}
+  }
 </style>
 </head>
 <body>
@@ -55,13 +76,12 @@
 </header>
 
 <section class="hero" id="home">
-  <div class="hero-text">
+  <div class="hero-content">
     <p>Biella • 21 Marzo 2026</p>
     <h2>La notte <span>che alza l’asticella</span></h2>
     <p>Musica, energia e zero caos alla porta: ingresso solo con prevendita o lista nominativa.</p>
     <a href="#form" class="btn">Prenota ora</a>
   </div>
-  <img src="A_promotional_poster_for_an_event_named_\"ALTAVIBE\".png" alt="Poster ALTAVIBE" class="poster">
 </section>
 
 <section id="concept">
@@ -138,7 +158,7 @@
 </section>
 
 <footer>
-  © 2025 ALTAVIBE • Evento privato – Biella
+  © 2025 ALTAVIBE • Biella
 </footer>
 
 </body>
