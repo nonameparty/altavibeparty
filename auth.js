@@ -1,10 +1,9 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-app.js";
 import {
-  getAuth, onAuthStateChanged,
+  getAuth, onAuthStateChanged, updateProfile,
   signInWithEmailAndPassword, createUserWithEmailAndPassword,
   sendPasswordResetEmail, signOut
 } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-auth.js";
-
 const firebaseConfig = {
   apiKey: "AIzaSyDF6BiYXreDirGnT3RPkGwDNlwj5ploUyo",
   authDomain: "trappereo.firebaseapp.com",
@@ -30,4 +29,27 @@ export function requireAuth(redirect="login.html"){
             location.href=`${redirect}?from=${back}`; }
     else res(u);
   }));
+  // Salva displayName nell'utente (nome visibile)
+export async function setDisplayName(user, fullName){
+  if(!user) return;
+  try{ await updateProfile(user, { displayName: fullName }); }catch(_){}
+}
+
+// Salva DOB localmente (per ora, senza Firestore)
+export function saveDOB(uid, dobISO){
+  if(!uid || !dobISO) return;
+  localStorage.setItem(`trapperreo_profile_${uid}`, JSON.stringify({ dob: dobISO }));
+}
+export function loadProfile(uid){
+  try{ return JSON.parse(localStorage.getItem(`trapperreo_profile_${uid}`) || "null"); }catch{return null}
+}
+
+// Utility per età
+export function calcAge(dobISO){
+  const d=new Date(dobISO); const t=new Date();
+  let a=t.getFullYear()-d.getFullYear();
+  const m=t.getMonth()-d.getMonth();
+  if(m<0 || (m===0 && t.getDate()<d.getDate())) a--;
+  return a;
+}
 }
