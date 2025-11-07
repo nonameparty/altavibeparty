@@ -105,8 +105,21 @@ footer{padding:0;border-top:1px solid rgba(255,255,255,.08);}
 <header>
   <div class="nav">
     <div class="brand"><div class="brand-badge"></div><div>TRAPPERREO</div></div>
-<nav>
-  <a href="login.html?from=checkout.html">Acquista il tuo biglietto</a>
+<nav style="display:flex;align-items:center;gap:16px">
+  <a href="/login.html?from=%2Fcheckout.html">Acquista il tuo biglietto</a>
+  <span style="opacity:.4">|</span>
+  <span id="userArea">
+    <span style="display:inline-flex;align-items:center;gap:6px">
+      <!-- omino -->
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="#fff" aria-hidden="true">
+        <circle cx="12" cy="8" r="4"></circle>
+        <path d="M4 20c0-4 4-6 8-6s8 2 8 6" fill="none" stroke="#fff" stroke-width="2"/>
+      </svg>
+      <a id="loginLink" href="/login.html">Accedi</a>
+      <span>/</span>
+      <a id="signupLink" href="/signup.html">Registrati</a>
+    </span>
+  </span>
 </nav>
   </div>
 </header>
@@ -295,6 +308,27 @@ document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
 document.querySelectorAll('.faq-q').forEach(btn=>{
   btn.addEventListener('click', ()=>btn.parentElement.classList.toggle('open'));
 });
+</script>
+  <script type="module" src="auth.js"></script>
+<script type="module">
+  import { onUser, doSignOut } from './auth.js';
+  onUser((u)=>{
+    const area = document.getElementById('userArea');
+    if(!area) return;
+    if(u){
+      const name = u.displayName || (u.email ? u.email.split('@')[0] : 'utente');
+      area.innerHTML = `
+        <span style="display:inline-flex;align-items:center;gap:8px">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="#fff"><circle cx="12" cy="8" r="4"></circle><path d="M4 20c0-4 4-6 8-6s8 2 8 6" fill="none" stroke="#fff" stroke-width="2"/></svg>
+          <span>Ciao <strong>${name}</strong></span>
+          <a href="/checkout.html" class="btn" style="padding:6px 10px;border-radius:8px">Vai al checkout</a>
+          <a href="#" id="logoutLink" style="color:#8b5cf6">Logout</a>
+        </span>`;
+      document.getElementById('logoutLink')?.addEventListener('click', async (e)=>{
+        e.preventDefault(); await doSignOut(); location.reload();
+      });
+    }
+  });
 </script>
 </body>
 </html>
