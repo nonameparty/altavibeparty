@@ -1,4 +1,3 @@
-// ======= Firebase SDK (modular CDN v12.5.0) =======
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-app.js";
 import {
   getAuth, onAuthStateChanged,
@@ -6,7 +5,6 @@ import {
   sendPasswordResetEmail, signOut
 } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-auth.js";
 
-// === Configurazione del tuo progetto Firebase ===
 const firebaseConfig = {
   apiKey: "AIzaSyDF6BiYXreDirGnT3RPkGwDNlwj5ploUyo",
   authDomain: "trappereo.firebaseapp.com",
@@ -16,36 +14,20 @@ const firebaseConfig = {
   appId: "1:767231932063:web:b1431de1c04bbe5dc0d4aa",
   measurementId: "G-BDBRZQ6J8S"
 };
-// ===============================================
 
 const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
 
-// --- Funzioni di autenticazione ---
-export async function emailSignUp(email, password) {
-  return await createUserWithEmailAndPassword(auth, email, password);
-}
-export async function emailSignIn(email, password) {
-  return await signInWithEmailAndPassword(auth, email, password);
-}
-export async function sendReset(email) {
-  return await sendPasswordResetEmail(auth, email);
-}
-export async function doSignOut() {
-  return await signOut(auth);
-}
-export function onUser(cb) {
-  return onAuthStateChanged(auth, cb);
-}
-
-// --- Protezione per pagine private ---
-export function requireAuth(redirectTo = "login.html") {
-  return new Promise((resolve) => {
-    onAuthStateChanged(auth, (user) => {
-      if (!user) {
-        const back = encodeURIComponent(location.pathname + location.search);
-        location.href = `${redirectTo}?from=${back}`;
-      } else resolve(user);
-    });
-  });
+// exports usati nei tuoi HTML
+export async function emailSignUp(e,p){ return createUserWithEmailAndPassword(auth,e,p); }
+export async function emailSignIn(e,p){ return signInWithEmailAndPassword(auth,e,p); }
+export async function sendReset(e){ return sendPasswordResetEmail(auth,e); }
+export async function doSignOut(){ return signOut(auth); }
+export function onUser(cb){ return onAuthStateChanged(auth, cb); }
+export function requireAuth(redirect="login.html"){
+  return new Promise(res=>onAuthStateChanged(auth,u=>{
+    if(!u){ const back=encodeURIComponent(location.pathname+location.search);
+            location.href=`${redirect}?from=${back}`; }
+    else res(u);
+  }));
 }
