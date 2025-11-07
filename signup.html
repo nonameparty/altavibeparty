@@ -48,7 +48,7 @@ $('#signUpBtn').addEventListener('click', async ()=>{
     const pwd=$('#password').value;
     await emailSignUp(email,pwd);
     const dest=getParam('from')||'checkout.html';
-    location.href=dest;
+    location.assign(dest);
   }catch(e){
     $('#err').textContent=e.message;$('#err').style.display='block';
   }
