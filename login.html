@@ -35,7 +35,17 @@ a{color:var(--accent);text-decoration:none;}
   <button id="loginBtn">Entra</button>
 
   <div class="row" style="margin-top:12px">
-    <a href="#" id="forgot">Password dimenticata?</a>
+   <a href="#" id="forgotToggle">Password dimenticata?</a>
+</div>
+<div id="resetBox" style="display:none;margin-top:12px;background:#111;padding:12px;border-radius:10px;border:1px solid rgba(255,255,255,.15)">
+  <label>Email per il reset</label>
+  <input id="resetEmail" type="email" placeholder="tuo@email.it">
+  <button id="resetBtn" style="margin-top:6px">Invia email di reset</button>
+  <div id="resetMsg" class="success" style="display:none;margin-top:10px"></div>
+  <div id="resetErr" class="error" style="display:none;margin-top:10px"></div>
+</div>
+<div class="row" style="margin-top:8px">
+  <a href="index.html">← Torna al sito</a>
     <a href="signup.html">Non hai un account? Registrati</a>
   </div>
   <div class="row" style="margin-top:8px">
@@ -62,15 +72,26 @@ $('#loginBtn').addEventListener('click', async ()=>{
   }
 });
 
-$('#forgot').addEventListener('click', async (e)=>{
+import { emailSignIn, sendReset } from './auth.js';
+const $=(q)=>document.querySelector(q);
+function getParam(n){ return new URLSearchParams(location.search).get(n) }
+
+$('#forgotToggle').addEventListener('click', (e)=>{
   e.preventDefault();
-  const email=prompt("Inserisci l'email per il reset:");
-  if(!email)return;
+  const box = $('#resetBox'); box.style.display = (box.style.display === 'none' ? 'block' : 'none');
+});
+
+$('#resetBtn').addEventListener('click', async ()=>{
+  $('#resetErr').style.display='none'; $('#resetMsg').style.display='none';
   try{
-    await sendReset(email);
-    $('#msg').textContent="Email di reset inviata. Controlla la tua casella.";$('#msg').style.display='block';
-  }catch(e2){
-    $('#err').textContent=e2.message;$('#err').style.display='block';
+    const em = $('#resetEmail').value.trim();
+    if(!em) throw Error("Inserisci l'email.");
+    await sendReset(em);
+    $('#resetMsg').textContent = "Email di reset inviata. Controlla la tua casella.";
+    $('#resetMsg').style.display='block';
+  }catch(e){
+    $('#resetErr').textContent = e.message;
+    $('#resetErr').style.display='block';
   }
 });
 </script>
