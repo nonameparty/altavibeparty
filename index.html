@@ -6,6 +6,7 @@
 <title>TRAPPERREO — Biella</title>
 <meta name="description" content="TRAPPERREO • Trap & Reggaeton Club Night a Biella.">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' fill='black'/%3E%3Ctext x='50%25' y='50%25' dy='.35em' text-anchor='middle' font-size='28' fill='%238b5cf6' font-family='Arial, Helvetica, sans-serif'%3ETR%3C/text%3E%3C/svg%3E">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&display=swap" rel="stylesheet">
 <style>
 :root{--accent:#8b5cf6;--accent-weak:rgba(139,92,246,.12);--bg:#000;--text:#fff}
 *{box-sizing:border-box;margin:0;padding:0}
@@ -21,7 +22,10 @@ nav a, nav span{color:#fff;text-decoration:none;margin-left:18px;font-size:14px;
 nav a:hover{color:var(--accent)}
 /* HERO */
 .hero{min-height:95vh;display:flex;align-items:center;justify-content:center;color:#fff;
-background-image:radial-gradient(60% 60% at 50% 40%, rgba(139,92,246,.18), transparent 60%),linear-gradient(rgba(0,0,0,.55),rgba(0,0,0,.72)),url('https://images.unsplash.com/photo-1514525253161-7a46d19cd819?q=80&w=2000&auto=format&fit=crop');background-size:cover;background-position:center;background-attachment:fixed}
+background-image:radial-gradient(60% 60% at 50% 40%, rgba(139,92,246,.18), transparent 60%),
+linear-gradient(rgba(0,0,0,.55),rgba(0,0,0,.72)),
+url('https://images.unsplash.com/photo-1514525253161-7a46d19cd819?q=80&w=2000&auto=format&fit=crop');
+background-size:cover;background-position:center;background-attachment:fixed}
 .hero-inner{text-align:left;width:min(90%,900px)}
 .kicker{opacity:.9;margin-bottom:10px;font-size:15px;letter-spacing:.5px;text-transform:uppercase}
 h1{font-size:clamp(40px,6vw,72px);line-height:1.05;font-weight:900}
@@ -60,7 +64,6 @@ footer{padding:0;border-top:1px solid rgba(255,255,255,.08)}
 .footer-legal a{color:rgba(255,255,255,.85);text-decoration:none}
 .footer-legal a:hover{color:#fff}
 </style>
-<link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&display=swap" rel="stylesheet">
 </head>
 <body>
 
@@ -68,10 +71,10 @@ footer{padding:0;border-top:1px solid rgba(255,255,255,.08)}
   <div class="nav">
     <div class="brand"><div class="brand-badge"></div><div>TRAPPERREO</div></div>
     <nav id="navArea">
-      <!-- out UI di fallback -->
-      <a href="/login.html?from=%2Fcheckout.html">Acquista il tuo biglietto</a>
-      <a href="/login.html">Accedi</a>
-      <a href="/signup.html">Registrati</a>
+      <!-- fallback non loggato -->
+      <a href="./login.html?from=./checkout.html">Acquista il tuo biglietto</a>
+      <a href="./login.html">Accedi</a>
+      <a href="./signup.html">Registrati</a>
     </nav>
   </div>
 </header>
@@ -81,7 +84,7 @@ footer{padding:0;border-top:1px solid rgba(255,255,255,.08)}
     <div class="kicker">Biella • Trap & Reggaeton</div>
     <h1>TRAPPERREO — <span class="accent">La notte</span> che accende la città</h1>
     <p>Trap, reggaeton e latin vibes. Accesso con prevendita. Energia pura fino all’alba.</p>
-    <a class="btn" id="ctaBuy" href="/login.html?from=%2Fcheckout.html">Acquista il tuo biglietto</a>
+    <a class="btn" id="ctaBuy" href="./login.html?from=./checkout.html">Acquista il tuo biglietto</a>
   </div>
 </section>
 
@@ -89,14 +92,17 @@ footer{padding:0;border-top:1px solid rgba(255,255,255,.08)}
   <div class="container">
     <h2>Prossimo evento</h2>
     <div class="event-card">
-      <div><h3 style="font-size:26px;font-weight:900;margin-bottom:6px;">TRAPPERREO – Opening Night</h3><p class="lead">Trap & reggaeton all night. Stage, laser, visual.</p></div>
+      <div>
+        <h3 style="font-size:26px;font-weight:900;margin-bottom:6px;">TRAPPERREO – Opening Night</h3>
+        <p class="lead">Trap & reggaeton all night. Stage, laser, visual.</p>
+      </div>
       <div class="event-meta">
         <div class="meta-box"><div class="meta-k">Data</div><div class="meta-v">Sabato 21 Marzo 2026</div></div>
         <div class="meta-box"><div class="meta-k">Orario</div><div class="meta-v">22:30 → 04:30</div></div>
         <div class="meta-box"><div class="meta-k">Location</div><div class="meta-v">Via Italia 38, Biella</div></div>
       </div>
       <div style="display:flex;gap:12px;flex-wrap:wrap">
-        <a class="btn" id="btnBuy2" href="/login.html?from=%2Fcheckout.html">Acquista il tuo biglietto</a>
+        <a class="btn" id="btnBuy2" href="./login.html?from=./checkout.html">Acquista il tuo biglietto</a>
         <a class="btn outline" href="#faq">Domande frequenti</a>
       </div>
     </div>
@@ -122,40 +128,59 @@ footer{padding:0;border-top:1px solid rgba(255,255,255,.08)}
     <div class="fcol"><h4>Legale</h4><a href="#">Privacy Policy</a><a href="#">Terms & Conditions</a><a href="#">Change privacy settings</a></div>
   </div>
   <div class="footer-legal">
-    <div class="wrap"><div><strong>TRAPPERREO S.r.l. a socio unico</strong> — (esempio)</div><div>Via Esempio 10, 13900 Biella (BI) — CF/P.IVA: 12345678901 — REA: BI-000000</div><div>PEC: trapperreo@legalmail.it</div></div>
+    <div class="wrap">
+      <div><strong>TRAPPERREO S.r.l. a socio unico</strong> — (esempio)</div>
+      <div>Via Esempio 10, 13900 Biella (BI) — CF/P.IVA: 12345678901 — REA: BI-000000</div>
+      <div>PEC: trapperreo@legalmail.it</div>
+    </div>
   </div>
 </footer>
 
-<!-- Navbar dinamica + CTA smart -->
+<!-- Navbar dinamica + CTA con Firebase (riuso di auth.v2.js) -->
 <script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-app.js";
-import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-auth.js";
-const firebaseConfig={apiKey:"AIzaSyDF6BiYXreDirGnT3RPkGwDNlwj5ploUyo",authDomain:"trappereo.firebaseapp.com",projectId:"trappereo",storageBucket:"trappereo.firebasestorage.app",messagingSenderId:"767231932063",appId:"1:767231932063:web:b1431de1c04bbe5dc0d4aa",measurementId:"G-BDBRZQ6J8S"};
-const app=initializeApp(firebaseConfig); const auth=getAuth(app);
+import { onUser, doSignOut } from './auth.v2.js?v=3';
 
-const nav=document.getElementById('navArea');
-const cta=document.getElementById('ctaBuy');
-const cta2=document.getElementById('btnBuy2');
+const nav  = document.getElementById('navArea');
+const cta1 = document.getElementById('ctaBuy');
+const cta2 = document.getElementById('btnBuy2');
 
-const outUI=`<a href="/login.html?from=%2Fcheckout.html">Acquista il tuo biglietto</a><a href="/login.html">Accedi</a><a href="/signup.html">Registrati</a>`;
-function inUI(u){const name=u.displayName||(u.email?u.email.split('@')[0]:'Utente');return `<span>👋 Ciao, ${name.split(' ')[0]}</span><a href="/checkout.html">Vai al checkout</a><a href="#" id="logoutLink" style="color:#8b5cf6">Logout</a>`}
+const OUT = `
+  <a href="./login.html?from=./checkout.html">Acquista il tuo biglietto</a>
+  <a href="./login.html">Accedi</a>
+  <a href="./signup.html">Registrati</a>
+`;
+const IN = (u) => {
+  const name = (u.displayName || (u.email ? u.email.split('@')[0] : 'Utente')).split(' ')[0];
+  return `
+    <span>👋 Ciao, ${name}</span>
+    <a href="./checkout.html">Vai al checkout</a>
+    <a href="#" id="logoutLink" style="color:#8b5cf6">Logout</a>
+  `;
+};
 
-onAuthStateChanged(auth,(u)=>{
+onUser((u)=>{
   if(!u){
-    nav.innerHTML=outUI;
-    cta.href="/login.html?from=%2Fcheckout.html";
-    cta2.href="/login.html?from=%2Fcheckout.html";
+    nav.innerHTML = OUT;
+    cta1.href = "./login.html?from=./checkout.html";
+    cta2.href = "./login.html?from=./checkout.html";
   }else{
-    nav.innerHTML=inUI(u);
-    cta.href="/checkout.html";
-    cta2.href="/checkout.html";
-    document.getElementById('logoutLink')?.addEventListener('click',async e=>{e.preventDefault();await signOut(auth);nav.innerHTML=outUI;cta.href="/login.html?from=%2Fcheckout.html";cta2.href="/login.html?from=%2Fcheckout.html";});
+    nav.innerHTML = IN(u);
+    cta1.href = "./checkout.html";
+    cta2.href = "./checkout.html";
+    document.getElementById('logoutLink')?.addEventListener('click', async (e)=>{
+      e.preventDefault();
+      await doSignOut();
+      nav.innerHTML = OUT;
+      cta1.href = "./login.html?from=./checkout.html";
+      cta2.href = "./login.html?from=./checkout.html";
+    });
   }
 });
 
 // FAQ toggle
-document.querySelectorAll('.faq-q').forEach(btn=>btn.addEventListener('click',()=>btn.parentElement.classList.toggle('open')));
+document.querySelectorAll('.faq-q').forEach(btn =>
+  btn.addEventListener('click',()=>btn.parentElement.classList.toggle('open'))
+);
 </script>
-<link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&display=swap" rel="stylesheet">
 </body>
 </html>
