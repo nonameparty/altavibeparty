@@ -2,63 +2,84 @@
 <html lang="it">
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Checkout — TRAPPERREO</title>
+<title>Accedi — TRAPPERREO</title>
 <style>
-:root{--accent:#8b5cf6;--bg:#000;--text:#fff}
+:root{ --accent:#8b5cf6; --bg:#000; --text:#fff; }
 *{box-sizing:border-box;margin:0;padding:0}
 body{background:var(--bg);color:var(--text);font-family:Arial,Helvetica,sans-serif;line-height:1.5;min-height:100vh;display:grid;place-items:center}
-.card{width:min(92%,520px);background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);border-radius:16px;padding:26px}
-h1{font-size:24px;font-weight:900;margin-bottom:8px}
-.row{display:flex;justify-content:space-between;gap:12px;margin-top:14px;flex-wrap:wrap}
-.badge{border:1px solid rgba(255,255,255,.25);border-radius:8px;padding:8px 10px;background:rgba(255,255,255,.06)}
-.btn{display:inline-block;padding:12px 16px;border:none;border-radius:10px;background:var(--accent);color:#000;font-weight:900;text-decoration:none;cursor:pointer}
-.link{color:var(--accent);text-decoration:none}
+.card{width:min(92%,420px);background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);border-radius:16px;padding:26px}
+h1{font-size:26px;font-weight:900;margin-bottom:6px}
+p.muted{color:rgba(255,255,255,.75);margin-bottom:18px}
+label{font-size:13px;color:rgba(255,255,255,.75)}
+input{width:100%;margin-top:6px;margin-bottom:14px;padding:12px;border:none;border-radius:10px;background:#111;color:#fff}
+button{width:100%;padding:12px 16px;border:none;border-radius:10px;background:var(--accent);color:#000;font-weight:900;cursor:pointer}
+button:disabled{opacity:.6;cursor:not-allowed}
+a{color:var(--accent);text-decoration:none}
+.row{display:flex;justify-content:space-between;align-items:center;margin-top:10px}
+.error{background:#2a0e0e;border:1px solid #ff6b6b;color:#ffdede;padding:10px;border-radius:10px;margin-bottom:12px;display:none}
+.brand{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+.badge{width:22px;height:22px;background:var(--accent);transform:skew(-6deg);border-radius:3px}
+footer{position:fixed;bottom:10px;left:0;right:0;text-align:center;color:rgba(255,255,255,.55);font-size:12px}
 </style>
-<script>
-  // Guard: obbliga il login
-  (function(){
-    try{
-      const u = JSON.parse(localStorage.getItem("trapperreo_user")||"null");
-      if(!u){ location.href = "login.html?from=checkout.html"; }
-      window._user = u;
-    }catch(_){
-      location.href = "login.html?from=checkout.html";
-    }
-  })();
-</script>
 </head>
 <body>
-  <div class="card">
-    <h1>Checkout TRAPPERREO</h1>
-    <div>Accesso come: <strong id="uemail"></strong></div>
 
-    <div class="row">
-      <div class="badge">Data: Sab 21 Mar 2026</div>
-      <div class="badge">Orario: 22:30 → 04:30</div>
-      <div class="badge">Location: Via Italia 38, Biella</div>
-      <div class="badge">Ticket: Standard • 15€</div>
-    </div>
+<div class="card">
+  <div class="brand"><div class="badge"></div><strong>TRAPPERREO</strong></div>
+  <h1>Accedi</h1>
+  <p class="muted">Entra per acquistare il tuo biglietto.</p>
 
-    <div class="row" style="margin-top:18px">
-      <a class="btn" href="#">Procedi al pagamento</a>
-      <a class="link" href="#" onclick="localStorage.removeItem('trapperreo_user');location.href='index.html'">Logout</a>
-    </div>
+  <div id="err" class="error"></div>
 
-    <div style="opacity:.8;margin-top:16px">Paga con</div>
-    <div class="row">
-      <!-- loghi semplificati -->
-      <span class="badge">VISA</span>
-      <span class="badge">Mastercard</span>
-      <span class="badge">PayPal</span>
-      <span class="badge">Satispay</span>
-      <span class="badge">Apple Pay</span>
-      <span class="badge">Google Pay</span>
-    </div>
+  <label>Email</label>
+  <input id="email" type="email" placeholder="tuo@email.it" required>
+
+  <label>Password</label>
+  <input id="password" type="password" placeholder="Minimo 6 caratteri" required>
+
+  <button id="loginBtn">Entra</button>
+
+  <div class="row">
+    <a href="#" id="forgot">Password dimenticata?</a>
+    <a href="index.html">← Torna al sito</a>
   </div>
+</div>
+
+<footer>Demo login lato-client (non usare in produzione)</footer>
 
 <script>
-  // mostra email utente
-  document.getElementById('uemail').textContent = (window._user && window._user.email) || '';
+// util
+function qs(q){return document.querySelector(q)}
+function getParam(name){return new URLSearchParams(location.search).get(name)}
+
+// fake sign-in
+function demoSignIn(email, pwd){
+  if(!email || !/^\S+@\S+\.\S+$/.test(email)) throw Error("Inserisci un'email valida.")
+  if(!pwd || pwd.length < 6) throw Error("La password deve avere almeno 6 caratteri.")
+  const user = { email, ts: Date.now() }
+  localStorage.setItem("trapperreo_user", JSON.stringify(user))
+  return user
+}
+
+qs("#loginBtn").addEventListener("click", ()=>{
+  const email = qs("#email").value.trim()
+  const pwd   = qs("#password").value
+  const errEl = qs("#err")
+  errEl.style.display = "none"
+  try{
+    demoSignIn(email, pwd)
+    const dest = getParam("from") || "index.html"
+    location.href = dest
+  }catch(e){
+    errEl.textContent = e.message
+    errEl.style.display = "block"
+  }
+})
+
+qs("#forgot").addEventListener("click",(e)=>{
+  e.preventDefault()
+  alert("Demo: in produzione invieremmo una mail di reset password.")
+})
 </script>
 </body>
 </html>
