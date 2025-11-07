@@ -68,14 +68,14 @@ input{width:100%;margin-top:6px;margin-bottom:14px;padding:12px;border:none;bord
   </div>
 </div>
 
+<!-- Script unico: importa le funzioni dall'auth v2 (cache-buster) -->
 <script type="module">
-import { emailSignUp, setDisplayName, saveDOB, calcAge } from '/auth.js';
+import { emailSignUp, setDisplayName, saveDOB, calcAge } from '/auth.v2.js?v=3';
 
 const getParam = (n)=> new URLSearchParams(location.search).get(n);
 const $ = (q)=>document.querySelector(q);
 
-// DEBUG: così vediamo subito se il modulo è caricato
-console.log('signup.js loaded — functions:', {
+console.log('signup.js loaded —', {
   emailSignUp: typeof emailSignUp,
   setDisplayName: typeof setDisplayName,
   saveDOB: typeof saveDOB,
@@ -105,9 +105,7 @@ document.getElementById('signUpBtn').addEventListener('click', async (e)=>{
     const age = calcAge(dob);
     if(age < 16) throw new Error("Età minima 16 anni.");
 
-    // DEBUG clic
-    console.log('signup click OK, calling emailSignUp', {email});
-
+    console.log('CREO UTENTE…', email);
     const cred = await emailSignUp(email, pwd);
     const user = cred.user;
 
