@@ -1,10 +1,10 @@
-// ======= Firebase SDK (modular CDN) =======
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+// ======= Firebase SDK (modular CDN v12.5.0) =======
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-app.js";
 import {
   getAuth, onAuthStateChanged,
   signInWithEmailAndPassword, createUserWithEmailAndPassword,
   sendPasswordResetEmail, signOut
-} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+} from "https://www.gstatic.com/firebasejs/12.5.0/firebase-auth.js";
 
 // === Configurazione del tuo progetto Firebase ===
 const firebaseConfig = {
