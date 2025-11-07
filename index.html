@@ -7,9 +7,8 @@
 <meta name="description" content="TRAPPERREO • Trap & Reggaeton Club Night a Biella.">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' fill='black'/%3E%3Ctext x='50%25' y='50%25' dy='.35em' text-anchor='middle' font-size='28' fill='%238b5cf6' font-family='Arial, Helvetica, sans-serif'%3ETR%3C/text%3E%3C/svg%3E">
 <style>
-/* === THEME === */
 :root{
-  --accent:#8b5cf6;        /* viola */
+  --accent:#8b5cf6;  /* viola */
   --accent-weak: rgba(139,92,246,.12);
   --bg:#000; --text:#fff;
 }
@@ -51,12 +50,6 @@ section{padding:72px 20px;border-top:1px solid rgba(255,255,255,.08);}
 h2{font-size:32px;font-weight:900;margin-bottom:18px;}
 .lead{color:rgba(255,255,255,.78);max-width:760px;}
 
-/* CARDS */
-.grid{display:grid;grid-template-columns:repeat(12,1fr);gap:18px;margin-top:26px;}
-.card{grid-column:span 12;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);
-  border-radius:14px;padding:20px;}
-@media(min-width:720px){.card{grid-column:span 4;}}
-
 /* EVENTO */
 .event-card{
   background:linear-gradient(180deg, var(--accent-weak), rgba(255,255,255,.04));
@@ -69,17 +62,7 @@ h2{font-size:32px;font-weight:900;margin-bottom:18px;}
 .meta-v{font-weight:900;margin-top:6px;}
 @media(max-width:720px){.event-meta{grid-template-columns:1fr;}}
 
-/* PARTNER / BRAND GRID */
-.logo-grid{display:grid;grid-template-columns:repeat(12,1fr);gap:18px;margin-top:24px;}
-.logo-card{
-  grid-column:span 12;background:#0a0a0a;border:2px solid rgba(255,255,255,.2);border-radius:14px;
-  height:120px;display:flex;align-items:center;justify-content:center;position:relative;
-}
-.logo-card small{opacity:.5}
-.logo-card .ext{position:absolute;right:10px;top:10px;border:1px solid rgba(255,255,255,.35);border-radius:6px;padding:2px 4px;font-size:12px;opacity:.7}
-@media(min-width:680px){.logo-card{grid-column:span 3;}}
-
-/* BANNER “senza sbatti” */
+/* BANNER “zero sbatti” */
 .banner-grid{display:grid;grid-template-columns:repeat(12,1fr);gap:18px;margin-top:18px;}
 .banner{
   grid-column:span 12;background:var(--accent);color:#000;border-radius:16px;padding:22px;border:3px solid #000;
@@ -96,8 +79,8 @@ h2{font-size:32px;font-weight:900;margin-bottom:18px;}
 .faq-item.open .faq-a{display:block}
 
 /* PAY METHODS */
-.pay{display:flex;gap:12px;flex-wrap:wrap;margin-top:10px}
-.badge{border:1px solid rgba(255,255,255,.35);border-radius:8px;padding:8px 12px;background:rgba(255,255,255,.06);}
+.pay{display:flex;gap:14px;flex-wrap:wrap;margin-top:10px;align-items:center}
+.pay svg{height:26px;background:#0a0a0a;border:1px solid rgba(255,255,255,.18);border-radius:8px;padding:6px}
 
 /* REVEAL */
 .reveal{opacity:0;transform:translateY(22px);transition:all .7s ease;}
@@ -111,7 +94,6 @@ footer{padding:0;border-top:1px solid rgba(255,255,255,.08);}
 .fcol a{display:block;color:rgba(255,255,255,.78);text-decoration:none;margin:5px 0}
 .fcol a:hover{color:#fff}
 @media(min-width:900px){.fcol{grid-column:span 3}}
-
 .footer-legal{background:#080808;border-top:1px solid rgba(255,255,255,.08);padding:20px 20px;color:rgba(255,255,255,.65);font-size:13px}
 .footer-legal .wrap{max-width:1200px;margin:auto}
 .footer-legal a{color:rgba(255,255,255,.85);text-decoration:none}
@@ -124,10 +106,7 @@ footer{padding:0;border-top:1px solid rgba(255,255,255,.08);}
   <div class="nav">
     <div class="brand"><div class="brand-badge"></div><div>TRAPPERREO</div></div>
     <nav>
-      <a href="#about">Concept</a>
-      <a href="#event">Evento</a>
-      <a href="#partners">Partner</a>
-      <a href="#faq">FAQ</a>
+      <a href="#event">Acquista il tuo biglietto</a>
     </nav>
   </div>
 </header>
@@ -138,19 +117,29 @@ footer{padding:0;border-top:1px solid rgba(255,255,255,.08);}
     <div class="kicker">Biella • Trap & Reggaeton</div>
     <h1>TRAPPERREO — <span class="accent">La notte</span> che accende la città</h1>
     <p>Trap, reggaeton e latin vibes. Accesso con prevendita. Energia pura fino all’alba.</p>
-    <a class="btn" href="#event">Acquista il tuo ticket</a>
+    <a class="btn" href="#event">Acquista il tuo biglietto</a>
   </div>
 </section>
 
-<!-- ABOUT -->
-<section id="about">
+<!-- PERCHE' PRENOTARE (versione discoteca) -->
+<section id="why">
   <div class="container">
-    <h2 class="reveal">Il Concept</h2>
-    <p class="lead reveal">TRAPPERREO unisce la cultura trap con la carica del reggaeton: un party urbano, visual potenti e sound system da club vero.</p>
-    <div class="grid" style="margin-top:26px;">
-      <div class="card reveal"><strong>Stage</strong><br>Luci, LED wall, laser show, DJ e artisti trap & latin.</div>
-      <div class="card reveal"><strong>Energy</strong><br>Folla, ballo e ritmo: la notte che trasforma la città.</div>
-      <div class="card reveal"><strong>Esperienza</strong><br>Ingresso rapido, ambiente curato, vibe internazionale.</div>
+    <h2 class="reveal">Perché prenotare con TRAPPERREO</h2>
+    <div class="reveal lead" style="margin-bottom:18px">La formula club pensata per te: paghi in modo flessibile, vivi la serata senza pensieri e te la godi davvero.</div>
+    <div class="event-card reveal">
+      <div>
+        <h3 style="font-size:22px;font-weight:900;margin-bottom:6px;">Paga in 3 rate e stai nel chill</h3>
+        <p>Usa Scalapay per pagare in 3 rate. Pochi click e hai già il tuo ingresso confermato.</p>
+        <a class="btn outline" href="#">Leggi qui i dettagli</a>
+      </div>
+      <div>
+        <h3 style="font-size:22px;font-weight:900;margin-bottom:6px;">Programma non obbligatorio</h3>
+        <p>La serata è tua: balla, socializza, prendi aria—nessuno ti impone attività. L’esperienza è libera e fluida.</p>
+      </div>
+      <div>
+        <h3 style="font-size:22px;font-weight:900;margin-bottom:6px;">Esperienza di vita</h3>
+        <p>Conosci persone della tua età, vivi un club vero, ricordi che restano. Che tu venga con la crew o da solo, sarai nel posto giusto.</p>
+      </div>
     </div>
   </div>
 </section>
@@ -162,7 +151,7 @@ footer{padding:0;border-top:1px solid rgba(255,255,255,.08);}
     <div class="event-card reveal">
       <div>
         <h3 style="font-size:26px;font-weight:900;margin-bottom:6px;">TRAPPERREO – Opening Night</h3>
-        <p class="lead">La notte trap & reggaeton di Biella. Special guest + local heroes.</p>
+        <p class="lead">Trap & reggaeton all night. Stage, laser, visual.</p>
       </div>
       <div class="event-meta">
         <div class="meta-box"><div class="meta-k">Data</div><div class="meta-v">Sabato 21 Marzo 2026</div></div>
@@ -170,69 +159,69 @@ footer{padding:0;border-top:1px solid rgba(255,255,255,.08);}
         <div class="meta-box"><div class="meta-k">Location</div><div class="meta-v">Via Italia 38, Biella</div></div>
       </div>
       <div style="display:flex;gap:12px;flex-wrap:wrap">
-        <a class="btn" href="#">Acquista il tuo ticket</a>
+        <a class="btn" href="#">Acquista il tuo biglietto</a>
         <a class="btn outline" href="#faq">Domande frequenti</a>
       </div>
       <div>
-        <div style="opacity:.8">Paga con</div>
+        <div style="opacity:.85;margin-bottom:6px">Paga con</div>
         <div class="pay">
-          <span class="badge">VISA</span><span class="badge">Mastercard</span>
-          <span class="badge">PayPal</span><span class="badge">Satispay</span>
-          <span class="badge">Apple Pay</span><span class="badge">Google Pay</span>
+          <!-- VISA -->
+          <svg viewBox="0 0 64 24" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Visa">
+            <rect width="64" height="24" rx="8" fill="#0a0a0a"/>
+            <text x="10" y="16" font-size="12" font-weight="800" fill="#1a73e8" font-family="Arial">VISA</text>
+          </svg>
+          <!-- Mastercard -->
+          <svg viewBox="0 0 64 24" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Mastercard">
+            <rect width="64" height="24" rx="8" fill="#0a0a0a"/>
+            <circle cx="28" cy="12" r="7" fill="#eb001b"/>
+            <circle cx="36" cy="12" r="7" fill="#f79e1b" opacity=".9"/>
+          </svg>
+          <!-- PayPal -->
+          <svg viewBox="0 0 64 24" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="PayPal">
+            <rect width="64" height="24" rx="8" fill="#0a0a0a"/>
+            <text x="10" y="16" font-size="12" font-weight="800" fill="#003087" font-family="Arial">Pay</text>
+            <text x="34" y="16" font-size="12" font-weight="800" fill="#009cde" font-family="Arial">Pal</text>
+          </svg>
+          <!-- Satispay (semplificato) -->
+          <svg viewBox="0 0 64 24" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Satispay">
+            <rect width="64" height="24" rx="8" fill="#0a0a0a"/>
+            <path d="M14 8 l6 4 -6 4 2-4z" fill="#ff2e2e"/>
+            <text x="28" y="16" font-size="12" font-weight="800" fill="#ff2e2e" font-family="Arial">Satispay</text>
+          </svg>
+          <!-- Apple Pay -->
+          <svg viewBox="0 0 64 24" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Apple Pay">
+            <rect width="64" height="24" rx="8" fill="#0a0a0a"/>
+            <circle cx="14" cy="12" r="5" fill="#fff"/>
+            <rect x="12" y="6" width="5" height="3" rx="1.5" fill="#fff"/>
+            <text x="26" y="16" font-size="12" font-weight="800" fill="#fff" font-family="Arial">Pay</text>
+          </svg>
+          <!-- Google Pay -->
+          <svg viewBox="0 0 64 24" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Google Pay">
+            <rect width="64" height="24" rx="8" fill="#0a0a0a"/>
+            <circle cx="14" cy="12" r="5" fill="#34a853"/>
+            <circle cx="18" cy="12" r="5" fill="#fbbc05"/>
+            <circle cx="22" cy="12" r="5" fill="#ea4335"/>
+            <text x="30" y="16" font-size="12" font-weight="800" fill="#fff" font-family="Arial">Pay</text>
+          </svg>
         </div>
       </div>
     </div>
   </div>
 </section>
 
-<!-- PARTNER -->
-<section id="partners">
-  <div class="container">
-    <h2 class="reveal">I nostri partner</h2>
-    <div class="logo-grid">
-      <!-- placeholder vuoti: sostituisci l'interno con <img src="..." /> quando avrai i loghi -->
-      <div class="logo-card reveal"><small>Logo partner</small><div class="ext">↗</div></div>
-      <div class="logo-card reveal"><small>Logo partner</small><div class="ext">↗</div></div>
-      <div class="logo-card reveal"><small>Logo partner</small><div class="ext">↗</div></div>
-      <div class="logo-card reveal"><small>Logo partner</small><div class="ext">↗</div></div>
-      <div class="logo-card reveal"><small>Logo partner</small><div class="ext">↗</div></div>
-      <div class="logo-card reveal"><small>Logo partner</small><div class="ext">↗</div></div>
-      <div class="logo-card reveal"><small>Logo partner</small><div class="ext">↗</div></div>
-      <div class="logo-card reveal"><small>Logo partner</small><div class="ext">↗</div></div>
-    </div>
-
-    <h2 class="reveal" style="margin-top:40px">I brand che hanno scelto TRAPPERREO</h2>
-    <div class="logo-grid">
-      <div class="logo-card reveal"><small>Brand</small></div>
-      <div class="logo-card reveal"><small>Brand</small></div>
-      <div class="logo-card reveal"><small>Brand</small></div>
-      <div class="logo-card reveal"><small>Brand</small></div>
-      <div class="logo-card reveal"><small>Brand</small></div>
-      <div class="logo-card reveal"><small>Brand</small></div>
-      <div class="logo-card reveal"><small>Brand</small></div>
-      <div class="logo-card reveal"><small>Brand</small></div>
-    </div>
-  </div>
-</section>
-
-<!-- “VIAGGIA SENZA SBATTI” (policy & opzioni biglietto) -->
+<!-- ZERO SBATTI (aggiornato) -->
 <section id="policies">
   <div class="container">
     <h2 class="reveal">Zero sbatti</h2>
     <div class="banner-grid">
       <div class="banner reveal">
-        <h3>📄 Cancellazione gratuita</h3>
-        <p>Prenota sereno: puoi annullare fino a 30 giorni dall’evento e ricevere il rimborso totale del biglietto (diritti di prevendita esclusi).</p>
-        <div style="margin-top:10px"><a class="btn outline" href="#">Scopri come funziona</a></div>
-      </div>
-      <div class="banner reveal">
         <h3>🕒 Paga senza fretta</h3>
-        <p>Blocca ora con un acconto del 30% e saldi entro 15 giorni dall’evento. Il tuo posto è garantito.</p>
+        <p>Blocca ora il tuo ticket: completi il saldo **entro 48 ore** dalla prenotazione. Così non perdi il posto.</p>
         <div style="margin-top:10px"><a class="btn outline" href="#">Scopri come funziona</a></div>
       </div>
       <div class="banner reveal" style="grid-column:span 12">
         <h3>🔁 Cambio nome Easy</h3>
-        <p>Imprevisto? Attiva la copertura Cambio Nome e puoi trasferire il biglietto a un amico fino a 24h prima dell’evento, senza penali.</p>
+        <p>Imprevisto? Con la copertura “Cambio Nome” puoi trasferire il biglietto a un amico fino a 24h prima.</p>
         <div style="margin-top:10px"><a class="btn outline" href="#">Dettagli copertura</a></div>
       </div>
     </div>
@@ -245,31 +234,26 @@ footer{padding:0;border-top:1px solid rgba(255,255,255,.08);}
     <h2>Domande frequenti</h2>
     <div class="faq">
       <div class="faq-item reveal">
-        <button class="faq-q">L’evento è pubblico o privato?</button>
-        <div class="faq-a">Evento a numero chiuso con prevendita. Non è prevista vendita libera alla porta.</div>
+        <button class="faq-q">Età minima</button>
+        <div class="faq-a">**16+**. È richiesto un documento valido al controllo.</div>
       </div>
       <div class="faq-item reveal">
         <button class="faq-q">Posso pagare in cassa?</button>
-        <div class="faq-a">Sì, se hai prenotato il ticket. In cassa accettiamo contanti e carte.</div>
+        <div class="faq-a">No. Al momento il biglietto è garantito **solo con pagamento online**.</div>
       </div>
       <div class="faq-item reveal">
         <button class="faq-q">Come funziona il cambio nome?</button>
-        <div class="faq-a">Con la copertura “Cambio Nome Easy” puoi cedere il ticket a un altro nominativo fino a 24h prima.</div>
-      </div>
-      <div class="faq-item reveal">
-        <button class="faq-q">Ci sono limiti di età?</button>
-        <div class="faq-a">Ingresso 18+. Documento obbligatorio al controllo.</div>
+        <div class="faq-a">Se hai attivato la copertura, puoi cedere il ticket a un altro nominativo fino a 24h prima dell’evento.</div>
       </div>
     </div>
   </div>
 </section>
 
 <footer>
-  <!-- Links a colonne -->
   <div class="footer-top">
     <div class="fcol">
       <h4>TRAPPERREO</h4>
-      <a href="#about">Chi siamo</a>
+      <a href="#event">Chi siamo</a>
       <a href="#event">Contatti</a>
       <a href="#">Lavora con noi</a>
     </div>
@@ -291,13 +275,11 @@ footer{padding:0;border-top:1px solid rgba(255,255,255,.08);}
       <a href="#">Change privacy settings</a>
     </div>
   </div>
-
-  <!-- Blocco legale (PLACEHOLDER: sostituisci con i tuoi dati reali) -->
   <div class="footer-legal">
     <div class="wrap">
-      <div><strong>TRAPPERREO S.r.l. a socio unico</strong> — <em>(dati fittizi di esempio, sostituisci con i tuoi)</em></div>
+      <div><strong>TRAPPERREO S.r.l. a socio unico</strong> — (esempio, sostituisci con i tuoi dati)</div>
       <div>Via Esempio 10, 13900 Biella (BI) — CF/P.IVA: 12345678901 — REA: BI-000000 — Cap. soc.: €10.000 i.v.</div>
-      <div>PEC: trapperreo@legalmail.it — Testata giornalistica: n° 000/2025</div>
+      <div>PEC: trapperreo@legalmail.it</div>
       <div style="margin-top:8px">
         <a href="#">Privacy Policy</a> | <a href="#">Termini e Condizioni</a>
       </div>
@@ -306,20 +288,12 @@ footer{padding:0;border-top:1px solid rgba(255,255,255,.08);}
 </footer>
 
 <script>
-// anno
-// (se vuoi l'anno ovunque)
-document.addEventListener('DOMContentLoaded', ()=>{});
-
-// reveal-on-scroll
+// reveal
 const io=new IntersectionObserver((e)=>{e.forEach(x=>{if(x.isIntersecting){x.target.classList.add('show');io.unobserve(x.target)}})},{threshold:.14});
 document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
-
 // FAQ toggle
 document.querySelectorAll('.faq-q').forEach(btn=>{
-  btn.addEventListener('click', ()=>{
-    const item=btn.parentElement;
-    item.classList.toggle('open');
-  });
+  btn.addEventListener('click', ()=>btn.parentElement.classList.toggle('open'));
 });
 </script>
 </body>
