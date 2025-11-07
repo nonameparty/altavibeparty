@@ -77,46 +77,57 @@ input{width:100%;margin-top:6px;margin-bottom:14px;padding:12px 12px;border:none
 </div>
 
 <!-- Firebase helpers -->
-<script type="module" src="auth.js"></script>
 <script type="module">
-import { emailSignIn, sendReset } from './auth.js';
+import { emailSignIn, sendReset } from '/auth.js';
 
 const $ = (q)=>document.querySelector(q);
 const getParam = (n)=> new URLSearchParams(location.search).get(n);
 
-// fix: assicurati che siano clickabili
-$('#loginBtn').addEventListener('click', async (e)=>{
+console.log('login.js loaded — functions:', {
+  emailSignIn: typeof emailSignIn,
+  sendReset: typeof sendReset
+});
+
+document.getElementById('loginBtn').addEventListener('click', async (e)=>{
   e.preventDefault();
-  $('#err').style.display='none'; $('#msg').style.display='none';
+  document.getElementById('err').style.display='none';
+  document.getElementById('msg').style.display='none';
   try{
     const email = $('#email').value.trim();
     const pwd   = $('#password').value;
     if(!email || !pwd) throw new Error("Inserisci email e password.");
+    console.log('login click OK, calling emailSignIn', {email});
     await emailSignIn(email, pwd);
-    const dest = getParam('from') || './checkout.html';
+    const dest = getParam('from') || '/checkout.html';
     location.assign(dest);
   }catch(err){
-    $('#err').textContent = err.message;
-    $('#err').style.display = 'block';
+    console.error('login error:', err);
+    const box = document.getElementById('err');
+    box.textContent = err?.message || 'Errore imprevisto';
+    box.style.display = 'block';
   }
 });
 
-$('#forgotToggle').addEventListener('click',(e)=>{
+document.getElementById('forgotToggle').addEventListener('click', (e)=>{
   e.preventDefault();
-  const box=$('#resetBox'); box.style.display = (box.style.display==='none'?'block':'none');
+  const box = document.getElementById('resetBox');
+  box.style.display = (box.style.display === 'none' ? 'block' : 'none');
 });
 
-$('#resetBtn').addEventListener('click', async ()=>{
-  $('#resetErr').style.display='none'; $('#resetMsg').style.display='none';
+document.getElementById('resetBtn').addEventListener('click', async ()=>{
+  const resetErr = document.getElementById('resetErr');
+  const resetMsg = document.getElementById('resetMsg');
+  resetErr.style.display='none'; resetMsg.style.display='none';
   try{
-    const em = $('#resetEmail').value.trim();
+    const em = document.getElementById('resetEmail').value.trim();
     if(!em) throw new Error("Inserisci l'email.");
     await sendReset(em);
-    $('#resetMsg').textContent = "Email di reset inviata. Controlla la tua casella.";
-    $('#resetMsg').style.display = 'block';
+    resetMsg.textContent = "Email di reset inviata. Controlla la tua casella.";
+    resetMsg.style.display = 'block';
   }catch(err){
-    $('#resetErr').textContent = err.message;
-    $('#resetErr').style.display = 'block';
+    console.error('reset error:', err);
+    resetErr.textContent = err?.message || 'Errore imprevisto';
+    resetErr.style.display = 'block';
   }
 });
 </script>
