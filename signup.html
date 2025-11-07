@@ -1,98 +1,24 @@
 <!DOCTYPE html>
 <html lang="it">
-<script>
-/* === Error Monitor (attivo solo con ?debug=1) === */
-(function(){
-  const qs = new URLSearchParams(location.search);
-  if (!qs.has('debug')) return;
-
-  // Stile pannello
-  const box = document.createElement('div');
-  box.id = '__debug_box';
-  box.style = 'position:fixed;inset:auto 8px 8px 8px;max-height:40vh;overflow:auto;background:#0b0b0f;color:#fff;border:1px solid #5a5a7a;border-radius:10px;padding:10px;font:12px/1.4 monospace;z-index:999999;box-shadow:0 10px 30px rgba(0,0,0,.45)';
-  box.innerHTML = '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px"><b>DEBUG</b><button id="__dbg_clear" style="background:#242437;color:#fff;border:1px solid #5a5a7a;border-radius:6px;padding:2px 6px;cursor:pointer">clear</button></div><pre id="__dbg_log" style="white-space:pre-wrap;margin:0"></pre>';
-  document.addEventListener('DOMContentLoaded', ()=>document.body.appendChild(box));
-  const logEl = ()=>document.getElementById('__dbg_log');
-  const push = (type, msg)=>{ const el=logEl(); if(!el) return; const t=new Date().toISOString().split('T')[1].replace('Z',''); el.textContent += `[${t}] ${type}: ${msg}\n`; };
-
-  window.addEventListener('error', (e)=>{
-    // Error in script (anche <script type="module">)
-    push('ERROR',
-      (e.message||'') +
-      (e.filename? ` @ ${e.filename}:${e.lineno||''}:${e.colno||''}`:'') +
-      (e.error && e.error.stack? `\nSTACK: ${e.error.stack}`:'')
-    );
-  });
-
-  window.addEventListener('unhandledrejection', (e)=>{
-    let m = '';
-    if(e && e.reason){
-      if(typeof e.reason === 'string') m = e.reason;
-      else if(e.reason.message) m = e.reason.message;
-      if(e.reason.stack) m += `\nSTACK: ${e.reason.stack}`;
-    }
-    push('PROMISE', m||'unhandled rejection');
-  });
-
-  // wrappa console.error per visualizzare
-  const _ce = console.error;
-  console.error = function(...args){ push('CONSOLE', args.map(a=> (typeof a==='string'?a:JSON.stringify(a))).join(' ')); return _ce.apply(console, args); };
-
-  // Log base di contesto
-  push('INFO', `path=${location.pathname}, search=${location.search}`);
-  push('INFO', `userAgent=${navigator.userAgent}`);
-
-  // Clear
-  document.addEventListener('click', (e)=>{
-    if(e.target && e.target.id==='__dbg_clear'){ const el=logEl(); if(el) el.textContent=''; }
-  });
-})();
-</script>
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Registrati — TRAPPERREO</title>
-
-<!-- Font come index -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&display=swap" rel="stylesheet">
-
 <style>
-:root{--accent:#8b5cf6;--bg:#000;--text:#fff;}
+:root{--accent:#8b5cf6;--bg:#000;--text:#fff}
 *{box-sizing:border-box;margin:0;padding:0}
-html,body{height:100%}
-body{
-  background:radial-gradient(60% 60% at 50% 40%, rgba(139,92,246,.12), transparent 60%), #000;
-  color:var(--text);font-family:'Inter',system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
-  min-height:100vh;display:grid;place-items:center
-}
-a{color:var(--accent);text-decoration:none}
-.card{
-  width:min(92%,480px);background:rgba(255,255,255,.06);
-  border:1px solid rgba(255,255,255,.12);border-radius:16px;padding:26px;
-  backdrop-filter: blur(6px)
-}
-h1{font-size:28px;font-weight:900;margin-bottom:6px;letter-spacing:-.2px}
-.muted{color:rgba(255,255,255,.78);margin-bottom:18px}
-label{font-size:13px;color:rgba(255,255,255,.75)}
+body{min-height:100vh;display:grid;place-items:center;background:#000;color:#fff;font-family:'Inter',system-ui,Segoe UI,Roboto,Arial}
+.card{width:min(92%,440px);background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:16px;padding:26px}
+h1{font-size:28px;font-weight:900;margin-bottom:6px}
+.muted{opacity:.8;margin-bottom:18px}
+label{font-size:13px;opacity:.8}
 input{width:100%;margin-top:6px;margin-bottom:14px;padding:12px;border:none;border-radius:10px;background:#0f0f10;color:#fff}
-.inline{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .btn{width:100%;padding:12px 16px;border:none;border-radius:10px;background:var(--accent);color:#000;font-weight:900;cursor:pointer}
-.btn[disabled]{opacity:.6;cursor:not-allowed}
-.error,.success{
-  padding:10px;border-radius:10px;margin-bottom:12px;display:none
-}
-.error{background:#2a0e0e;border:1px solid #ff6b6b;color:#ffdede}
-.success{background:#0e2a14;border:1px solid #34d399;color:#c6f6d5}
-.small{font-size:13px;color:rgba(255,255,255,.75)}
-.eye{position:relative}
-.eye input{padding-right:48px}
-.eye button{
-  position:absolute;right:8px;top:50%;transform:translateY(-50%);
-  background:transparent;border:1px solid rgba(255,255,255,.2);
-  color:#fff;border-radius:8px;padding:6px 8px;cursor:pointer;font-size:12px
-}
+.error{display:none;margin-bottom:12px;background:#2a0e0e;border:1px solid #ff6b6b;color:#ffdede;padding:10px;border-radius:10px}
+.small{font-size:13px;opacity:.8}
 </style>
 </head>
 <body>
@@ -100,56 +26,39 @@ input{width:100%;margin-top:6px;margin-bottom:14px;padding:12px;border:none;bord
 <div class="card">
   <h1>Registrati</h1>
   <p class="muted">Crea il tuo account per acquistare i biglietti.</p>
+  <div id="err" class="error"></div>
 
-  <div id="msgOk" class="success"></div>
-  <div id="msgErr" class="error"></div>
-
-  <div class="inline">
-    <div>
-      <label>Nome</label>
-      <input id="firstName" type="text" placeholder="Mario" autocomplete="given-name" required>
-    </div>
-    <div>
-      <label>Cognome</label>
-      <input id="lastName" type="text" placeholder="Rossi" autocomplete="family-name" required>
-    </div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+    <div><label>Nome</label><input id="firstName" type="text" placeholder="Mario" required></div>
+    <div><label>Cognome</label><input id="lastName" type="text" placeholder="Rossi" required></div>
   </div>
 
   <label>Data di nascita</label>
   <input id="dob" type="date" required>
 
   <label>Email</label>
-  <input id="email" type="email" placeholder="tuo@email.it" autocomplete="email" required>
+  <input id="email" type="email" placeholder="tuo@email.it" required>
 
-  <div class="inline">
-    <div class="eye">
-      <label>Password</label>
-      <input id="password" type="password" placeholder="Minimo 6 caratteri" autocomplete="new-password" required>
-      <button type="button" data-toggle="#password">Mostra</button>
-    </div>
-    <div class="eye">
-      <label>Conferma password</label>
-      <input id="password2" type="password" placeholder="Ripeti password" autocomplete="new-password" required>
-      <button type="button" data-toggle="#password2">Mostra</button>
-    </div>
-  </div>
+  <label>Password</label>
+  <input id="password" type="password" placeholder="Minimo 6 caratteri" required>
 
   <button id="signUpBtn" class="btn" type="button">Crea account</button>
 
   <div class="small" style="margin-top:12px">
-    Hai già un account? <a href="login.html">Accedi</a> • <a href="index.html">Torna al sito</a>
+    Hai già un account? <a href="/login.html">Accedi</a> • <a href="/index.html">Torna al sito</a>
   </div>
 </div>
 
-<!-- Firebase inline (niente path esterni) -->
+<!-- SCRIPT: dopo il markup -->
 <script type="module">
-  // Firebase SDK (CDN)
+  // Firebase CDN
   import { initializeApp } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-app.js";
-  import {
-    getAuth, createUserWithEmailAndPassword, updateProfile
+  import { 
+    getAuth, setPersistence, browserLocalPersistence,
+    createUserWithEmailAndPassword, updateProfile
   } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-auth.js";
 
-  // Config (la tua)
+  // Config (tua)
   const firebaseConfig = {
     apiKey: "AIzaSyDF6BiYXreDirGnT3RPkGwDNlwj5ploUyo",
     authDomain: "trappereo.firebaseapp.com",
@@ -160,81 +69,41 @@ input{width:100%;margin-top:6px;margin-bottom:14px;padding:12px;border:none;bord
     measurementId: "G-BDBRZQ6J8S"
   };
 
-  // Init
   const app  = initializeApp(firebaseConfig);
   const auth = getAuth(app);
+  await setPersistence(auth, browserLocalPersistence);
 
-  // Helpers
-  const $ = (q)=>document.querySelector(q);
-  const getParam = (n)=> new URLSearchParams(location.search).get(n);
-  const calcAge = (d)=>{ const x=new Date(d), t=new Date();
-    let a=t.getFullYear()-x.getFullYear();
-    const m=t.getMonth()-x.getMonth();
-    if(m<0||(m===0&&t.getDate()<x.getDate())) a--; return a; };
+  const $ = s=>document.querySelector(s);
+  const calcAge = (d)=>{const x=new Date(d),t=new Date();let a=t.getFullYear()-x.getFullYear();const m=t.getMonth()-x.getMonth();if(m<0||(m===0&&t.getDate()<x.getDate()))a--;return a};
 
-  function showErr(msg){ const b=$('#msgErr'); b.textContent=msg; b.style.display='block'; }
-  function clearMsgs(){ $('#msgErr').style.display='none'; $('#msgOk').style.display='none'; }
-  function mapFirebaseError(code){
-    const map={
-      "auth/email-already-in-use":"Email già registrata.",
-      "auth/invalid-email":"Email non valida.",
-      "auth/weak-password":"Password troppo corta (min. 6 caratteri).",
-      "auth/operation-not-allowed":"Registrazione disabilitata.",
-    }; return map[code]||"Errore imprevisto. Riprova."
-  }
+  function showErr(msg){ const e=$('#err'); e.textContent=msg; e.style.display='block'; }
 
-  // Show/Hide password
-  document.querySelectorAll('button[data-toggle]').forEach(btn=>{
-    btn.addEventListener('click',()=>{
-      const sel = btn.getAttribute('data-toggle');
-      const inp = document.querySelector(sel);
-      if(!inp) return;
-      const type = inp.type === 'password' ? 'text' : 'password';
-      inp.type = type;
-      btn.textContent = (type==='password' ? 'Mostra' : 'Nascondi');
-    });
-  });
-
-  // Submit
-  $('#signUpBtn').addEventListener('click', async (e)=>{
+  document.getElementById('signUpBtn').addEventListener('click', async (e)=>{
     e.preventDefault();
-    clearMsgs();
-    const btn = e.currentTarget;
-    btn.setAttribute('disabled','disabled'); btn.textContent='Creo account…';
-
+    $('#err').style.display='none';
     try{
-      const first = $('#firstName').value.trim();
-      const last  = $('#lastName').value.trim();
-      const dob   = $('#dob').value;
-      const email = $('#email').value.trim();
-      const pwd   = $('#password').value;
-      const pwd2  = $('#password2').value;
+      const first=$('#firstName').value.trim();
+      const last =$('#lastName').value.trim();
+      const dob  =$('#dob').value;
+      const email=$('#email').value.trim();
+      const pwd  =$('#password').value;
 
-      if(!first || !last)   throw new Error("Inserisci nome e cognome.");
-      if(!dob)              throw new Error("Inserisci la data di nascita.");
-      if(calcAge(dob) < 16) throw new Error("Età minima 16 anni.");
-      if(!email)            throw new Error("Inserisci l'email.");
-      if(!pwd || pwd.length<6) throw new Error("Password troppo corta (min. 6).");
-      if(pwd !== pwd2)      throw new Error("Le password non coincidono.");
+      if(!first || !last) throw Error("Inserisci nome e cognome.");
+      if(!dob) throw Error("Inserisci la data di nascita.");
+      if(calcAge(dob) < 16) throw Error("Età minima 16 anni.");
 
-      // Crea utente
       const cred = await createUserWithEmailAndPassword(auth, email, pwd);
-      // Nome visibile
-      try{ await updateProfile(cred.user, { displayName: `${first} ${last}` }); }catch(_){}
-      // Salva DOB localmente (per ora)
+      await updateProfile(cred.user, { displayName: `${first} ${last}` });
       localStorage.setItem(`trapperreo_profile_${cred.user.uid}`, JSON.stringify({ dob }));
 
-      // redirect
-      const dest = getParam('from') || '/checkout.html';
-      location.assign(dest);
-
-    }catch(ex){
-      console.error(ex);
-      showErr(ex?.code ? mapFirebaseError(ex.code) : (ex?.message || "Errore imprevisto."));
-    }finally{
-      btn.removeAttribute('disabled'); btn.textContent='Crea account';
-    }
+      location.assign("/checkout.html");
+    }catch(err){ showErr(err.message || "Errore imprevisto"); }
   });
+
+  // Piccolo log (compare se apri con ?debug=1)
+  if(new URLSearchParams(location.search).has('debug')){
+    console.log('FIREBASE_INIT_OK', !!app, !!auth);
+  }
 </script>
 </body>
 </html>
