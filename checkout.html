@@ -22,7 +22,9 @@ h1{font-size:24px;font-weight:900;margin-bottom:8px;}
 import { requireAuth, onUser, doSignOut } from './auth.js';
 await requireAuth('login.html');
 onUser((u)=>{
-  if(u) document.getElementById('uemail').textContent = u.email;
+  if(!u) return;
+  document.getElementById('uemail').textContent = u.email || '';
+  document.getElementById('uname').textContent = u.displayName || (u.email ? u.email.split('@')[0] : 'utente');
 });
 window.logout = async ()=>{ await doSignOut(); location.href='index.html'; };
 </script>
@@ -31,6 +33,7 @@ window.logout = async ()=>{ await doSignOut(); location.href='index.html'; };
   <div class="card">
     <h1>Checkout TRAPPERREO</h1>
     <div>Accesso come: <strong id="uemail"></strong></div>
+    <div style="margin-top:6px">Ciao <strong id="uname"></strong> 👋</div>
     <div class="row" style="margin-top:14px">
       <div class="badge">Sab 21 Mar 2026</div>
       <div class="badge">22:30 → 04:30</div>
