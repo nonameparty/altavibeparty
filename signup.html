@@ -21,7 +21,7 @@ body{
 }
 a{color:var(--accent);text-decoration:none}
 .card{
-  width:min(92%,440px);background:rgba(255,255,255,.06);
+  width:min(92%,480px);background:rgba(255,255,255,.06);
   border:1px solid rgba(255,255,255,.12);border-radius:16px;padding:26px;
   backdrop-filter: blur(6px)
 }
@@ -29,9 +29,22 @@ h1{font-size:28px;font-weight:900;margin-bottom:6px;letter-spacing:-.2px}
 .muted{color:rgba(255,255,255,.78);margin-bottom:18px}
 label{font-size:13px;color:rgba(255,255,255,.75)}
 input{width:100%;margin-top:6px;margin-bottom:14px;padding:12px;border:none;border-radius:10px;background:#0f0f10;color:#fff}
+.inline{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .btn{width:100%;padding:12px 16px;border:none;border-radius:10px;background:var(--accent);color:#000;font-weight:900;cursor:pointer}
-.error{background:#2a0e0e;border:1px solid #ff6b6b;color:#ffdede;padding:10px;border-radius:10px;margin-bottom:12px;display:none}
+.btn[disabled]{opacity:.6;cursor:not-allowed}
+.error,.success{
+  padding:10px;border-radius:10px;margin-bottom:12px;display:none
+}
+.error{background:#2a0e0e;border:1px solid #ff6b6b;color:#ffdede}
+.success{background:#0e2a14;border:1px solid #34d399;color:#c6f6d5}
 .small{font-size:13px;color:rgba(255,255,255,.75)}
+.eye{position:relative}
+.eye input{padding-right:48px}
+.eye button{
+  position:absolute;right:8px;top:50%;transform:translateY(-50%);
+  background:transparent;border:1px solid rgba(255,255,255,.2);
+  color:#fff;border-radius:8px;padding:6px 8px;cursor:pointer;font-size:12px
+}
 </style>
 </head>
 <body>
@@ -39,16 +52,18 @@ input{width:100%;margin-top:6px;margin-bottom:14px;padding:12px;border:none;bord
 <div class="card">
   <h1>Registrati</h1>
   <p class="muted">Crea il tuo account per acquistare i biglietti.</p>
-  <div id="err" class="error"></div>
 
-  <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+  <div id="msgOk" class="success"></div>
+  <div id="msgErr" class="error"></div>
+
+  <div class="inline">
     <div>
       <label>Nome</label>
-      <input id="firstName" type="text" placeholder="Mario" required>
+      <input id="firstName" type="text" placeholder="Mario" autocomplete="given-name" required>
     </div>
     <div>
       <label>Cognome</label>
-      <input id="lastName" type="text" placeholder="Rossi" required>
+      <input id="lastName" type="text" placeholder="Rossi" autocomplete="family-name" required>
     </div>
   </div>
 
@@ -58,8 +73,18 @@ input{width:100%;margin-top:6px;margin-bottom:14px;padding:12px;border:none;bord
   <label>Email</label>
   <input id="email" type="email" placeholder="tuo@email.it" autocomplete="email" required>
 
-  <label>Password</label>
-  <input id="password" type="password" placeholder="Minimo 6 caratteri" autocomplete="new-password" required>
+  <div class="inline">
+    <div class="eye">
+      <label>Password</label>
+      <input id="password" type="password" placeholder="Minimo 6 caratteri" autocomplete="new-password" required>
+      <button type="button" data-toggle="#password">Mostra</button>
+    </div>
+    <div class="eye">
+      <label>Conferma password</label>
+      <input id="password2" type="password" placeholder="Ripeti password" autocomplete="new-password" required>
+      <button type="button" data-toggle="#password2">Mostra</button>
+    </div>
+  </div>
 
   <button id="signUpBtn" class="btn" type="button">Crea account</button>
 
@@ -68,13 +93,15 @@ input{width:100%;margin-top:6px;margin-bottom:14px;padding:12px;border:none;bord
   </div>
 </div>
 
-<!-- Script unico: importa le funzioni dall'auth v2 (cache-buster) -->
+<!-- Firebase inline (niente path esterni) -->
 <script type="module">
+  // Firebase SDK (CDN)
   import { initializeApp } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-app.js";
   import {
     getAuth, createUserWithEmailAndPassword, updateProfile
   } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-auth.js";
 
+  // Config (la tua)
   const firebaseConfig = {
     apiKey: "AIzaSyDF6BiYXreDirGnT3RPkGwDNlwj5ploUyo",
     authDomain: "trappereo.firebaseapp.com",
@@ -85,34 +112,79 @@ input{width:100%;margin-top:6px;margin-bottom:14px;padding:12px;border:none;bord
     measurementId: "G-BDBRZQ6J8S"
   };
 
+  // Init
   const app  = initializeApp(firebaseConfig);
   const auth = getAuth(app);
 
+  // Helpers
   const $ = (q)=>document.querySelector(q);
-  const calcAge = (d)=>{ const x=new Date(d), t=new Date(); let a=t.getFullYear()-x.getFullYear(); const m=t.getMonth()-x.getMonth(); if(m<0||(m===0&&t.getDate()<x.getDate())) a--; return a; };
+  const getParam = (n)=> new URLSearchParams(location.search).get(n);
+  const calcAge = (d)=>{ const x=new Date(d), t=new Date();
+    let a=t.getFullYear()-x.getFullYear();
+    const m=t.getMonth()-x.getMonth();
+    if(m<0||(m===0&&t.getDate()<x.getDate())) a--; return a; };
 
-  document.getElementById('signUpBtn').addEventListener('click', async (e)=>{
+  function showErr(msg){ const b=$('#msgErr'); b.textContent=msg; b.style.display='block'; }
+  function clearMsgs(){ $('#msgErr').style.display='none'; $('#msgOk').style.display='none'; }
+  function mapFirebaseError(code){
+    const map={
+      "auth/email-already-in-use":"Email già registrata.",
+      "auth/invalid-email":"Email non valida.",
+      "auth/weak-password":"Password troppo corta (min. 6 caratteri).",
+      "auth/operation-not-allowed":"Registrazione disabilitata.",
+    }; return map[code]||"Errore imprevisto. Riprova."
+  }
+
+  // Show/Hide password
+  document.querySelectorAll('button[data-toggle]').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      const sel = btn.getAttribute('data-toggle');
+      const inp = document.querySelector(sel);
+      if(!inp) return;
+      const type = inp.type === 'password' ? 'text' : 'password';
+      inp.type = type;
+      btn.textContent = (type==='password' ? 'Mostra' : 'Nascondi');
+    });
+  });
+
+  // Submit
+  $('#signUpBtn').addEventListener('click', async (e)=>{
     e.preventDefault();
-    const err = document.getElementById('err'); err.style.display='none';
+    clearMsgs();
+    const btn = e.currentTarget;
+    btn.setAttribute('disabled','disabled'); btn.textContent='Creo account…';
+
     try{
       const first = $('#firstName').value.trim();
       const last  = $('#lastName').value.trim();
       const dob   = $('#dob').value;
       const email = $('#email').value.trim();
       const pwd   = $('#password').value;
+      const pwd2  = $('#password2').value;
 
-      if(!first || !last) throw new Error("Inserisci nome e cognome.");
-      if(!dob) throw new Error("Inserisci la data di nascita.");
+      if(!first || !last)   throw new Error("Inserisci nome e cognome.");
+      if(!dob)              throw new Error("Inserisci la data di nascita.");
       if(calcAge(dob) < 16) throw new Error("Età minima 16 anni.");
+      if(!email)            throw new Error("Inserisci l'email.");
+      if(!pwd || pwd.length<6) throw new Error("Password troppo corta (min. 6).");
+      if(pwd !== pwd2)      throw new Error("Le password non coincidono.");
 
+      // Crea utente
       const cred = await createUserWithEmailAndPassword(auth, email, pwd);
-      await updateProfile(cred.user, { displayName: `${first} ${last}` });
-      localStorage.setItem(`trapperreo_profile_${cred.user.uid}`, JSON.stringify({ dob: dob }));
+      // Nome visibile
+      try{ await updateProfile(cred.user, { displayName: `${first} ${last}` }); }catch(_){}
+      // Salva DOB localmente (per ora)
+      localStorage.setItem(`trapperreo_profile_${cred.user.uid}`, JSON.stringify({ dob }));
 
-      location.assign('/checkout.html');
+      // redirect
+      const dest = getParam('from') || '/checkout.html';
+      location.assign(dest);
+
     }catch(ex){
-      err.textContent = ex.message || 'Errore imprevisto';
-      err.style.display = 'block';
+      console.error(ex);
+      showErr(ex?.code ? mapFirebaseError(ex.code) : (ex?.message || "Errore imprevisto."));
+    }finally{
+      btn.removeAttribute('disabled'); btn.textContent='Crea account';
     }
   });
 </script>
