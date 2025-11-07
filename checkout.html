@@ -93,7 +93,7 @@ h1{font-size:26px;font-weight:900;letter-spacing:-.2px}
         <div class="row" data-type="std">
           <div>
             <div class="title">Standard</div>
-            <div class="note">Ingresso normale. Guardaroba +3€ a capo (opzionale).</div>
+            <div class="note" id="stdNote">Ingresso normale. Guardaroba +3€ a capo (opzionale).</div>
           </div>
           <div class="controls">
             <div class="price">15€</div>
@@ -122,14 +122,30 @@ h1{font-size:26px;font-weight:900;letter-spacing:-.2px}
           </div>
         </div>
 
-        <!-- VIP TABLE -->
-        <div class="row" data-type="vip">
+        <!-- VIP area (ADULTI) -->
+        <div class="row" data-type="vip" id="vipAdultRow">
           <div>
             <div class="title"><span class="crown">👑</span>VIP Table</div>
             <div class="note">Tavolo riservato, bottiglia, host dedicato.</div>
           </div>
           <div class="controls">
             <a class="btn outline" href="#" id="vipBtn">Prenota qui</a>
+          </div>
+        </div>
+
+        <!-- VIP area (MINORENNI) -->
+        <div class="row" data-type="vip" id="vipMinorRow" style="display:none">
+          <div>
+            <div class="title"><span class="crown">👑</span>INGRESSO AREA VIP</div>
+            <div class="note">25€ • Include <strong>2 drink analcolici</strong> + <strong>1 capo guardaroba</strong> per biglietto.</div>
+          </div>
+          <div class="controls">
+            <div class="price">25€</div>
+            <div class="qty">
+              <button data-minus="#qVip">−</button>
+              <input id="qVip" type="number" min="0" value="0" inputmode="numeric">
+              <button data-plus="#qVip">+</button>
+            </div>
           </div>
         </div>
       </div>
@@ -140,7 +156,7 @@ h1{font-size:26px;font-weight:900;letter-spacing:-.2px}
       <div class="row">
         <div>
           <div class="title">Guardaroba</div>
-          <div class="note"><span class="strike">3€</span> <strong>2€ online</strong> a capo. <strong>Gratis</strong> 1 capo ogni Fast Entry.</div>
+          <div class="note"><span class="strike">3€</span> <strong>2€ online</strong> a capo. <strong>Gratis</strong> 1 capo per ogni Fast Entry / VIP Area (minorenni).</div>
         </div>
         <div class="controls">
           <div class="price">2€</div>
@@ -154,7 +170,7 @@ h1{font-size:26px;font-weight:900;letter-spacing:-.2px}
       <div class="small hint" id="coatHint" style="display:none"></div>
 
       <!-- Soft drink -->
-      <div class="row">
+      <div class="row" id="softRow">
         <div>
           <div class="title">Soft drink</div>
           <div class="note"><span class="strike">5€</span> <strong>4€ online</strong>.</div>
@@ -169,8 +185,8 @@ h1{font-size:26px;font-weight:900;letter-spacing:-.2px}
         </div>
       </div>
 
-      <!-- Drink alcolico -->
-      <div class="row">
+      <!-- Drink alcolico (solo 18+) -->
+      <div class="row" id="alcRow">
         <div>
           <div class="title">Drink alcolico</div>
           <div class="note"><span class="strike">8€</span> <strong>7€ online</strong>.</div>
@@ -198,8 +214,11 @@ h1{font-size:26px;font-weight:900;letter-spacing:-.2px}
       <div class="line small"><span>IVA inclusa</span><span>&nbsp;</span></div>
 
       <!-- Sconti / gratuità -->
-      <div id="freeLine" class="line save" style="display:none">
-        <span>Guardaroba inclusi (Fast Entry)</span><span id="freeVal">−0€</span>
+      <div id="freeCoatLine" class="line save" style="display:none">
+        <span>Guardaroba inclusi</span><span id="freeCoatVal">−0€</span>
+      </div>
+      <div id="freeSoftLine" class="line save" style="display:none">
+        <span>Soft drink inclusi (VIP)</span><span id="freeSoftVal">−0€</span>
       </div>
 
       <div class="sticky">
@@ -218,13 +237,14 @@ h1{font-size:26px;font-weight:900;letter-spacing:-.2px}
 </main>
 
 <script type="module">
-import { requireAuth } from './auth.v2.js?v=6';
+import { requireAuth } from './auth.v2.js?v=7';
 
 const PRICES = {
   std:15,
   fast:20,
+  vip_minor:25,
   coat_base:3,   // listino (barrato)
-  coat_online:2, // prezzo online
+  coat_online:2, // prezzo online effettivo
   soft_base:5,   soft_online:4,
   alc_base:8,    alc_online:7,
   max_fast:50
@@ -233,6 +253,7 @@ const PRICES = {
 const $ = (id)=>document.getElementById(id);
 const qStd  = $('qStd');
 const qFast = $('qFast');
+const qVip  = $('qVip');      // solo per minorenni
 const qCoat = $('qCoats');
 const qSoft = $('qSoft');
 const qAlc  = $('qAlc');
@@ -240,15 +261,29 @@ const qAlc  = $('qAlc');
 const lines   = $('lines');
 const subTot  = $('subTot');
 const grand   = $('grandTot');
-const freeBox = $('freeLine');
-const freeVal = $('freeVal');
-const coatHint= $('coatHint');
+const freeCoatLine = $('freeCoatLine');
+const freeCoatVal  = $('freeCoatVal');
+const freeSoftLine = $('freeSoftLine');
+const freeSoftVal  = $('freeSoftVal');
+const coatHint = $('coatHint');
 const fastLimitMsg = $('fastLimitMsg');
 const payBtn  = $('payBtn');
+const stdNote = $('stdNote');
+const vipAdultRow = $('vipAdultRow');
+const vipMinorRow = $('vipMinorRow');
+const alcRow = $('alcRow');
 
-let coatTouched = false; // se true, l'utente ha toccato manualmente il guardaroba
+let coatTouched = false; // se l'utente modifica manualmente il guardaroba, non autosincronizziamo più
 
 function money(n){ return `${n.toFixed(2).replace('.00','')}€`; }
+function calcAge(dobISO){
+  if(!dobISO) return 0;
+  const d=new Date(dobISO), t=new Date();
+  let a=t.getFullYear()-d.getFullYear();
+  const m=t.getMonth()-d.getMonth();
+  if(m<0 || (m===0 && t.getDate()<d.getDate())) a--;
+  return a;
+}
 
 function clampFast(){
   let v = Math.max(0, parseInt(qFast.value||0));
@@ -261,65 +296,75 @@ function clampFast(){
   qFast.value = v;
 }
 
-function autoSyncCoats(nFast){
-  if(!coatTouched){
-    // auto: i cappotti seguono i fast; se fast=0 vanno a 0
-    qCoat.value = nFast;
-  }else{
-    // se l’utente ha toccato manualmente, non forziamo.
-    // niente da fare qui.
-  }
-}
-
-function calc(){
+function calc(isAdult){
   clampFast();
 
   const nStd  = Math.max(0, parseInt(qStd.value||0));
   const nFast = Math.max(0, parseInt(qFast.value||0));
+  const nVip  = (qVip? Math.max(0, parseInt(qVip.value||0)) : 0); // solo minorenni
 
-  // auto-sync guardaroba se non toccato manualmente
-  if(!coatTouched) qCoat.value = nFast;
+  // Quantità auto del guardaroba: nFast + nVip (se minorenni). Solo se non toccato manualmente
+  const includedCoats = nFast + nVip;
+  if(!coatTouched) qCoat.value = includedCoats;
 
   const nCoat = Math.max(0, parseInt(qCoat.value||0));
   const nSoft = Math.max(0, parseInt(qSoft.value||0));
-  const nAlc  = Math.max(0, parseInt(qAlc.value||0));
+  const nAlc  = Math.max(0, parseInt((isAdult? qAlc?.value : 0) || 0));
 
-  const stdCost  = nStd  * PRICES.std;
-  const fastCost = nFast * PRICES.fast;
+  // Costi
+  const stdCost   = nStd  * PRICES.std;
+  const fastCost  = nFast * PRICES.fast;
+  const vipCost   = nVip  * PRICES.vip_minor;
 
-  // 1 capo gratis per ogni Fast
-  const included = nFast;
-  const paidCoats = Math.max(0, nCoat - included);
+  // Guardaroba: 1 gratis per ogni Fast o VIP minor
+  const paidCoats = Math.max(0, nCoat - includedCoats);
   const coatsCost = paidCoats * PRICES.coat_online;
 
-  const softCost = nSoft * PRICES.soft_online;
+  // Soft drink: 2 gratis per ogni VIP minor
+  const includedSoft = nVip * 2;
+  const paidSoft = Math.max(0, nSoft - includedSoft);
+  const softCost = paidSoft * PRICES.soft_online;
+
   const alcCost  = nAlc  * PRICES.alc_online;
 
-  const subtotal = stdCost + fastCost + coatsCost + softCost + alcCost;
+  const subtotal = stdCost + fastCost + vipCost + coatsCost + softCost + alcCost;
   const total    = subtotal;
 
   // RIEPILOGO
   lines.innerHTML = '';
   if(nStd>0)  lines.innerHTML += `<div class="line"><span>Standard × ${nStd}</span><span>${money(stdCost)}</span></div>`;
   if(nFast>0) lines.innerHTML += `<div class="line"><span>Fast Entry × ${nFast}</span><span>${money(fastCost)}</span></div>`;
+  if(nVip>0)  lines.innerHTML += `<div class="line"><span>Ingresso Area VIP × ${nVip}</span><span>${money(vipCost)}</span></div>`;
 
-  if(nCoat>0 || included>0){
+  if(nCoat>0 || includedCoats>0){
     lines.innerHTML += `<div class="line">
       <span>Guardaroba × ${nCoat} <span class="small">(<span class="strike">${money(PRICES.coat_base)}</span> ${money(PRICES.coat_online)})</span></span>
       <span>${money(coatsCost)}</span>
     </div>`;
   }
-  if(nSoft>0) lines.innerHTML += `<div class="line"><span>Soft drink × ${nSoft} <span class="small">(<span class="strike">${money(PRICES.soft_base)}</span> ${money(PRICES.soft_online)})</span></span><span>${money(softCost)}</span></div>`;
-  if(nAlc>0)  lines.innerHTML += `<div class="line"><span>Drink alcolico × ${nAlc} <span class="small">(<span class="strike">${money(PRICES.alc_base)}</span> ${money(PRICES.alc_online)})</span></span><span>${money(alcCost)}</span></div>`;
+  if(nSoft>0 || includedSoft>0){
+    lines.innerHTML += `<div class="line"><span>Soft drink × ${nSoft} <span class="small">(<span class="strike">${money(PRICES.soft_base)}</span> ${money(PRICES.soft_online)})</span></span><span>${money(softCost)}</span></div>`;
+  }
+  if(isAdult && nAlc>0){
+    lines.innerHTML += `<div class="line"><span>Drink alcolico × ${nAlc} <span class="small">(<span class="strike">${money(PRICES.alc_base)}</span> ${money(PRICES.alc_online)})</span></span><span>${money(alcCost)}</span></div>`;
+  }
 
-  if(included>0){
-    freeBox.style.display='flex';
-    freeVal.textContent = `−${money(included * PRICES.coat_base)}`;
+  // Sconti evidenziati
+  if(includedCoats>0){
+    freeCoatLine.style.display='flex';
+    freeCoatVal.textContent = `−${money(includedCoats * PRICES.coat_base)}`;
     coatHint.style.display='block';
-    coatHint.innerHTML = `Hai <strong>${included}</strong> capo guardaroba <strong>GRATIS</strong> grazie ai Fast Entry. Prezzo online per i capi extra: <strong>${money(PRICES.coat_online)}</strong>.`;
+    coatHint.innerHTML = `Hai <strong>${includedCoats}</strong> capo guardaroba <strong>GRATIS</strong> (Fast/VIP). Prezzo online per i capi extra: <strong>${money(PRICES.coat_online)}</strong>.`;
   }else{
-    freeBox.style.display='none';
+    freeCoatLine.style.display='none';
     coatHint.style.display='none';
+  }
+
+  if(includedSoft>0){
+    freeSoftLine.style.display='flex';
+    freeSoftVal.textContent = `−${money(includedSoft * PRICES.soft_online)}`;
+  }else{
+    freeSoftLine.style.display='none';
   }
 
   subTot.textContent = money(subtotal);
@@ -327,14 +372,14 @@ function calc(){
   payBtn.disabled = total <= 0;
 }
 
-function bindQty(){
+function bindQty(isAdult){
   document.querySelectorAll('[data-plus]').forEach(b=>{
     b.addEventListener('click', ()=>{
       const t=document.querySelector(b.getAttribute('data-plus'));
       t.value = (parseInt(t.value||0)+1);
-      if(t===qFast) clampFast();
+      if(t===qFast) { if(parseInt(qFast.value)>PRICES.max_fast) qFast.value=PRICES.max_fast; }
       if(t===qCoat) coatTouched = true;
-      calc();
+      calc(isAdult);
     });
   });
   document.querySelectorAll('[data-minus]').forEach(b=>{
@@ -342,26 +387,48 @@ function bindQty(){
       const t=document.querySelector(b.getAttribute('data-minus'));
       t.value = Math.max(0, parseInt(t.value||0)-1);
       if(t===qCoat) coatTouched = true;
-      calc();
+      calc(isAdult);
     });
   });
 
-  qFast.addEventListener('input', ()=>{ clampFast(); calc(); });
-  [qStd,qSoft,qAlc].forEach(i=> i.addEventListener('input', calc));
-  qCoat.addEventListener('input', ()=>{ coatTouched = true; calc(); });
+  [qStd,qFast,qVip,qSoft,qAlc].forEach(i=> i && i.addEventListener('input', ()=>calc(isAdult)));
+  qCoat.addEventListener('input', ()=>{ coatTouched = true; calc(isAdult); });
 }
 
-// AUTH + init
+// AUTH + età + UI
 requireAuth('./login.html').then(u=>{
   const name = (u.displayName || u.email || 'Utente').split(' ')[0];
   document.getElementById('hello').textContent = `Accesso come: ${name}`;
-  bindQty(); calc();
+
+  // carico DOB salvata in localStorage dalla signup
+  let isAdult = true;
+  try{
+    const prof = JSON.parse(localStorage.getItem(`trapperreo_profile_${u.uid}`)||'null');
+    const age = calcAge(prof?.dob);
+    isAdult = age >= 18;
+  }catch(_){}
+
+  // Adattamenti UI in base all'età
+  if(isAdult){
+    stdNote.textContent = 'Ingresso normale. Drink alcolico/analcolico disponibili.';
+    vipAdultRow.style.display='grid';
+    vipMinorRow.style.display='none';
+    alcRow.style.display='grid';
+  }else{
+    stdNote.textContent = 'Ingresso normale. Drink analcolici disponibili.';
+    vipAdultRow.style.display='none';
+    vipMinorRow.style.display='grid';
+    alcRow.style.display='none';
+  }
+
+  bindQty(isAdult);
+  calc(isAdult);
 });
 
-// VIP CTA (placeholder)
+// VIP CTA (adulti) placeholder
 document.getElementById('vipBtn').addEventListener('click', (e)=>{
   e.preventDefault();
-  alert('Prenotazione VIP: ti contattiamo via DM/WhatsApp. (qui metteremo il link reale)');
+  alert('VIP Table: ti contattiamo per i dettagli. (qui metteremo il link reale)');
 });
 
 // Pagamento (placeholder)
