@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Benvenuto — TRAPPERREO</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&display=swap" rel="stylesheet">
+<style>
+:root{--accent:#8b5cf6;--bg:#000;--text:#fff}
+*{box-sizing:border-box;margin:0;padding:0}
+body{min-height:100vh;display:grid;place-items:center;background:#000;color:#fff;font-family:Inter,system-ui,sans-serif}
+.card{width:min(92%,520px);background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:16px;padding:28px;text-align:center}
+h1{font-size:28px;font-weight:900;margin-bottom:6px}
+p{opacity:.85}
+.btn{display:inline-block;margin:10px 6px 0 6px;padding:12px 16px;border-radius:10px;text-decoration:none;font-weight:900}
+.btn.primary{background:var(--accent);color:#000}
+.btn.ghost{border:1px solid rgba(255,255,255,.2);color:#fff}
+</style>
+</head>
+<body>
+  <div class="card">
+    <h1 id="hello">Ciao!</h1>
+    <p>Account creato con successo.</p>
+    <div style="margin-top:14px">
+      <a class="btn primary" id="goBuy" href="/checkout.html">Continua a comprare</a>
+      <a class="btn ghost" href="/index.html">Torna alla home</a>
+    </div>
+  </div>
+
+<script type="module">
+import { auth, onUser } from '/auth.v2.js?v=3';
+
+onUser(u=>{
+  if(!u){ location.href='/login.html?from=%2Fwelcome.html'; return; }
+  const name = u.displayName || (u.email ? u.email.split('@')[0] : 'Utente');
+  document.getElementById('hello').textContent = `Ciao, ${name.split(' ')[0]}!`;
+});
+</script>
+</body>
+</html>
