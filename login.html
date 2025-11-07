@@ -78,60 +78,64 @@ input{width:100%;margin-top:6px;margin-bottom:14px;padding:12px 12px;border:none
 
 <!-- Script unico -->
 <script type="module">
-import { emailSignIn, sendReset } from './auth.v2.js?v=3';
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-app.js";
+  import {
+    getAuth, signInWithEmailAndPassword, sendPasswordResetEmail
+  } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-auth.js";
 
-const $ = (q)=>document.querySelector(q);
-const getParam = (n)=> new URLSearchParams(location.search).get(n);
+  const firebaseConfig = {
+    apiKey: "AIzaSyDF6BiYXreDirGnT3RPkGwDNlwj5ploUyo",
+    authDomain: "trappereo.firebaseapp.com",
+    projectId: "trappereo",
+    storageBucket: "trappereo.firebasestorage.app",
+    messagingSenderId: "767231932063",
+    appId: "1:767231932063:web:b1431de1c04bbe5dc0d4aa",
+    measurementId: "G-BDBRZQ6J8S"
+  };
 
-console.log('login.js loaded —', {
-  emailSignIn: typeof emailSignIn,
-  sendReset: typeof sendReset
-});
+  const app  = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
 
-document.getElementById('loginBtn').addEventListener('click', async (e)=>{
-  e.preventDefault();
-  document.getElementById('err').style.display='none';
-  document.getElementById('msg').style.display='none';
-  try{
-    const email = $('#email').value.trim();
-    const pwd   = $('#password').value;
-    if(!email || !pwd) throw new Error("Inserisci email e password.");
+  const $ = (q)=>document.querySelector(q);
+  const getParam = (n)=> new URLSearchParams(location.search).get(n);
 
-    console.log('LOGIN…', email);
-    await emailSignIn(email, pwd);
+  document.getElementById('loginBtn').addEventListener('click', async (e)=>{
+    e.preventDefault();
+    const err = document.getElementById('err'); err.style.display='none';
+    try{
+      const email = $('#email').value.trim();
+      const pwd   = $('#password').value;
+      if(!email || !pwd) throw new Error("Inserisci email e password.");
+      await signInWithEmailAndPassword(auth, email, pwd);
+      const dest = getParam('from') || '/checkout.html';
+      location.assign(dest);
+    }catch(ex){
+      err.textContent = ex.message || 'Errore imprevisto';
+      err.style.display = 'block';
+    }
+  });
 
-    const dest = getParam('from') || '/checkout.html';
-    location.assign(dest);
-  }catch(err){
-    console.error('login error:', err);
-    const box = document.getElementById('err');
-    box.textContent = err?.message || 'Errore imprevisto';
-    box.style.display = 'block';
-  }
-});
+  document.getElementById('forgotToggle').addEventListener('click', (e)=>{
+    e.preventDefault();
+    const box = document.getElementById('resetBox');
+    box.style.display = (box.style.display === 'none' ? 'block' : 'none');
+  });
 
-document.getElementById('forgotToggle').addEventListener('click', (e)=>{
-  e.preventDefault();
-  const box = document.getElementById('resetBox');
-  box.style.display = (box.style.display === 'none' ? 'block' : 'none');
-});
-
-document.getElementById('resetBtn').addEventListener('click', async ()=>{
-  const resetErr = document.getElementById('resetErr');
-  const resetMsg = document.getElementById('resetMsg');
-  resetErr.style.display='none'; resetMsg.style.display='none';
-  try{
-    const em = document.getElementById('resetEmail').value.trim();
-    if(!em) throw new Error("Inserisci l'email.");
-    await sendReset(em);
-    resetMsg.textContent = "Email di reset inviata. Controlla la tua casella.";
-    resetMsg.style.display = 'block';
-  }catch(err){
-    console.error('reset error:', err);
-    resetErr.textContent = err?.message || 'Errore imprevisto';
-    resetErr.style.display = 'block';
-  }
-});
+  document.getElementById('resetBtn').addEventListener('click', async ()=>{
+    const resetErr = document.getElementById('resetErr');
+    const resetMsg = document.getElementById('resetMsg');
+    resetErr.style.display='none'; resetMsg.style.display='none';
+    try{
+      const em = document.getElementById('resetEmail').value.trim();
+      if(!em) throw new Error("Inserisci l'email.");
+      await sendPasswordResetEmail(auth, em);
+      resetMsg.textContent = "Email di reset inviata. Controlla la tua casella.";
+      resetMsg.style.display = 'block';
+    }catch(ex){
+      resetErr.textContent = ex.message || 'Errore imprevisto';
+      resetErr.style.display = 'block';
+    }
+  });
 </script>
 </body>
 </html>
