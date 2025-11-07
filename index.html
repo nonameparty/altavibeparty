@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>ALTAVIBE – Evento Privato Biella</title>
+<style>
+  :root {
+    --yellow:#facc15;
+    --bg:#000;
+    --text:#fff;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{background:var(--bg);color:var(--text);font-family:Arial,Helvetica,sans-serif;line-height:1.5;}
+  header{position:sticky;top:0;background:rgba(0,0,0,.9);border-bottom:1px solid rgba(255,255,255,.1);z-index:10;}
+  header .inner{max-width:1100px;margin:auto;display:flex;justify-content:space-between;align-items:center;padding:15px;}
+  header h1{font-size:20px;font-weight:900;letter-spacing:-.5px;}
+  header nav a{color:#fff;text-decoration:none;margin:0 10px;font-size:14px;}
+  header nav a:hover{color:var(--yellow);}
+  section{padding:60px 20px;border-top:1px solid rgba(255,255,255,.1);}
+  .hero{display:grid;max-width:1100px;margin:auto;gap:40px;align-items:center;}
+  .hero-text h2{font-size:42px;font-weight:900;}
+  .hero-text span{color:var(--yellow);}
+  .btn{display:inline-block;margin-top:20px;padding:12px 20px;background:var(--yellow);color:#000;font-weight:700;border-radius:6px;text-decoration:none;}
+  .concept{max-width:1100px;margin:auto;}
+  .concept h3{font-size:28px;font-weight:900;margin-bottom:30px;}
+  .concept-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:20px;}
+  .box{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:10px;padding:20px;}
+  .box h4{margin-bottom:10px;color:var(--yellow);}
+  .packages{max-width:1100px;margin:auto;}
+  .pack-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:20px;}
+  .pack{background:#000;border:1px solid rgba(255,255,255,.1);border-radius:14px;padding:25px;}
+  .pack h4{font-size:20px;font-weight:900;margin-bottom:8px;}
+  .pack .price{font-size:28px;font-weight:900;color:var(--yellow);}
+  form{max-width:450px;margin:auto;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);padding:25px;border-radius:10px;}
+  form label{font-size:14px;color:rgba(255,255,255,.7);}
+  form input,form select{width:100%;margin-top:4px;margin-bottom:15px;padding:8px;border:none;border-radius:6px;background:#111;color:#fff;}
+  form button{background:var(--yellow);color:#000;font-weight:700;border:none;padding:10px 20px;border-radius:6px;cursor:pointer;}
+  footer{border-top:1px solid rgba(255,255,255,.1);padding:25px;text-align:center;color:rgba(255,255,255,.6);font-size:14px;}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="inner">
+    <h1>ALTAVIBE</h1>
+    <nav>
+      <a href="#concept">Concept</a>
+      <a href="#packages">Pacchetti</a>
+      <a href="#form">Lista</a>
+    </nav>
+  </div>
+</header>
+
+<section class="hero" id="home">
+  <div class="hero-text">
+    <p>Biella • Evento Privato su lista</p>
+    <h2>La notte <span>che alza l’asticella</span></h2>
+    <p>Musica, energia e zero caos alla porta: ingresso solo con prevendita o lista nominativa.</p>
+    <a href="#form" class="btn">Prenota ora</a>
+  </div>
+  <img src="https://via.placeholder.com/400x500/000000/FFFFFF?text=Poster+ALTAVIBE" alt="Poster evento" style="width:100%;border-radius:12px;">
+</section>
+
+<section id="concept">
+  <div class="concept">
+    <h3>Perché è diverso</h3>
+    <div class="concept-grid">
+      <div class="box">
+        <h4>Ingresso smart</h4>
+        <p>Lista o prevendita nominativa: entri veloce, zero fila inutile.</p>
+      </div>
+      <div class="box">
+        <h4>Esperienza curata</h4>
+        <p>Audio/luci seri, line-up pensata e vibe da viaggio di maturità (ma fatta bene).</p>
+      </div>
+      <div class="box">
+        <h4>Sicurezza & privacy</h4>
+        <p>Location a norma, controllo accessi, evento privato a numero chiuso.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="packages">
+  <div class="packages">
+    <h3 style="font-size:28px;font-weight:900;margin-bottom:30px;">Scegli il tuo mood</h3>
+    <div class="pack-grid">
+      <div class="pack">
+        <h4>Standard</h4>
+        <div class="price">15 €</div>
+        <ul>
+          <li>Accesso rapido</li>
+          <li>QR nominativo</li>
+          <li>Supporto PR</li>
+        </ul>
+      </div>
+      <div class="pack">
+        <h4>Crew 5</h4>
+        <div class="price">65 €</div>
+        <ul>
+          <li>5 ingressi</li>
+          <li>1 cambio nome</li>
+          <li>Supporto PR dedicato</li>
+        </ul>
+      </div>
+      <div class="pack">
+        <h4>VIP Table</h4>
+        <div class="price">da 120 €</div>
+        <ul>
+          <li>Tavolo riservato</li>
+          <li>Bottiglia</li>
+          <li>Host dedicato</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="form">
+  <h3 style="text-align:center;font-size:28px;font-weight:900;margin-bottom:20px;">Lista nominativa / Prevendita</h3>
+  <form onsubmit="alert('Simulazione: iscrizione inviata!');return false;">
+    <label>Nome e cognome</label>
+    <input required placeholder="Mario Rossi">
+    <label>Email</label>
+    <input type="email" required placeholder="mario@email.it">
+    <label>Telefono</label>
+    <input type="tel" placeholder="3331234567">
+    <label>PR di riferimento (opzionale)</label>
+    <select>
+      <option>Nessuno</option><option>Giulia</option><option>Luca</option><option>Andre</option>
+    </select>
+    <label><input type="checkbox" required> Accetto privacy e ricevere il QR via email</label><br><br>
+    <button type="submit">Invia richiesta</button>
+  </form>
+</section>
+
+<footer>
+  © 2025 ALTAVIBE • Evento privato – Biella
+</footer>
+
+</body>
+</html>
