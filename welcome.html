@@ -3,7 +3,6 @@
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Benvenuto — TRAPPERREO</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&display=swap" rel="stylesheet">
 <style>
 :root{--accent:#8b5cf6;--bg:#000;--text:#fff}
@@ -30,10 +29,13 @@ p{opacity:.85}
 <script type="module">
 import { auth, onUser } from '/auth.v2.js?v=3';
 
+function getParam(n){ return new URLSearchParams(location.search).get(n); }
 onUser(u=>{
   if(!u){ location.href='/login.html?from=%2Fwelcome.html'; return; }
   const name = u.displayName || (u.email ? u.email.split('@')[0] : 'Utente');
   document.getElementById('hello').textContent = `Ciao, ${name.split(' ')[0]}!`;
+  const next = getParam('next');
+  if(next){ document.getElementById('goBuy').href = next; }
 });
 </script>
 </body>
