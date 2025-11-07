@@ -5,35 +5,245 @@
 <title>Checkout — TRAPPERREO</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&display=swap" rel="stylesheet">
 <style>
-:root{--accent:#8b5cf6;--bg:#000;--text:#fff}
+:root{--accent:#8b5cf6;--bg:#000;--text:#fff;--card:rgba(255,255,255,.06);--border:rgba(255,255,255,.12)}
 *{box-sizing:border-box;margin:0;padding:0}
-body{min-height:100vh;display:grid;place-items:center;background:#000;color:#fff;font-family:Inter,system-ui,sans-serif}
-.card{width:min(92%,560px);background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:16px;padding:28px}
-h1{font-size:26px;font-weight:900;margin-bottom:8px}
-.badge{display:inline-block;margin:4px 6px 0 0;padding:8px 10px;background:#0f0f10;border:1px solid rgba(255,255,255,.15);border-radius:10px}
-.btn{display:inline-block;margin-top:16px;padding:12px 16px;border-radius:10px;text-decoration:none;font-weight:900;background:var(--accent);color:#000}
-.small{font-size:13px;opacity:.75;margin-top:12px}
+body{background:#000;color:#fff;font-family:Inter,system-ui,sans-serif;min-height:100vh;display:grid;grid-template-rows:auto 1fr}
+header{border-bottom:1px solid rgba(255,255,255,.08);padding:16px 20px}
+.wrap{max-width:1100px;margin:auto;padding:20px}
+h1{font-size:26px;font-weight:900;letter-spacing:-.2px}
+.subtitle{opacity:.8;margin-top:6px}
+.grid{display:grid;grid-template-columns:1fr;gap:16px;margin-top:18px}
+@media(min-width:900px){.grid{grid-template-columns:2fr 1fr}}
+.card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:18px}
+.badges{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.badge{background:#0f0f10;border:1px solid rgba(255,255,255,.15);border-radius:10px;padding:8px 10px;font-size:13px}
+.tickets{display:grid;gap:12px}
+.row{display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center;background:#0b0b0b;border:1px solid rgba(255,255,255,.1);border-radius:12px;padding:14px}
+.title{font-weight:900}
+.note{font-size:13px;opacity:.8;margin-top:4px}
+.controls{display:flex;align-items:center;gap:8px}
+.qty{display:flex;align-items:center;border:1px solid rgba(255,255,255,.2);border-radius:10px;overflow:hidden}
+.qty button{width:36px;height:36px;background:#111;border:none;color:#fff;font-weight:900;cursor:pointer}
+.qty input{width:48px;height:36px;text-align:center;background:#0a0a0a;border:none;color:#fff;font-weight:800}
+.price{font-weight:900}
+.small{font-size:13px;opacity:.75}
+.sticky{position:sticky;bottom:0;background:linear-gradient(180deg, rgba(0,0,0,.0), rgba(0,0,0,.4) 20%, #000 40%);padding-top:16px;margin-top:16px}
+.totalbar{display:flex;justify-content:space-between;align-items:center;background:#0f0f10;border:1px solid rgba(255,255,255,.15);border-radius:14px;padding:14px 16px}
+.totalbar strong{font-size:22px}
+.pay{display:inline-block;padding:12px 16px;border-radius:10px;text-decoration:none;font-weight:900;background:var(--accent);color:#000;cursor:pointer}
+.pay[disabled]{opacity:.5;cursor:not-allowed}
+.hr{height:1px;background:rgba(255,255,255,.08);margin:14px 0}
+.line{display:flex;justify-content:space-between;font-size:14px;margin:6px 0}
+.save{color:#34d399;font-weight:700}
+.warn{color:#f59e0b;font-weight:700}
 </style>
 </head>
 <body>
-  <div class="card">
-    <h1>Checkout</h1>
-    <div>Accesso come: <strong id="who"></strong></div>
-    <div style="margin-top:10px">
-      <span class="badge">Sab 21 Mar 2026</span>
-      <span class="badge">22:30 → 04:30</span>
-      <span class="badge">Via Italia 38, Biella</span>
-      <span class="badge">Standard • 15€</span>
+
+<header class="wrap">
+  <h1>Checkout</h1>
+  <div class="subtitle" id="hello">Accesso come…</div>
+</header>
+
+<main class="wrap">
+  <div class="grid">
+    <!-- COLONNA SINISTRA -->
+    <div class="card">
+      <div class="badges">
+        <span class="badge">Sab 21 Mar 2026</span>
+        <span class="badge">22:30 → 04:30</span>
+        <span class="badge">Via Italia 38, Biella</span>
+      </div>
+
+      <h2 style="font-size:20px;font-weight:900;margin:14px 0 8px">Scegli i biglietti</h2>
+      <div class="tickets">
+
+        <!-- STANDARD -->
+        <div class="row">
+          <div>
+            <div class="title">Standard</div>
+            <div class="note">Ingresso normale. Guardaroba +3€ a capo (opzionale).</div>
+          </div>
+          <div class="controls">
+            <div class="price">15€</div>
+            <div class="qty">
+              <button data-minus="#qStd">−</button>
+              <input id="qStd" type="number" min="0" value="0" inputmode="numeric">
+              <button data-plus="#qStd">+</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- FAST ENTRY -->
+        <div class="row">
+          <div>
+            <div class="title">Fast Entry <span class="badge" style="margin-left:6px;border-color:#8b5cf6">Più scelto</span></div>
+            <div class="note">Salta la fila + <strong>1 capo guardaroba incluso</strong> per biglietto.</div>
+          </div>
+          <div class="controls">
+            <div class="price">20€</div>
+            <div class="qty">
+              <button data-minus="#qFast">−</button>
+              <input id="qFast" type="number" min="0" value="0" inputmode="numeric">
+              <button data-plus="#qFast">+</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- VIP -->
+        <div class="row">
+          <div>
+            <div class="title">VIP Table</div>
+            <div class="note">Tavolo riservato, bottiglia, host dedicato.</div>
+          </div>
+          <div class="controls">
+            <div class="price">da 120€</div>
+            <div class="qty">
+              <button data-minus="#qVip">−</button>
+              <input id="qVip" type="number" min="0" value="0" inputmode="numeric">
+              <button data-plus="#qVip">+</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <h2 style="font-size:20px;font-weight:900;margin:16px 0 8px">Guardaroba</h2>
+      <div class="row">
+        <div>
+          <div class="title">Capi guardaroba</div>
+          <div class="note">3€ a capo. <strong>Inclusi gratis:</strong> 1 capo per ogni Fast Entry acquistato.</div>
+        </div>
+        <div class="controls">
+          <div class="price">3€</div>
+          <div class="qty">
+            <button data-minus="#qCoats">−</button>
+            <input id="qCoats" type="number" min="0" value="0" inputmode="numeric">
+            <button data-plus="#qCoats">+</button>
+          </div>
+        </div>
+      </div>
+      <div class="small" id="coatHint" style="margin-top:6px;display:none"></div>
     </div>
-    <a class="btn" href="#">Procedi al pagamento</a>
-    <div class="small"><a href="./index.html">← Torna alla home</a></div>
+
+    <!-- COLONNA DESTRA (RIEPILOGO) -->
+    <aside class="card">
+      <h2 style="font-size:18px;font-weight:900;margin-bottom:8px">Riepilogo</h2>
+
+      <div id="lines"></div>
+      <div class="hr"></div>
+
+      <div class="line"><span>Subtotale</span><span id="subTot">0€</span></div>
+      <div class="line small"><span>IVA inclusa</span><span>OK</span></div>
+
+      <div id="saveLine" class="line save" style="display:none">
+        <span>Guardaroba incluso</span><span id="saveVal">−0€</span>
+      </div>
+
+      <div class="sticky">
+        <div class="totalbar">
+          <div>
+            <div class="small">Totale</div>
+            <strong id="grandTot">0€</strong>
+          </div>
+          <button id="payBtn" class="pay" disabled>Procedi al pagamento</button>
+        </div>
+      </div>
+
+      <div class="small" style="margin-top:10px">Confermando vai alla cassa (simulazione).</div>
+    </aside>
   </div>
+</main>
 
 <script type="module">
 import { requireAuth } from './auth.v2.js?v=3';
+
+const PRICES = { std:15, fast:20, vip:120, coat:3 };
+
+const el = (id)=>document.getElementById(id);
+const qStd  = el('qStd');
+const qFast = el('qFast');
+const qVip  = el('qVip');
+const qCoat = el('qCoats');
+
+const lines   = el('lines');
+const subTot  = el('subTot');
+const grand   = el('grandTot');
+const saveBox = el('saveLine');
+const saveVal = el('saveVal');
+const coatHint= el('coatHint');
+const payBtn  = el('payBtn');
+
+function money(n){ return `${n.toFixed(2).replace('.00','')}€`; }
+
+function calc(){
+  const nStd  = Math.max(0, parseInt(qStd.value||0));
+  const nFast = Math.max(0, parseInt(qFast.value||0));
+  const nVip  = Math.max(0, parseInt(qVip.value||0));
+  const nCoat = Math.max(0, parseInt(qCoat.value||0));
+
+  const stdCost  = nStd  * PRICES.std;
+  const fastCost = nFast * PRICES.fast;
+  const vipCost  = nVip  * PRICES.vip;
+
+  // Guardaroba: 1 incluso per ogni Fast Entry acquistato
+  const included = nFast; // capi inclusi
+  const extraCoats = Math.max(0, nCoat - included);
+  const coatsCost  = extraCoats * PRICES.coat;
+
+  const subtotal = stdCost + fastCost + vipCost + coatsCost;
+  const total    = subtotal;
+
+  // UI breakdown
+  lines.innerHTML = '';
+  if(nStd>0)  lines.innerHTML += `<div class="line"><span>Standard × ${nStd}</span><span>${money(stdCost)}</span></div>`;
+  if(nFast>0) lines.innerHTML += `<div class="line"><span>Fast Entry × ${nFast}</span><span>${money(fastCost)}</span></div>`;
+  if(nVip>0)  lines.innerHTML += `<div class="line"><span>VIP Table × ${nVip}</span><span>${money(vipCost)}</span></div>`;
+  if(nCoat>0){
+    const usedFree = Math.min(nCoat, included);
+    lines.innerHTML += `<div class="line"><span>Guardaroba ${usedFree? '(extra)' : ''} × ${nCoat}</span><span>${money(coatsCost)}</span></div>`;
+  }
+
+  // hint guardaroba
+  if(included>0){
+    const usedFreeVal = Math.min(nCoat, included) * PRICES.coat;
+    coatHint.style.display = 'block';
+    coatHint.innerHTML = `Hai <strong>${included}</strong> capo guardaroba <strong>INCLUSO</strong> grazie ai Fast Entry.`;
+    if(usedFreeVal>0){
+      saveBox.style.display = 'flex';
+      saveVal.textContent = `−${money(usedFreeVal)}`;
+    }else{
+      saveBox.style.display = 'none';
+    }
+  }else{
+    coatHint.style.display = 'none';
+    saveBox.style.display = 'none';
+  }
+
+  subTot.textContent = money(subtotal);
+  grand.textContent  = money(total);
+  payBtn.disabled = total <= 0;
+}
+
+function bindQty(){
+  document.querySelectorAll('[data-plus]').forEach(b=>{
+    b.addEventListener('click', ()=>{ const t=document.querySelector(b.getAttribute('data-plus')); t.value = (parseInt(t.value||0)+1); calc(); });
+  });
+  document.querySelectorAll('[data-minus]').forEach(b=>{
+    b.addEventListener('click', ()=>{ const t=document.querySelector(b.getAttribute('data-minus')); t.value = Math.max(0, parseInt(t.value||0)-1); calc(); });
+  });
+  [qStd,qFast,qVip,qCoat].forEach(i=> i.addEventListener('input', calc));
+}
+
 requireAuth('./login.html').then(u=>{
-  const name = u.displayName || (u.email ? u.email : 'Utente');
-  document.getElementById('who').textContent = name;
+  // saluto
+  const name = (u.displayName || u.email || 'Utente').split(' ')[0];
+  document.getElementById('hello').textContent = `Accesso come: ${name}`;
+  bindQty();
+  calc();
+});
+
+payBtn.addEventListener('click', ()=>{
+  alert('Simulazione pagamento: ordine creato!\n(qui collegheremo il gateway di pagamento)');
 });
 </script>
 </body>
