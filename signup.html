@@ -70,55 +70,51 @@ input{width:100%;margin-top:6px;margin-bottom:14px;padding:12px;border:none;bord
 
 <!-- Script unico: importa le funzioni dall'auth v2 (cache-buster) -->
 <script type="module">
-import { emailSignUp, setDisplayName, saveDOB, calcAge } from ./auth.v2.js?v=3';
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-app.js";
+  import {
+    getAuth, createUserWithEmailAndPassword, updateProfile
+  } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-auth.js";
 
-const getParam = (n)=> new URLSearchParams(location.search).get(n);
-const $ = (q)=>document.querySelector(q);
+  const firebaseConfig = {
+    apiKey: "AIzaSyDF6BiYXreDirGnT3RPkGwDNlwj5ploUyo",
+    authDomain: "trappereo.firebaseapp.com",
+    projectId: "trappereo",
+    storageBucket: "trappereo.firebasestorage.app",
+    messagingSenderId: "767231932063",
+    appId: "1:767231932063:web:b1431de1c04bbe5dc0d4aa",
+    measurementId: "G-BDBRZQ6J8S"
+  };
 
-console.log('signup.js loaded —', {
-  emailSignUp: typeof emailSignUp,
-  setDisplayName: typeof setDisplayName,
-  saveDOB: typeof saveDOB,
-  calcAge: typeof calcAge
-});
+  const app  = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
 
-function showError(msg){
-  const box = document.getElementById('err');
-  box.textContent = msg;
-  box.style.display = 'block';
-}
+  const $ = (q)=>document.querySelector(q);
+  const calcAge = (d)=>{ const x=new Date(d), t=new Date(); let a=t.getFullYear()-x.getFullYear(); const m=t.getMonth()-x.getMonth(); if(m<0||(m===0&&t.getDate()<x.getDate())) a--; return a; };
 
-document.getElementById('signUpBtn').addEventListener('click', async (e)=>{
-  e.preventDefault();
-  document.getElementById('err').style.display='none';
+  document.getElementById('signUpBtn').addEventListener('click', async (e)=>{
+    e.preventDefault();
+    const err = document.getElementById('err'); err.style.display='none';
+    try{
+      const first = $('#firstName').value.trim();
+      const last  = $('#lastName').value.trim();
+      const dob   = $('#dob').value;
+      const email = $('#email').value.trim();
+      const pwd   = $('#password').value;
 
-  try{
-    const first = $('#firstName')?.value.trim();
-    const last  = $('#lastName')?.value.trim();
-    const dob   = $('#dob')?.value;
-    const email = $('#email')?.value.trim();
-    const pwd   = $('#password')?.value;
+      if(!first || !last) throw new Error("Inserisci nome e cognome.");
+      if(!dob) throw new Error("Inserisci la data di nascita.");
+      if(calcAge(dob) < 16) throw new Error("Età minima 16 anni.");
 
-    if(!first || !last) throw new Error("Inserisci nome e cognome.");
-    if(!dob) throw new Error("Inserisci la data di nascita.");
+      const cred = await createUserWithEmailAndPassword(auth, email, pwd);
+      await updateProfile(cred.user, { displayName: `${first} ${last}` });
+      localStorage.setItem(`trapperreo_profile_${cred.user.uid}`, JSON.stringify({ dob: dob }));
 
-    const age = calcAge(dob);
-    if(age < 16) throw new Error("Età minima 16 anni.");
-
-    console.log('CREO UTENTE…', email);
-    const cred = await emailSignUp(email, pwd);
-    const user = cred.user;
-
-    await setDisplayName(user, `${first} ${last}`);
-    saveDOB(user.uid, dob);
-
-    const dest = getParam('from') || '/checkout.html';
-    location.assign(dest);
-  }catch(err){
-    console.error('signup error:', err);
-    showError(err?.message || 'Errore imprevisto');
-  }
-});
+      location.assign('/checkout.html');
+    }catch(ex){
+      err.textContent = ex.message || 'Errore imprevisto';
+      err.style.display = 'block';
+    }
+  });
 </script>
 </body>
 </html>
