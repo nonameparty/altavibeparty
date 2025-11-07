@@ -16,17 +16,38 @@ h1{font-size:24px;font-weight:900;margin-bottom:8px;}
 .link{color:var(--accent);text-decoration:none;}
 </style>
 
-<!-- Protezione Firebase -->
-<script type="module" src="auth.js"></script>
+<!-- Guard Firebase inline -->
 <script type="module">
-import { requireAuth, onUser, doSignOut } from './auth.js';
-await requireAuth('login.html');
-onUser((u)=>{
-  if(!u) return;
-  document.getElementById('uemail').textContent = u.email || '';
-  document.getElementById('uname').textContent = u.displayName || (u.email ? u.email.split('@')[0] : 'utente');
-});
-window.logout = async ()=>{ await doSignOut(); location.href='index.html'; };
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-app.js";
+  import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-auth.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyDF6BiYXreDirGnT3RPkGwDNlwj5ploUyo",
+    authDomain: "trappereo.firebaseapp.com",
+    projectId: "trappereo",
+    storageBucket: "trappereo.firebasestorage.app",
+    messagingSenderId: "767231932063",
+    appId: "1:767231932063:web:b1431de1c04bbe5dc0d4aa",
+    measurementId: "G-BDBRZQ6J8S"
+  };
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+
+  // Protegge la pagina e popola i dati utente
+  onAuthStateChanged(auth, (u)=>{
+    if(!u){
+      const back = encodeURIComponent(location.pathname + location.search);
+      location.href = `login.html?from=${back}`;
+      return;
+    }
+    document.addEventListener('DOMContentLoaded', ()=>{
+      document.getElementById('uemail').textContent = u.email || '';
+      document.getElementById('uname').textContent = u.displayName || (u.email ? u.email.split('@')[0] : 'utente');
+      document.getElementById('logoutBtn')?.addEventListener('click', async (e)=>{
+        e.preventDefault(); await signOut(auth); location.href='index.html';
+      });
+    });
+  });
 </script>
 </head>
 <body>
@@ -34,15 +55,17 @@ window.logout = async ()=>{ await doSignOut(); location.href='index.html'; };
     <h1>Checkout TRAPPERREO</h1>
     <div>Accesso come: <strong id="uemail"></strong></div>
     <div style="margin-top:6px">Ciao <strong id="uname"></strong> 👋</div>
+
     <div class="row" style="margin-top:14px">
       <div class="badge">Sab 21 Mar 2026</div>
       <div class="badge">22:30 → 04:30</div>
       <div class="badge">Via Italia 38, Biella</div>
       <div class="badge">Ticket Standard • 15€</div>
     </div>
+
     <div class="row" style="margin-top:18px">
       <a class="btn" href="#">Procedi al pagamento</a>
-      <a class="link" href="#" onclick="logout()">Logout</a>
+      <a id="logoutBtn" class="link" href="#">Logout</a>
     </div>
   </div>
 </body>
