@@ -21,21 +21,29 @@ body{
 }
 a{color:var(--accent);text-decoration:none}
 .card{
-  width:min(92%,440px);background:rgba(255,255,255,.06);
+  width:min(92%,480px);background:rgba(255,255,255,.06);
   border:1px solid rgba(255,255,255,.12);border-radius:16px;padding:26px;
   backdrop-filter: blur(6px)
 }
 h1{font-size:28px;font-weight:900;margin-bottom:6px;letter-spacing:-.2px}
 .muted{color:rgba(255,255,255,.78);margin-bottom:18px}
 label{font-size:13px;color:rgba(255,255,255,.75)}
-input{width:100%;margin-top:6px;margin-bottom:14px;padding:12px 12px;border:none;border-radius:10px;background:#0f0f10;color:#fff}
+input{width:100%;margin-top:6px;margin-bottom:14px;padding:12px;border:none;border-radius:10px;background:#0f0f10;color:#fff}
 .btn{width:100%;padding:12px 16px;border:none;border-radius:10px;background:var(--accent);color:#000;font-weight:900;cursor:pointer}
+.btn[disabled]{opacity:.6;cursor:not-allowed}
 .row{display:flex;justify-content:space-between;align-items:center;margin-top:12px;gap:10px;flex-wrap:wrap}
 .error,.success{padding:10px;border-radius:10px;margin-bottom:12px;display:none}
 .error{background:#2a0e0e;border:1px solid #ff6b6b;color:#ffdede}
 .success{background:#0e2a14;border:1px solid #34d399;color:#c6f6d5}
 #resetBox{display:none;margin-top:12px;background:#0f0f10;padding:12px;border-radius:10px;border:1px solid rgba(255,255,255,.15)}
 .small{font-size:13px;color:rgba(255,255,255,.75)}
+.eye{position:relative}
+.eye input{padding-right:48px}
+.eye button{
+  position:absolute;right:8px;top:50%;transform:translateY(-50%);
+  background:transparent;border:1px solid rgba(255,255,255,.2);
+  color:#fff;border-radius:8px;padding:6px 8px;cursor:pointer;font-size:12px
+}
 </style>
 </head>
 <body>
@@ -50,16 +58,17 @@ input{width:100%;margin-top:6px;margin-bottom:14px;padding:12px 12px;border:none
   <label for="email">Email</label>
   <input id="email" type="email" placeholder="tuo@email.it" autocomplete="email" required>
 
-  <label for="password">Password</label>
-  <input id="password" type="password" placeholder="Minimo 6 caratteri" autocomplete="current-password" required>
+  <div class="eye">
+    <label for="password">Password</label>
+    <input id="password" type="password" placeholder="Minimo 6 caratteri" autocomplete="current-password" required>
+    <button type="button" data-toggle="#password">Mostra</button>
+  </div>
 
   <button id="loginBtn" class="btn" type="button">Entra</button>
 
   <div class="row small">
     <a href="#" id="forgotToggle">Password dimenticata?</a>
-    <span>
-      Non hai un account? <a href="signup.html">Registrati</a>
-    </span>
+    <span>Non hai un account? <a href="signup.html">Registrati</a></span>
   </div>
 
   <!-- Reset password (no popup) -->
@@ -76,7 +85,7 @@ input{width:100%;margin-top:6px;margin-bottom:14px;padding:12px 12px;border:none
   </div>
 </div>
 
-<!-- Script unico -->
+<!-- Firebase inline -->
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-app.js";
   import {
@@ -99,9 +108,38 @@ input{width:100%;margin-top:6px;margin-bottom:14px;padding:12px 12px;border:none
   const $ = (q)=>document.querySelector(q);
   const getParam = (n)=> new URLSearchParams(location.search).get(n);
 
-  document.getElementById('loginBtn').addEventListener('click', async (e)=>{
+  function mapFirebaseError(code){
+    const m = {
+      "auth/invalid-credential": "Credenziali non valide.",
+      "auth/invalid-email": "Email non valida.",
+      "auth/user-not-found": "Utente non trovato.",
+      "auth/wrong-password": "Password errata.",
+      "auth/too-many-requests": "Troppi tentativi. Riprova tra poco."
+    };
+    return m[code] || "Errore di accesso. Riprova.";
+  }
+  function showErr(msg){ const b=$('#err'); b.textContent=msg; b.style.display='block'; }
+  function showMsg(msg){ const b=$('#msg'); b.textContent=msg; b.style.display='block'; }
+  function clearMsgs(){ $('#err').style.display='none'; $('#msg').style.display='none'; $('#resetErr').style.display='none'; $('#resetMsg').style.display='none'; }
+
+  // Mostra/Nascondi password
+  document.querySelectorAll('button[data-toggle]').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      const sel = btn.getAttribute('data-toggle');
+      const inp = document.querySelector(sel);
+      if(!inp) return;
+      const type = inp.type === 'password' ? 'text' : 'password';
+      inp.type = type;
+      btn.textContent = (type==='password' ? 'Mostra' : 'Nascondi');
+    });
+  });
+
+  // Login
+  $('#loginBtn').addEventListener('click', async (e)=>{
     e.preventDefault();
-    const err = document.getElementById('err'); err.style.display='none';
+    clearMsgs();
+    const btn = e.currentTarget;
+    btn.setAttribute('disabled','disabled'); btn.textContent='Accesso…';
     try{
       const email = $('#email').value.trim();
       const pwd   = $('#password').value;
@@ -110,29 +148,34 @@ input{width:100%;margin-top:6px;margin-bottom:14px;padding:12px 12px;border:none
       const dest = getParam('from') || '/checkout.html';
       location.assign(dest);
     }catch(ex){
-      err.textContent = ex.message || 'Errore imprevisto';
-      err.style.display = 'block';
+      console.error(ex);
+      showErr(ex?.code ? mapFirebaseError(ex.code) : (ex?.message || "Errore imprevisto"));
+    }finally{
+      btn.removeAttribute('disabled'); btn.textContent='Entra';
     }
   });
 
-  document.getElementById('forgotToggle').addEventListener('click', (e)=>{
+  // Toggle reset box
+  $('#forgotToggle').addEventListener('click', (e)=>{
     e.preventDefault();
-    const box = document.getElementById('resetBox');
-    box.style.display = (box.style.display === 'none' ? 'block' : 'none');
+    const box = $('#resetBox');
+    box.style.display = (box.style.display === 'none' || box.style.display === '' ? 'block' : 'none');
   });
 
-  document.getElementById('resetBtn').addEventListener('click', async ()=>{
-    const resetErr = document.getElementById('resetErr');
-    const resetMsg = document.getElementById('resetMsg');
+  // Reset password
+  $('#resetBtn').addEventListener('click', async ()=>{
+    const resetErr = $('#resetErr');
+    const resetMsg = $('#resetMsg');
     resetErr.style.display='none'; resetMsg.style.display='none';
     try{
-      const em = document.getElementById('resetEmail').value.trim();
+      const em = $('#resetEmail').value.trim();
       if(!em) throw new Error("Inserisci l'email.");
       await sendPasswordResetEmail(auth, em);
       resetMsg.textContent = "Email di reset inviata. Controlla la tua casella.";
       resetMsg.style.display = 'block';
     }catch(ex){
-      resetErr.textContent = ex.message || 'Errore imprevisto';
+      console.error(ex);
+      resetErr.textContent = ex?.code ? mapFirebaseError(ex.code) : (ex?.message || "Errore imprevisto");
       resetErr.style.display = 'block';
     }
   });
