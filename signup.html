@@ -4,17 +4,34 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Registrati — TRAPPERREO</title>
+
+<!-- Font come index -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&display=swap" rel="stylesheet">
+
 <style>
 :root{--accent:#8b5cf6;--bg:#000;--text:#fff;}
-*{box-sizing:border-box;margin:0;padding:0;}
-body{background:var(--bg);color:var(--text);font-family:Arial,Helvetica,sans-serif;min-height:100vh;display:grid;place-items:center;}
-.card{width:min(92%,420px);background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);border-radius:16px;padding:26px;}
-h1{font-size:26px;font-weight:900;margin-bottom:6px;}
-.muted{color:rgba(255,255,255,.75);margin-bottom:18px;}
-label{font-size:13px;color:rgba(255,255,255,.75);}
-input{width:100%;margin-top:6px;margin-bottom:14px;padding:12px;border:none;border-radius:10px;background:#111;color:#fff;}
-button{width:100%;padding:12px 16px;border:none;border-radius:10px;background:var(--accent);color:#000;font-weight:900;cursor:pointer;}
-.error{background:#2a0e0e;border:1px solid #ff6b6b;color:#ffdede;padding:10px;border-radius:10px;margin-bottom:12px;display:none;}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{
+  background:radial-gradient(60% 60% at 50% 40%, rgba(139,92,246,.12), transparent 60%), #000;
+  color:var(--text);font-family:'Inter',system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+  min-height:100vh;display:grid;place-items:center
+}
+a{color:var(--accent);text-decoration:none}
+.card{
+  width:min(92%,440px);background:rgba(255,255,255,.06);
+  border:1px solid rgba(255,255,255,.12);border-radius:16px;padding:26px;
+  backdrop-filter: blur(6px)
+}
+h1{font-size:28px;font-weight:900;margin-bottom:6px;letter-spacing:-.2px}
+.muted{color:rgba(255,255,255,.78);margin-bottom:18px}
+label{font-size:13px;color:rgba(255,255,255,.75)}
+input{width:100%;margin-top:6px;margin-bottom:14px;padding:12px;border:none;border-radius:10px;background:#0f0f10;color:#fff}
+.btn{width:100%;padding:12px 16px;border:none;border-radius:10px;background:var(--accent);color:#000;font-weight:900;cursor:pointer}
+.error{background:#2a0e0e;border:1px solid #ff6b6b;color:#ffdede;padding:10px;border-radius:10px;margin-bottom:12px;display:none}
+.small{font-size:13px;color:rgba(255,255,255,.75)}
 </style>
 </head>
 <body>
@@ -39,14 +56,14 @@ button{width:100%;padding:12px 16px;border:none;border-radius:10px;background:va
   <input id="dob" type="date" required>
 
   <label>Email</label>
-  <input id="email" type="email" placeholder="tuo@email.it" required>
+  <input id="email" type="email" placeholder="tuo@email.it" autocomplete="email" required>
 
   <label>Password</label>
-  <input id="password" type="password" placeholder="Minimo 6 caratteri" required>
+  <input id="password" type="password" placeholder="Minimo 6 caratteri" autocomplete="new-password" required>
 
-  <button id="signUpBtn">Crea account</button>
+  <button id="signUpBtn" class="btn" type="button">Crea account</button>
 
-  <div style="margin-top:12px">
+  <div class="small" style="margin-top:12px">
     Hai già un account? <a href="login.html">Accedi</a> • <a href="index.html">Torna al sito</a>
   </div>
 </div>
@@ -54,36 +71,34 @@ button{width:100%;padding:12px 16px;border:none;border-radius:10px;background:va
 <script type="module" src="auth.js"></script>
 <script type="module">
 import { emailSignUp, setDisplayName, saveDOB, calcAge } from './auth.js';
-function getParam(name){ return new URLSearchParams(location.search).get(name) }
-const $=(q)=>document.querySelector(q);
+const getParam = (n)=> new URLSearchParams(location.search).get(n);
+const $ = (q)=>document.querySelector(q);
 
-$('#signUpBtn').addEventListener('click', async ()=>{
+$('#signUpBtn').addEventListener('click', async (e)=>{
+  e.preventDefault();
   $('#err').style.display='none';
   try{
-    const first=$('#firstName').value.trim();
-    const last=$('#lastName').value.trim();
-    const dob = $('#dob').value;
-    const email=$('#email').value.trim();
-    const pwd  =$('#password').value;
+    const first = $('#firstName').value.trim();
+    const last  = $('#lastName').value.trim();
+    const dob   = $('#dob').value;
+    const email = $('#email').value.trim();
+    const pwd   = $('#password').value;
 
-    if(!first || !last) throw Error("Inserisci nome e cognome.");
-    if(!dob) throw Error("Inserisci la data di nascita.");
-
+    if(!first || !last) throw new Error("Inserisci nome e cognome.");
+    if(!dob) throw new Error("Inserisci la data di nascita.");
     const age = calcAge(dob);
-    if(age < 16) throw Error("Età minima 16 anni.");
+    if(age < 16) throw new Error("Età minima 16 anni.");
 
-    // crea account Firebase
     const cred = await emailSignUp(email, pwd);
     const user = cred.user;
 
-    // salva nome visibile + data nascita locale
     await setDisplayName(user, `${first} ${last}`);
     saveDOB(user.uid, dob);
 
     const dest = getParam('from') || './checkout.html';
     location.assign(dest);
-  }catch(e){
-    $('#err').textContent = e.message;
+  }catch(err){
+    $('#err').textContent = err.message;
     $('#err').style.display = 'block';
   }
 });
