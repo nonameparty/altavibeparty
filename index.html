@@ -4,7 +4,7 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>TRAPPERREO — Biella</title>
-<meta name="description" content="TRAPPERREO • Trap & Reggaeton Club Night a Biella. Ingresso su lista o prevendita.">
+<meta name="description" content="TRAPPERREO • Trap & Reggaeton Club Night a Biella.">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' fill='black'/%3E%3Ctext x='50%25' y='50%25' dy='.35em' text-anchor='middle' font-size='28' fill='%23facc15' font-family='Arial, Helvetica, sans-serif'%3ETR%3C/text%3E%3C/svg%3E">
 <style>
 :root{ --yellow:#facc15; --bg:#000; --text:#fff; }
@@ -25,7 +25,8 @@ nav a:hover{color:var(--yellow);}
 .hero{
   min-height:95vh;position:relative;display:flex;align-items:center;justify-content:center;color:#fff;
   background-image:
-    linear-gradient(rgba(0,0,0,.5),rgba(0,0,0,.7)),
+    radial-gradient(60% 60% at 50% 40%, rgba(250,204,21,.18), transparent 60%),
+    linear-gradient(rgba(0,0,0,.55),rgba(0,0,0,.72)),
     url('https://images.unsplash.com/photo-1514525253161-7a46d19cd819?q=80&w=2000&auto=format&fit=crop');
   background-size:cover;background-position:center;background-attachment:fixed;
 }
@@ -49,26 +50,38 @@ h2{font-size:32px;font-weight:900;margin-bottom:18px;}
 border-radius:14px;padding:20px;}
 @media(min-width:720px){.card{grid-column:span 4;}}
 
-/* STRIP */
+/* STRIP (non più usata ma tenuta per stile se servisse)
 .strip{background:linear-gradient(90deg,rgba(250,204,21,.12),transparent),#0a0a0a;}
-
-/* GALLERY */
-.gallery{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:18px;}
-.gallery img{width:100%;height:220px;object-fit:cover;border-radius:10px;}
-@media(min-width:900px){.gallery{grid-template-columns:repeat(4,1fr);}}
-
-/* FORM */
-form{max-width:520px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);
-padding:22px;border-radius:12px;}
-label{font-size:13px;color:rgba(255,255,255,.7);}
-input,select{width:100%;margin-top:4px;margin-bottom:14px;padding:10px 12px;border:none;
-border-radius:8px;background:#121212;color:#fff;}
-button{background:var(--yellow);color:#000;font-weight:800;border:none;padding:12px 18px;
-border-radius:10px;cursor:pointer;}
+*/
 
 /* REVEAL */
 .reveal{opacity:0;transform:translateY(22px);transition:all .7s ease;}
 .reveal.show{opacity:1;transform:translateY(0);}
+
+/* ANNUNCIO EVENTO */
+.event-card{
+  background:linear-gradient(180deg, rgba(250,204,21,.10), rgba(255,255,255,.04));
+  border:1px solid rgba(255,255,255,.14);
+  border-radius:18px;
+  padding:28px;
+  display:grid;
+  grid-template-columns:1fr;
+  gap:18px;
+}
+.event-meta{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;}
+.meta-box{
+  background:rgba(0,0,0,.45);
+  border:1px solid rgba(255,255,255,.1);
+  border-radius:12px;
+  padding:12px 14px;
+  text-align:center;
+}
+.meta-k{font-size:12px;letter-spacing:.6px;text-transform:uppercase;color:rgba(255,255,255,.6);}
+.meta-v{font-weight:900;margin-top:6px;}
+.cta-wrap{display:flex;gap:12px;flex-wrap:wrap;}
+@media(max-width:720px){
+  .event-meta{grid-template-columns:1fr;}
+}
 
 /* FOOTER */
 footer{padding:28px 20px;text-align:center;color:rgba(255,255,255,.6);border-top:1px solid rgba(255,255,255,.08);}
@@ -81,21 +94,22 @@ footer{padding:28px 20px;text-align:center;color:rgba(255,255,255,.6);border-top
     <div class="brand"><div class="brand-badge"></div><div>TRAPPERREO</div></div>
     <nav>
       <a href="#about">Concept</a>
-      <a href="#nights">Party</a>
-      <a href="#join">Lista</a>
+      <a href="#event">Evento</a>
     </nav>
   </div>
 </header>
 
+<!-- HERO -->
 <section class="hero" id="home">
   <div class="hero-inner">
     <div class="kicker">Biella • Trap & Reggaeton</div>
     <h1>TRAPPERREO — <span class="accent">La notte</span> che accende la città</h1>
     <p>Trap, reggaeton e latin vibes. Accesso con prevendita o lista nominativa. Energia pura fino all’alba.</p>
-    <a class="btn" href="#join">Prenota ora</a>
+    <a class="btn" href="#event">Acquista il tuo ticket</a>
   </div>
 </section>
 
+<!-- ABOUT -->
 <section id="about">
   <div class="container">
     <h2 class="reveal">Il Concept</h2>
@@ -108,38 +122,38 @@ footer{padding:28px 20px;text-align:center;color:rgba(255,255,255,.6);border-top
   </div>
 </section>
 
-<section id="nights" class="strip">
+<!-- EVENT ANNOUNCEMENT -->
+<section id="event">
   <div class="container">
-    <h2 class="reveal">Le Serate</h2>
-    <p class="lead reveal">Selezione su lista. Tavoli e prevendite su richiesta.</p>
-    <div class="gallery">
-      <img class="reveal" src="https://images.unsplash.com/photo-1492684223066-81342ee5ff30?q=80&w=1000&auto=format&fit=crop" alt="club">
-      <img class="reveal" src="https://images.unsplash.com/photo-1540039155733-5bb30b53aa14?q=80&w=1000&auto=format&fit=crop" alt="folla">
-      <img class="reveal" src="https://images.unsplash.com/photo-1523755231516-e43fd2e8dca5?q=80&w=1000&auto=format&fit=crop" alt="luci club">
-      <img class="reveal" src="https://images.unsplash.com/photo-1515378791036-0648a3ef77b2?q=80&w=1000&auto=format&fit=crop" alt="dj set">
-    </div>
-    <div class="reveal" style="margin-top:22px;">
-      <a class="btn" href="#join">Vai alla lista</a>
-    </div>
-  </div>
-</section>
+    <h2 class="reveal">Prossimo evento</h2>
+    <div class="event-card reveal">
+      <div>
+        <h3 style="font-size:26px;font-weight:900;margin-bottom:6px;">TRAPPERREO – Opening Night</h3>
+        <p class="lead">La notte trap & reggaeton di Biella. Special guest + local heroes.</p>
+      </div>
 
-<section id="join">
-  <div class="container">
-    <h2 class="reveal">Lista nominativa / Prevendita</h2>
-    <p class="lead reveal">Compila i tuoi dati per entrare nella lista TRAPPERREO. Conferma via email. Paghi in cassa o anticipato.</p>
-    <form onsubmit="alert('Simulazione invio: registrazione TRAPPERREO!');return false;" class="reveal">
-      <label>Nome e cognome</label>
-      <input required placeholder="Mario Rossi">
-      <label>Email</label>
-      <input type="email" required placeholder="mario@email.it">
-      <label>Telefono</label>
-      <input type="tel" placeholder="3331234567">
-      <label>PR di riferimento (opzionale)</label>
-      <select><option>Nessuno</option><option>Giulia</option><option>Luca</option><option>Andre</option></select>
-      <label><input type="checkbox" required> Accetto privacy e ricevere info sul party</label><br><br>
-      <button type="submit">Invia richiesta</button>
-    </form>
+      <div class="event-meta">
+        <div class="meta-box">
+          <div class="meta-k">Data</div>
+          <div class="meta-v">Sabato 21 Marzo 2026</div>
+        </div>
+        <div class="meta-box">
+          <div class="meta-k">Orario</div>
+          <div class="meta-v">22:30 → 04:30</div>
+        </div>
+        <div class="meta-box">
+          <div class="meta-k">Location</div>
+          <div class="meta-v">Via Italia 38, Biella</div>
+        </div>
+      </div>
+
+      <div class="cta-wrap">
+        <a class="btn" href="#">Acquista il tuo ticket</a>
+        <div style="align-self:center;color:rgba(255,255,255,.7);font-size:14px;">
+          Early bird da 15€ • Evento a numero chiuso
+        </div>
+      </div>
+    </div>
   </div>
 </section>
 
@@ -147,6 +161,7 @@ footer{padding:28px 20px;text-align:center;color:rgba(255,255,255,.6);border-top
 
 <script>
 document.getElementById('y').textContent=new Date().getFullYear();
+// reveal-on-scroll
 const io=new IntersectionObserver((e)=>{e.forEach(x=>{if(x.isIntersecting){x.target.classList.add('show');io.unobserve(x.target)}})},{threshold:.14});
 document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
 </script>
