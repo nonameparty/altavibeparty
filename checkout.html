@@ -169,11 +169,12 @@ h1{font-size:26px;font-weight:900;letter-spacing:-.2px}
 </main>
 
 <script type="module">
-/* ===== Navbar login (stile index) ===== */
+/* ===== Navbar + auth obbligatoria (SOLO auth.v2.js) ===== */
 import { onUser, doSignOut } from './auth.v2.js?v=3';
-import { requireAuth }     from './auth.js';
 
 const nav = document.getElementById('navArea');
+const hello = document.getElementById('hello');
+
 const OUT = `
   <a href="./login.html?from=./checkout.html">Acquista il tuo biglietto</a>
   <a href="./login.html">Accedi</a>
@@ -187,21 +188,20 @@ const IN = (u) => {
     <a href="#" id="logoutLink" style="color:#8b5cf6">Logout</a>
   `;
 };
+
 onUser((u)=>{
-  if(!u){ nav.innerHTML = OUT; }
-  else{
+  if(!u){
+    nav.innerHTML = OUT;
+    // redirect duro: qui vuoi obbligo login per comprare
+    window.location.href = './login.html?from=./checkout.html';
+  }else{
     nav.innerHTML = IN(u);
+    hello.textContent = `Accesso come: ${(u.displayName || u.email || 'Utente').split(' ')[0]}`;
     document.getElementById('logoutLink')?.addEventListener('click', async (e)=>{
       e.preventDefault(); await doSignOut(); nav.innerHTML = OUT;
+      window.location.href = './login.html?from=./checkout.html';
     });
   }
-});
-
-/* ===== Require login per comprare ===== */
-const hello = document.getElementById('hello');
-requireAuth('./login.html').then(u=>{
-  const name = (u.displayName || u.email || 'Utente').split(' ')[0];
-  hello.textContent = `Accesso come: ${name}`;
 });
 
 /* ===== Fasi settimanali & scadenze ===== */
@@ -223,7 +223,6 @@ function setPhase(){
   const dBadge = document.getElementById('deadlineBadge');
   if (NOW > nameChangeDeadline){
     dBadge.textContent = 'Cambio nome disattivo (sotto 48h)';
-    dBadge.classList.remove('warn'); dBadge.classList.add('badge','warn');
   } else {
     const diff = Math.ceil((nameChangeDeadline - NOW)/msPerDay);
     dBadge.textContent = `Cambio nome attivo (${diff}g rimasti)`;
@@ -304,7 +303,7 @@ function bindQty(){
 }
 bindQty(); render();
 
-/* ===== Procedi → attendees.html con quantità in querystring ===== */
+/* ===== Procedi → attendees.html ===== */
 payBtn.addEventListener('click', ()=>{
   const q = getQty();
   const qs = new URLSearchParams({ std:q.STD||0, fast:q.FAST||0, vip:q.VIP||0, eb:q.EB||0, crew:q.CREW||0 }).toString();
