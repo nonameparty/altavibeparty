@@ -5,87 +5,67 @@
 <title>Checkout — TRAPPERREO</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&display=swap" rel="stylesheet">
 <style>
-:root{
-  --accent:#8b5cf6; --bg:#000; --text:#fff; --card:rgba(255,255,255,.06); --border:rgba(255,255,255,.12);
-  --std:#1e40af; --fast:#8b5cf6; --vip:#f59e0b; --ok:#34d399;
-}
+:root{--accent:#8b5cf6;--accent-weak:rgba(139,92,246,.12);--bg:#000;--text:#fff;--card:rgba(255,255,255,.06);--border:rgba(255,255,255,.12)}
 *{box-sizing:border-box;margin:0;padding:0}
-body{background:#000;color:#fff;font-family:Inter,system-ui,sans-serif;min-height:100vh;display:grid;grid-template-rows:auto 1fr}
-header{border-bottom:1px solid rgba(255,255,255,.08);padding:16px 20px}
+body{background:var(--bg);color:var(--text);font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;line-height:1.5;min-height:100vh;display:grid;grid-template-rows:auto 1fr}
+header{position:sticky;top:0;z-index:50;backdrop-filter:saturate(140%) blur(6px);background:rgba(0,0,0,.6);border-bottom:1px solid rgba(255,255,255,.08)}
+.nav{max-width:1200px;margin:auto;padding:14px 20px;display:flex;align-items:center;justify-content:space-between}
+.brand{display:flex;align-items:center;gap:10px;font-weight:900;letter-spacing:-.3px}
+.brand-badge{width:22px;height:22px;background:var(--accent);transform:skew(-6deg);border-radius:3px}
+nav a, nav span{color:#fff;text-decoration:none;margin-left:18px;font-size:14px;opacity:.95}
+nav a:hover{color:var(--accent)}
 .wrap{max-width:1100px;margin:auto;padding:20px}
 h1{font-size:26px;font-weight:900;letter-spacing:-.2px}
-.subtitle{opacity:.8;margin-top:6px}
+.subtitle{opacity:.85;margin-top:6px}
 .grid{display:grid;grid-template-columns:1fr;gap:16px;margin-top:18px}
 @media(min-width:900px){.grid{grid-template-columns:2fr 1fr}}
 .card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:18px}
 .badges{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
 .badge{background:#0f0f10;border:1px solid rgba(255,255,255,.15);border-radius:10px;padding:8px 10px;font-size:13px}
-
-/* blocchi biglietti */
-.tickets{display:grid;gap:12px}
+.badge.warn{border-color:rgba(245,158,11,.5);color:#fcd34d}
+.badge.ok{border-color:rgba(34,197,94,.45);color:#bbf7d0}
+.tickets{display:grid;gap:12px;margin-top:8px}
 .row{display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center;background:#0b0b0b;border:1px solid rgba(255,255,255,.1);border-radius:12px;padding:14px}
 .title{font-weight:900;display:flex;align-items:center;gap:6px}
+.flag{display:inline-block;margin-left:8px;padding:3px 8px;border-radius:8px;border:1px solid var(--accent);color:var(--accent);font-size:12px;font-weight:800}
 .note{font-size:13px;opacity:.85;margin-top:6px}
 .controls{display:flex;align-items:center;gap:8px}
 .price{font-weight:900}
-.flag{display:inline-block;margin-left:8px;padding:3px 8px;border-radius:8px;border:1px solid var(--fast);color:var(--fast);font-size:12px;font-weight:800}
-
-/* qty */
 .qty{display:flex;align-items:center;border:1px solid rgba(255,255,255,.2);border-radius:10px;overflow:hidden}
 .qty button{width:36px;height:36px;background:#111;border:none;color:#fff;font-weight:900;cursor:pointer}
 .qty input{width:48px;height:36px;text-align:center;background:#0a0a0a;border:none;color:#fff;font-weight:800}
-
-/* colori e cornici */
-.row[data-type="std"]  {border-color:rgba(30,64,175,.35)}
-.row[data-type="std"]  .price{color:var(--std)}
-.row[data-type="std"]  .qty button{background:rgba(30,64,175,.25)}
-
-.row[data-type="fast"] {border-color:rgba(139,92,246,.5)}
-.row[data-type="fast"] .price{color:var(--fast)}
-.row[data-type="fast"] .qty button{background:rgba(139,92,246,.25)}
-
-.row[data-type="vip"]  {border-color:rgba(245,158,11,.6)}
-.crown{color:var(--vip);font-size:16px;margin-right:2px}
-
-/* riepilogo */
+.sold{opacity:.5;filter:grayscale(1)}
 .small{font-size:13px;opacity:.75}
 .hr{height:1px;background:rgba(255,255,255,.08);margin:14px 0}
 .line{display:flex;justify-content:space-between;font-size:14px;margin:6px 0}
-.save{color:var(--ok);font-weight:800}
-
-/* footer acquisto */
+.save{color:#22c55e;font-weight:800}
 .sticky{position:sticky;bottom:0;background:linear-gradient(180deg, rgba(0,0,0,.0), rgba(0,0,0,.4) 20%, #000 40%);padding-top:16px;margin-top:16px}
 .totalbar{display:flex;justify-content:space-between;align-items:center;background:#0f0f10;border:1px solid rgba(255,255,255,.15);border-radius:14px;padding:14px 16px}
 .totalbar strong{font-size:22px}
 .pay{display:inline-block;padding:12px 16px;border-radius:10px;text-decoration:none;font-weight:900;background:var(--accent);color:#000;cursor:pointer;border:none}
 .pay[disabled]{opacity:.5;cursor:not-allowed}
-
-.limit{font-size:12px;color:#f59e0b;margin-left:8px}
 </style>
 </head>
 <body>
 
-<header class="wrap">
-  <h1>Checkout</h1>
-  <div class="subtitle" id="hello">Accesso come…</div>
+<header>
+  <div class="nav">
+    <div class="brand"><div class="brand-badge"></div><div>TRAPPERREO</div></div>
+    <nav id="navArea"><span>Caricamento…</span></nav>
+  </div>
 </header>
 
 <main class="wrap">
+  <h1>Checkout</h1>
+  <div class="subtitle" id="hello">Accesso come…</div>
+  <div class="badges">
+    <span class="badge" id="phaseBadge">Fase vendite</span>
+    <span class="badge warn" id="deadlineBadge">Cambio nome</span>
+    <span class="badge ok">Evento privato 16+</span>
+  </div>
+
   <div class="grid">
-    <!-- SINISTRA -->
     <div class="card">
-
-      <!-- DOB gate: visibile solo se manca il DOB -->
-      <div id="dobGate" class="card" style="display:none;margin-bottom:16px">
-        <h2 style="font-size:18px;font-weight:900;margin-bottom:6px">Completa la tua data di nascita</h2>
-        <p class="small">Ci serve per mostrarti le opzioni corrette (niente alcolici ai minori).</p>
-        <div class="badges" style="margin-top:10px">
-          <input id="dobInput" type="date"
-                 style="background:#0f0f10;border:1px solid rgba(255,255,255,.2);color:#fff;border-radius:10px;padding:10px">
-          <button id="saveDobBtn" class="pay" type="button" style="padding:10px 14px">Salva</button>
-        </div>
-      </div>
-
       <div class="badges">
         <span class="badge">Sab 21 Mar 2026</span>
         <span class="badge">22:30 → 04:30</span>
@@ -94,373 +74,243 @@ h1{font-size:26px;font-weight:900;letter-spacing:-.2px}
 
       <h2 style="font-size:20px;font-weight:900;margin:14px 0 8px">Scegli i biglietti</h2>
       <div class="tickets">
-
+        <!-- EARLY -->
+        <div class="row" id="rowEB">
+          <div>
+            <div class="title">Early Bird <span class="flag">solo 72h</span></div>
+            <div class="note">Ingresso + 1 drink (soft/energy). Stock limitato.</div>
+            <div class="small" id="ebInfo"></div>
+          </div>
+          <div class="controls">
+            <div class="price">12€</div>
+            <div class="qty">
+              <button data-minus="#qEB">−</button>
+              <input id="qEB" type="number" min="0" value="0" inputmode="numeric">
+              <button data-plus="#qEB">+</button>
+            </div>
+          </div>
+        </div>
         <!-- STANDARD -->
-        <div class="row" data-type="std">
+        <div class="row" id="rowSTD">
           <div>
             <div class="title">Standard</div>
-            <div class="note" id="stdNote">Ingresso normale…</div>
+            <div class="note">Ingresso + 1 drink (soft/energy).</div>
           </div>
           <div class="controls">
             <div class="price">15€</div>
             <div class="qty">
-              <button data-minus="#qStd">−</button>
-              <input id="qStd" type="number" min="0" value="0" inputmode="numeric">
-              <button data-plus="#qStd">+</button>
+              <button data-minus="#qSTD">−</button>
+              <input id="qSTD" type="number" min="0" value="0" inputmode="numeric">
+              <button data-plus="#qSTD">+</button>
             </div>
           </div>
         </div>
-
-        <!-- FAST ENTRY -->
-        <div class="row" data-type="fast">
+        <!-- FAST -->
+        <div class="row" id="rowFAST">
           <div>
-            <div class="title"><span class="crown">👑</span>Fast Entry <span class="flag">Più scelto</span></div>
-            <div class="note" id="fastNote">Salta la fila…</div>
-            <div id="fastLimitMsg" class="limit" style="display:none">Limite massimo 50 Fast Entry raggiunto.</div>
+            <div class="title">Fast Entry <span class="flag">salti la fila</span></div>
+            <div class="note">Accesso prioritario + 1 drink. Nessun guardaroba incluso.</div>
           </div>
           <div class="controls">
             <div class="price">20€</div>
             <div class="qty">
-              <button data-minus="#qFast">−</button>
-              <input id="qFast" type="number" min="0" max="50" value="0" inputmode="numeric">
-              <button data-plus="#qFast">+</button>
+              <button data-minus="#qFAST">−</button>
+              <input id="qFAST" type="number" min="0" value="0" inputmode="numeric">
+              <button data-plus="#qFAST">+</button>
             </div>
           </div>
         </div>
-
-        <!-- VIP area (ADULTI) -->
-        <div class="row" data-type="vip" id="vipAdultRow">
+        <!-- VIP -->
+        <div class="row" id="rowVIP">
           <div>
-            <div class="title"><span class="crown">👑</span>VIP Table</div>
-            <div class="note">Tavolo riservato, bottiglia, host dedicato.</div>
-          </div>
-          <div class="controls">
-            <a class="qty" href="#" id="vipBtn" style="text-decoration:none"><span class="price" style="padding:8px 12px">Prenota qui</span></a>
-          </div>
-        </div>
-
-        <!-- VIP area (MINORENNI) -->
-        <div class="row" data-type="vip" id="vipMinorRow" style="display:none">
-          <div>
-            <div class="title"><span class="crown">👑</span>INGRESSO AREA VIP</div>
-            <div class="note">25€ • Include <strong>1 guardaroba</strong> + <strong>2 soft drink</strong> per biglietto.</div>
+            <div class="title">VIP Entry</div>
+            <div class="note">Accesso area palco + 1 drink + guardaroba incluso.</div>
           </div>
           <div class="controls">
             <div class="price">25€</div>
             <div class="qty">
-              <button data-minus="#qVip">−</button>
-              <input id="qVip" type="number" min="0" value="0" inputmode="numeric">
-              <button data-plus="#qVip">+</button>
+              <button data-minus="#qVIP">−</button>
+              <input id="qVIP" type="number" min="0" value="0" inputmode="numeric">
+              <button data-plus="#qVIP">+</button>
             </div>
           </div>
         </div>
-      </div>
-
-      <h2 style="font-size:20px;font-weight:900;margin:16px 0 8px">Extra</h2>
-
-      <!-- Guardaroba -->
-      <div class="row">
-        <div>
-          <div class="title">Guardaroba</div>
-          <div class="note"><span style="text-decoration:line-through;opacity:.8">3€</span> <strong>2€ online</strong> a capo.</div>
-        </div>
-        <div class="controls">
-          <div class="price">2€</div>
-          <div class="qty">
-            <button data-minus="#qCoats">−</button>
-            <input id="qCoats" type="number" min="0" value="0" inputmode="numeric">
-            <button data-plus="#qCoats">+</button>
+        <!-- CREW -->
+        <div class="row" id="rowCREW">
+          <div>
+            <div class="title">Crew Pack (3×)</div>
+            <div class="note">3 ingressi Standard insieme. Miglior prezzo di gruppo.</div>
           </div>
-        </div>
-      </div>
-
-      <!-- Soft drink -->
-      <div class="row" id="softRow">
-        <div>
-          <div class="title">Soft drink</div>
-          <div class="note"><span style="text-decoration:line-through;opacity:.8">5€</span> <strong>4€ online</strong>.</div>
-        </div>
-        <div class="controls">
-          <div class="price">4€</div>
-          <div class="qty">
-            <button data-minus="#qSoft">−</button>
-            <input id="qSoft" type="number" min="0" value="0" inputmode="numeric">
-            <button data-plus="#qSoft">+</button>
-          </div>
-        </div>
-      </div>
-
-      <!-- Drink alcolico (solo 18+) -->
-      <div class="row" id="alcRow">
-        <div>
-          <div class="title">Drink alcolico</div>
-          <div class="note"><span style="text-decoration:line-through;opacity:.8">8€</span> <strong>7€ online</strong>.</div>
-        </div>
-        <div class="controls">
-          <div class="price">7€</div>
-          <div class="qty">
-            <button data-minus="#qAlc">−</button>
-            <input id="qAlc" type="number" min="0" value="0" inputmode="numeric">
-            <button data-plus="#qAlc">+</button>
+          <div class="controls">
+            <div class="price">39€</div>
+            <div class="qty">
+              <button data-minus="#qCREW">−</button>
+              <input id="qCREW" type="number" min="0" value="0" inputmode="numeric">
+              <button data-plus="#qCREW">+</button>
+            </div>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- DESTRA -->
+    <!-- RIEPILOGO -->
     <aside class="card">
       <h2 style="font-size:18px;font-weight:900;margin-bottom:8px">Riepilogo</h2>
       <div id="lines"></div>
       <div class="hr"></div>
       <div class="line"><span>Totale (IVA inclusa)</span><strong id="grandTot">0€</strong></div>
-
+      <div class="small" id="policyMsg" style="margin-top:6px"></div>
       <div class="sticky" style="margin-top:10px">
         <button id="payBtn" class="pay" disabled>Procedi</button>
       </div>
-      <div class="small" style="margin-top:10px">Se hai più prevendite, ti chiederemo i nomi dei tuoi amici prima del pagamento.</div>
+      <div class="small" style="margin-top:10px">Se acquisti più biglietti, assegnerai i nomi nel passaggio successivo.</div>
     </aside>
   </div>
 </main>
 
 <script type="module">
-import { requireAuth } from './auth.js';
+/* ===== Navbar login (stile index) ===== */
+import { onUser, doSignOut } from './auth.v2.js?v=3';
+import { requireAuth }     from './auth.js';
 
-const PRICES = {
-  std:15,
-  fast:20,
-  vip_minor:25,
-  coat_base:3,   // listino (barrato)
-  coat_online:2, // prezzo online
-  soft_base:5,   soft_online:4,
-  alc_base:8,    alc_online:7,
-  max_fast:50
+const nav = document.getElementById('navArea');
+const OUT = `
+  <a href="./login.html?from=./checkout.html">Acquista il tuo biglietto</a>
+  <a href="./login.html">Accedi</a>
+  <a href="./signup.html">Registrati</a>
+`;
+const IN = (u) => {
+  const name = (u.displayName || (u.email ? u.email.split('@')[0] : 'Utente')).split(' ')[0];
+  return `
+    <span>👋 Ciao, ${name}</span>
+    <a href="./checkout.html">Vai al checkout</a>
+    <a href="#" id="logoutLink" style="color:#8b5cf6">Logout</a>
+  `;
 };
-
-const $ = (id)=>document.getElementById(id);
-const qStd  = $('qStd');
-const qFast = $('qFast');
-const qVip  = $('qVip'); // solo minori
-const qCoat = $('qCoats');
-const qSoft = $('qSoft');
-const qAlc  = $('qAlc');
-
-const lines = $('lines');
-const grand = $('grandTot');
-const hello = $('hello');
-
-const fastLimitMsg = $('fastLimitMsg');
-const stdNote  = $('stdNote');
-const fastNote = $('fastNote');
-const vipAdultRow = $('vipAdultRow');
-const vipMinorRow = $('vipMinorRow');
-const alcRow = $('alcRow');
-const payBtn  = $('payBtn');
-
-let isAdult = true;
-
-function money(n){ return `${n.toFixed(2).replace('.00','')}€`; }
-
-function calcIncluded(){
-  const nStd  = parseInt(qStd.value||0);
-  const nFast = parseInt(qFast.value||0);
-  const nVip  = parseInt(qVip?.value||0);
-
-  const inc = { coats:0, soft:0, alc:0 };
-
-  // STANDARD: 1 drink incluso
-  if(isAdult){ inc.alc += nStd; } else { inc.soft += nStd; }
-
-  // FAST ENTRY: 1 guardaroba + 1 drink incluso
-  inc.coats += nFast;
-  if(isAdult){ inc.alc += nFast; } else { inc.soft += nFast; }
-
-  // VIP minorenni: 1 guardaroba + 2 soft
-  inc.coats += nVip;
-  inc.soft  += nVip*2;
-
-  return inc;
-}
-
-function clampFast(){
-  let v = Math.max(0, parseInt(qFast.value||0));
-  if(v > PRICES.max_fast){ v = PRICES.max_fast; fastLimitMsg.style.display = 'block'; }
-  else fastLimitMsg.style.display = 'none';
-  qFast.value = v;
-}
-
-function render(){
-  clampFast();
-
-  const nStd  = Math.max(0, parseInt(qStd.value||0));
-  const nFast = Math.max(0, parseInt(qFast.value||0));
-  const nVip  = Math.max(0, parseInt(qVip?.value||0));
-
-  // inclusi dal tipo di biglietto
-  const included = calcIncluded();
-
-  // quantità manuali dagli input extra
-  const mCoat = Math.max(0, parseInt(qCoat.value||0));
-  const mSoft = Math.max(0, parseInt(qSoft.value||0));
-  const mAlc  = Math.max(0, parseInt((isAdult? qAlc?.value : 0) || 0));
-
-  lines.innerHTML = '';
-  let total = 0;
-
-  // Biglietti pagati
-  if(nStd>0){ const c=nStd*PRICES.std; total+=c;
-    lines.innerHTML += `<div class="line"><span>Standard × ${nStd}</span><span>${money(c)}</span></div>`;
-  }
-  if(nFast>0){ const c=nFast*PRICES.fast; total+=c;
-    lines.innerHTML += `<div class="line"><span>Fast Entry × ${nFast}</span><span>${money(c)}</span></div>`;
-  }
-  if(nVip>0){ const c=nVip*PRICES.vip_minor; total+=c;
-    lines.innerHTML += `<div class="line"><span>Ingresso Area VIP × ${nVip}</span><span>${money(c)}</span></div>`;
-  }
-
-  // Righe verdi "INCLUSO" (solo informative)
-  if(included.coats>0){
-    lines.innerHTML += `<div class="line save"><span>Guardaroba incluso × ${included.coats}</span><span></span></div>`;
-  }
-  if(included.soft>0){
-    lines.innerHTML += `<div class="line save"><span>Soft drink incluso × ${included.soft}</span><span></span></div>`;
-  }
-  if(isAdult && included.alc>0){
-    lines.innerHTML += `<div class="line save"><span>Drink alcolico incluso × ${included.alc}</span><span></span></div>`;
-  }
-
-  // Extra manuali pagati
-  if(mCoat>0){
-    const cost = mCoat * PRICES.coat_online;
-    lines.innerHTML += `<div class="line"><span>Guardaroba × ${mCoat} <span class="small">( ${money(PRICES.coat_online)} )</span></span><span>${money(cost)}</span></div>`;
-    total += cost;
-  }
-  if(mSoft>0){
-    const cost = mSoft * PRICES.soft_online;
-    lines.innerHTML += `<div class="line"><span>Soft drink × ${mSoft} <span class="small">( ${money(PRICES.soft_online)} )</span></span><span>${money(cost)}</span></div>`;
-    total += cost;
-  }
-  if(isAdult && mAlc>0){
-    const cost = mAlc * PRICES.alc_online;
-    lines.innerHTML += `<div class="line"><span>Drink alcolico × ${mAlc} <span class="small">( ${money(PRICES.alc_online)} )</span></span><span>${money(cost)}</span></div>`;
-    total += cost;
-  }
-
-  grand.textContent = money(total);
-  payBtn.disabled = (nStd+nFast+nVip)<=0; // almeno 1 biglietto per procedere
-}
-
-function bindManual(){
-  qCoat.addEventListener('input', ()=>{ qCoat.value = Math.max(0, parseInt(qCoat.value||0)); render(); });
-  qSoft.addEventListener('input', ()=>{ qSoft.value = Math.max(0, parseInt(qSoft.value||0)); render(); });
-  if(qAlc){ qAlc.addEventListener('input', ()=>{ qAlc.value = Math.max(0, parseInt(qAlc.value||0)); render(); }); }
-}
-
-function bindPlusMinus(){
-  document.querySelectorAll('[data-plus]').forEach(b=>{
-    b.addEventListener('click', ()=>{
-      const t=document.querySelector(b.getAttribute('data-plus'));
-      t.value = (parseInt(t.value||0)+1);
-      render();
+onUser((u)=>{
+  if(!u){ nav.innerHTML = OUT; }
+  else{
+    nav.innerHTML = IN(u);
+    document.getElementById('logoutLink')?.addEventListener('click', async (e)=>{
+      e.preventDefault(); await doSignOut(); nav.innerHTML = OUT;
     });
-  });
-  document.querySelectorAll('[data-minus]').forEach(b=>{
-    b.addEventListener('click', ()=>{
-      const t=document.querySelector(b.getAttribute('data-minus'));
-      t.value = Math.max(0, parseInt(t.value||0)-1);
-      render();
-    });
-  });
-}
-
-function calcAge(dobISO){
-  if(!dobISO) return 0;
-  const d=new Date(dobISO), t=new Date();
-  let a=t.getFullYear()-d.getFullYear();
-  const m=t.getMonth()-d.getMonth();
-  if(m<0 || (m===0 && t.getDate()<d.getDate())) a--;
-  return a;
-}
-
-// utilità profilo locale
-function getProfile(uid){
-  try { return JSON.parse(localStorage.getItem(`trapperreo_profile_${uid}`) || 'null'); }
-  catch { return null; }
-}
-function setProfileDOB(uid, dobISO){
-  if(!uid || !dobISO) return;
-  localStorage.setItem(`trapperreo_profile_${uid}`, JSON.stringify({ dob: dobISO }));
-}
-
-// Applica UI in base all’età
-function applyAgeUI(){
-  if(isAdult){
-    stdNote.textContent  = 'Ingresso normale • Include 1 drink (alcolico o analcolico).';
-    fastNote.textContent = 'Salta la fila • Include 1 guardaroba + 1 drink (alcolico o analcolico).';
-    vipAdultRow.style.display='grid';
-    vipMinorRow.style.display='none';
-    alcRow.style.display='grid';
-  }else{
-    stdNote.textContent  = 'Ingresso normale • Include 1 soft drink.';
-    fastNote.textContent = 'Salta la fila • Include 1 guardaroba + 1 drink analcolico.';
-    vipAdultRow.style.display='none';
-    vipMinorRow.style.display='grid';
-    alcRow.style.display='none';
-    if (qAlc) qAlc.value = 0; // sicurezza: niente alcolici per minori
   }
-  render();
-}
+});
 
+/* ===== Require login per comprare ===== */
+const hello = document.getElementById('hello');
 requireAuth('./login.html').then(u=>{
   const name = (u.displayName || u.email || 'Utente').split(' ')[0];
   hello.textContent = `Accesso come: ${name}`;
+});
 
-  const prof = getProfile(u.uid);
-  const dob  = prof?.dob || null;
+/* ===== Fasi settimanali & scadenze ===== */
+const EVENT_DATE = new Date('2026-03-21T22:30:00+01:00');
+const NOW = new Date();
+const msPerDay = 86400000;
+const daysToEvent = Math.ceil((EVENT_DATE - NOW)/msPerDay);
 
-  if(!dob){
-    // Nessun DOB: chiedilo (prudenza: trattiamo come minorenne fino a che non lo salva)
-    isAdult = false;
-    document.getElementById('dobGate').style.display = 'block';
-    applyAgeUI();
+function setPhase(){
+  let phase='Pre-campagna';
+  if (daysToEvent <= 28 && daysToEvent > 21) phase='Settimana 4 — Early Bird';
+  else if (daysToEvent <= 21 && daysToEvent > 14) phase='Settimana 3 — Standard & Crew';
+  else if (daysToEvent <= 14 && daysToEvent > 7)  phase='Settimana 2 — Spinta Fast';
+  else if (daysToEvent <= 7 && daysToEvent >= 0)  phase='Settimana 1 — VIP & ultimi pezzi';
+  else if (daysToEvent < 0) phase='Evento concluso';
+  document.getElementById('phaseBadge').textContent = phase;
 
-    document.getElementById('saveDobBtn').addEventListener('click', ()=>{
-      const val = (document.getElementById('dobInput').value || '').trim();
-      if(!val) { alert('Inserisci la data di nascita.'); return; }
-      const age = calcAge(val);
-      setProfileDOB(u.uid, val);
-      isAdult = age >= 18;
-      document.getElementById('dobGate').style.display = 'none';
-      applyAgeUI();
-    }, { once:true });
-
-  }else{
-    isAdult = calcAge(dob) >= 18;
-    applyAgeUI();
+  const nameChangeDeadline = new Date(EVENT_DATE.getTime() - 48*60*60*1000);
+  const dBadge = document.getElementById('deadlineBadge');
+  if (NOW > nameChangeDeadline){
+    dBadge.textContent = 'Cambio nome disattivo (sotto 48h)';
+    dBadge.classList.remove('warn'); dBadge.classList.add('badge','warn');
+  } else {
+    const diff = Math.ceil((nameChangeDeadline - NOW)/msPerDay);
+    dBadge.textContent = `Cambio nome attivo (${diff}g rimasti)`;
   }
+}
+setPhase();
 
-  bindPlusMinus();
-  bindManual();
-  render();
-});
+/* ===== Listino & Stock ===== */
+const PRICE = { EB:12, STD:15, FAST:20, VIP:25, CREW:39 };
+let STOCK = { EB:150, STD:350, FAST:200, VIP:100, CREW:50 };
+if (daysToEvent<=21) STOCK.EB=0;
+if (daysToEvent<=14){ STOCK.FAST=180; }
+if (daysToEvent<=7){ STOCK.FAST=120; STOCK.VIP=80; }
 
-// VIP CTA (adulti) placeholder
-document.getElementById('vipBtn').addEventListener('click', (e)=>{
-  e.preventDefault();
-  alert('VIP Table: ti contattiamo per i dettagli (placeholder).');
-});
+const qEB = document.getElementById('qEB');
+const qSTD= document.getElementById('qSTD');
+const qFAST=document.getElementById('qFAST');
+const qVIP =document.getElementById('qVIP');
+const qCREW=document.getElementById('qCREW');
 
-// Procedi: se >1 biglietto totale vai ad assegnazione nomi
+function money(n){ return n.toFixed(2).replace('.00','')+'€'; }
+const lines = document.getElementById('lines');
+const grand = document.getElementById('grandTot');
+const payBtn= document.getElementById('payBtn');
+const ebInfo= document.getElementById('ebInfo');
+
+const NOW72 = new Date(NOW.getTime()+72*60*60*1000);
+const ebEnd  = new Date(Math.min(EVENT_DATE.getTime(), NOW72.getTime()));
+if (STOCK.EB>0) ebInfo.textContent = `Fino al ${ebEnd.toLocaleDateString('it-IT',{day:'2-digit',month:'short'})} o esaurimento (${STOCK.EB} pz).`;
+
+function applyStock(){
+  const map=[['EB',qEB,'rowEB'],['STD',qSTD,'rowSTD'],['FAST',qFAST,'rowFAST'],['VIP',qVIP,'rowVIP'],['CREW',qCREW,'rowCREW']];
+  map.forEach(([sku,input,rowId])=>{
+    const has=(STOCK[sku]||0)>0;
+    const row=document.getElementById(rowId);
+    input.disabled=!has;
+    row.classList.toggle('sold',!has);
+    if(!has && !row.dataset.msg){ row.dataset.msg='1'; row.querySelector('.note').innerHTML += ' <span class="small" style="color:#f59e0b">Esaurito</span>'; }
+  });
+}
+
+function getQty(){
+  const g = id => Math.max(0, parseInt(document.getElementById(id).value||0));
+  return { EB:g('qEB'), STD:g('qSTD'), FAST:g('qFAST'), VIP:g('qVIP'), CREW:g('qCREW') };
+}
+
+function render(){
+  applyStock();
+  const q = getQty();
+  let subtotal=0; const arr=[];
+  const add = (label, val)=>{ arr.push(`<div class="line"><span>${label}</span><span>${money(val)}</span></div>`); subtotal+=val; };
+  const info= (label)=>{ arr.push(`<div class="line save"><span>${label}</span><span></span></div>`); };
+
+  if(q.EB>0){ add(`Early Bird × ${q.EB}`, q.EB*PRICE.EB); info(`Drink incluso × ${q.EB}`); }
+  if(q.STD>0){ add(`Standard × ${q.STD}`, q.STD*PRICE.STD); info(`Drink incluso × ${q.STD}`); }
+  if(q.FAST>0){ add(`Fast Entry × ${q.FAST}`, q.FAST*PRICE.FAST); info(`Drink incluso × ${q.FAST}`); }
+  if(q.VIP>0){ add(`VIP Entry × ${q.VIP}`, q.VIP*PRICE.VIP); info(`Drink + guardaroba inclusi × ${q.VIP}`); }
+  if(q.CREW>0){ add(`Crew Pack (3×) × ${q.CREW}`, q.CREW*PRICE.CREW); info(`Drink inclusi × ${q.CREW*3}`); }
+
+  lines.innerHTML = arr.join('');
+  grand.textContent = money(subtotal);
+
+  const totalTickets = q.EB + q.STD + q.FAST + q.VIP + (q.CREW*3);
+  document.getElementById('policyMsg').textContent = 'Minorenni: drink = soft/energy. Documento 16+ obbligatorio.';
+  payBtn.disabled = totalTickets<=0;
+}
+
+function bindQty(){
+  document.querySelectorAll('[data-plus]').forEach(b=>{
+    b.addEventListener('click',()=>{ const t=document.querySelector(b.getAttribute('data-plus')); t.value=(parseInt(t.value||0)+1); render(); });
+  });
+  document.querySelectorAll('[data-minus]').forEach(b=>{
+    b.addEventListener('click',()=>{ const t=document.querySelector(b.getAttribute('data-minus')); t.value=Math.max(0,parseInt(t.value||0)-1); render(); });
+  });
+  ['qEB','qSTD','qFAST','qVIP','qCREW'].forEach(id=>{
+    document.getElementById(id).addEventListener('input', ()=>render());
+  });
+}
+bindQty(); render();
+
+/* ===== Procedi → attendees.html con quantità in querystring ===== */
 payBtn.addEventListener('click', ()=>{
-  const totTickets =
-    parseInt(qStd.value||0) + parseInt(qFast.value||0) + parseInt(qVip?.value||0);
-  if(totTickets > 1){
-    const qs = new URLSearchParams({
-      std:qStd.value||0, fast:qFast.value||0, vip:qVip?.value||0
-    }).toString();
-    location.href = `./attendees.html?${qs}`;
-  }else{
-    alert('Simulazione pagamento: ordine creato!');
-  }
+  const q = getQty();
+  const qs = new URLSearchParams({ std:q.STD||0, fast:q.FAST||0, vip:q.VIP||0, eb:q.EB||0, crew:q.CREW||0 }).toString();
+  const totalTickets = q.EB + q.STD + q.FAST + q.VIP + (q.CREW*3);
+  if(totalTickets>1) location.href = `./attendees.html?${qs}`;
+  else alert('Simulazione pagamento: ordine creato!');
 });
 </script>
 </body>
