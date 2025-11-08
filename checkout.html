@@ -281,6 +281,23 @@ const payBtn = document.getElementById('payBtn');
 function money(n){ return n.toFixed(2).replace('.00','')+'€'; }
 function qty(){ return { EB:+(qEB.value||0), STD:+(qSTD.value||0), FAST:+(qFAST.value||0), VIP:+(qVIP.value||0) }; }
 
+/* ==== Persistenza carrello (per tornare da/verso attendees) ==== */
+function saveCartFromUI(){
+  const q = qty();
+  const cart = { eb:q.EB, std:q.STD, fast:q.FAST, vip:q.VIP, nc: optName.checked?1:0 };
+  localStorage.setItem('trapperreo_cart', JSON.stringify(cart));
+}
+function restoreCartToUI(){
+  const saved = JSON.parse(localStorage.getItem('trapperreo_cart') || 'null');
+  if(!saved) return;
+  qEB.value   = saved.eb   ?? 0;
+  qSTD.value  = saved.std  ?? 0;
+  qFAST.value = saved.fast ?? 0;
+  qVIP.value  = saved.vip  ?? 0;
+  optName.checked = (saved.nc === 1);
+}
+restoreCartToUI();
+
 function render(){
   applyStock();
   const q = qty();
@@ -323,6 +340,9 @@ function render(){
   lines.innerHTML = arr.join('');
   grand.textContent = money(subtotal);
   payBtn.disabled = tickets<=0;
+
+  // salva stato UI
+  saveCartFromUI();
 }
 
 function bindQty(){
@@ -334,7 +354,10 @@ function bindQty(){
   });
   [qEB,qSTD,qFAST,qVIP,optName].forEach(el=>el.addEventListener(el.type==='checkbox'?'change':'input', render));
 }
-bindQty(); setWeek(4); render();
+bindQty();
+
+/* set settimana iniziale e primo render */
+setWeek(4); render();
 
 /* CTA tavolo vip */
 document.getElementById('vipMore').addEventListener('click', (e)=>{ e.preventDefault(); alert('Tavolo VIP (18+): ti contattiamo per i dettagli — placeholder'); });
@@ -346,6 +369,7 @@ payBtn.addEventListener('click', ()=>{
     std:q.STD||0, fast:q.FAST||0, vip:q.VIP||0, eb:q.EB||0, nc: optName.checked?1:0
   }).toString();
   const tickets = q.EB + q.STD + q.FAST + q.VIP;
+  saveCartFromUI();
   if(tickets>1) location.href = `./attendees.html?${qs}`;
   else alert('Simulazione pagamento: ordine creato!');
 });
