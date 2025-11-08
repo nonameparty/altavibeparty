@@ -7,91 +7,96 @@
 <style>
 :root{
   --bg:#000; --text:#fff; --accent:#8b5cf6; --border:rgba(255,255,255,.12);
-  --card:rgba(255,255,255,.06); --muted:rgba(255,255,255,.78);
+  --card:rgba(255,255,255,.06); --muted:rgba(255,255,255,.78); --ok:#22c55e;
   --c-eb:#8b5cf6; --c-std:#60a5fa; --c-fast:#34d399; --c-vip:#f59e0b;
 }
 *{box-sizing:border-box;margin:0;padding:0}
 body{background:var(--bg);color:var(--text);font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
+header{position:sticky;top:0;z-index:50;backdrop-filter:saturate(140%) blur(6px);background:rgba(0,0,0,.6);border-bottom:1px solid rgba(255,255,255,.08)}
+.nav{max-width:1200px;margin:auto;padding:14px 20px;display:flex;align-items:center;justify-content:space-between}
+.brand{display:flex;align-items:center;gap:10px;font-weight:900;letter-spacing:-.3px}
+.brand-badge{width:22px;height:22px;background:var(--accent);transform:skew(-6deg);border-radius:3px}
+nav a, nav span{color:#fff;text-decoration:none;margin-left:18px;font-size:14px;opacity:.95}
+nav a:hover{color:var(--accent)}
+
 .wrap{max-width:1100px;margin:auto;padding:24px}
 h1{font-size:26px;font-weight:900;letter-spacing:-.2px}
 .muted{color:var(--muted)}
-
 .gridPage{display:grid;gap:16px;margin-top:16px}
 @media(min-width:900px){.gridPage{grid-template-columns:2fr 1fr}}
-
 .card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:18px}
-
-.sectionTitle{font-size:18px;font-weight:900;margin-bottom:8px}
+.sectionTitle{font-size:18px;font-weight:900;margin-bottom:10px}
 
 /* lista ticket */
 .list{display:grid;gap:10px}
-.row{display:grid;grid-template-columns:1.2fr 1.2fr 1.4fr auto;gap:8px;align-items:center;background:#0b0b0b;border:1px solid rgba(255,255,255,.1);border-radius:12px;padding:12px}
-input[type="text"], input[type="email"]{background:#0f0f10;border:1px solid var(--border);border-radius:10px;color:#fff;padding:10px}
+.row{display:grid;grid-template-columns:1fr 1fr 1.2fr auto;gap:8px;align-items:center;background:#0b0b0b;border:1px solid rgba(255,255,255,.1);border-radius:12px;padding:12px}
 .badge{display:inline-flex;align-items:center;gap:6px;background:#0f0f10;border:1px solid rgba(255,255,255,.15);border-radius:10px;padding:6px 8px;font-size:12px}
 .pill{width:8px;height:8px;border-radius:999px;display:inline-block}
 .p-eb{background:var(--c-eb)} .p-std{background:var(--c-std)} .p-fast{background:var(--c-fast)} .p-vip{background:var(--c-vip)}
-
+input[type="text"], input[type="email"]{background:#0f0f10;border:1px solid var(--border);border-radius:10px;color:#fff;padding:10px}
 .chk{display:flex;align-items:center;gap:8px;font-size:13px;opacity:.95}
 .chk input{accent-color:var(--accent)}
+.small{font-size:13px;opacity:.8}
 
-/* riepilogo */
+/* riepilogo (uguale al checkout) */
 .line{display:flex;justify-content:space-between;font-size:14px;margin:6px 0}
-.hr{height:1px;background:rgba(255,255,255,.08);margin:12px 0}
-.save{color:#22c55e;font-weight:800}
-.total{font-size:20px;font-weight:900}
-
-.actions{display:flex;gap:10px;margin-top:16px;flex-wrap:wrap}
-.btn{display:inline-block;padding:12px 16px;border-radius:10px;background:var(--accent);color:#000;font-weight:900;text-decoration:none;border:none;cursor:pointer}
-.btn.alt{background:transparent;border:1px solid var(--accent);color:#fff}
-.btn.ok{background:#22c55e;color:#061d10}
-.small{font-size:13px;opacity:.8;margin-top:6px}
-
-/* tooltip */
+.hr{height:1px;background:rgba(255,255,255,.08);margin:14px 0}
+.save{color:var(--ok);font-weight:800}
+.total{font-size:22px;font-weight:900}
 .info{display:inline-flex;align-items:center;gap:6px}
 .icon{width:18px;height:18px;border-radius:50%;border:1px solid var(--border);display:inline-grid;place-items:center;font-size:12px;cursor:pointer}
 .tooltip{position:relative;display:inline-block}
 .tooltip:hover .tip, .tooltip:focus-within .tip{opacity:1;transform:translateY(0);pointer-events:auto}
 .tip{position:absolute;right:0;bottom:125%;opacity:0;transform:translateY(6px);transition:.2s;pointer-events:none;background:#111;border:1px solid var(--border);border-radius:10px;padding:10px;min-width:230px;z-index:30}
 
-/* errori */
+.actions{display:flex;gap:10px;margin-top:16px;flex-wrap:wrap}
+.btn{display:inline-block;padding:12px 16px;border-radius:10px;background:var(--accent);color:#000;font-weight:900;text-decoration:none;border:none;cursor:pointer}
+.btn.alt{background:transparent;border:1px solid var(--accent);color:#fff}
+.btn.ok{background:#22c55e;color:#061d10}
 .err{border-color:#ef4444 !important}
-.errMsg{color:#fca5a5;font-size:12px;margin-left:4px}
 </style>
 </head>
 <body>
+
+<header>
+  <div class="nav">
+    <div class="brand"><div class="brand-badge"></div><div>TRAPPERREO</div></div>
+    <nav><a href="./index.html">Home</a></nav>
+  </div>
+</header>
+
 <div class="wrap">
   <h1>Assegna i biglietti</h1>
-  <p class="muted">Inserisci i nominativi: invieremo ogni prevendita al relativo account registrato.</p>
+  <p class="muted">Completa i nominativi. I tuoi amici dovranno registrarsi: <strong>fino a 2 ore prima dell’evento</strong>. Dopo la registrazione riceveranno la loro prevendita entro <strong>30 minuti</strong>.</p>
 
   <div class="gridPage">
     <!-- SINISTRA -->
     <div class="card">
       <div class="sectionTitle">Nominativi</div>
-      <div class="actions" style="margin-bottom:10px">
-        <button id="useMe" class="btn alt" type="button">Usa i miei dati per il primo</button>
-        <button id="invite" class="btn alt" type="button">Invita via email (simulazione)</button>
-      </div>
+      <label class="chk" style="margin-bottom:10px">
+        <input id="useMe" type="checkbox"> Usa i miei dati per il primo biglietto
+      </label>
       <div id="list" class="list"></div>
-      <div class="small">Se un amico non si registra con la sua email, non possiamo inviargli la prevendita (rischio perdita posto).</div>
     </div>
 
     <!-- DESTRA -->
     <aside class="card">
-      <div class="sectionTitle">Riepilogo</div>
-      <div id="summary"></div>
+      <h2 class="sectionTitle">Riepilogo</h2>
+      <div id="lines"></div>
 
+      <!-- Protezione sopra ai totali (come checkout) -->
       <div class="hr"></div>
-      <div class="line info tooltip">
-        <span>
-          Protezione cambio nome <span class="muted">(1,90€ / biglietto)</span>
+      <div class="line">
+        <span class="info tooltip">
+          Protezione cambio nome <span class="small">(1,90€ / biglietto)</span>
           <span class="icon" tabindex="0">i</span>
           <span class="tip">Permette di cambiare il nominativo <strong>1 sola volta</strong> fino a <strong>48h</strong> dall’evento. Disattiva auto sotto le 48h.</span>
         </span>
-        <span id="cnCost">0€</span>
+        <span id="cnTot">0€</span>
       </div>
 
       <div class="hr"></div>
-      <div class="line total"><span>Totale extra</span><span id="grand">0€</span></div>
+      <div class="line total"><span>Totale (IVA inclusa)</span><strong id="grand">0€</strong></div>
 
       <div class="actions">
         <button id="back" class="btn alt" type="button" onclick="history.back()">Indietro</button>
@@ -102,126 +107,137 @@ input[type="text"], input[type="email"]{background:#0f0f10;border:1px solid var(
 </div>
 
 <script type="module">
-/* === Parametri dal checkout === */
+/* ===== Import auth per usare i dati dell’utente ===== */
+import { onUser } from './auth.v2.js?v=3';
+
+/* ===== Parametri dal checkout ===== */
 const qs = new URLSearchParams(location.search);
 const getInt = v => Math.max(0, parseInt(v||0));
 const nStd  = getInt(qs.get('std'));
 const nFast = getInt(qs.get('fast'));
 const nVip  = getInt(qs.get('vip'));
 const nEb   = getInt(qs.get('eb'));
-const promoNC = qs.get('nc') === '1'; // protezione globale spuntata dal checkout
+const promoNC = qs.get('nc') === '1'; // protezione spuntata in checkout?
 
-const totalTickets = nStd+nFast+nVip+nEb;
-const PRICE = { NAMECHANGE:1.90 };
+// Prezzi (uguali al checkout)
+const PRICE = { EB:12, STD:15, FAST:20, VIP:25, NAMECHANGE:1.90, STD3:40 };
 
 const EVENT_DATE = new Date('2026-03-21T22:30:00+01:00');
 const NAMECHANGE_DEADLINE = new Date(EVENT_DATE.getTime() - 48*60*60*1000);
 const canNameChange = new Date() < NAMECHANGE_DEADLINE;
 
-/* === Helpers === */
+/* ===== Costruisci lista ===== */
 const list = document.getElementById('list');
-const summary = document.getElementById('summary');
-const cnCost = document.getElementById('cnCost');
-const grand = document.getElementById('grand');
-function money(n){ return n.toFixed(2).replace('.00','')+'€'; }
-
-/* === Costruisci righe === */
 const rows = [];
-function addRow(typeLabel, pillClass){
-  const wrap = document.createElement('div');
-  wrap.className='row';
-  wrap.innerHTML = `
-    <span class="badge"><span class="pill ${pillClass}"></span>${typeLabel}</span>
+function addRow(type, label, pill){
+  const row = document.createElement('div');
+  row.className = 'row';
+  row.dataset.type = type;
+  row.innerHTML = `
+    <span class="badge"><span class="pill ${pill}"></span>${label}</span>
     <input class="fn" type="text" placeholder="Nome">
     <input class="ln" type="text" placeholder="Cognome">
-    <div class="chk"><input class="cn" type="checkbox" ${canNameChange && promoNC ? 'checked' : ''} ${canNameChange? '' : 'disabled'}>
-      <span>Protezione</span></div>
+    <label class="chk">
+      <input class="cn" type="checkbox" ${promoNC && canNameChange ? 'checked' : ''} ${canNameChange? '' : 'disabled'}> Protezione
+    </label>
   `;
-  list.appendChild(wrap);
-  rows.push(wrap);
+  list.appendChild(row);
+  rows.push(row);
 }
+for(let i=0;i<nEb;i++)   addRow('EB','Early Bird','p-eb');
+for(let i=0;i<nStd;i++)  addRow('STD','Standard','p-std');
+for(let i=0;i<nFast;i++) addRow('FAST','Fast Entry','p-fast');
+for(let i=0;i<nVip;i++)  addRow('VIP','VIP Entry','p-vip');
 
-if(totalTickets <= 1){
-  list.innerHTML = '<div class="small">Nessuna assegnazione necessaria.</div>';
-}else{
-  for(let i=0;i<nEb;i++)   addRow('Early Bird', 'p-eb');
-  for(let i=0;i<nStd;i++)  addRow('Standard',   'p-std');
-  for(let i=0;i<nFast;i++) addRow('Fast Entry', 'p-fast');
-  for(let i=0;i<nVip;i++)  addRow('VIP Entry',  'p-vip');
-}
+/* ===== “Usa i miei dati” ===== */
+let me = { first:'', last:'', email:'' };
+onUser((u)=>{
+  if(!u) return;
+  const disp = (u.displayName||'').trim();
+  const parts = disp.split(' ');
+  me.first = parts[0]||'';
+  me.last  = parts.slice(1).join(' ')||'';
+  me.email = (u.email||'').trim();
+});
 
-/* === Riepilogo dinamico === */
-function recalc(){
-  const sel = rows.filter(r => r.querySelector('.cn')?.checked).length;
-  const cost = sel * PRICE.NAMECHANGE;
-  cnCost.textContent = money(cost);
-  grand.textContent = money(cost);
-
-  const counts = {
-    EB: rows.filter(r=>r.querySelector('.badge')?.textContent.includes('Early')).length,
-    STD: rows.filter(r=>r.querySelector('.badge')?.textContent.includes('Standard')).length,
-    FAST: rows.filter(r=>r.querySelector('.badge')?.textContent.includes('Fast')).length,
-    VIP: rows.filter(r=>r.querySelector('.badge')?.textContent.includes('VIP')).length,
-  };
-  summary.innerHTML = `
-    <div class="line"><span>Early Bird</span><span>${counts.EB}</span></div>
-    <div class="line"><span>Standard</span><span>${counts.STD}</span></div>
-    <div class="line"><span>Fast Entry</span><span>${counts.FAST}</span></div>
-    <div class="line"><span>VIP Entry</span><span>${counts.VIP}</span></div>
-    <div class="hr"></div>
-    <div class="line"><span>Protezione selezionata</span><span>${sel}</span></div>
-    <div class="small">${canNameChange ? 'Cambio nome disponibile (48h+)' : 'Cambio nome non disponibile: mancano <48h'}</div>
-  `;
-}
-recalc();
-
-list.addEventListener('change', (e)=>{ if(e.target.classList.contains('cn')) recalc(); });
-
-/* === Usa i miei dati per il primo === */
-document.getElementById('useMe').addEventListener('click', ()=>{
-  try{
-    const uName = (localStorage.getItem('trapperreo_display_name') || '').trim(); // se vuoi, salvalo al login
-    const uEmail = (localStorage.getItem('trapperreo_email') || '').trim();
-    if(rows.length){
-      const [fn,ln,em] = [rows[0].querySelector('.fn'), rows[0].querySelector('.ln'), rows[0].querySelector('.ln')];
-    }
-  }catch{}
-  // fallback semplice: chiedi via prompt
-  const name = prompt('Il tuo nome e cognome (es. Mario Rossi):','');
-  const email = prompt('La tua email:','');
-  if(rows.length && name && email){
-    const [n,c] = name.split(' ');
-    rows[0].querySelector('.fn').value = (n||'').trim();
-    rows[0].querySelector('.ln').value = (c||'').trim();
-    // aggiungo un campo email se vuoi raccoglierlo:
-    const em = document.createElement('input');
-    em.type='email'; em.placeholder='Email (auto)'; em.value=email; em.readOnly=true;
-    em.style.background='#0a0a0a'; em.style.border='1px dashed rgba(255,255,255,.2)'; em.style.gridColumn='1 / -1'; em.style.marginTop='6px'; em.className='small';
-    rows[0].appendChild(em);
+const useMe = document.getElementById('useMe');
+useMe.addEventListener('change', ()=>{
+  const r = rows[0];
+  if(!r) return;
+  const fn=r.querySelector('.fn'), ln=r.querySelector('.ln');
+  if(useMe.checked){
+    fn.value = me.first; ln.value = me.last;
+    fn.classList.remove('err'); ln.classList.remove('err');
+  }else{
+    fn.value = ''; ln.value = '';
   }
 });
 
-/* === Invita (sim) === */
-document.getElementById('invite').addEventListener('click', ()=>{
-  alert('Inviti inviati (simulazione). Ogni amico dovrà registrarsi per ricevere il proprio QR.');
+/* ===== Riepilogo come checkout ===== */
+const lines = document.getElementById('lines');
+const cnTot = document.getElementById('cnTot');
+const grand = document.getElementById('grand');
+
+function money(n){ return n.toFixed(2).replace('.00','')+'€'; }
+
+function countBy(type){ return rows.filter(r=>r.dataset.type===type).length; }
+function cnSelected(){ return rows.filter(r=>r.querySelector('.cn')?.checked).length; }
+
+function calcStdPrice(q){
+  const bundles = Math.floor(q/3);
+  const remainder = q % 3;
+  return bundles*PRICE.STD3 + remainder*PRICE.STD;
+}
+
+function recalc(){
+  const qEB = countBy('EB');
+  const qSTD = countBy('STD');
+  const qFAST = countBy('FAST');
+  const qVIP = countBy('VIP');
+
+  let subtotal = 0; const arr=[];
+  const add  = (label,val)=>{ arr.push(`<div class="line"><span>${label}</span><span>${money(val)}</span></div>`); subtotal+=val; };
+  const info = (label)=>{ arr.push(`<div class="line save"><span>${label}</span><span></span></div>`); };
+
+  if(qEB>0){ add(`Early Bird × ${qEB}`, qEB*PRICE.EB); info(`Drink incluso × ${qEB}`); }
+  if(qSTD>0){ add(`Standard × ${qSTD}`, calcStdPrice(qSTD)); info(`Drink incluso × ${qSTD}`); }
+  if(qFAST>0){ add(`Fast Entry × ${qFAST}`, qFAST*PRICE.FAST); info(`Drink incluso × ${qFAST}`); }
+  if(qVIP>0){ add(`VIP Entry × ${qVIP}`, qVIP*PRICE.VIP); info(`Drink incluso × ${qVIP}`); info(`Guardaroba incluso × ${qVIP}`); }
+
+  // Protezione (per ticket selezionato)
+  const cnSel = cnSelected();
+  const cnCost = cnSel * PRICE.NAMECHANGE;
+  if(cnSel>0) add(`Protezione cambio nome × ${cnSel}`, cnCost);
+
+  lines.innerHTML = arr.join('');
+  cnTot.textContent = money(cnCost);
+  grand.textContent = money(subtotal + cnCost);
+}
+recalc();
+
+list.addEventListener('change', (e)=>{
+  if(e.target.classList.contains('cn')) recalc();
 });
 
-/* === Validazione & procedi === */
-function validate(){
-  let ok = true;
+/* ===== Validazione & conferma se protezione assente ===== */
+function validateRows(){
+  let ok=true;
   rows.forEach(r=>{
     const fn=r.querySelector('.fn'), ln=r.querySelector('.ln');
-    [fn,ln].forEach(inp=>{
-      inp.classList.remove('err'); 
-      if(!inp.value.trim()){ inp.classList.add('err'); ok=false; }
-    });
+    [fn,ln].forEach(i=>{ i.classList.remove('err'); if(!i.value.trim()){ i.classList.add('err'); ok=false; } });
   });
-  if(!ok){ alert('Compila tutti i nominativi (nome e cognome).'); }
+  if(!ok) alert('Compila nome e cognome per ogni biglietto.');
   return ok;
 }
+
 document.getElementById('pay').addEventListener('click', ()=>{
-  if(!validate()) return;
-  // qui passeresti i nominativi + flag protezione al backend / intent
+  if(!validateRows()) return;
+
+  const sel = cnSelected();
+  if(sel===0){
+    const go = confirm('Vuoi procedere senza “Protezione cambio nome”? Potrai modificare i nominativi solo contattando l’organizzazione (se disponibile).');
+    if(!go) return;
+  }
   alert('Vai al pagamento (simulazione).');
 });
 </script>
