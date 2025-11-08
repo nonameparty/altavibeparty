@@ -16,7 +16,7 @@ header{position:sticky;top:0;z-index:50;backdrop-filter:saturate(140%) blur(6px)
 .nav{max-width:1200px;margin:auto;padding:14px 20px;display:flex;align-items:center;justify-content:space-between}
 .brand{display:flex;align-items:center;gap:10px;font-weight:900;letter-spacing:-.3px}
 .brand-badge{width:22px;height:22px;background:var(--accent);transform:skew(-6deg);border-radius:3px}
-nav a, nav span{color:#fff;text-decoration:none;margin-left:18px;font-size:14px;opacity:.95}
+nav a{color:#fff;text-decoration:none;margin-left:18px;font-size:14px;opacity:.95}
 nav a:hover{color:var(--accent)}
 
 .wrap{max-width:1100px;margin:auto;padding:24px}
@@ -27,21 +27,28 @@ h1{font-size:26px;font-weight:900;letter-spacing:-.2px}
 .card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:18px}
 .sectionTitle{font-size:18px;font-weight:900;margin-bottom:10px}
 
-/* lista ticket */
+/* lista */
 .list{display:grid;gap:10px}
-.row{display:grid;grid-template-columns:1fr 1fr 1.2fr auto;gap:8px;align-items:center;background:#0b0b0b;border:1px solid rgba(255,255,255,.1);border-radius:12px;padding:12px}
+.row{display:grid;grid-template-columns:1fr 1fr 1.4fr 1.2fr;gap:8px;align-items:center;background:#0b0b0b;border:1px solid rgba(255,255,255,.1);border-radius:12px;padding:12px}
 .badge{display:inline-flex;align-items:center;gap:6px;background:#0f0f10;border:1px solid rgba(255,255,255,.15);border-radius:10px;padding:6px 8px;font-size:12px}
 .pill{width:8px;height:8px;border-radius:999px;display:inline-block}
 .p-eb{background:var(--c-eb)} .p-std{background:var(--c-std)} .p-fast{background:var(--c-fast)} .p-vip{background:var(--c-vip)}
 input[type="text"], input[type="email"]{background:#0f0f10;border:1px solid var(--border);border-radius:10px;color:#fff;padding:10px}
-.chk{display:flex;align-items:center;gap:8px;font-size:13px;opacity:.95}
-.chk input{accent-color:var(--accent)}
 .small{font-size:13px;opacity:.8}
+.err{border-color:#ef4444 !important}
+
+/* blocco protezione globale (sotto ai nominativi) */
+.cn-block{margin-top:12px;background:#0b0b0b;border:1px dashed rgba(255,255,255,.18);border-radius:12px;padding:12px}
+.cn-title{font-weight:900;margin-bottom:6px}
+.cn-row{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.cn-row label{display:flex;align-items:center;gap:10px;cursor:pointer}
+.cn-row input[type="checkbox"]{accent-color:var(--accent)}
+.cn-help{opacity:.9}
 
 /* riepilogo (uguale al checkout) */
 .line{display:flex;justify-content:space-between;font-size:14px;margin:6px 0}
 .hr{height:1px;background:rgba(255,255,255,.08);margin:14px 0}
-.save{color:var(--ok);font-weight:800}
+.save{color:#22c55e;font-weight:800}
 .total{font-size:22px;font-weight:900}
 .info{display:inline-flex;align-items:center;gap:6px}
 .icon{width:18px;height:18px;border-radius:50%;border:1px solid var(--border);display:inline-grid;place-items:center;font-size:12px;cursor:pointer}
@@ -53,7 +60,6 @@ input[type="text"], input[type="email"]{background:#0f0f10;border:1px solid var(
 .btn{display:inline-block;padding:12px 16px;border-radius:10px;background:var(--accent);color:#000;font-weight:900;text-decoration:none;border:none;cursor:pointer}
 .btn.alt{background:transparent;border:1px solid var(--accent);color:#fff}
 .btn.ok{background:#22c55e;color:#061d10}
-.err{border-color:#ef4444 !important}
 </style>
 </head>
 <body>
@@ -67,16 +73,33 @@ input[type="text"], input[type="email"]{background:#0f0f10;border:1px solid var(
 
 <div class="wrap">
   <h1>Assegna i biglietti</h1>
-  <p class="muted">Completa i nominativi. I tuoi amici dovranno registrarsi: <strong>fino a 2 ore prima dell’evento</strong>. Dopo la registrazione riceveranno la loro prevendita entro <strong>30 minuti</strong>.</p>
+  <p class="muted">Inserisci i nominativi. Gli amici hanno tempo <strong>fino a 2 ore</strong> prima dell’evento per registrarsi; una volta registrati riceveranno la prevendita entro <strong>30 minuti</strong>.</p>
 
   <div class="gridPage">
     <!-- SINISTRA -->
     <div class="card">
       <div class="sectionTitle">Nominativi</div>
-      <label class="chk" style="margin-bottom:10px">
+
+      <label class="small" style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
         <input id="useMe" type="checkbox"> Usa i miei dati per il primo biglietto
       </label>
+
       <div id="list" class="list"></div>
+
+      <!-- BLOCCO PROTEZIONE GLOBALE -->
+      <div class="cn-block">
+        <div class="cn-title">Sei sicuro di procedere senza protezione?</div>
+        <div class="cn-row">
+          <label>
+            <input id="cnGlobal" type="checkbox">
+            <span><strong>Attiva Protezione cambio nome</strong> per <em>tutti</em> i biglietti <span class="small">(1,90€ / biglietto)</span></span>
+          </label>
+          <span class="small cn-help tooltip">
+            <span class="icon" tabindex="0">i</span>
+            <span class="tip">Puoi cambiare il nominativo <strong>1 volta</strong> fino a <strong>48h</strong> dall’evento. Si applica a tutti i biglietti di questo ordine.</span>
+          </span>
+        </div>
+      </div>
     </div>
 
     <!-- DESTRA -->
@@ -84,14 +107,10 @@ input[type="text"], input[type="email"]{background:#0f0f10;border:1px solid var(
       <h2 class="sectionTitle">Riepilogo</h2>
       <div id="lines"></div>
 
-      <!-- Protezione sopra ai totali (come checkout) -->
+      <!-- Protezione sopra ai totali -->
       <div class="hr"></div>
       <div class="line">
-        <span class="info tooltip">
-          Protezione cambio nome <span class="small">(1,90€ / biglietto)</span>
-          <span class="icon" tabindex="0">i</span>
-          <span class="tip">Permette di cambiare il nominativo <strong>1 sola volta</strong> fino a <strong>48h</strong> dall’evento. Disattiva auto sotto le 48h.</span>
-        </span>
+        <span class="info">Protezione cambio nome</span>
         <span id="cnTot">0€</span>
       </div>
 
@@ -107,136 +126,107 @@ input[type="text"], input[type="email"]{background:#0f0f10;border:1px solid var(
 </div>
 
 <script type="module">
-/* ===== Import auth per usare i dati dell’utente ===== */
+/* Dati utente per “Usa i miei dati” */
 import { onUser } from './auth.v2.js?v=3';
 
-/* ===== Parametri dal checkout ===== */
+/* Query dal checkout */
 const qs = new URLSearchParams(location.search);
 const getInt = v => Math.max(0, parseInt(v||0));
 const nStd  = getInt(qs.get('std'));
 const nFast = getInt(qs.get('fast'));
 const nVip  = getInt(qs.get('vip'));
 const nEb   = getInt(qs.get('eb'));
-const promoNC = qs.get('nc') === '1'; // protezione spuntata in checkout?
+const promoNC = qs.get('nc') === '1'; // se era spuntata prima
 
-// Prezzi (uguali al checkout)
+/* Prezzi come checkout */
 const PRICE = { EB:12, STD:15, FAST:20, VIP:25, NAMECHANGE:1.90, STD3:40 };
 
-const EVENT_DATE = new Date('2026-03-21T22:30:00+01:00');
-const NAMECHANGE_DEADLINE = new Date(EVENT_DATE.getTime() - 48*60*60*1000);
-const canNameChange = new Date() < NAMECHANGE_DEADLINE;
-
-/* ===== Costruisci lista ===== */
 const list = document.getElementById('list');
 const rows = [];
 function addRow(type, label, pill){
-  const row = document.createElement('div');
-  row.className = 'row';
-  row.dataset.type = type;
-  row.innerHTML = `
+  const r=document.createElement('div');
+  r.className='row'; r.dataset.type=type;
+  r.innerHTML=`
     <span class="badge"><span class="pill ${pill}"></span>${label}</span>
     <input class="fn" type="text" placeholder="Nome">
     <input class="ln" type="text" placeholder="Cognome">
-    <label class="chk">
-      <input class="cn" type="checkbox" ${promoNC && canNameChange ? 'checked' : ''} ${canNameChange? '' : 'disabled'}> Protezione
-    </label>
+    <input class="em" type="email" placeholder="Email">
   `;
-  list.appendChild(row);
-  rows.push(row);
+  list.appendChild(r); rows.push(r);
 }
 for(let i=0;i<nEb;i++)   addRow('EB','Early Bird','p-eb');
 for(let i=0;i<nStd;i++)  addRow('STD','Standard','p-std');
 for(let i=0;i<nFast;i++) addRow('FAST','Fast Entry','p-fast');
 for(let i=0;i<nVip;i++)  addRow('VIP','VIP Entry','p-vip');
 
-/* ===== “Usa i miei dati” ===== */
-let me = { first:'', last:'', email:'' };
+const cnGlobal = document.getElementById('cnGlobal');
+if(promoNC) cnGlobal.checked = true;
+
+/* Usa i miei dati */
+let me={first:'',last:'',email:''};
 onUser((u)=>{
   if(!u) return;
-  const disp = (u.displayName||'').trim();
-  const parts = disp.split(' ');
-  me.first = parts[0]||'';
-  me.last  = parts.slice(1).join(' ')||'';
-  me.email = (u.email||'').trim();
+  const disp=(u.displayName||'').trim().split(' ');
+  me.first=disp[0]||''; me.last=disp.slice(1).join(' ')||''; me.email=(u.email||'').trim();
+});
+document.getElementById('useMe').addEventListener('change', (e)=>{
+  const r = rows[0]; if(!r) return;
+  const fn=r.querySelector('.fn'), ln=r.querySelector('.ln'), em=r.querySelector('.em');
+  if(e.target.checked){ fn.value=me.first; ln.value=me.last; em.value=me.email; [fn,ln,em].forEach(i=>i.classList.remove('err')); }
+  else { fn.value=''; ln.value=''; em.value=''; }
 });
 
-const useMe = document.getElementById('useMe');
-useMe.addEventListener('change', ()=>{
-  const r = rows[0];
-  if(!r) return;
-  const fn=r.querySelector('.fn'), ln=r.querySelector('.ln');
-  if(useMe.checked){
-    fn.value = me.first; ln.value = me.last;
-    fn.classList.remove('err'); ln.classList.remove('err');
-  }else{
-    fn.value = ''; ln.value = '';
-  }
-});
-
-/* ===== Riepilogo come checkout ===== */
+/* Riepilogo identico al checkout */
 const lines = document.getElementById('lines');
 const cnTot = document.getElementById('cnTot');
 const grand = document.getElementById('grand');
 
 function money(n){ return n.toFixed(2).replace('.00','')+'€'; }
+function count(type){ return rows.filter(r=>r.dataset.type===type).length; }
+function ticketsTotal(){ return count('EB')+count('STD')+count('FAST')+count('VIP'); }
+function calcStd(q){ const b=Math.floor(q/3); const r=q%3; return b*PRICE.STD3 + r*PRICE.STD; }
 
-function countBy(type){ return rows.filter(r=>r.dataset.type===type).length; }
-function cnSelected(){ return rows.filter(r=>r.querySelector('.cn')?.checked).length; }
-
-function calcStdPrice(q){
-  const bundles = Math.floor(q/3);
-  const remainder = q % 3;
-  return bundles*PRICE.STD3 + remainder*PRICE.STD;
-}
-
-function recalc(){
-  const qEB = countBy('EB');
-  const qSTD = countBy('STD');
-  const qFAST = countBy('FAST');
-  const qVIP = countBy('VIP');
-
-  let subtotal = 0; const arr=[];
-  const add  = (label,val)=>{ arr.push(`<div class="line"><span>${label}</span><span>${money(val)}</span></div>`); subtotal+=val; };
-  const info = (label)=>{ arr.push(`<div class="line save"><span>${label}</span><span></span></div>`); };
+function render(){
+  const qEB=count('EB'), qSTD=count('STD'), qFAST=count('FAST'), qVIP=count('VIP');
+  let subtotal=0; const arr=[];
+  const add=(label,val)=>{ arr.push(`<div class="line"><span>${label}</span><span>${money(val)}</span></div>`); subtotal+=val; };
+  const info=(label)=>{ arr.push(`<div class="line save"><span>${label}</span><span></span></div>`); };
 
   if(qEB>0){ add(`Early Bird × ${qEB}`, qEB*PRICE.EB); info(`Drink incluso × ${qEB}`); }
-  if(qSTD>0){ add(`Standard × ${qSTD}`, calcStdPrice(qSTD)); info(`Drink incluso × ${qSTD}`); }
+  if(qSTD>0){ add(`Standard × ${qSTD}`, calcStd(qSTD)); info(`Drink incluso × ${qSTD}`); }
   if(qFAST>0){ add(`Fast Entry × ${qFAST}`, qFAST*PRICE.FAST); info(`Drink incluso × ${qFAST}`); }
   if(qVIP>0){ add(`VIP Entry × ${qVIP}`, qVIP*PRICE.VIP); info(`Drink incluso × ${qVIP}`); info(`Guardaroba incluso × ${qVIP}`); }
 
-  // Protezione (per ticket selezionato)
-  const cnSel = cnSelected();
-  const cnCost = cnSel * PRICE.NAMECHANGE;
-  if(cnSel>0) add(`Protezione cambio nome × ${cnSel}`, cnCost);
+  const tix = ticketsTotal();
+  const extra = cnGlobal.checked ? tix * PRICE.NAMECHANGE : 0;
+  if(extra>0) add(`Protezione cambio nome × ${tix}`, extra);
 
   lines.innerHTML = arr.join('');
-  cnTot.textContent = money(cnCost);
-  grand.textContent = money(subtotal + cnCost);
+  cnTot.textContent = money(extra);
+  grand.textContent = money(subtotal + extra);
 }
-recalc();
+cnGlobal.addEventListener('change', render);
+render();
 
-list.addEventListener('change', (e)=>{
-  if(e.target.classList.contains('cn')) recalc();
-});
-
-/* ===== Validazione & conferma se protezione assente ===== */
-function validateRows(){
+/* Validazione e conferma “sei sicuro?” se la protezione è OFF */
+function valid(){
   let ok=true;
   rows.forEach(r=>{
-    const fn=r.querySelector('.fn'), ln=r.querySelector('.ln');
-    [fn,ln].forEach(i=>{ i.classList.remove('err'); if(!i.value.trim()){ i.classList.add('err'); ok=false; } });
+    const fn=r.querySelector('.fn'), ln=r.querySelector('.ln'), em=r.querySelector('.em');
+    [fn,ln,em].forEach(i=>i.classList.remove('err'));
+    if(!fn.value.trim()){ fn.classList.add('err'); ok=false; }
+    if(!ln.value.trim()){ ln.classList.add('err'); ok=false; }
+    if(!/^\S+@\S+\.\S+$/.test(em.value.trim())){ em.classList.add('err'); ok=false; }
   });
-  if(!ok) alert('Compila nome e cognome per ogni biglietto.');
+  if(!ok) alert('Compila nome, cognome ed email validi per ogni biglietto.');
   return ok;
 }
 
 document.getElementById('pay').addEventListener('click', ()=>{
-  if(!validateRows()) return;
-
-  const sel = cnSelected();
-  if(sel===0){
-    const go = confirm('Vuoi procedere senza “Protezione cambio nome”? Potrai modificare i nominativi solo contattando l’organizzazione (se disponibile).');
-    if(!go) return;
+  if(!valid()) return;
+  if(!cnGlobal.checked){
+    const sure = confirm('Procedere senza Protezione cambio nome? Potrai modificare i nominativi solo contattando l’organizzazione (se disponibile).');
+    if(!sure) return;
   }
   alert('Vai al pagamento (simulazione).');
 });
