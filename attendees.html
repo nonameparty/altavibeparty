@@ -26,7 +26,7 @@ input{background:#0f0f10;border:1px solid var(--border);border-radius:10px;color
   <p class="muted">Inserisci nome, cognome ed email degli amici. <br>Riceveranno la prevendita SOLO dopo essersi registrati.</p>
   <div class="card">
     <div id="list" class="grid"></div>
-    <div class="note">Se un amico non si registra con la sua email, non possiamo inviargli la prevendita (rischi di perdere il posto).</div>
+    <div class="note">Se un amico non si registra con la sua email, non possiamo inviargli la prevendita (rischio perdita posto).</div>
     <div class="actions">
       <button id="invite" class="btn" type="button">Invita via email (simulazione)</button>
       <button id="pay" class="btn" type="button" style="background:#22c55e">Procedi al pagamento</button>
@@ -64,7 +64,7 @@ if(total <= 1){
 }
 
 document.getElementById('invite').addEventListener('click', ()=>{
-  alert('Inviti inviati (simulazione). Ricorda: devono registrarsi per ricevere il ticket.');
+  alert('Inviti inviati (simulazione). Devono registrarsi per ricevere il ticket.');
 });
 document.getElementById('pay').addEventListener('click', ()=>{
   alert('Vai al pagamento (simulazione).');
