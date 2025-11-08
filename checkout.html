@@ -87,7 +87,7 @@ h1{font-size:26px;font-weight:900;letter-spacing:-.2px}
         <div class="row" data-type="std">
           <div>
             <div class="title">Standard</div>
-            <div class="note" id="stdNote">Ingresso normale. Guardaroba +3€ a capo (2€ online), opzionale.</div>
+            <div class="note" id="stdNote">Ingresso normale…</div>
           </div>
           <div class="controls">
             <div class="price">15€</div>
@@ -103,7 +103,7 @@ h1{font-size:26px;font-weight:900;letter-spacing:-.2px}
         <div class="row" data-type="fast">
           <div>
             <div class="title"><span class="crown">👑</span>Fast Entry <span class="flag">Più scelto</span></div>
-            <div class="note">Salta la fila + <strong>1 capo guardaroba</strong> incluso + <strong>1 drink</strong> incluso (alcolico se 18+, soft se <18).</div>
+            <div class="note">Salta la fila • Include <strong>1 guardaroba</strong> + <strong>1 drink</strong> (alcolico se 18+, soft se &lt;18).</div>
             <div id="fastLimitMsg" class="limit" style="display:none">Limite massimo 50 Fast Entry raggiunto.</div>
           </div>
           <div class="controls">
@@ -250,25 +250,28 @@ const softDiscount = $('softDiscount');
 const alcDiscount  = $('alcDiscount');
 const payBtn  = $('payBtn');
 
-// manteniamo le QUANTITÀ “manuali” separate dagli inclusi
+// QUANTITÀ “manuali” (aggiunte dall’utente) separate dagli inclusi
 let manual = { coats:0, soft:0, alc:0 };
-let includedPrev = { coats:0, soft:0, alc:0 };
 let isAdult = true;
 
 function money(n){ return `${n.toFixed(2).replace('.00','')}€`; }
 
+// INCLUDE per biglietto (Standard/Fast/VIP minor)
 function calcIncluded(){
+  const nStd  = parseInt(qStd.value||0);
   const nFast = parseInt(qFast.value||0);
   const nVip  = parseInt(qVip?.value||0);
 
-  // freebies dal pacchetto
   const inc = { coats:0, soft:0, alc:0 };
 
-  // Fast: 1 coat + 1 drink (alc se adult, soft se minor)
+  // STANDARD: 1 drink incluso per biglietto
+  if(isAdult){ inc.alc += nStd; } else { inc.soft += nStd; }
+
+  // FAST ENTRY: 1 guardaroba + 1 drink incluso
   inc.coats += nFast;
   if(isAdult){ inc.alc += nFast; } else { inc.soft += nFast; }
 
-  // VIP minorenni: 1 coat + 2 soft
+  // VIP minorenni: 1 guardaroba + 2 soft
   inc.coats += nVip;
   inc.soft  += nVip*2;
 
@@ -289,11 +292,10 @@ function render(){
   const nFast = Math.max(0, parseInt(qFast.value||0));
   const nVip  = Math.max(0, parseInt(qVip?.value||0));
 
-  // calcola inclusi
+  // inclusi dal tipo di biglietto
   const included = calcIncluded();
 
-  // aggiorna totali input preservando il “manuale”
-  // (qX = manual + included)
+  // calcolo quantità visualizzate = manual + inclusi (senza toccare il "manual")
   qCoat.value = Math.max(0, manual.coats + included.coats);
   qSoft.value = Math.max(0, manual.soft  + included.soft);
   if(isAdult) qAlc.value = Math.max(0, manual.alc + included.alc);
@@ -303,42 +305,34 @@ function render(){
   const nSoft = parseInt(qSoft.value||0);
   const nAlc  = parseInt((isAdult? qAlc?.value : 0) || 0);
 
-  // righe + costi
   lines.innerHTML = '';
   let total = 0;
 
   if(nStd>0){ const c=nStd*PRICES.std; total+=c;
     lines.innerHTML += `<div class="line"><span>Standard × ${nStd}</span><span>${money(c)}</span></div>`;
   }
-
   if(nFast>0){ const c=nFast*PRICES.fast; total+=c;
     lines.innerHTML += `<div class="line"><span>Fast Entry × ${nFast}</span><span>${money(c)}</span></div>`;
   }
-
   if(nVip>0){ const c=nVip*PRICES.vip_minor; total+=c;
     lines.innerHTML += `<div class="line"><span>Ingresso Area VIP × ${nVip}</span><span>${money(c)}</span></div>`;
   }
 
-  // Guardaroba: paghi solo i capi oltre gli inclusi; mostra sconto sotto
+  // Guardaroba: si paga solo oltre gli inclusi
   const paidCoats = Math.max(0, nCoat - included.coats);
   const coatsCost = paidCoats * PRICES.coat_online;
   lines.innerHTML += `<div class="line"><span>Guardaroba × ${nCoat} <span class="small">( <span style="text-decoration:line-through;opacity:.8">${money(PRICES.coat_base)}</span> ${money(PRICES.coat_online)} )</span></span><span>${money(coatsCost)}</span></div>`;
-  // sconto singolo (subito sotto la riga)
-  if(included.coats>0){
-    coatDiscount.style.display = 'block';
-  }else{
-    coatDiscount.style.display = 'none';
-  }
+  coatDiscount.style.display = included.coats>0 ? 'block' : 'none';
   total += coatsCost;
 
-  // Soft drink: paghi solo extra; mostra gratis/sconto sotto
+  // Soft drink
   const paidSoft = Math.max(0, nSoft - included.soft);
   const softCost = paidSoft * PRICES.soft_online;
   lines.innerHTML += `<div class="line"><span>Soft drink × ${nSoft} <span class="small">( <span style="text-decoration:line-through;opacity:.8">${money(PRICES.soft_base)}</span> ${money(PRICES.soft_online)} )</span></span><span>${money(softCost)}</span></div>`;
   softDiscount.style.display = included.soft>0 ? 'block' : 'none';
   total += softCost;
 
-  // Alcolici (solo adulti)
+  // Drink alcolici (solo adulti)
   if(isAdult){
     const paidAlc = Math.max(0, nAlc - included.alc);
     const alcCost = paidAlc * PRICES.alc_online;
@@ -351,12 +345,9 @@ function render(){
 
   grand.textContent = money(total);
   payBtn.disabled = total<=0;
-
-  // salva included attuali per il delta
-  includedPrev = included;
 }
 
-// quando l’utente tocca manualmente extra, aggiorniamo “manual”
+// quando l’utente modifica a mano le quantità “Extra”
 function bindManual(){
   qCoat.addEventListener('input', ()=>{
     const inc = calcIncluded();
@@ -414,12 +405,12 @@ requireAuth('./login.html').then(u=>{
   }catch(_){ isAdult = true; }
 
   if(isAdult){
-    stdNote.textContent = 'Ingresso normale. Guardaroba +3€ (2€ online), drink alcolico/analcolico disponibili.';
+    stdNote.textContent = 'Ingresso normale • Include 1 drink alcolico. Guardaroba +3€ (2€ online) opzionale.';
     vipAdultRow.style.display='grid';
     vipMinorRow.style.display='none';
     alcRow.style.display='grid';
   }else{
-    stdNote.textContent = 'Ingresso normale. Solo drink analcolici.';
+    stdNote.textContent = 'Ingresso normale • Include 1 soft drink. (Niente alcolici per i minori).';
     vipAdultRow.style.display='none';
     vipMinorRow.style.display='grid';
     alcRow.style.display='none';
