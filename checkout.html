@@ -74,6 +74,18 @@ h1{font-size:26px;font-weight:900;letter-spacing:-.2px}
   <div class="grid">
     <!-- SINISTRA -->
     <div class="card">
+
+      <!-- DOB gate: visibile solo se manca il DOB -->
+      <div id="dobGate" class="card" style="display:none;margin-bottom:16px">
+        <h2 style="font-size:18px;font-weight:900;margin-bottom:6px">Completa la tua data di nascita</h2>
+        <p class="small">Ci serve per mostrarti le opzioni corrette (niente alcolici ai minori).</p>
+        <div class="badges" style="margin-top:10px">
+          <input id="dobInput" type="date"
+                 style="background:#0f0f10;border:1px solid rgba(255,255,255,.2);color:#fff;border-radius:10px;padding:10px">
+          <button id="saveDobBtn" class="pay" type="button" style="padding:10px 14px">Salva</button>
+        </div>
+      </div>
+
       <div class="badges">
         <span class="badge">Sab 21 Mar 2026</span>
         <span class="badge">22:30 → 04:30</span>
@@ -242,7 +254,6 @@ const fastNote = $('fastNote');
 const vipAdultRow = $('vipAdultRow');
 const vipMinorRow = $('vipMinorRow');
 const alcRow = $('alcRow');
-
 const payBtn  = $('payBtn');
 
 let isAdult = true;
@@ -370,16 +381,18 @@ function calcAge(dobISO){
   return a;
 }
 
-requireAuth('./login.html').then(u=>{
-  const name = (u.displayName || u.email || 'Utente').split(' ')[0];
-  hello.textContent = `Accesso come: ${name}`;
+// utilità profilo locale
+function getProfile(uid){
+  try { return JSON.parse(localStorage.getItem(`trapperreo_profile_${uid}`) || 'null'); }
+  catch { return null; }
+}
+function setProfileDOB(uid, dobISO){
+  if(!uid || !dobISO) return;
+  localStorage.setItem(`trapperreo_profile_${uid}`, JSON.stringify({ dob: dobISO }));
+}
 
-  // Età dal profilo salvato in signup
-  try{
-    const prof = JSON.parse(localStorage.getItem(`trapperreo_profile_${u.uid}`)||'null');
-    isAdult = calcAge(prof?.dob) >= 18;
-  }catch(_){ isAdult = true; }
-
+// Applica UI in base all’età
+function applyAgeUI(){
   if(isAdult){
     stdNote.textContent  = 'Ingresso normale • Include 1 drink (alcolico o analcolico).';
     fastNote.textContent = 'Salta la fila • Include 1 guardaroba + 1 drink (alcolico o analcolico).';
@@ -392,6 +405,37 @@ requireAuth('./login.html').then(u=>{
     vipAdultRow.style.display='none';
     vipMinorRow.style.display='grid';
     alcRow.style.display='none';
+    if (qAlc) qAlc.value = 0; // sicurezza: niente alcolici per minori
+  }
+  render();
+}
+
+requireAuth('./login.html').then(u=>{
+  const name = (u.displayName || u.email || 'Utente').split(' ')[0];
+  hello.textContent = `Accesso come: ${name}`;
+
+  const prof = getProfile(u.uid);
+  const dob  = prof?.dob || null;
+
+  if(!dob){
+    // Nessun DOB: chiedilo (prudenza: trattiamo come minorenne fino a che non lo salva)
+    isAdult = false;
+    document.getElementById('dobGate').style.display = 'block';
+    applyAgeUI();
+
+    document.getElementById('saveDobBtn').addEventListener('click', ()=>{
+      const val = (document.getElementById('dobInput').value || '').trim();
+      if(!val) { alert('Inserisci la data di nascita.'); return; }
+      const age = calcAge(val);
+      setProfileDOB(u.uid, val);
+      isAdult = age >= 18;
+      document.getElementById('dobGate').style.display = 'none';
+      applyAgeUI();
+    }, { once:true });
+
+  }else{
+    isAdult = calcAge(dob) >= 18;
+    applyAgeUI();
   }
 
   bindPlusMinus();
