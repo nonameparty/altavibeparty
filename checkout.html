@@ -5,7 +5,15 @@
 <title>Checkout — TRAPPERREO</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&display=swap" rel="stylesheet">
 <style>
-:root{--accent:#8b5cf6;--accent-weak:rgba(139,92,246,.12);--bg:#000;--text:#fff;--card:rgba(255,255,255,.06);--border:rgba(255,255,255,.12)}
+:root{
+  --bg:#000; --text:#fff; --accent:#8b5cf6; --border:rgba(255,255,255,.12);
+  --card:rgba(255,255,255,.06); --ok:#22c55e; --muted:rgba(255,255,255,.75);
+  /* colori per tipo */
+  --c-eb:#8b5cf6;   /* viola */
+  --c-std:#60a5fa;  /* azzurro */
+  --c-fast:#34d399; /* verde */
+  --c-vip:#f59e0b;  /* oro */
+}
 *{box-sizing:border-box;margin:0;padding:0}
 body{background:var(--bg);color:var(--text);font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;line-height:1.5;min-height:100vh;display:grid;grid-template-rows:auto 1fr}
 header{position:sticky;top:0;z-index:50;backdrop-filter:saturate(140%) blur(6px);background:rgba(0,0,0,.6);border-bottom:1px solid rgba(255,255,255,.08)}
@@ -16,34 +24,61 @@ nav a, nav span{color:#fff;text-decoration:none;margin-left:18px;font-size:14px;
 nav a:hover{color:var(--accent)}
 .wrap{max-width:1100px;margin:auto;padding:20px}
 h1{font-size:26px;font-weight:900;letter-spacing:-.2px}
-.subtitle{opacity:.85;margin-top:6px}
+.muted{color:var(--muted)}
 .grid{display:grid;grid-template-columns:1fr;gap:16px;margin-top:18px}
 @media(min-width:900px){.grid{grid-template-columns:2fr 1fr}}
 .card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:18px}
 .badges{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
 .badge{background:#0f0f10;border:1px solid rgba(255,255,255,.15);border-radius:10px;padding:8px 10px;font-size:13px}
-.badge.warn{border-color:rgba(245,158,11,.5);color:#fcd34d}
-.badge.ok{border-color:rgba(34,197,94,.45);color:#bbf7d0}
+
+/* selettore settimane */
+.weeks{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0 4px}
+.weeks button{background:#0f0f10;border:1px solid var(--border);color:#fff;padding:8px 10px;border-radius:10px;cursor:pointer;font-weight:700}
+.weeks button.active{border-color:var(--accent);box-shadow:0 0 0 2px rgba(139,92,246,.15)}
+
+/* righe biglietti */
 .tickets{display:grid;gap:12px;margin-top:8px}
 .row{display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center;background:#0b0b0b;border:1px solid rgba(255,255,255,.1);border-radius:12px;padding:14px}
-.title{font-weight:900;display:flex;align-items:center;gap:6px}
-.flag{display:inline-block;margin-left:8px;padding:3px 8px;border-radius:8px;border:1px solid var(--accent);color:var(--accent);font-size:12px;font-weight:800}
-.note{font-size:13px;opacity:.85;margin-top:6px}
+.title{font-weight:900;display:flex;align-items:center;gap:8px}
+.flag{display:inline-block;padding:3px 8px;border-radius:8px;border:1px solid currentColor;font-size:12px;font-weight:800}
+.note{font-size:13px;opacity:.9;margin-top:6px}
 .controls{display:flex;align-items:center;gap:8px}
 .price{font-weight:900}
 .qty{display:flex;align-items:center;border:1px solid rgba(255,255,255,.2);border-radius:10px;overflow:hidden}
 .qty button{width:36px;height:36px;background:#111;border:none;color:#fff;font-weight:900;cursor:pointer}
 .qty input{width:48px;height:36px;text-align:center;background:#0a0a0a;border:none;color:#fff;font-weight:800}
 .sold{opacity:.5;filter:grayscale(1)}
+/* accenti per tipo */
+.row[data-type="eb"]  {border-color:color-mix(in srgb, var(--c-eb) 45%, #fff 0%);}
+.row[data-type="std"] {border-color:color-mix(in srgb, var(--c-std)45%, #fff 0%);}
+.row[data-type="fast"]{border-color:color-mix(in srgb, var(--c-fast)45%, #fff 0%);}
+.row[data-type="vip"] {border-color:color-mix(in srgb, var(--c-vip)45%, #fff 0%);}
+.flag.eb{color:var(--c-eb)} .flag.std{color:var(--c-std)} .flag.fast{color:var(--c-fast)} .flag.vip{color:var(--c-vip)}
+
+/* sezione tavolo vip (solo 18+) */
+.viptable{margin-top:12px;display:flex;justify-content:space-between;align-items:center;background:#0b0b0b;border:1px dashed rgba(245,158,11,.6);border-radius:12px;padding:14px}
+.viptable .title{font-weight:900}
+.viptable .cta{background:transparent;border:1px solid var(--c-vip);color:#fff;padding:10px 14px;border-radius:10px;cursor:pointer}
+
+/* riepilogo */
 .small{font-size:13px;opacity:.75}
 .hr{height:1px;background:rgba(255,255,255,.08);margin:14px 0}
 .line{display:flex;justify-content:space-between;font-size:14px;margin:6px 0}
-.save{color:#22c55e;font-weight:800}
+.save{color:var(--ok);font-weight:800}
+
+/* sticky pay */
 .sticky{position:sticky;bottom:0;background:linear-gradient(180deg, rgba(0,0,0,.0), rgba(0,0,0,.4) 20%, #000 40%);padding-top:16px;margin-top:16px}
 .totalbar{display:flex;justify-content:space-between;align-items:center;background:#0f0f10;border:1px solid rgba(255,255,255,.15);border-radius:14px;padding:14px 16px}
 .totalbar strong{font-size:22px}
 .pay{display:inline-block;padding:12px 16px;border-radius:10px;text-decoration:none;font-weight:900;background:var(--accent);color:#000;cursor:pointer;border:none}
 .pay[disabled]{opacity:.5;cursor:not-allowed}
+
+/* info tooltip */
+.info{display:inline-flex;align-items:center;gap:6px}
+.info .icon{width:18px;height:18px;border-radius:50%;border:1px solid var(--border);display:inline-grid;place-items:center;font-size:12px;cursor:pointer}
+.tooltip{position:relative;display:inline-block}
+.tooltip:hover .tip, .tooltip:focus-within .tip{opacity:1;transform:translateY(0);pointer-events:auto}
+.tip{position:absolute;right:0;bottom:125%;opacity:0;transform:translateY(6px);transition:.2s;pointer-events:none;background:#111;border:1px solid var(--border);border-radius:10px;padding:10px;min-width:230px;z-index:30}
 </style>
 </head>
 <body>
@@ -51,17 +86,20 @@ h1{font-size:26px;font-weight:900;letter-spacing:-.2px}
 <header>
   <div class="nav">
     <div class="brand"><div class="brand-badge"></div><div>TRAPPERREO</div></div>
-    <nav id="navArea"><span>Caricamento…</span></nav>
+    <nav id="navArea"><span class="muted">Caricamento…</span></nav>
   </div>
 </header>
 
 <main class="wrap">
   <h1>Checkout</h1>
-  <div class="subtitle" id="hello">Accesso come…</div>
-  <div class="badges">
-    <span class="badge" id="phaseBadge">Fase vendite</span>
-    <span class="badge warn" id="deadlineBadge">Cambio nome</span>
-    <span class="badge ok">Evento privato 16+</span>
+  <div class="muted" id="hello">Accesso come…</div>
+
+  <!-- Simulazione settimane -->
+  <div class="weeks" aria-label="Simulazione settimane">
+    <button data-week="4" class="active">Settimana 4</button>
+    <button data-week="3">Settimana 3</button>
+    <button data-week="2">Settimana 2</button>
+    <button data-week="1">Settimana 1</button>
   </div>
 
   <div class="grid">
@@ -74,12 +112,12 @@ h1{font-size:26px;font-weight:900;letter-spacing:-.2px}
 
       <h2 style="font-size:20px;font-weight:900;margin:14px 0 8px">Scegli i biglietti</h2>
       <div class="tickets">
+
         <!-- EARLY -->
-        <div class="row" id="rowEB">
+        <div class="row" data-type="eb" id="rowEB">
           <div>
-            <div class="title">Early Bird <span class="flag">solo 72h</span></div>
-            <div class="note">Ingresso + 1 drink (soft/energy). Stock limitato.</div>
-            <div class="small" id="ebInfo"></div>
+            <div class="title">Early Bird <span class="flag eb">solo 72h</span></div>
+            <div class="note" id="ebNote">Ingresso + <span class="drink-label">1 drink</span>. <span id="ebLeft" class="muted"></span></div>
           </div>
           <div class="controls">
             <div class="price">12€</div>
@@ -90,11 +128,16 @@ h1{font-size:26px;font-weight:900;letter-spacing:-.2px}
             </div>
           </div>
         </div>
+
         <!-- STANDARD -->
-        <div class="row" id="rowSTD">
+        <div class="row" data-type="std" id="rowSTD">
           <div>
-            <div class="title">Standard</div>
-            <div class="note">Ingresso + 1 drink (soft/energy).</div>
+            <div class="title">Standard <span class="flag std">consigliato</span></div>
+            <div class="note">Ingresso + <span class="drink-label">1 drink</span>.</div>
+            <!-- promo crew visibile SOLO sotto standard -->
+            <div class="note" id="crewPromo" style="margin-top:6px;opacity:.95">
+              <strong>🎟️ Acquista 3 prevendite</strong> e ricevi uno <strong>sconto speciale</strong> (3×40€)
+            </div>
           </div>
           <div class="controls">
             <div class="price">15€</div>
@@ -105,11 +148,12 @@ h1{font-size:26px;font-weight:900;letter-spacing:-.2px}
             </div>
           </div>
         </div>
+
         <!-- FAST -->
-        <div class="row" id="rowFAST">
+        <div class="row" data-type="fast" id="rowFAST">
           <div>
-            <div class="title">Fast Entry <span class="flag">salti la fila</span></div>
-            <div class="note">Accesso prioritario + 1 drink. Nessun guardaroba incluso.</div>
+            <div class="title">Fast Entry <span class="flag fast">salti la fila</span></div>
+            <div class="note">Accesso prioritario + <span class="drink-label">1 drink</span>.</div>
           </div>
           <div class="controls">
             <div class="price">20€</div>
@@ -120,11 +164,12 @@ h1{font-size:26px;font-weight:900;letter-spacing:-.2px}
             </div>
           </div>
         </div>
+
         <!-- VIP -->
-        <div class="row" id="rowVIP">
+        <div class="row" data-type="vip" id="rowVIP">
           <div>
-            <div class="title">VIP Entry</div>
-            <div class="note">Accesso area palco + 1 drink + guardaroba incluso.</div>
+            <div class="title">VIP Entry <span class="flag vip">area palco</span></div>
+            <div class="note"><span class="drink-label">1 drink</span> + <strong>guardaroba incluso</strong>.</div>
           </div>
           <div class="controls">
             <div class="price">25€</div>
@@ -135,21 +180,14 @@ h1{font-size:26px;font-weight:900;letter-spacing:-.2px}
             </div>
           </div>
         </div>
-        <!-- CREW -->
-        <div class="row" id="rowCREW">
-          <div>
-            <div class="title">Crew Pack (3×)</div>
-            <div class="note">3 ingressi Standard insieme. Miglior prezzo di gruppo.</div>
-          </div>
-          <div class="controls">
-            <div class="price">39€</div>
-            <div class="qty">
-              <button data-minus="#qCREW">−</button>
-              <input id="qCREW" type="number" min="0" value="0" inputmode="numeric">
-              <button data-plus="#qCREW">+</button>
-            </div>
-          </div>
+
+        <!-- TAVOLO VIP (solo 18+) -->
+        <div class="viptable" id="vipTableBlock" style="display:none">
+          <div class="title">Tavolo VIP (18+)</div>
+          <div class="muted">Posto riservato di gruppo + servizio al tavolo.</div>
+          <button class="cta" id="vipMore">Scopri di più</button>
         </div>
+
       </div>
     </div>
 
@@ -159,7 +197,19 @@ h1{font-size:26px;font-weight:900;letter-spacing:-.2px}
       <div id="lines"></div>
       <div class="hr"></div>
       <div class="line"><span>Totale (IVA inclusa)</span><strong id="grandTot">0€</strong></div>
-      <div class="small" id="policyMsg" style="margin-top:6px"></div>
+
+      <!-- Protezione cambio nome -->
+      <div class="hr"></div>
+      <div class="line">
+        <label class="info tooltip">
+          <input id="optNameChange" type="checkbox" style="margin-right:8px">
+          Protezione cambio nome <span class="muted">(1,90€ / biglietto)</span>
+          <span class="icon" tabindex="0">i</span>
+          <span class="tip">Permette di cambiare il nominativo <strong>1 sola volta</strong> fino a <strong>48h</strong> dall’evento. Si applica a tutti i biglietti selezionati in questo ordine.</span>
+        </label>
+        <span id="nameChangeTot">0€</span>
+      </div>
+
       <div class="sticky" style="margin-top:10px">
         <button id="payBtn" class="pay" disabled>Procedi</button>
       </div>
@@ -169,125 +219,136 @@ h1{font-size:26px;font-weight:900;letter-spacing:-.2px}
 </main>
 
 <script type="module">
-/* ===== Navbar + auth obbligatoria (SOLO auth.v2.js) ===== */
+/* ===== Auth SOLO via auth.v2.js ===== */
 import { onUser, doSignOut } from './auth.v2.js?v=3';
 
 const nav = document.getElementById('navArea');
 const hello = document.getElementById('hello');
-
 const OUT = `
   <a href="./login.html?from=./checkout.html">Acquista il tuo biglietto</a>
   <a href="./login.html">Accedi</a>
   <a href="./signup.html">Registrati</a>
 `;
-const IN = (u) => {
-  const name = (u.displayName || (u.email ? u.email.split('@')[0] : 'Utente')).split(' ')[0];
-  return `
-    <span>👋 Ciao, ${name}</span>
-    <a href="./checkout.html">Vai al checkout</a>
-    <a href="#" id="logoutLink" style="color:#8b5cf6">Logout</a>
-  `;
-};
+const IN = (u)=>`<span>👋 Ciao, ${(u.displayName||u.email||'Utente').split(' ')[0]}</span>
+  <a href="./checkout.html">Vai al checkout</a>
+  <a href="#" id="logoutLink" style="color:#8b5cf6">Logout</a>`;
+
+let isAdult = false;
+
+/* profilo locale (DOB) come nel tuo index precedente */
+function getProfile(uid){ try { return JSON.parse(localStorage.getItem('trapperreo_profile_'+uid)||'null'); } catch { return null; } }
+function calcAge(dobISO){ if(!dobISO) return 0; const d=new Date(dobISO), t=new Date(); let a=t.getFullYear()-d.getFullYear(); const m=t.getMonth()-d.getMonth(); if(m<0||(m===0&&t.getDate()<d.getDate())) a--; return a; }
 
 onUser((u)=>{
-  if(!u){
-    nav.innerHTML = OUT;
-    // redirect duro: qui vuoi obbligo login per comprare
-    window.location.href = './login.html?from=./checkout.html';
-  }else{
-    nav.innerHTML = IN(u);
-    hello.textContent = `Accesso come: ${(u.displayName || u.email || 'Utente').split(' ')[0]}`;
-    document.getElementById('logoutLink')?.addEventListener('click', async (e)=>{
-      e.preventDefault(); await doSignOut(); nav.innerHTML = OUT;
-      window.location.href = './login.html?from=./checkout.html';
-    });
-  }
+  if(!u){ nav.innerHTML=OUT; location.href='./login.html?from=./checkout.html'; return; }
+  nav.innerHTML = IN(u);
+  document.getElementById('logoutLink')?.addEventListener('click', async (e)=>{e.preventDefault();await doSignOut();nav.innerHTML=OUT;location.href='./login.html?from=./checkout.html';});
+  hello.textContent = `Accesso come: ${(u.displayName||u.email||'Utente').split(' ')[0]}`;
+
+  const prof = getProfile(u.uid);
+  isAdult = prof?.dob ? (calcAge(prof.dob) >= 18) : false;
+
+  // etichetta drink per età
+  document.querySelectorAll('.drink-label').forEach(el=>{
+    el.textContent = isAdult ? '1 drink (alcolico/analcolico)' : '1 drink analcolico';
+  });
+
+  // tavolo vip solo 18+
+  document.getElementById('vipTableBlock').style.display = isAdult ? 'flex' : 'none';
 });
 
-/* ===== Fasi settimanali & scadenze ===== */
-const EVENT_DATE = new Date('2026-03-21T22:30:00+01:00');
-const NOW = new Date();
-const msPerDay = 86400000;
-const daysToEvent = Math.ceil((EVENT_DATE - NOW)/msPerDay);
+/* ===== Simulazione settimane (cambio highlight + stock + messaggi) ===== */
+const weekBtns = document.querySelectorAll('.weeks button');
+let week = 4; // default
 
-function setPhase(){
-  let phase='Pre-campagna';
-  if (daysToEvent <= 28 && daysToEvent > 21) phase='Settimana 4 — Early Bird';
-  else if (daysToEvent <= 21 && daysToEvent > 14) phase='Settimana 3 — Standard & Crew';
-  else if (daysToEvent <= 14 && daysToEvent > 7)  phase='Settimana 2 — Spinta Fast';
-  else if (daysToEvent <= 7 && daysToEvent >= 0)  phase='Settimana 1 — VIP & ultimi pezzi';
-  else if (daysToEvent < 0) phase='Evento concluso';
-  document.getElementById('phaseBadge').textContent = phase;
+const STOCK = {
+  4:{ EB:150, STD:300, FAST:200, VIP:100 },
+  3:{ EB:0,   STD:350, FAST:200, VIP:100 },
+  2:{ EB:0,   STD:300, FAST:180, VIP:100 },
+  1:{ EB:0,   STD:250, FAST:120, VIP:80  },
+};
 
-  const nameChangeDeadline = new Date(EVENT_DATE.getTime() - 48*60*60*1000);
-  const dBadge = document.getElementById('deadlineBadge');
-  if (NOW > nameChangeDeadline){
-    dBadge.textContent = 'Cambio nome disattivo (sotto 48h)';
-  } else {
-    const diff = Math.ceil((nameChangeDeadline - NOW)/msPerDay);
-    dBadge.textContent = `Cambio nome attivo (${diff}g rimasti)`;
-  }
+function setWeek(w){
+  week = w;
+  weekBtns.forEach(b=>b.classList.toggle('active', Number(b.dataset.week)===w));
+  applyStock();
+  highlightByWeek();
 }
-setPhase();
+weekBtns.forEach(b=>b.addEventListener('click', ()=>setWeek(Number(b.dataset.week))));
 
-/* ===== Listino & Stock ===== */
-const PRICE = { EB:12, STD:15, FAST:20, VIP:25, CREW:39 };
-let STOCK = { EB:150, STD:350, FAST:200, VIP:100, CREW:50 };
-if (daysToEvent<=21) STOCK.EB=0;
-if (daysToEvent<=14){ STOCK.FAST=180; }
-if (daysToEvent<=7){ STOCK.FAST=120; STOCK.VIP=80; }
+function highlightByWeek(){
+  // evidenziazione: EB quando c'è (wk4); Standard wk3; Fast wk2; VIP wk1
+  const rows=[['rowEB',4],['rowSTD',3],['rowFAST',2],['rowVIP',1]];
+  rows.forEach(([id,focusWeek])=>{
+    const el=document.getElementById(id);
+    el.style.boxShadow = (week===focusWeek) ? '0 0 0 2px rgba(139,92,246,.18)' : 'none';
+  });
+}
+
+function leftText(sku, left){
+  if(left<=0) return 'Esaurito';
+  if(left<=20) return `Mancano ${left} prevendite`;
+  if(left<=50) return `Mancano ${left} prevendite`;
+  return `Disponibili ${left}`;
+}
 
 const qEB = document.getElementById('qEB');
 const qSTD= document.getElementById('qSTD');
 const qFAST=document.getElementById('qFAST');
 const qVIP =document.getElementById('qVIP');
-const qCREW=document.getElementById('qCREW');
+const inputs=[qEB,qSTD,qFAST,qVIP];
 
-function money(n){ return n.toFixed(2).replace('.00','')+'€'; }
-const lines = document.getElementById('lines');
-const grand = document.getElementById('grandTot');
-const payBtn= document.getElementById('payBtn');
-const ebInfo= document.getElementById('ebInfo');
-
-const NOW72 = new Date(NOW.getTime()+72*60*60*1000);
-const ebEnd  = new Date(Math.min(EVENT_DATE.getTime(), NOW72.getTime()));
-if (STOCK.EB>0) ebInfo.textContent = `Fino al ${ebEnd.toLocaleDateString('it-IT',{day:'2-digit',month:'short'})} o esaurimento (${STOCK.EB} pz).`;
+function currentStock(){ return {...STOCK[week]}; }
 
 function applyStock(){
-  const map=[['EB',qEB,'rowEB'],['STD',qSTD,'rowSTD'],['FAST',qFAST,'rowFAST'],['VIP',qVIP,'rowVIP'],['CREW',qCREW,'rowCREW']];
-  map.forEach(([sku,input,rowId])=>{
-    const has=(STOCK[sku]||0)>0;
-    const row=document.getElementById(rowId);
-    input.disabled=!has;
-    row.classList.toggle('sold',!has);
-    if(!has && !row.dataset.msg){ row.dataset.msg='1'; row.querySelector('.note').innerHTML += ' <span class="small" style="color:#f59e0b">Esaurito</span>'; }
-  });
+  const stock = currentStock();
+  // Early left
+  const ebLeft = stock.EB - parseInt(qEB.value||0);
+  document.getElementById('ebLeft').textContent = stock.EB>0 ? leftText('EB', ebLeft) : 'Esaurito';
+  // enable/disable
+  [['EB',qEB,'rowEB'],['STD',qSTD,'rowSTD'],['FAST',qFAST,'rowFAST'],['VIP',qVIP,'rowVIP']]
+    .forEach(([sku,input,rowId])=>{
+      const has = (stock[sku]??0)>0;
+      input.disabled = !has;
+      const row = document.getElementById(rowId);
+      row.classList.toggle('sold', !has);
+    });
 }
 
-function getQty(){
-  const g = id => Math.max(0, parseInt(document.getElementById(id).value||0));
-  return { EB:g('qEB'), STD:g('qSTD'), FAST:g('qFAST'), VIP:g('qVIP'), CREW:g('qCREW') };
-}
+/* ===== Riepilogo ===== */
+const PRICE = { EB:12, STD:15, FAST:20, VIP:25, NAMECHANGE:1.90 };
+const lines = document.getElementById('lines');
+const grand = document.getElementById('grandTot');
+const optName = document.getElementById('optNameChange');
+const nameTot = document.getElementById('nameChangeTot');
+const payBtn = document.getElementById('payBtn');
+
+function money(n){ return n.toFixed(2).replace('.00','')+'€'; }
+
+function qty(){ return { EB:+(qEB.value||0), STD:+(qSTD.value||0), FAST:+(qFAST.value||0), VIP:+(qVIP.value||0) }; }
 
 function render(){
   applyStock();
-  const q = getQty();
+  const q = qty();
   let subtotal=0; const arr=[];
-  const add = (label, val)=>{ arr.push(`<div class="line"><span>${label}</span><span>${money(val)}</span></div>`); subtotal+=val; };
-  const info= (label)=>{ arr.push(`<div class="line save"><span>${label}</span><span></span></div>`); };
 
-  if(q.EB>0){ add(`Early Bird × ${q.EB}`, q.EB*PRICE.EB); info(`Drink incluso × ${q.EB}`); }
-  if(q.STD>0){ add(`Standard × ${q.STD}`, q.STD*PRICE.STD); info(`Drink incluso × ${q.STD}`); }
-  if(q.FAST>0){ add(`Fast Entry × ${q.FAST}`, q.FAST*PRICE.FAST); info(`Drink incluso × ${q.FAST}`); }
-  if(q.VIP>0){ add(`VIP Entry × ${q.VIP}`, q.VIP*PRICE.VIP); info(`Drink + guardaroba inclusi × ${q.VIP}`); }
-  if(q.CREW>0){ add(`Crew Pack (3×) × ${q.CREW}`, q.CREW*PRICE.CREW); info(`Drink inclusi × ${q.CREW*3}`); }
+  const add  = (label, val)=>{ arr.push(`<div class="line"><span>${label}</span><span>${money(val)}</span></div>`); subtotal+=val; };
+  const info = (label)=>{ arr.push(`<div class="line save"><span>${label}</span><span></span></div>`); };
+
+  if(q.EB>0){ add(`Early Bird × ${q.EB}`, q.EB*PRICE.EB); info(`${isAdult?'Drink (alc./analc.)':'Drink analcolico'} incluso × ${q.EB}`); }
+  if(q.STD>0){ add(`Standard × ${q.STD}`, q.STD*PRICE.STD); info(`${isAdult?'Drink (alc./analc.)':'Drink analcolico'} incluso × ${q.STD}`); }
+  if(q.FAST>0){ add(`Fast Entry × ${q.FAST}`, q.FAST*PRICE.FAST); info(`${isAdult?'Drink (alc./analc.)':'Drink analcolico'} incluso × ${q.FAST}`); }
+  if(q.VIP>0){ add(`VIP Entry × ${q.VIP}`, q.VIP*PRICE.VIP); info(`${isAdult?'Drink (alc./analc.)':'Drink analcolico'} incluso × ${q.VIP}`); info(`Guardaroba incluso × ${q.VIP}`); }
 
   lines.innerHTML = arr.join('');
   grand.textContent = money(subtotal);
 
-  const totalTickets = q.EB + q.STD + q.FAST + q.VIP + (q.CREW*3);
-  document.getElementById('policyMsg').textContent = 'Minorenni: drink = soft/energy. Documento 16+ obbligatorio.';
-  payBtn.disabled = totalTickets<=0;
+  // extra protezione (si applica a tutti i biglietti selezionati)
+  const tickets = q.EB + q.STD + q.FAST + q.VIP;
+  const extra = optName.checked ? tickets * PRICE.NAMECHANGE : 0;
+  nameTot.textContent = money(extra);
+
+  payBtn.disabled = tickets<=0;
 }
 
 function bindQty(){
@@ -297,18 +358,20 @@ function bindQty(){
   document.querySelectorAll('[data-minus]').forEach(b=>{
     b.addEventListener('click',()=>{ const t=document.querySelector(b.getAttribute('data-minus')); t.value=Math.max(0,parseInt(t.value||0)-1); render(); });
   });
-  ['qEB','qSTD','qFAST','qVIP','qCREW'].forEach(id=>{
-    document.getElementById(id).addEventListener('input', ()=>render());
-  });
+  inputs.forEach(i=>i.addEventListener('input', render));
+  optName.addEventListener('change', render);
 }
-bindQty(); render();
+bindQty(); setWeek(4); render();
 
-/* ===== Procedi → attendees.html ===== */
+/* ===== CTA “Scopri di più” tavolo ===== */
+document.getElementById('vipMore').addEventListener('click', (e)=>{ e.preventDefault(); alert('Tavolo VIP (18+): ti contattiamo per i dettagli — placeholder'); });
+
+/* ===== Procedi ===== */
 payBtn.addEventListener('click', ()=>{
-  const q = getQty();
-  const qs = new URLSearchParams({ std:q.STD||0, fast:q.FAST||0, vip:q.VIP||0, eb:q.EB||0, crew:q.CREW||0 }).toString();
-  const totalTickets = q.EB + q.STD + q.FAST + q.VIP + (q.CREW*3);
-  if(totalTickets>1) location.href = `./attendees.html?${qs}`;
+  const q = qty();
+  const qs = new URLSearchParams({ std:q.STD||0, fast:q.FAST||0, vip:q.VIP||0, eb:q.EB||0, nc: optName.checked?1:0 }).toString();
+  const tickets = q.EB + q.STD + q.FAST + q.VIP;
+  if(tickets>1) location.href = `./attendees.html?${qs}`;
   else alert('Simulazione pagamento: ordine creato!');
 });
 </script>
