@@ -1,4 +1,6 @@
-// auth.v2.js (CDN Firebase v12, ESM)
+<!-- Salva come auth.v2.js -->
+<script type="module">
+// auth.v2.js
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-app.js";
 import {
   getAuth, onAuthStateChanged, updateProfile,
@@ -6,10 +8,9 @@ import {
   sendPasswordResetEmail, signOut
 } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-auth.js";
 import {
-  getFirestore, doc, getDoc, setDoc
+  getFirestore, doc, getDoc, setDoc, serverTimestamp
 } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-firestore.js";
 
-// --- CONFIG (tua) ---
 const firebaseConfig = {
   apiKey: "AIzaSyDF6BiYXreDirGnT3RPkGwDNlwj5ploUyo",
   authDomain: "trappereo.firebaseapp.com",
@@ -20,86 +21,95 @@ const firebaseConfig = {
   measurementId: "G-BDBRZQ6J8S"
 };
 
-// --- APP BASE ---
 export const app  = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
 export const db   = getFirestore(app);
 
-// --- AUTH API ---
-export async function emailSignUp(email, pwd) {
-  return createUserWithEmailAndPassword(auth, email, pwd);
+// ---- API base
+export const emailSignUp  = (email, pwd) => createUserWithEmailAndPassword(auth, email, pwd);
+export const emailSignIn  = (email, pwd) => signInWithEmailAndPassword(auth, email, pwd);
+export const sendReset    = (email)      => sendPasswordResetEmail(auth, email);
+export const doSignOut    = ()           => signOut(auth);
+export const onUser       = (cb)         => onAuthStateChanged(auth, cb);
+export async function setDisplayName(user, fullName){ if(user) try{ await updateProfile(user,{displayName:fullName}); }catch{} }
+
+// ---- Helpers local opzionali (DOB locale)
+export function saveDOB(uid, dobISO){
+  if(!uid || !dobISO) return;
+  localStorage.setItem(`trapperreo_profile_${uid}`, JSON.stringify({ dob: dobISO }));
 }
-export async function emailSignIn(email, pwd) {
-  return signInWithEmailAndPassword(auth, email, pwd);
+export function loadProfile(uid){
+  try { return JSON.parse(localStorage.getItem(`trapperreo_profile_${uid}`) || "null"); }
+  catch { return null; }
 }
-export async function sendReset(email) {
-  return sendPasswordResetEmail(auth, email);
-}
-export async function doSignOut() {
-  return signOut(auth);
-}
-export function onUser(cb) {
-  return onAuthStateChanged(auth, cb);
-}
-export async function setDisplayName(user, fullName){
-  if (user && fullName) try { await updateProfile(user, { displayName: fullName }); } catch {}
+export function calcAge(dobISO){
+  const d=new Date(dobISO), t=new Date();
+  let a=t.getFullYear()-d.getFullYear();
+  const m=t.getMonth()-d.getMonth();
+  if(m<0 || (m===0 && t.getDate()<d.getDate())) a--;
+  return a;
 }
 
-// --- Ensure user doc ---
-// Crea/aggiorna /users/{uid} con campi base. Idempotente.
-export async function ensureUserDoc(u) {
-  if (!u) return null;
-  const ref = doc(db, "users", u.uid);
+// ---- Firestore: garantisce /users/{uid} e merge di extras
+export async function ensureUserDoc(u, extras = {}){
+  if(!u) return null;
+  const ref = doc(db, 'users', u.uid);
   const snap = await getDoc(ref);
 
-  const base = {
+  const baseName = (u.displayName || u.email || '').trim();
+  const payload = {
     uid: u.uid,
-    email: (u.email || "").toLowerCase(),
-    name: (u.displayName || u.email || "").trim(),
-    name_lc: (u.displayName || u.email || "").trim().toLowerCase(),
-    role: "customer",
-    status: "active"
+    email: (u.email || '').toLowerCase(),
+    name: baseName,
+    name_lc: baseName.toLowerCase(),
+    role: 'customer',
+    status: 'active',
+    updatedAt: serverTimestamp(),
+    ...extras
   };
 
-  if (!snap.exists()) {
-    await setDoc(ref, { ...base, createdAt: Date.now(), updatedAt: Date.now() });
+  if(!snap.exists()){
+    await setDoc(ref, { ...payload, createdAt: serverTimestamp() }, { merge: true });
   } else {
+    // merge “soft” su campi base per non perdere dati preesistenti
     const cur = snap.data() || {};
     await setDoc(ref, {
-      email: base.email || cur.email || "",
-      name:  base.name  || cur.name  || "",
-      name_lc: base.name_lc || cur.name_lc || "",
-      updatedAt: Date.now()
+      email: payload.email || cur.email || '',
+      name:  payload.name  || cur.name  || '',
+      name_lc: payload.name_lc || cur.name_lc || '',
+      role: cur.role || 'customer',
+      status: cur.status || 'active',
+      updatedAt: serverTimestamp(),
+      ...extras
     }, { merge: true });
   }
-  const latest = await getDoc(ref);
-  return latest.exists() ? latest.data() : null;
+  return (await getDoc(ref)).data();
 }
 
-// --- Gate: deve essere loggato e con status === 'active'
-export async function requireActiveUser(redirect = "./login.html") {
-  return new Promise((resolve) => {
-    onAuthStateChanged(auth, async (u) => {
-      if (!u) {
-        const back = encodeURIComponent(location.pathname + location.search);
-        location.href = `${redirect}?from=${back}`;
+// ---- Richiede login + status attivo (altrimenti esce e manda al login)
+export function requireActiveUser(redirect = "./login.html"){
+  return new Promise(res => onAuthStateChanged(auth, async (u)=>{
+    if(!u){
+      const back = encodeURIComponent(location.pathname + location.search);
+      location.href = `${redirect}?from=${back}`;
+      return;
+    }
+    try{
+      await ensureUserDoc(u);
+      const snap = await getDoc(doc(db,'users',u.uid));
+      const data = snap.exists() ? snap.data() : {};
+      if((data.status||'active') !== 'active'){
+        alert('Il tuo account è sospeso. Contatta il supporto.');
+        await signOut(auth);
+        location.href = './login.html';
         return;
       }
-      try {
-        await ensureUserDoc(u);
-        const snap = await getDoc(doc(db, "users", u.uid));
-        const data = snap.exists() ? snap.data() : {};
-        if ((data.status || "active") !== "active") {
-          alert("Il tuo account è sospeso. Contatta il supporto.");
-          await signOut(auth);
-          location.href = "./login.html";
-          return;
-        }
-        resolve(u);
-      } catch (e) {
-        console.error(e);
-        signOut(auth).finally(() => location.href = "./login.html");
-      }
-    });
-  });
+      res(u);
+    }catch(e){
+      console.error(e);
+      await signOut(auth);
+      location.href = './login.html';
+    }
+  }));
 }
+</script>
