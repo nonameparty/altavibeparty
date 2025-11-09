@@ -50,10 +50,8 @@ input{width:100%;margin-top:6px;margin-bottom:14px;padding:12px;border:none;bord
   </div>
 
 <script type="module">
-import { app, emailSignUp, setDisplayName, calcAge, ensureUserDoc } from './auth.v2.js?v=4';
-import { getFirestore, doc, setDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/12.5.0/firebase-firestore.js';
+import { emailSignUp, setDisplayName, calcAge, ensureUserDoc } from './auth.v2.js?v=4';
 
-const db = getFirestore(app);
 const getParam = n => new URLSearchParams(location.search).get(n);
 const $ = q => document.querySelector(q);
 const showErr = m => { const b = $('#err'); b.textContent = m; b.style.display='block'; };
@@ -71,29 +69,21 @@ $('#signUpBtn').addEventListener('click', async ()=>{
     if(!dob) throw Error('Inserisci la data di nascita.');
     if(calcAge(dob) < 16) throw Error('Età minima 16 anni.');
 
-    // crea auth user
     const cred = await emailSignUp(email, pwd);
 
-    // imposta displayName
     const fullName = `${first} ${last}`.trim();
     await setDisplayName(cred.user, fullName);
 
-    // crea/aggiorna doc /users/{uid} (status=active)
-    await ensureUserDoc(cred.user);
-
-    // scrive DOB e name con merge
-    await setDoc(doc(db,'users',cred.user.uid), {
+    // crea/aggiorna doc utente
+    await ensureUserDoc(cred.user, { 
       name: fullName,
       name_lc: fullName.toLowerCase(),
-      dob,
-      updatedAt: serverTimestamp()
-    }, { merge:true });
+      dob
+    });
 
     const next = getParam('from') || './checkout.html';
     location.assign(`./welcome.html?next=${encodeURIComponent(next)}`);
-  }catch(e){
-    showErr(e.message || 'Errore imprevisto');
-  }
+  }catch(e){ showErr(e.message || 'Errore imprevisto'); }
 });
 </script>
 </body>
