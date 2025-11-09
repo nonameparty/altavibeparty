@@ -365,26 +365,17 @@ document.getElementById('vipMore').addEventListener('click', (e)=>{ e.preventDef
 payBtn.addEventListener('click', ()=>{
   const q = qty();
   const tickets = q.EB + q.STD + q.FAST + q.VIP;
-  const nameChange = optName.checked ? 1 : 0;
-
   const qs = new URLSearchParams({
-    std:q.STD||0, fast:q.FAST||0, vip:q.VIP||0, eb:q.EB||0, nc:nameChange
+    std:q.STD||0, fast:q.FAST||0, vip:q.VIP||0, eb:q.EB||0, nc: optName.checked?1:0
   }).toString();
 
-  saveCartFromUI();
+  saveCartFromUI(); // <— importantissimo: salva prima di navigare
 
-  if (tickets > 1) {
-    // più biglietti → pagina assegnazione
+  if(tickets > 1){
     location.href = `./attendees.html?${qs}`;
-  } else if (tickets === 1) {
-    // un solo biglietto:
-    if (nameChange === 1) {
-      // protezione attiva → vai direttamente al pagamento
-      alert('Pagamento avviato (simulazione).');
-    } else {
-      // protezione non attiva → pagina dedicata single
-      location.href = `./attendees-single.html?${qs}`;
-    }
+  }else{
+    // flusso 1 biglietto → pagina dedicata
+    location.href = `./attendees-single.html?${qs}`;
   }
 });
 </script>
