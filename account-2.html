@@ -1,99 +1,290 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Accedi — TRAPPERREO</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&display=swap" rel="stylesheet">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Il tuo account — TRAPPERREO</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&display=swap" rel="stylesheet" />
 <style>
-:root{--accent:#8b5cf6;--bg:#000;--text:#fff}
+:root{--accent:#8b5cf6;--border:rgba(255,255,255,.12);--muted:rgba(255,255,255,.78)}
 *{box-sizing:border-box;margin:0;padding:0}
-html,body{height:100%}
-body{background:radial-gradient(60% 60% at 50% 40%, rgba(139,92,246,.12), transparent 60%), #000; color:#fff; font-family:Inter,system-ui,sans-serif; min-height:100vh; display:grid; place-items:center}
-a{color:var(--accent);text-decoration:none}
-.card{width:min(92%,460px);background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:16px;padding:26px;backdrop-filter:blur(6px)}
-h1{font-size:28px;font-weight:900;margin-bottom:6px}
-.muted{opacity:.8;margin-bottom:18px}
-label{font-size:13px;opacity:.8}
-input{width:100%;margin-top:6px;margin-bottom:14px;padding:12px;border:none;border-radius:10px;background:#0f0f10;color:#fff}
-.btn{width:100%;padding:12px 16px;border:none;border-radius:10px;background:var(--accent);color:#000;font-weight:900;cursor:pointer}
-.row{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-top:12px}
-.error,.success{padding:10px;border-radius:10px;margin-bottom:12px;display:none}
-.error{background:#2a0e0e;border:1px solid #ff6b6b;color:#ffdede}
-.success{background:#0e2a14;border:1px solid #34d399;color:#c6f6d5}
-#resetBox{display:none;margin-top:12px;background:#0f0f10;padding:12px;border-radius:10px;border:1px solid rgba(255,255,255,.15)}
-.small{font-size:13px;opacity:.8}
+body{background:#000;color:#fff;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;line-height:1.5;min-height:100vh;display:grid;grid-template-rows:auto 1fr}
+a{color:inherit;text-decoration:none}
+.hidden{display:none}
+header{position:sticky;top:0;z-index:40;backdrop-filter:saturate(140%) blur(6px);background:rgba(0,0,0,.6);border-bottom:1px solid rgba(255,255,255,.08)}
+.nav{max-width:1200px;margin:auto;padding:14px 20px;display:flex;align-items:center;justify-content:space-between}
+.brand{display:flex;align-items:center;gap:10px;font-weight:900}
+.brand-badge{width:22px;height:22px;background:var(--accent);transform:skew(-6deg);border-radius:3px}
+nav a, nav span{margin-left:18px;opacity:.95}
+nav a:hover{color:var(--accent)}
+.wrap{max-width:1100px;margin:auto;padding:22px}
+h1{font-size:34px;font-weight:900;letter-spacing:-.3px;margin-bottom:6px}
+.kicker{color:var(--muted);margin-bottom:16px}
+.badges{display:flex;gap:10px;flex-wrap:wrap;margin:4px 0 18px}
+.badge{background:#0f0f10;border:1px solid rgba(255,255,255,.15);border-radius:10px;padding:8px 10px;font-size:13px}
+.grid{display:grid;grid-template-columns:2fr 1fr;gap:16px}
+@media(max-width:900px){.grid{grid-template-columns:1fr}}
+.card{background:rgba(255,255,255,.06);border:1px solid var(--border);border-radius:16px;padding:18px}
+.card h2{font-size:20px;font-weight:900;margin-bottom:10px}
+.muted{color:var(--muted)}
+.ticket-list{display:grid;gap:10px}
+.ticket{background:#0b0b0b;border:1px solid rgba(255,255,255,.1);border-radius:12px;padding:12px}
+.ticket .line{display:flex;justify-content:space-between}
+.empty{display:grid;place-items:center;min-height:160px;border:1px dashed rgba(255,255,255,.25);border-radius:12px}
+.btn{display:inline-block;padding:12px 16px;border-radius:10px;background:var(--accent);color:#000;font-weight:900}
+.row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px dashed rgba(255,255,255,.12)}
+.row:last-child{border-bottom:none}
+.lab{opacity:.8}
+.val{font-weight:800}
+.actions{display:flex;gap:10px;margin-top:14px}
+.badge-admin{display:inline-block;padding:6px 10px;border:1px solid var(--accent);border-radius:999px;font-size:12px;margin-bottom:10px}
+.backdrop{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;align-items:center;justify-content:center}
+.modal{background:#0f0f10;border:1px solid var(--border);border-radius:14px;padding:18px;width:min(520px,92vw)}
+.modal h3{font-size:18px;font-weight:900;margin-bottom:10px}
+.modal .grid{display:grid;grid-template-columns:1fr;gap:10px}
+input{background:#0f0f10;border:1px solid var(--border);border-radius:10px;color:#fff;padding:10px}
+.modal-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:12px}
+.btn.ghost{background:transparent;border:1px solid var(--border);color:#fff}
 </style>
 </head>
 <body>
-  <div class="card">
-    <h1>Accedi</h1>
-    <p class="muted">Entra per acquistare il tuo biglietto.</p>
 
-    <div id="msg" class="success"></div>
-    <div id="err" class="error"></div>
+<header>
+  <div class="nav">
+    <div class="brand"><div class="brand-badge"></div><div>TRAPPERREO</div></div>
+    <nav id="navArea"><span class="muted">Caricamento…</span></nav>
+  </div>
+</header>
 
-    <label>Email</label>
-    <input id="email" type="email" placeholder="tuo@email.it" autocomplete="email" required>
+<main class="wrap">
+  <h1 id="title">Il tuo account</h1>
+  <div id="hello" class="kicker">Accesso in corso...</div>
 
-    <label>Password</label>
-    <input id="password" type="password" placeholder="Minimo 6 caratteri" autocomplete="current-password" required>
-
-    <button id="loginBtn" class="btn" type="button">Entra</button>
-
-    <div class="row small">
-      <a href="#" id="forgotToggle">Password dimenticata?</a>
-      <span>Non hai un account? <a href="./signup.html">Registrati</a></span>
-    </div>
-
-    <div id="resetBox">
-      <label>Email per il reset</label>
-      <input id="resetEmail" type="email" placeholder="tuo@email.it">
-      <button id="resetBtn" class="btn" type="button" style="margin-top:6px">Invia email di reset</button>
-      <div id="resetMsg" class="success" style="display:none;margin-top:10px"></div>
-      <div id="resetErr" class="error" style="display:none;margin-top:10px"></div>
-    </div>
-
-    <div class="row small" style="justify-content:flex-start;margin-top:10px">
-      <a href="./index.html">← Torna alla home</a>
-    </div>
+  <div class="badges">
+    <span class="badge">Sab 21 Mar 2026</span>
+    <span class="badge">22:30 → 04:30</span>
+    <span class="badge">Via Italia 38, Biella</span>
   </div>
 
+  <div class="grid">
+    <section class="card">
+      <h2>I tuoi biglietti</h2>
+      <div id="tickets" class="ticket-list"></div>
+      <div id="ticketsEmpty" class="empty hidden">
+        <div style="text-align:center">
+          <div class="muted" style="margin-bottom:10px">Non risultano biglietti attivi.</div>
+          <a class="btn" href="./checkout.html">Compra ora il tuo biglietto</a>
+        </div>
+      </div>
+    </section>
+
+    <aside class="card">
+      <h2>Profilo</h2>
+      <div class="row"><div class="lab">Nome e cognome</div><div class="val" id="vName">—</div></div>
+      <div class="row"><div class="lab">Data di nascita</div><div class="val" id="vDob">—</div></div>
+      <div class="row"><div class="lab">Email</div><div class="val" id="vEmail">—</div></div>
+      <div class="actions">
+        <button id="btnEdit" class="btn">Modifica dati</button>
+      </div>
+    </aside>
+  </div>
+
+  <aside id="founderBox" class="card hidden" style="margin-top:16px">
+    <span class="badge-admin">Founder</span>
+    <h2>Pannello Founder</h2>
+    <div id="founderHello" class="muted" style="margin-bottom:12px"></div>
+    <div style="display:grid;gap:10px;grid-template-columns:repeat(2, minmax(200px, 1fr))">
+      <a class="btn" href="./founder.html" style="text-align:center">Apri pannello</a>
+      <a class="btn" href="./checkout.html" style="text-align:center">Nuovo ordine</a>
+    </div>
+  </aside>
+</main>
+
+<div id="modal" class="backdrop" aria-hidden="true">
+  <div class="modal">
+    <h3>Modifica profilo</h3>
+    <div class="grid">
+      <label>Nome e cognome
+        <input id="inpName" placeholder="Es. Mario Rossi" />
+      </label>
+      <label>Data di nascita
+        <input id="inpDob" type="date" />
+      </label>
+      <label>Email (non modificabile)
+        <input id="inpEmail" disabled />
+      </label>
+    </div>
+    <div class="modal-actions">
+      <button id="mCancel" class="btn ghost">Annulla</button>
+      <button id="mSave" class="btn">Salva</button>
+    </div>
+  </div>
+</div>
+
 <script type="module">
-import { emailSignIn, sendReset, ensureUserDoc } from './auth.v2.js?v=4';
+  import { app, onUser, doSignOut, requireActiveUser } from './auth.v2.js?v=4';
+  import {
+    getFirestore, doc, getDoc, setDoc, collection, getDocs, serverTimestamp
+  } from 'https://www.gstatic.com/firebasejs/12.5.0/firebase-firestore.js';
 
-const $ = q => document.querySelector(q);
-const getParam = n => new URLSearchParams(location.search).get(n);
+  // 1) Blocca subito chi non è loggato/attivo
+  await requireActiveUser('./login.html');
 
-$('#loginBtn').addEventListener('click', async ()=>{
-  $('#err').style.display='none'; $('#msg').style.display='none';
-  try{
-    const email = $('#email').value.trim();
-    const pwd   = $('#password').value;
-    if(!email || !pwd) throw Error('Inserisci email e password.');
+  // UI refs
+  const nav  = document.getElementById('navArea');
+  const OUT  = `
+    <a href="./login.html?from=./account-2.html">Acquista il tuo biglietto</a>
+    <a href="./login.html">Accedi</a>
+    <a href="./signup.html">Registrati</a>
+  `;
+  const IN = (u)=>`
+    <span>👋 Ciao, ${(u.displayName || (u.email?.split('@')[0]) || 'Utente').split(' ')[0]}</span>
+    <a href="./checkout.html">Vai al checkout</a>
+    <a href="#" id="logoutLink" style="color:#8b5cf6">Logout</a>
+  `;
 
-    const cred = await emailSignIn(email, pwd);
+  const hello = document.getElementById('hello');
+  const title = document.getElementById('title');
+  const vName = document.getElementById('vName');
+  const vDob  = document.getElementById('vDob');
+  const vEmail= document.getElementById('vEmail');
+  const ticketsWrap = document.getElementById('tickets');
+  const ticketsEmpty= document.getElementById('ticketsEmpty');
+  const founderBox   = document.getElementById('founderBox');
+  const founderHello = document.getElementById('founderHello');
 
-    // GARANTISCE che /users/{uid} esista (e ripara name_lc/createdAt)
-    await ensureUserDoc(cred.user);
+  const modal   = document.getElementById('modal');
+  const btnEdit = document.getElementById('btnEdit');
+  const mCancel = document.getElementById('mCancel');
+  const mSave   = document.getElementById('mSave');
+  const inpName = document.getElementById('inpName');
+  const inpDob  = document.getElementById('inpDob');
+  const inpEmail= document.getElementById('inpEmail');
 
-    const dest = getParam('from') || './account-2.html';
-    location.assign(dest);
-  }catch(e){
-    const box = $('#err'); box.textContent = e.message || 'Errore imprevisto'; box.style.display='block';
+  const db = getFirestore(app);
+
+  const asDateStr = (dob) => {
+    try {
+      if(!dob) return '—';
+      if (/^\d{4}-\d{2}-\d{2}$/.test(dob)) return dob;
+      const d = new Date(dob);
+      if (isNaN(d)) return '—';
+      return d.toISOString().slice(0,10);
+    } catch { return '—'; }
+  };
+
+  function openModal(){ modal.style.display='flex'; modal.setAttribute('aria-hidden','false'); }
+  function closeModal(){ modal.style.display='none'; modal.setAttribute('aria-hidden','true'); }
+
+  async function loadTickets(uid){
+    try{
+      const qSnap = await getDocs(collection(db, 'users', uid, 'tickets'));
+      if(qSnap.empty){
+        ticketsWrap.innerHTML = '';
+        ticketsEmpty.classList.remove('hidden');
+        return;
+      }
+      ticketsEmpty.classList.add('hidden');
+      const frags = [];
+      qSnap.forEach(docu=>{
+        const t = docu.data();
+        frags.push(`
+          <div class="ticket">
+            <div class="line"><strong>${t.type || 'Biglietto'}</strong><span>${t.status || 'attivo'}</span></div>
+            <div class="muted" style="margin-top:6px">QR: ${t.qr || '(da generare)'}</div>
+          </div>
+        `);
+      });
+      ticketsWrap.innerHTML = frags.join('');
+    }catch(e){
+      ticketsWrap.innerHTML = '';
+      ticketsEmpty.classList.remove('hidden');
+    }
   }
-});
 
-$('#forgotToggle').addEventListener('click', e=>{
-  e.preventDefault();
-  const b = $('#resetBox'); b.style.display = (b.style.display==='none' || !b.style.display) ? 'block' : 'none';
-});
-$('#resetBtn').addEventListener('click', async ()=>{
-  const em = $('#resetEmail').value.trim();
-  const E = $('#resetErr'), M = $('#resetMsg'); E.style.display='none'; M.style.display='none';
-  try{ if(!em) throw Error("Inserisci l'email."); await sendReset(em); M.textContent="Email di reset inviata."; M.style.display='block'; }
-  catch(err){ E.textContent=err.message||'Errore imprevisto'; E.style.display='block'; }
-});
+  async function isFounder(email){
+    try{
+      const snap = await getDoc(doc(db,'config','admins'));
+      const founders = snap.exists() ? (snap.data().founders || {}) : {};
+      return !!founders[(email||'').toLowerCase()];
+    }catch(_){ return false; }
+  }
+
+  // 2) Popola UI
+  onUser(async (u)=>{
+    if(!u){
+      nav.innerHTML = OUT;
+      const back = encodeURIComponent(location.pathname + location.search);
+      location.href = `./login.html?from=${back}`;
+      return;
+    }
+    nav.innerHTML = IN(u);
+    document.getElementById('logoutLink')?.addEventListener('click', async(e)=>{
+      e.preventDefault(); await doSignOut(); nav.innerHTML = OUT; location.href = './login.html?from=./account-2.html';
+    });
+
+    title.textContent = 'Il tuo account';
+    hello.innerHTML = `Ciao, <strong>${(u.displayName || u.email || 'Utente').split(' ')[0]}</strong>`;
+
+    // /users/{uid}
+    const ref = doc(db,'users',u.uid);
+    let snap = await getDoc(ref);
+    if(!snap.exists()){
+      await setDoc(ref, {
+        uid: u.uid,
+        email: (u.email||'').toLowerCase(),
+        name:  (u.displayName || u.email || '').trim(),
+        name_lc: (u.displayName || u.email || '').trim().toLowerCase(),
+        dob:   '',
+        role:  'customer',
+        status:'active',
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp()
+      }, { merge:true });
+      snap = await getDoc(ref);
+    }
+    const data = snap.data() || {};
+
+    vName.textContent  = data.name  || (u.displayName || '—');
+    vDob.textContent   = asDateStr(data.dob || '');
+    vEmail.textContent = data.email || u.email || '—';
+    inpName.value  = data.name  || (u.displayName || '');
+    inpDob.value   = asDateStr(data.dob || '');
+    inpEmail.value = data.email || u.email || '';
+
+    await loadTickets(u.uid);
+
+    const founderOk = (data.role === 'founder') || await isFounder(u.email);
+    if(founderOk){
+      founderBox.classList.remove('hidden');
+      founderHello.textContent = `Ciao ${data.name || (u.displayName || u.email)}, puoi gestire utenti e statistiche.`;
+    }else{
+      founderBox.classList.add('hidden');
+    }
+  });
+
+  // 3) Salvataggio profilo
+  btnEdit.addEventListener('click', openModal);
+  mCancel.addEventListener('click', closeModal);
+  mSave.addEventListener('click', async ()=>{
+    const name = inpName.value.trim();
+    const dob  = inpDob.value;
+    if(!name){ alert('Inserisci nome e cognome.'); return; }
+
+    const user = await new Promise(res=>onUser(res));
+    if(!user) return;
+
+    await setDoc(doc(db, 'users', user.uid), {
+      name,
+      name_lc: name.toLowerCase(),
+      dob: dob || '',
+      updatedAt: serverTimestamp()
+    }, { merge:true });
+
+    vName.textContent = name;
+    vDob.textContent  = asDateStr(dob);
+    closeModal();
+  });
 </script>
 </body>
 </html>
