@@ -2,45 +2,58 @@
 <html lang="it">
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Il mio profilo — TRAPPERREO</title>
+<title>Il tuo account — TRAPPERREO</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&display=swap" rel="stylesheet">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <style>
-:root{--accent:#8b5cf6;--accent-weak:rgba(139,92,246,.12);--bg:#000;--text:#fff;--border:rgba(255,255,255,.12);--card:rgba(255,255,255,.06);--muted:rgba(255,255,255,.78)}
+:root{--accent:#8b5cf6;--accent-weak:rgba(139,92,246,.12);--bg:#000;--text:#fff;
+--card:rgba(255,255,255,.06);--border:rgba(255,255,255,.12);--muted:rgba(255,255,255,.78);
+--ok:#22c55e;--warn:#f59e0b;--danger:#ef4444;
+--c-eb:#8b5cf6;--c-std:#60a5fa;--c-fast:#34d399;--c-vip:#f59e0b}
 *{box-sizing:border-box;margin:0;padding:0}
 html,body{height:100%}
-body{background:var(--bg);color:var(--text);font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;line-height:1.5;min-height:100vh;display:grid;grid-template-rows:auto 1fr}
-a{color:inherit;text-decoration:none}
-header{position:sticky;top:0;z-index:50;backdrop-filter:saturate(140%) blur(6px);background:rgba(0,0,0,.6);border-bottom:1px solid rgba(255,255,255,.08)}
+body{background:var(--bg);color:var(--text);font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;line-height:1.5}
+a{color:inherit}
+header{position:sticky;top:0;z-index:40;backdrop-filter:saturate(140%) blur(6px);background:rgba(0,0,0,.6);border-bottom:1px solid rgba(255,255,255,.08)}
 .nav{max-width:1200px;margin:auto;padding:14px 20px;display:flex;align-items:center;justify-content:space-between}
 .brand{display:flex;align-items:center;gap:10px;font-weight:900;letter-spacing:-.3px}
 .brand-badge{width:22px;height:22px;background:var(--accent);transform:skew(-6deg);border-radius:3px}
-nav a, nav span{color:#fff;margin-left:18px;font-size:14px;opacity:.95}
+nav a, nav span{color:#fff;text-decoration:none;margin-left:18px;font-size:14px;opacity:.95}
 nav a:hover{color:var(--accent)}
-.main{max-width:1100px;margin:auto;padding:24px}
-.kicker{opacity:.9;margin-bottom:10px;font-size:15px;letter-spacing:.5px;text-transform:uppercase}
+
+.wrap{max-width:1100px;margin:auto;padding:20px}
 h1{font-size:28px;font-weight:900;letter-spacing:-.2px}
+.kicker{opacity:.9;margin:8px 0 16px}
+.badges{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}
+.badge{background:#0f0f10;border:1px solid var(--border);border-radius:10px;padding:8px 10px;font-size:13px}
+.badge.role{border-color:var(--accent);}
+
 .grid{display:grid;grid-template-columns:1fr;gap:16px;margin-top:16px}
-@media(min-width:980px){.grid{grid-template-columns:2fr 1fr}}
-.card{background:var(--card);border:1px solid var(--border);border-radius:18px;padding:18px}
-.row{display:flex;align-items:center;justify-content:space-between;margin:10px 0}
-.badges{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
-.badge{background:#0f0f10;border:1px solid var(--border);border-radius:10px;padding:6px 10px;font-size:12px}
-.badge.role-cliente{border-color:rgba(99,102,241,.5)}
-.badge.role-pr{border-color:rgba(34,197,94,.5)}
-.badge.role-amministrazione{border-color:rgba(250,204,21,.6)}
-.badge.role-founder{border-color:rgba(236,72,153,.6)}
-.btn{display:inline-block;padding:12px 16px;border-radius:10px;background:var(--accent);color:#000;font-weight:900;border:none;cursor:pointer}
-.btn.outline{background:transparent;color:#fff;border:1px solid var(--accent)}
-.small{font-size:13px;color:var(--muted)}
+@media(min-width:900px){.grid{grid-template-columns:2fr 1fr}}
+.card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:18px}
+.section-title{font-weight:900;margin-bottom:8px;font-size:18px}
+
+.ticket-list{display:grid;gap:12px}
+.ticket{display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center;background:#0b0b0b;border:1px solid var(--border);border-radius:12px;padding:14px}
+.ticket .title{font-weight:900;display:flex;align-items:center;gap:8px}
+.tlabel{padding:3px 8px;border-radius:8px;border:1px solid currentColor;font-size:12px;font-weight:800}
+.tlabel.eb{color:var(--c-eb)} .tlabel.std{color:var(--c-std)} .tlabel.fast{color:var(--c-fast)} .tlabel.vip{color:var(--c-vip)}
+.tinfo{font-size:13px;color:var(--muted);margin-top:6px}
+.tactions{display:flex;align-items:center;gap:8px}
+.btn{display:inline-block;padding:10px 14px;border-radius:10px;border:1px solid var(--border);background:#111;color:#fff;font-weight:800;text-decoration:none;cursor:pointer}
+.btn.primary{background:var(--accent);color:#000;border:none}
+.btn.ghost{background:transparent}
+
+.note{font-size:13px;opacity:.85;margin-top:8px}
 .hr{height:1px;background:rgba(255,255,255,.08);margin:14px 0}
-.kpi{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
-.kpi .box{background:#0b0b0b;border:1px solid var(--border);border-radius:12px;padding:12px}
-.kpi .big{font-size:22px;font-weight:900}
-.qr{display:grid;place-items:center;margin-top:12px}
-.field{display:grid;grid-template-columns:140px 1fr;gap:10px;align-items:center;margin:8px 0}
-input{background:#0f0f10;border:1px solid var(--border);border-radius:10px;color:#fff;padding:10px}
-.alert{display:flex;gap:10px;align-items:flex-start;background:linear-gradient(180deg,var(--accent-weak),rgba(255,255,255,.04));border:1px solid rgba(255,255,255,.14);border-radius:12px;padding:12px;margin:10px 0}
+.small{font-size:13px;opacity:.75}
+
+.empty{display:grid;place-items:center;border:1px dashed var(--border);border-radius:16px;padding:24px;color:var(--muted)}
+
+.qr-modal{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;align-items:center;justify-content:center;padding:20px}
+.qr-card{background:#0b0b0b;border:1px solid var(--border);border-radius:16px;padding:18px;max-width:360px;width:100%}
+.qr-card h3{font-weight:900;margin-bottom:8px}
+.qr-actions{display:flex;justify-content:space-between;align-items:center;margin-top:12px}
+.close{cursor:pointer;opacity:.85}
 </style>
 </head>
 <body>
@@ -52,165 +65,197 @@ input{background:#0f0f10;border:1px solid var(--border);border-radius:10px;color
   </div>
 </header>
 
-<main class="main">
-  <div class="kicker">Account</div>
-  <h1 id="hello">Ciao, <strong>ospite</strong></h1>
+<main class="wrap">
+  <h1 id="hello">Il tuo account</h1>
+  <div class="kicker" id="subtitle">Gestisci biglietti, QR e dati personali.</div>
+  <div class="badges" id="roleBadges">
+    <span class="badge role">Ruolo: <strong>&nbsp;—</strong></span>
+    <span class="badge">Sab 21 Mar 2026</span>
+    <span class="badge">22:30 → 04:30</span>
+    <span class="badge">Via Italia 38, Biella</span>
+  </div>
 
   <div class="grid">
-    <!-- SINISTRA -->
+    <!-- SINISTRA: biglietti -->
     <section class="card">
-      <div class="row">
+      <div class="section-title">I tuoi biglietti</div>
+      <div id="tickets" class="ticket-list"></div>
+      <div id="ticketsEmpty" class="empty" style="display:none">
         <div>
-          <div style="font-weight:900">Stato utente</div>
-          <div class="badges" id="roleBadges">
-            <span class="badge role-cliente">Cliente</span>
-          </div>
-        </div>
-        <div style="display:flex;gap:10px;flex-wrap:wrap">
-          <a class="btn outline" href="./my-tickets.html">I miei biglietti</a>
-          <a class="btn" href="./checkout.html">Compra ora</a>
+          <div style="font-weight:900;margin-bottom:6px">Nessun biglietto attivo</div>
+          <div class="small">Acquista ora la tua prevendita per TRAPPERREO.</div>
+          <div style="margin-top:12px"><a class="btn primary" href="./checkout.html">Acquista ora</a></div>
         </div>
       </div>
-
-      <div class="alert">
-        <div>🔐</div>
-        <div class="small">I dati mostrati sono visibili solo a te. Il QR personale NON contiene informazioni sensibili.</div>
-      </div>
-
-      <div class="kpi" style="margin-top:10px">
-        <div class="box"><div class="small">Biglietti attivi</div><div id="k_tickets" class="big">0</div></div>
-        <div class="box"><div class="small">Ultimo accesso</div><div id="k_last" class="big">—</div></div>
-        <div class="box"><div class="small">Referral</div><div id="k_ref" class="big">—</div></div>
-      </div>
-
-      <div class="hr"></div>
-
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
-        <div>
-          <div style="font-weight:900;margin-bottom:6px">QR personale</div>
-          <div class="small">Per check-in rapido agli eventi TRAPPERREO.</div>
-          <div id="qr" class="qr"></div>
-          <div id="qrHint" class="small" style="text-align:center;margin-top:6px"></div>
-        </div>
-        <div>
-          <div style="font-weight:900;margin-bottom:6px">Le tue info</div>
-          <div class="field"><div>Nome</div><input id="fName" placeholder="—"></div>
-          <div class="field"><div>Cognome</div><input id="fSurname" placeholder="—"></div>
-          <div class="field"><div>Email</div><input id="fEmail" disabled></div>
-          <div class="field"><div>Data di nascita</div><input id="fDOB" type="date"></div>
-          <div class="row" style="justify-content:flex-end;margin-top:12px"><button id="saveBtn" class="btn">Salva</button></div>
-          <div class="small">Devono coincidere con il documento richiesto all’ingresso.</div>
-        </div>
-      </div>
+      <div class="note">Mostra il QR all’ingresso. Se hai attivato la protezione, puoi cambiare nominativo fino a 48h prima.</div>
     </section>
 
-    <!-- DESTRA -->
+    <!-- DESTRA: profilo/azioni -->
     <aside class="card">
-      <div style="font-weight:900;margin-bottom:6px">Azioni</div>
-      <div class="row"><a class="btn outline" href="./index.html#faq">Domande frequenti</a></div>
-      <div class="row"><a class="btn outline" href="./checkout.html">Acquista biglietto</a></div>
+      <div class="section-title">Profilo</div>
+      <div id="profileBox" class="small">Caricamento profilo…</div>
       <div class="hr"></div>
-      <div class="small">Se fai parte della PR o dell’amministrazione, il ruolo viene assegnato dall’organizzazione.</div>
+      <a class="btn" href="./checkout.html">Compra un altro biglietto</a>
+      <a class="btn ghost" href="./account.html">Versione classica</a>
     </aside>
   </div>
 </main>
 
+<!-- Modal QR -->
+<div id="qrModal" class="qr-modal" role="dialog" aria-modal="true" aria-labelledby="qrTitle">
+  <div class="qr-card">
+    <h3 id="qrTitle">Il tuo QR</h3>
+    <canvas id="qrCanvas" style="display:block;margin:auto;border-radius:8px;background:#fff;padding:8px"></canvas>
+    <div class="qr-actions">
+      <span class="small" id="qrHint">Mostralo in cassa</span>
+      <button class="btn" id="qrClose">Chiudi</button>
+    </div>
+  </div>
+</div>
+
+<!-- QR generator (piccolo, gratuito) -->
+<script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.1/build/qrcode.min.js"></script>
+
 <script type="module">
-import { onUser, doSignOut } from './auth.v2.js?v=3';
-import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js';
-import { getFirestore, doc, getDoc, setDoc, updateDoc, collection, query, where, getDocs, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js';
+/* --------------------------------------------------
+   Auth + Firestore (riuso del tuo setup)
+-------------------------------------------------- */
+import { onUser } from './auth.v2.js?v=3';
+import {
+  initializeApp
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import {
+  getAuth, onAuthStateChanged
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import {
+  getFirestore, doc, getDoc, collection, query, where, getDocs
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-/* TODO: inserisci la tua config Firebase */
-const app = initializeApp({ /* firebaseConfig */ });
-const db  = getFirestore(app);
+// ---- Config tua (uguale a checkout) ----
+const firebaseConfig = {
+  apiKey: "AIzaSyDF6BiYXreDirGnT3RPkGwDNlwj5ploUyo",
+  authDomain: "trappereo.firebaseapp.com",
+  projectId: "trappereo",
+  storageBucket: "trappereo.firebasestorage.app",
+  messagingSenderId: "767231932063",
+  appId: "1:767231932063:web:b1431de1c04bbe5dc0d4aa",
+  measurementId: "G-BDBRZQ6J8S"
+};
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db   = getFirestore(app);
 
-// util
-function b64urlRandom(len=24){
-  const a=new Uint8Array(len); crypto.getRandomValues(a);
-  return btoa(String.fromCharCode(...a)).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
-}
-function roleBadges(roles){
-  const el = document.getElementById('roleBadges'); el.innerHTML='';
-  const cls = { cliente:'role-cliente', pr:'role-pr', amministrazione:'role-amministrazione', founder:'role-founder' };
-  const list = (Array.isArray(roles) && roles.length)? roles : ['cliente'];
-  list.forEach(r=>{
-    const b=document.createElement('span');
-    b.className=`badge ${cls[r]||'role-cliente'}`;
-    b.textContent=r[0].toUpperCase()+r.slice(1);
-    el.appendChild(b);
-  });
-}
-
+/* --------------------------------------------------
+   UI helpers
+-------------------------------------------------- */
 const nav = document.getElementById('navArea');
-const OUT = `<a href="./login.html?from=./account-2.html">Accedi</a><a href="./signup.html">Registrati</a>`;
-const IN  = (u)=>`<span>👋 Ciao, ${(u.displayName||u.email||'Utente').split(' ')[0]}</span><a href="./checkout.html">Checkout</a><a href="./my-tickets.html">Biglietti</a><a href="#" id="logoutLink" style="color:#8b5cf6">Logout</a>`;
-
 const hello = document.getElementById('hello');
-const fName = document.getElementById('fName');
-const fSurname = document.getElementById('fSurname');
-const fEmail = document.getElementById('fEmail');
-const fDOB = document.getElementById('fDOB');
-const saveBtn = document.getElementById('saveBtn');
-const k_tickets = document.getElementById('k_tickets');
-const k_last = document.getElementById('k_last');
-const k_ref = document.getElementById('k_ref');
-const qrBox = document.getElementById('qr');
-const qrHint = document.getElementById('qrHint');
+const subtitle = document.getElementById('subtitle');
+const ticketsBox = document.getElementById('tickets');
+const ticketsEmpty = document.getElementById('ticketsEmpty');
+const roleBadges = document.getElementById('roleBadges');
+const profileBox = document.getElementById('profileBox');
 
-onUser(async (u)=>{
-  if(!u){ nav.innerHTML=OUT; location.href='./login.html?from=./account-2.html'; return; }
-  nav.innerHTML = IN(u);
-  document.getElementById('logoutLink')?.addEventListener('click', async (e)=>{ e.preventDefault(); await doSignOut(); location.href='./login.html?from=./account-2.html'; });
+const qrModal = document.getElementById('qrModal');
+const qrCanvas = document.getElementById('qrCanvas');
+const qrClose  = document.getElementById('qrClose');
 
-  hello.innerHTML = `Ciao, <strong>${(u.displayName||u.email||'ospite').split(' ')[0]}</strong>`;
-  fEmail.value = u.email || '';
+function money(n){ return n.toFixed(2).replace('.00','')+'€'; }
+function typeLabel(t){
+  switch(t){
+    case 'EB':   return ['Early Bird','eb'];
+    case 'STD':  return ['Standard','std'];
+    case 'FAST': return ['Fast Entry','fast'];
+    case 'VIP':  return ['VIP Entry','vip'];
+    default: return [t,'std'];
+  }
+}
+function fmtName(n,s){ return [n||'',s||''].filter(Boolean).join(' ') || '—'; }
 
-  // profilo: crea se non esiste
-  const pref = doc(db,'profiles', u.uid);
-  let snap = await getDoc(pref);
-  if(!snap.exists()){
-    await setDoc(pref, {
-      uid: u.uid,
-      created_at: serverTimestamp(),
-      updated_at: serverTimestamp(),
-      roles: ['cliente'],
-      ref_code: b64urlRandom(6),
-      membership_token: b64urlRandom(24),
-      first_name: '', last_name: '', dob: null, last_seen: serverTimestamp()
+/* --------------------------------------------------
+   Carica ruolo + biglietti dell'utente
+-------------------------------------------------- */
+onAuthStateChanged(auth, async (u)=>{
+  if(!u){ location.href = './login.html?from=./account-2.html'; return; }
+
+  // Nav semplice
+  nav.innerHTML = `<span>👋 Ciao, ${(u.displayName||u.email||'Utente').split(' ')[0]}</span>
+                   <a href="./checkout.html">Vai al checkout</a>`;
+
+  hello.textContent = `Il tuo account`;
+  subtitle.innerHTML = `Ciao, <strong>${(u.displayName||u.email||'Utente').split(' ')[0]}</strong> — ecco i tuoi biglietti.`;
+
+  // ---- Ruolo (users/{uid}.role) ----
+  let role = 'customer';
+  try {
+    const rd = await getDoc(doc(db,'users',u.uid));
+    if (rd.exists() && rd.data().role) role = rd.data().role;
+  } catch {}
+  roleBadges.querySelector('.role strong').textContent = ' ' + role;
+
+  // ---- Ordini dell'utente ----
+  const qOrders = query(collection(db,'orders'), where('uid','==',u.uid));
+  const ordersSnap = await getDocs(qOrders);
+
+  const allTickets = [];
+  for (const o of ordersSnap.docs){
+    const orderId = o.id;
+    // subcollection tickets
+    const tSnap = await getDocs(collection(db,'orders',orderId,'tickets'));
+    tSnap.forEach(t=>{
+      const d=t.data();
+      allTickets.push({ id:t.id, orderId, ...d });
     });
-    snap = await getDoc(pref);
-  }else{
-    try { await updateDoc(pref, { last_seen: serverTimestamp() }); } catch(e){}
   }
 
-  const profile = snap.data() || {};
-  roleBadges(profile.roles);
-  fName.value = profile.first_name || '';
-  fSurname.value = profile.last_name || '';
-  if(profile.dob) fDOB.value = profile.dob;
+  // Render
+  if(allTickets.length===0){
+    ticketsEmpty.style.display = 'grid';
+  } else {
+    ticketsBox.innerHTML = '';
+    // ordina recenti (se createdAt non indicizzato → nessun problema)
+    allTickets.sort((a,b)=> (b.createdAt?.seconds||0) - (a.createdAt?.seconds||0));
+    for(const t of allTickets){
+      const [label, cls] = typeLabel(t.type);
+      const prot = t.protection ? `<span class="badge" style="border-color:var(--ok);color:var(--ok)">Protezione</span>` : '';
+      const status = t.status || 'active';
 
-  // KPI biglietti attivi
-  const q = query(collection(db,'tickets'), where('uid','==', u.uid), where('status','==','active'));
-  const ts = await getDocs(q);
-  k_tickets.textContent = ts.size;
-  k_last.textContent = new Date().toLocaleDateString();
-  k_ref.textContent = profile.ref_code || '—';
+      const row = document.createElement('div');
+      row.className = 'ticket';
+      row.innerHTML = `
+        <div>
+          <div class="title">${label} <span class="tlabel ${cls}">${cls.toUpperCase()}</span> ${prot}</div>
+          <div class="tinfo">Intestato a: <strong>${fmtName(t.holderName,t.holderSurname)}</strong> · ${t.holderEmail||'—'} · Stato: ${status}</div>
+        </div>
+        <div class="tactions">
+          <button class="btn" data-qr="${t.orderId}|${t.id}">Mostra QR</button>
+        </div>
+      `;
+      ticketsBox.appendChild(row);
+    }
+  }
 
-  // QR membership
-  qrBox.innerHTML='';
-  const payload = JSON.stringify({ m: profile.membership_token, u: u.uid.slice(0,6) });
-  new QRCode(qrBox, { text: payload, width: 180, height: 180, correctLevel: QRCode.CorrectLevel.M });
-  qrHint.textContent = ts.size>0 ? 'Mostra questo QR al pre-ingresso per velocizzare il controllo.' : 'Non hai biglietti attivi. Compra ora per generare i QR ingresso.';
-
-  saveBtn.addEventListener('click', async ()=>{
-    await updateDoc(pref, {
-      first_name: fName.value.trim(),
-      last_name:  fSurname.value.trim(),
-      dob: fDOB.value || null,
-      updated_at: serverTimestamp()
-    });
-    alert('Profilo aggiornato.');
+  // QR handlers
+  ticketsBox.addEventListener('click',(e)=>{
+    const b = e.target.closest('[data-qr]');
+    if(!b) return;
+    const payload = b.getAttribute('data-qr'); // ordine|ticket
+    // Puoi cifrare/firmare lato server quando passerai a pagamento vero
+    const displayText = `TRAPPERREO|${payload}`;
+    qrModal.style.display='flex';
+    QRCode.toCanvas(qrCanvas, displayText, { width: 256, margin: 1 }, err=>{ if(err) console.error(err); });
   });
+  qrClose.addEventListener('click', ()=>{ qrModal.style.display='none'; });
+  qrModal.addEventListener('click', (e)=>{ if(e.target===qrModal) qrModal.style.display='none'; });
+
+  // Box profilo
+  profileBox.innerHTML = `
+    <div><strong>Nome:</strong> ${(u.displayName||'—')}</div>
+    <div><strong>Email:</strong> ${u.email||'—'}</div>
+    <div><strong>Ruolo:</strong> ${role}</div>
+    <div class="hr"></div>
+    <div class="small">Se i dati non sono corretti, aggiornali dal tuo account Google oppure contattaci.</div>
+  `;
 });
 </script>
 </body>
