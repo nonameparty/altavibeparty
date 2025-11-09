@@ -74,7 +74,7 @@ $('#loginBtn').addEventListener('click', async ()=>{
 
     const cred = await emailSignIn(email, pwd);
 
-    // GARANTISCE che /users/{uid} esista (e ripara name_lc/createdAt)
+    // garantisce che /users/{uid} esista/aggiornato
     await ensureUserDoc(cred.user);
 
     const dest = getParam('from') || './account-2.html';
