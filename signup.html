@@ -50,9 +50,8 @@ input{width:100%;margin-top:6px;margin-bottom:14px;padding:12px;border:none;bord
   </div>
 
 <script type="module">
-import { emailSignUp, setDisplayName, calcAge, ensureUserDoc } from './auth.v2.js?v=3';
+import { app, emailSignUp, setDisplayName, calcAge, ensureUserDoc } from './auth.v2.js?v=3';
 import { getFirestore, doc, setDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/12.5.0/firebase-firestore.js';
-import { app } from './auth.v2.js?v=3';
 
 const db = getFirestore(app);
 const getParam = n => new URLSearchParams(location.search).get(n);
@@ -79,13 +78,16 @@ $('#signUpBtn').addEventListener('click', async ()=>{
     const fullName = `${first} ${last}`.trim();
     await setDisplayName(cred.user, fullName);
 
-    // crea/aggiorna doc /users/{uid} (garantito)
-    await ensureUserDoc(cred.user, {
+    // crea/aggiorna doc /users/{uid} (status=active)
+    await ensureUserDoc(cred.user);
+
+    // scrive DOB e name con merge
+    await setDoc(doc(db,'users',cred.user.uid), {
       name: fullName,
       name_lc: fullName.toLowerCase(),
       dob,
       updatedAt: serverTimestamp()
-    });
+    }, { merge:true });
 
     const next = getParam('from') || './checkout.html';
     location.assign(`./welcome.html?next=${encodeURIComponent(next)}`);
