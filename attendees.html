@@ -67,132 +67,198 @@ input{width:100%;background:#0f0f10;border:1px solid var(--border);border-radius
 
 <script type="module">
 import { onUser } from './auth.v2.js?v=6';
+import {
+  collection, getDocs, query, where, limit, getFirestore
+} from 'https://www.gstatic.com/firebasejs/12.5.0/firebase-firestore.js';
 
+const db = getFirestore();
+
+/* === RIFERIMENTI === */
+const lines = document.getElementById('lines');
+const grand = document.getElementById('grand');
+const cnTot = document.getElementById('cnTot');
+const payBtn = document.getElementById('pay');
+
+/* === QUANTITÀ dal tuo codice esistente === */
+function money(n){ return n.toFixed(2).replace('.00','')+'€'; }
+function count(t){ return document.querySelectorAll(`.row[data-type="${t}"]`).length; }
+function tix(){ return count('EB')+count('STD')+count('FAST')+count('VIP'); }
 const PRICE = { EB:12, STD:15, FAST:20, VIP:25, NAMECHANGE:1.90, STD3:40 };
-const money = n => (n<0?'-':'') + Math.abs(n).toFixed(2).replace('.00','') + '€';
-const $ = s => document.querySelector(s);
 
-/* ====== letture ====== */
-function readLS(k,def=null){ try{ return JSON.parse(localStorage.getItem(k)||'null') ?? def; }catch{ return def; } }
-function readCart(){ return readLS('trapperreo_cart', {}); }
-function readApplied(){ try{ return JSON.parse(localStorage.getItem('trapperreo_discount_applied')||'null'); }catch{ return null; } }
-
-const qs = new URLSearchParams(location.search);
-const qty = {
-  EB: +(qs.get('eb')||0)   || (readCart().eb|0),
-  STD:+(qs.get('std')||0)  || (readCart().std|0),
-  FAST:+(qs.get('fast')||0)|| (readCart().fast|0),
-  VIP: +(qs.get('vip')||0) || (readCart().vip|0),
-};
-const nameProt = (+(qs.get('nc')||0) || (readCart().nc|0)) === 1;
-
-/* ====== nominativi con “usa i miei dati” ====== */
-const list = document.getElementById('tickets');
-const order = [['EB','Early Bird'],['STD','Standard'],['FAST','Fast Entry'],['VIP','VIP Entry']];
-const rows = [];
-let me = { first:'', last:'', email:'' };
-
-onUser(u=>{
-  if(!u) return;
-  const p=(u.displayName||'').trim().split(' ');
-  me.first=p[0]||''; me.last=p.slice(1).join(' ')||''; me.email=(u.email||'');
-});
-
-for(const [sku,label] of order){
-  const n = qty[sku]||0; for(let i=0;i<n;i++){
-    const el=document.createElement('div'); el.className='ticket'; el.dataset.sku=sku;
-    el.innerHTML = `
-      <div class="small" style="opacity:.95;margin-bottom:6px">${label} — Biglietto ${i+1}</div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
-        <div><label>Nome</label><input class="fn" placeholder="Nome"></div>
-        <div><label>Cognome</label><input class="ln" placeholder="Cognome"></div>
+/* === BOX SCONTO (identico a checkout) === */
+(function ensureDiscUI(){
+  const aside = document.querySelector('aside.card');
+  if(!aside || document.getElementById('discBlock')) return;
+  const blk = document.createElement('div');
+  blk.innerHTML = `
+    <div class="hr"></div>
+    <div id="discBlock" style="margin-top:6px">
+      <div class="line" style="align-items:center;gap:8px">
+        <label class="small" style="opacity:.95">Codice sconto</label>
       </div>
-      <label style="margin-top:6px">Email</label>
-      <input class="em" type="email" placeholder="email@email.it">
-      <label class="use-me"><input type="checkbox" class="useCheck"> <strong>Usa i miei dati per questo biglietto</strong></label>
-    `;
-    el.querySelector('.useCheck').addEventListener('change', (e)=>{
-      const fn=el.querySelector('.fn'), ln=el.querySelector('.ln'), em=el.querySelector('.em');
-      if(e.target.checked){ fn.value=me.first; ln.value=me.last; em.value=me.email; [fn,ln,em].forEach(i=>i.classList.remove('err')); }
-      else { fn.value=''; ln.value=''; em.value=''; }
-    });
-    list.appendChild(el); rows.push(el);
-  }
-}
-if(rows.length===0) list.innerHTML = `<div class="small">Nessun nominativo necessario.</div>`;
+      <div style="display:flex;gap:8px;margin-top:6px">
+        <input id="discInput" placeholder="Es. OPENING10" style="flex:1;background:#0f0f10;border:1px solid rgba(255,255,255,.15);border-radius:10px;color:#fff;padding:10px">
+        <button id="discApply" class="btn ok" type="button" style="min-width:92px">Applica</button>
+        <button id="discRemove" class="btn alt" type="button" style="min-width:92px">Rimuovi</button>
+      </div>
+      <div id="discHint" class="small" style="margin-top:6px;opacity:.85"></div>
+    </div>
+  `;
+  aside.appendChild(blk);
+})();
 
-/* ====== calcoli ====== */
-function stdTotal(q){ const b=Math.floor(q/3), r=q%3; return b*PRICE.STD3 + r*PRICE.STD; }
-function parts(){
+const discInput  = document.getElementById('discInput');
+const discApply  = document.getElementById('discApply');
+const discRemove = document.getElementById('discRemove');
+const discHint   = document.getElementById('discHint');
+
+/* === USER === */
+let currentUser=null, readyUserResolver;
+const readyUser = new Promise(res=>{ readyUserResolver = res; });
+onUser(u=>{ currentUser=u||null; readyUserResolver?.(); });
+
+/* === Normalizzazioni/eligibility/resolve identiche a checkout === */
+const norm = s => (s||'').toString().trim().normalize('NFKC').replace(/\s+/g,' ');
+const up   = s => norm(s).toUpperCase();
+const lo   = s => norm(s).toLowerCase();
+function asArray(v){ if(v==null) return []; return Array.isArray(v)?v:[v]; }
+function normalize(doc){
+  const codeRaw = doc.code ?? doc.name ?? '';
+  const labelRaw= doc.label ?? doc.title ?? codeRaw;
+  const emailFields = ['allowedEmails','emails','forEmails'];
+  const singleEmail = ['email','forEmail'];
+  let allowedEmails = emailFields.flatMap(f=>asArray(doc[f])).concat(singleEmail.map(f=>doc[f]).filter(Boolean));
+  allowedEmails = allowedEmails.map(e=>lo(e)).filter(Boolean);
+  const uidFields = ['allowedUids','allowedUserIds','userIds','uids'];
+  const singleUid = ['userId','uid'];
+  let allowedUids = uidFields.flatMap(f=>asArray(doc[f])).concat(singleUid.map(f=>doc[f]).filter(Boolean));
+  allowedUids = allowedUids.map(u=>String(u)).filter(Boolean);
+
+  const o = {
+    code: up(codeRaw),
+    label: up(labelRaw),
+    type: (doc.type||'').toString().toLowerCase(),
+    value: Number(doc.value ?? doc.amount ?? 0),
+    active: (doc.active ?? doc.enabled ?? true) === true,
+    allowedSkus: Array.isArray(doc.allowedSkus) ? doc.allowedSkus
+             : (Array.isArray(doc.skus) ? doc.skus : []),
+    allowedEmails, allowedUids,
+    appliesTo: (doc.appliesTo||'').toString().toLowerCase()
+  };
+  if(!o.code || !o.type || !(o.value>0)) return null;
+  return o;
+}
+function allowedSet(d){ return (d?.allowedSkus && d.allowedSkus.length>0) ? d.allowedSkus : ['EB','STD','FAST','VIP']; }
+function eligibleForUser(d){
+  if(!currentUser) return true;
+  const meEmail = lo(currentUser.email || '');
+  const meUid = String(currentUser.uid || '');
+  if(d.appliesTo==='user'){
+    const hasE=d.allowedEmails?.length>0, hasU=d.allowedUids?.length>0;
+    if(!hasE && !hasU) return false;
+    return (hasE && d.allowedEmails.includes(meEmail)) || (hasU && d.allowedUids.includes(meUid));
+  }
+  if(d.allowedEmails?.length>0) return !!meEmail && d.allowedEmails.includes(meEmail);
+  if(d.allowedUids?.length>0)   return !!meUid   && d.allowedUids.includes(meUid);
+  return true;
+}
+async function resolveDiscountByCode(raw){
+  const C_UP = up(raw), C_LO = lo(raw);
+  async function tryIn(col, field, value){
+    const qy = query(collection(db,col), where(field,'==', value), limit(1));
+    const snap = await getDocs(qy);
+    if(snap.empty) return null;
+    const n = normalize(snap.docs[0].data()||{});
+    return (n && n.active) ? n : null;
+  }
+  let d = await tryIn('discounts','code',C_UP) || await tryIn('discounts','code',C_LO)
+        || await tryIn('discounts','name',C_UP) || await tryIn('discounts','name',C_LO);
+  if(d) return d;
+  d = await tryIn('discountCodes','code',C_UP) || await tryIn('discountCodes','code',C_LO)
+    || await tryIn('discountCodes','name',C_UP) || await tryIn('discountCodes','name',C_LO);
+  return d;
+}
+function computeDiscountAmount(d, parts){
+  if(!d) return 0;
+  const allow = allowedSet(d);
+  const base = (allow.includes('EB')?parts.EB:0) + (allow.includes('STD')?parts.STD:0) +
+               (allow.includes('FAST')?parts.FAST:0) + (allow.includes('VIP')?parts.VIP:0);
+  if(d.type==='percent') return Math.max(0, base*(d.value/100));
+  if(d.type==='fixed')   return Math.max(0, Math.min(base, d.value));
+  return 0;
+}
+
+/* === Storage per-utente === */
+function discKey(){ return currentUser ? `trapperreo_discount_${currentUser.uid}` : 'trapperreo_discount_anon'; }
+const readApplied = ()=>{ try{ return JSON.parse(localStorage.getItem(discKey())||'null'); }catch{ return null; } };
+const writeApplied = (s)=>{ const k=discKey(); if(!s) localStorage.removeItem(k); else localStorage.setItem(k, JSON.stringify(s)); };
+
+/* === Subtotali = identici a tua render() === */
+function partsFromRows(){
+  const qe = count('EB'), qs = count('STD'), qf = count('FAST'), qv = count('VIP');
+  const stdBundles = Math.floor(qs/3), stdRem = qs%3;
   return {
-    EB: (qty.EB||0)*PRICE.EB,
-    STD: stdTotal(qty.STD||0),
-    FAST:(qty.FAST||0)*PRICE.FAST,
-    VIP: (qty.VIP||0)*PRICE.VIP
+    EB: qe*PRICE.EB,
+    STD: stdBundles*PRICE.STD3 + stdRem*PRICE.STD,
+    FAST: qf*PRICE.FAST,
+    VIP: qv*PRICE.VIP
   };
 }
-function allowedSet(snap){
-  return (Array.isArray(snap?.allowedSkus) && snap.allowedSkus.length>0) ? snap.allowedSkus : ['EB','STD','FAST','VIP'];
-}
-function compute(){
-  const P = parts();
-  const gross = P.EB + P.STD + P.FAST + P.VIP;
 
-  const snap = readApplied(); // {code,type,value,allowedSkus}
-  let disc = 0, tag=null;
-  if(snap){
-    const allow = allowedSet(snap);
-    const base =
-      (allow.includes('EB')?P.EB:0) + (allow.includes('STD')?P.STD:0) +
-      (allow.includes('FAST')?P.FAST:0) + (allow.includes('VIP')?P.VIP:0);
-    if(snap.type==='percent') disc=Math.max(0, base*(snap.value/100));
-    else if(snap.type==='fixed') disc=Math.max(0, Math.min(base, snap.value));
-    tag = `${snap.code} — ${snap.type==='percent' ? '%'+snap.value : '−'+money(snap.value)}`;
-  }
-
-  const t = (qty.EB|0)+(qty.STD|0)+(qty.FAST|0)+(qty.VIP|0);
-  const prot = nameProt ? t*PRICE.NAMECHANGE : 0;
-  const net = Math.max(0, gross - disc) + prot;
-  return {P,gross,disc,prot,net,tag};
-}
-
-/* ====== render ====== */
-const LINES = document.getElementById('lines');
-const GRAND = document.getElementById('grand');
+/* === RENDER === */
 function render(){
-  const {P,disc,prot,net,tag} = compute();
-  const L=[]; const label = k=>({EB:'Early Bird',STD:'Standard',FAST:'Fast Entry',VIP:'VIP Entry'})[k];
-  if(qty.EB>0)   L.push(`<div class="row"><div>${label('EB')} × ${qty.EB}</div><div>${money(P.EB)}</div></div>`);
-  if(qty.STD>0)  L.push(`<div class="row"><div>${label('STD')} × ${qty.STD}</div><div>${money(P.STD)}</div></div>`);
-  if(qty.FAST>0) L.push(`<div class="row"><div>${label('FAST')} × ${qty.FAST}</div><div>${money(P.FAST)}</div></div>`);
-  if(qty.VIP>0)  L.push(`<div class="row"><div>${label('VIP')} × ${qty.VIP}</div><div>${money(P.VIP)}</div></div>`);
-  if(tag)        L.push(`<div class="row save"><div>Sconto (${tag})</div><div>- ${money(disc)}</div></div>`);
-  if(nameProt){
-    const t=(qty.EB|0)+(qty.STD|0)+(qty.FAST|0)+(qty.VIP|0);
-    L.push(`<div class="row"><div>Protezione cambio nome × ${t}</div><div>${money(prot)}</div></div>`);
+  const parts = partsFromRows();
+  const gross = parts.EB + parts.STD + parts.FAST + parts.VIP;
+
+  const snap = readApplied(); // {code,_resolved?}
+  const d = snap?._resolved && snap._resolved.active ? snap._resolved : null;
+  let disc=0, tag=null;
+  if(d && eligibleForUser(d)){
+    disc = computeDiscountAmount(d, parts);
+    tag  = `${d.code} — ${d.type==='percent' ? (d.value+'%') : ('−'+money(d.value))}`;
   }
-  LINES.innerHTML = L.join('');
-  GRAND.textContent = money(net);
+
+  const tickets = tix();
+  const extra = (window.cnGlobalChecked ? tickets*PRICE.NAMECHANGE : 0);
+
+  const arr=[];
+  const push=(label,val)=>arr.push(`<div class="line"><span>${label}</span><span>${money(val)}</span></div>`);
+  if(parts.EB>0)   push(`Early Bird × ${count('EB')}`, parts.EB);
+  if(parts.STD>0)  push(`Standard × ${count('STD')}`, parts.STD);
+  if(parts.FAST>0) push(`Fast Entry × ${count('FAST')}`, parts.FAST);
+  if(parts.VIP>0)  push(`VIP Entry × ${count('VIP')}`, parts.VIP);
+  if(d)            push(`Sconto (${tag})`, -disc);
+  if(extra>0)      push(`Protezione cambio nome × ${tickets}`, extra);
+
+  lines.innerHTML = arr.join('');
+  cnTot.textContent = money(extra);
+  grand.textContent = money(Math.max(0, gross - disc + extra));
 }
+
+/* === APPLY / REMOVE === */
+discApply?.addEventListener('click', async ()=>{
+  await readyUser;
+  const raw = discInput?.value||'';
+  const code = up(raw);
+  if(!code){ alert('Inserisci un codice'); return; }
+  try{
+    const d = await resolveDiscountByCode(code);
+    if(!d || !eligibleForUser(d)){
+      alert('Codice sconto non valido');
+      writeApplied(null);
+      render();
+      return;
+    }
+    writeApplied({ code: d.code, _resolved: d });
+    discInput.value = d.code;
+    render();
+  }catch(e){ console.error(e); alert('Errore verifica codice.'); }
+});
+discRemove?.addEventListener('click', ()=>{ writeApplied(null); discInput.value=''; render(); });
+
+/* === Bootstrap: ricalcola quando cambi righe/checkbox esistenti === */
+new MutationObserver(()=>render()).observe(document.getElementById('list'), { childList:true, subtree:true });
 render();
-
-/* ====== validazione minima ====== */
-function isEmail(v){ return /^\S+@\S+\.\S+$/.test((v||'').trim()); }
-function validate(){
-  let ok=true;
-  rows.forEach(r=>{
-    const fn=r.querySelector('.fn'), ln=r.querySelector('.ln'), em=r.querySelector('.em');
-    [fn,ln,em].forEach(i=>i.classList.remove('err'));
-    if(!fn.value.trim()){ fn.classList.add('err'); ok=false; }
-    if(!ln.value.trim()){ ln.classList.add('err'); ok=false; }
-    if(!isEmail(em.value)){ em.classList.add('err'); ok=false; }
-  });
-  return ok;
-}
-
-/* ====== bottoni ====== */
-document.getElementById('back').addEventListener('click', ()=>history.back());
-document.getElementById('pay').addEventListener('click', ()=>{ if(!validate()) return; alert('Pagamento avviato (simulazione).'); });
 </script>
 </body>
 </html>
