@@ -1,4 +1,4 @@
-// auth.v2.js — versione minima/robusta
+// auth.v2.js (CDN Firebase v12, ESM)
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-app.js";
 import {
   getAuth, onAuthStateChanged, updateProfile,
@@ -9,6 +9,7 @@ import {
   getFirestore, doc, getDoc, setDoc
 } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-firestore.js";
 
+// --- CONFIG (tua) ---
 const firebaseConfig = {
   apiKey: "AIzaSyDF6BiYXreDirGnT3RPkGwDNlwj5ploUyo",
   authDomain: "trappereo.firebaseapp.com",
@@ -19,78 +20,86 @@ const firebaseConfig = {
   measurementId: "G-BDBRZQ6J8S"
 };
 
-// In auth.v2.js
-import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-firestore.js";
-
-export async function requireActiveUser(redirect="./login.html") {
-  return new Promise(res => onAuthStateChanged(auth, async (u)=>{
-    if(!u){
-      const back = encodeURIComponent(location.pathname + location.search);
-      location.href = `${redirect}?from=${back}`;
-      return;
-    }
-    try{
-      const db = getFirestore(app);
-      const snap = await getDoc(doc(db,'users',u.uid));
-      const data = snap.exists() ? snap.data() : {};
-      if((data.status || 'active') !== 'active'){
-        alert('Il tuo account è sospeso. Contatta il supporto.');
-        await signOut(auth);
-        location.href = './login.html';
-        return;
-      }
-      res(u);
-    }catch(e){
-      // in caso di errore, meglio non dare accesso
-      await signOut(auth);
-      location.href = './login.html';
-    }
-  }));
-}
-
-
+// --- APP BASE ---
 export const app  = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
 export const db   = getFirestore(app);
 
-// ----------------- API base -----------------
-export async function emailSignUp(email, pwd){ return createUserWithEmailAndPassword(auth, email, pwd); }
-export async function emailSignIn(email, pwd){ return signInWithEmailAndPassword(auth, email, pwd); }
-export async function sendReset(email){ return sendPasswordResetEmail(auth, email); }
-export async function doSignOut(){ return signOut(auth); }
-export function onUser(cb){ return onAuthStateChanged(auth, cb); }
+// --- AUTH API ---
+export async function emailSignUp(email, pwd) {
+  return createUserWithEmailAndPassword(auth, email, pwd);
+}
+export async function emailSignIn(email, pwd) {
+  return signInWithEmailAndPassword(auth, email, pwd);
+}
+export async function sendReset(email) {
+  return sendPasswordResetEmail(auth, email);
+}
+export async function doSignOut() {
+  return signOut(auth);
+}
+export function onUser(cb) {
+  return onAuthStateChanged(auth, cb);
+}
 export async function setDisplayName(user, fullName){
-  if (user) try { await updateProfile(user, { displayName: fullName }); } catch {}
+  if (user && fullName) try { await updateProfile(user, { displayName: fullName }); } catch {}
 }
 
-// ----------------- ensureUserDoc -----------------
-// Crea/aggiorna SEMPRE /users/{uid} con campi minimi.
-// NIENTE serverTimestamp per semplicità: usiamo Date.now().
-export async function ensureUserDoc(u, extra = {}){
+// --- Ensure user doc ---
+// Crea/aggiorna /users/{uid} con campi base. Idempotente.
+export async function ensureUserDoc(u) {
   if (!u) return null;
-  const ref = doc(db, 'users', u.uid);
+  const ref = doc(db, "users", u.uid);
   const snap = await getDoc(ref);
 
-  const baseName = (u.displayName || u.email || '').trim();
-  const patchBase = {
+  const base = {
     uid: u.uid,
-    email: u.email || null,
-    name: baseName,
-    name_lc: baseName.toLowerCase(),
-    role: 'customer',
-    status: 'active',
-    createdAt: Date.now()
+    email: (u.email || "").toLowerCase(),
+    name: (u.displayName || u.email || "").trim(),
+    name_lc: (u.displayName || u.email || "").trim().toLowerCase(),
+    role: "customer",
+    status: "active"
   };
 
   if (!snap.exists()) {
-    await setDoc(ref, { ...patchBase, ...extra }, { merge:true });
-    return (await getDoc(ref)).data();
+    await setDoc(ref, { ...base, createdAt: Date.now(), updatedAt: Date.now() });
+  } else {
+    const cur = snap.data() || {};
+    await setDoc(ref, {
+      email: base.email || cur.email || "",
+      name:  base.name  || cur.name  || "",
+      name_lc: base.name_lc || cur.name_lc || "",
+      updatedAt: Date.now()
+    }, { merge: true });
   }
+  const latest = await getDoc(ref);
+  return latest.exists() ? latest.data() : null;
+}
 
-  const cur = snap.data() || {};
-  const patch = {...extra};
-  if (!cur.createdAt) patch.createdAt = Date.now();
-  if (cur.name && !cur.name_lc) patch.name_lc = String(cur.name).toLowerCase();
-  if (Object.keys(patch).length) await setDoc(ref, patch, { merge:true });
-  return (await getDoc(ref)).data();
+// --- Gate: deve essere loggato e con status === 'active'
+export async function requireActiveUser(redirect = "./login.html") {
+  return new Promise((resolve) => {
+    onAuthStateChanged(auth, async (u) => {
+      if (!u) {
+        const back = encodeURIComponent(location.pathname + location.search);
+        location.href = `${redirect}?from=${back}`;
+        return;
+      }
+      try {
+        await ensureUserDoc(u);
+        const snap = await getDoc(doc(db, "users", u.uid));
+        const data = snap.exists() ? snap.data() : {};
+        if ((data.status || "active") !== "active") {
+          alert("Il tuo account è sospeso. Contatta il supporto.");
+          await signOut(auth);
+          location.href = "./login.html";
+          return;
+        }
+        resolve(u);
+      } catch (e) {
+        console.error(e);
+        signOut(auth).finally(() => location.href = "./login.html");
+      }
+    });
+  });
 }
