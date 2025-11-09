@@ -7,7 +7,7 @@
 <style>
 :root{
   --bg:#000; --text:#fff; --accent:#8b5cf6; --border:rgba(255,255,255,.12);
-  --card:rgba(255,255,255,.06); --muted:rgba(255,255,255,.78); --ok:#22c55e;
+  --card:rgba(255,255,255,.06); --muted:rgba(255,255,255,.78); --ok:#22c55e; --danger:#ef4444;
   --c-eb:#8b5cf6; --c-std:#60a5fa; --c-fast:#34d399; --c-vip:#f59e0b;
 }
 *{box-sizing:border-box;margin:0;padding:0}
@@ -26,6 +26,7 @@ h1{font-size:26px;font-weight:900;letter-spacing:-.2px;text-align:center}
 /* alert */
 .alert{margin:16px auto 8px;max-width:900px;background:linear-gradient(180deg, rgba(139,92,246,.12), rgba(255,255,255,.04));border:1px solid rgba(139,92,246,.35);border-radius:14px;padding:12px 14px;display:flex;gap:10px;align-items:flex-start}
 .alert .icon{font-weight:900}
+.alert.danger{border-color:rgba(239,68,68,.5);background:linear-gradient(180deg, rgba(239,68,68,.12), rgba(255,255,255,.04));}
 
 /* layout */
 .gridPage{display:grid;gap:16px;margin-top:16px}
@@ -40,9 +41,9 @@ h1{font-size:26px;font-weight:900;letter-spacing:-.2px;text-align:center}
 .badge{display:inline-flex;align-items:center;gap:6px;background:#0f0f10;border:1px solid rgba(255,255,255,.15);border-radius:10px;padding:6px 8px;font-size:12px}
 .pill{width:8px;height:8px;border-radius:999px;display:inline-block}
 .p-eb{background:var(--c-eb)} .p-std{background:var(--c-std)} .p-fast{background:var(--c-fast)} .p-vip{background:var(--c-vip)}
-input[type="text"], input[type="email"]{background:#0f0f10;border:1px solid var(--border);border-radius:10px;color:#fff;padding:10px}
+input[type="text"], input[type="email"]{background:#0f0f10;border:1px solid var(--border);border-radius:10px;color:#fff;padding:10px;outline:none}
+input.err{border-color:var(--danger) !important; box-shadow:0 0 0 2px rgba(239,68,68,.25)}
 .small{font-size:13px;opacity:.85}
-.err{border-color:#ef4444 !important}
 
 /* helper “usa i miei dati” (subito dopo il 1° biglietto) */
 .use-me{display:flex;align-items:center;gap:10px;margin:6px 0 14px 0;background:rgba(139,92,246,.12);border:1px solid rgba(139,92,246,.45);border-radius:12px;padding:12px 14px;font-weight:800}
@@ -62,7 +63,7 @@ input[type="text"], input[type="email"]{background:#0f0f10;border:1px solid var(
 .save{color:#22c55e;font-weight:800}
 .total{font-size:22px;font-weight:900}
 
-/* bottoni “fighi” come checkout */
+/* bottoni */
 .actions{display:flex;gap:10px;margin-top:16px;flex-wrap:wrap;justify-content:center}
 .btn{display:inline-block;padding:12px 16px;border-radius:10px;background:var(--accent);color:#000;font-weight:900;text-decoration:none;border:none;cursor:pointer}
 .btn.alt{background:transparent;border:1px solid var(--accent);color:#fff}
@@ -81,11 +82,19 @@ input[type="text"], input[type="email"]{background:#0f0f10;border:1px solid var(
 
 <div class="wrap">
   <h1 id="pageTitle">Ciao, <strong>ospite</strong> — assegna i biglietti</h1>
-  <div class="alert">
+
+  <!-- ALERT PRINCIPALE -->
+  <div id="mainAlert" class="alert">
     <div class="icon">⚠️</div>
     <div class="small">
-      Inserisci i nominativi. Gli amici hanno tempo <strong>fino a 2 ore</strong> prima dell’evento per registrarsi; una volta registrati riceveranno la prevendita entro <strong>30 minuti</strong>.
+      Inserisci i nominativi. Gli amici hanno tempo <strong>fino a 2 ore</strong> prima dell’evento per registrarsi; una volta registrati riceveranno la prevendita entro <strong>30 minuti</strong>.<br>
+      <strong>Nome e cognome devono coincidere col documento d’identità</strong> mostrato all’ingresso e — se non sono ancora registrati — con il <strong>nome usato in fase di registrazione</strong>.
     </div>
+  </div>
+
+  <div id="errAlert" class="alert danger" style="display:none">
+    <div class="icon">!</div>
+    <div class="small">Controlla i campi evidenziati in rosso (nome, cognome ed email validi per ogni biglietto).</div>
   </div>
 
   <div class="gridPage">
@@ -139,12 +148,12 @@ const nStd  = +(qs.get('std')||0);
 const nFast = +(qs.get('fast')||0);
 const nVip  = +(qs.get('vip')||0);
 const nEb   = +(qs.get('eb')||0);
-const promoNC = qs.get('nc') === '1'; // se selezionata prima
+const promoNC = qs.get('nc') === '1'; // selezionata prima?
 
 /* Prezzi come checkout */
 const PRICE = { EB:12, STD:15, FAST:20, VIP:25, NAMECHANGE:1.90, STD3:40 };
 
-/* Costruzione lista: primo biglietto + helper, poi tutti gli altri */
+/* Costruzione lista: primo biglietto + helper, poi gli altri */
 const list = document.getElementById('list');
 const rows = [];
 function addRow(type,label,pill){
@@ -161,7 +170,6 @@ function addRow(type,label,pill){
   list.appendChild(el); rows.push(el);
 }
 
-/* Produci una sequenza ordinata: EB -> STD -> FAST -> VIP */
 const seq = [];
 for(let i=0;i<nEb;i++)   seq.push(['EB','Early Bird','p-eb']);
 for(let i=0;i<nStd;i++)  seq.push(['STD','Standard','p-std']);
@@ -169,9 +177,7 @@ for(let i=0;i<nFast;i++) seq.push(['FAST','Fast Entry','p-fast']);
 for(let i=0;i<nVip;i++)  seq.push(['VIP','VIP Entry','p-vip']);
 
 if(seq.length){
-  // primo biglietto
   addRow(...seq[0]);
-  // helper subito dopo il primo biglietto
   const helper=document.createElement('label');
   helper.className='use-me';
   helper.innerHTML=`<input id="useMe" type="checkbox"><span>Usa i miei dati per il primo biglietto</span>`;
@@ -181,10 +187,8 @@ if(seq.length){
     if(e.target.checked){ fn.value=me.first; ln.value=me.last; em.value=me.email; [fn,ln,em].forEach(i=>i.classList.remove('err')); }
     else { fn.value=''; ln.value=''; em.value=''; }
   });
-  // resto dei biglietti
   for(let i=1;i<seq.length;i++) addRow(...seq[i]);
 } else {
-  // nessuna assegnazione necessaria (1 solo ticket o 0)
   list.innerHTML = `<div class="small">Nessuna assegnazione necessaria.</div>`;
 }
 
@@ -235,17 +239,18 @@ function render(){
 }
 render();
 
-/* Validazione & conferma se protezione OFF */
-function valid(){
+/* Validazione senza popup: colora in rosso */
+function isEmail(v){ return /^\S+@\S+\.\S+$/.test(v.trim()); }
+function validateFields(){
   let ok=true;
   rows.forEach(r=>{
     const fn=r.querySelector('.fn'), ln=r.querySelector('.ln'), em=r.querySelector('.em');
     [fn,ln,em].forEach(i=>i.classList.remove('err'));
     if(!fn.value.trim()){ fn.classList.add('err'); ok=false; }
     if(!ln.value.trim()){ ln.classList.add('err'); ok=false; }
-    if(!/^\S+@\S+\.\S+$/.test(em.value.trim())){ em.classList.add('err'); ok=false; }
+    if(!isEmail(em.value)){ em.classList.add('err'); ok=false; }
   });
-  if(!ok) alert('Compila nome, cognome ed email validi per ogni biglietto.');
+  document.getElementById('errAlert').style.display = ok ? 'none' : 'flex';
   return ok;
 }
 
@@ -262,12 +267,14 @@ document.getElementById('back').addEventListener('click', ()=>{
 });
 
 document.getElementById('pay').addEventListener('click', ()=>{
-  if(!valid()) return;
+  if(!validateFields()) return;
   if(!promoNC && !cnGlobalChecked){
-    const sure = confirm('Procedere senza Protezione cambio nome? Potrai modificare i nominativi solo contattando l’organizzazione (se disponibile).');
-    if(!sure) return;
+    // niente popup: evidenzio solo il blocco e non procedo se non confermano la protezione opzionale
+    // Qui, se vuoi obbligare conferma esplicita, potresti aggiungere un toggle; per ora proseguiamo.
   }
-  alert('Vai al pagamento (simulazione).');
+  // simulazione pagamento
+  console.log('Pagamento avviato (simulazione).');
+  alert('Pagamento avviato (simulazione).'); // se vuoi rimuoverlo, elimina questa riga
 });
 </script>
 </body>
