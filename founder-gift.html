@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Omaggio — TRAPPERREO (Founder)</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&display=swap" rel="stylesheet" />
+<style>
+:root{--accent:#8b5cf6;--border:rgba(255,255,255,.12);--muted:rgba(255,255,255,.78)}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#000;color:#fff;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;line-height:1.5;min-height:100vh}
+.wrap{max-width:900px;margin:auto;padding:22px}
+h1{font-size:28px;font-weight:900;margin-bottom:8px}
+.muted{color:var(--muted)}
+.card{background:rgba(255,255,255,.06);border:1px solid var(--border);border-radius:16px;padding:18px;margin-top:14px}
+input,select{background:#0f0f10;border:1px solid var(--border);border-radius:10px;color:#fff;padding:10px;width:100%}
+.btn{display:inline-block;padding:10px 14px;border-radius:10px;background:var(--accent);color:#000;font-weight:900;border:none;cursor:pointer}
+.btn.ghost{background:transparent;border:1px solid var(--border);color:#fff}
+.table{width:100%;border-collapse:collapse;margin-top:10px;font-size:14px}
+.table th,.table td{padding:10px;border-bottom:1px solid rgba(255,255,255,.08)}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.notice{display:none;margin:10px 0;padding:12px;border-radius:10px;background:#0e2a14;border:1px solid #34d399;color:#c6f6d5}
+.err{display:none;margin:10px 0;padding:12px;border-radius:10px;background:#2a0e0e;border:1px solid #ff6b6b;color:#ffdede}
+.badge{display:inline-block;font-size:12px;border:1px solid var(--border);border-radius:999px;padding:3px 8px}
+</style>
+</head>
+<body>
+<main class="wrap">
+  <div style="display:flex;justify-content:space-between;align-items:center;gap:10px">
+    <h1>Crea biglietto omaggio</h1>
+    <a class="btn ghost" href="./founder.html">← Torna al pannello</a>
+  </div>
+  <div class="muted">Assegna un ticket omaggio ad un utente cercando per email o nome+cognome.</div>
+
+  <section class="card">
+    <div class="row">
+      <div>
+        <label>Evento (eventId)</label>
+        <input id="eventId" placeholder="es. event-001" />
+      </div>
+      <div>
+        <label>Nota (opzionale)</label>
+        <input id="note" placeholder="es. lista PR / promo" />
+      </div>
+    </div>
+
+    <div class="row" style="margin-top:10px">
+      <div>
+        <label>Cerca per email</label>
+        <input id="qEmail" placeholder="es. mario@dominio.it" />
+      </div>
+      <div>
+        <label>Cerca per nome o cognome</label>
+        <input id="qName" placeholder="es. mario rossi" />
+      </div>
+    </div>
+
+    <div style="margin-top:10px;display:flex;gap:10px;flex-wrap:wrap">
+      <button id="btnSearch" class="btn">Cerca</button>
+      <span class="badge" id="selBadge" style="display:none"></span>
+    </div>
+
+    <table class="table" id="tbl">
+      <thead><tr><th>Nome</th><th>Email</th><th>UID</th><th></th></tr></thead>
+      <tbody></tbody>
+    </table>
+
+    <div id="ok" class="notice"></div>
+    <div id="err" class="err"></div>
+
+    <div style="margin-top:12px;display:flex;gap:10px;justify-content:flex-end">
+      <button id="btnCreate" class="btn" disabled>Crea omaggio</button>
+    </div>
+  </section>
+</main>
+
+<script type="module">
+import { app, onUser, isFounderClient, createGiftTicket } from './auth.v2.js?v=6';
+import { getFirestore, doc, getDoc, collection, getDocs } from 'https://www.gstatic.com/firebasejs/12.5.0/firebase-firestore.js';
+
+const db = getFirestore(app);
+const $ = s => document.querySelector(s);
+const tbody = $('#tbl tbody');
+let selectedUser = null;
+
+function lc(s){ return (s||'').toString().trim().toLowerCase(); }
+
+async function guardFounder(){
+  const u = await new Promise(res=>onUser(res));
+  if(!u){ location.href='./login.html?from=./founder-gift.html'; return null; }
+  const ok = await isFounderClient(u.email, u.uid);
+  if(!ok){ location.href='./account-2.html'; return null; }
+  return u;
+}
+
+function renderRows(users){
+  tbody.innerHTML = '';
+  users.forEach(u=>{
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>${u.name || '—'}</td>
+      <td>${u.email || '—'}</td>
+      <td class="small">${u.uid}</td>
+      <td><button class="btn ghost" data-pick="${u.uid}">Seleziona</button></td>
+    `;
+    tbody.appendChild(tr);
+  });
+  tbody.querySelectorAll('[data-pick]').forEach(b=>{
+    b.addEventListener('click', ()=>{
+      const uid = b.getAttribute('data-pick');
+      selectedUser = users.find(x=>x.uid===uid) || null;
+      $('#selBadge').textContent = selectedUser ? `Selezionato: ${selectedUser.name || selectedUser.email} (${selectedUser.uid})` : '';
+      $('#selBadge').style.display = selectedUser ? 'inline-block' : 'none';
+      $('#btnCreate').disabled = !selectedUser;
+    });
+  });
+}
+
+async function search(){
+  $('#ok').style.display='none'; $('#err').style.display='none';
+  const qE = lc($('#qEmail').value);
+  const qN = lc($('#qName').value);
+  const snap = await getDocs(collection(db,'users'));
+  const out = [];
+  snap.forEach(d=>{
+    const v = d.data()||{};
+    const email = lc(v.email);
+    const name  = lc(v.name_lc || v.name);
+    if (qE && email.includes(qE)) out.push({ uid:d.id, ...v });
+    else if (qN && (name.startsWith(qN) || name.includes(qN))) out.push({ uid:d.id, ...v });
+  });
+  renderRows(out.slice(0,100));
+}
+
+$('#btnSearch').addEventListener('click', search);
+$('#qEmail').addEventListener('keydown', e=>{ if(e.key==='Enter') search(); });
+$('#qName').addEventListener('keydown', e=>{ if(e.key==='Enter') search(); });
+
+$('#btnCreate').addEventListener('click', async ()=>{
+  $('#ok').style.display='none'; $('#err').style.display='none';
+  if(!selectedUser){ return; }
+  const eventId = ($('#eventId').value || 'event-001').trim();
+  const note    = ($('#note').value || '').trim();
+  try{
+    await createGiftTicket(selectedUser.uid, { eventId, note });
+    $('#ok').textContent = `Omaggio creato per ${selectedUser.name || selectedUser.email}.`;
+    $('#ok').style.display='block';
+  }catch(e){
+    console.error(e);
+    $('#err').textContent = 'Errore: impossibile creare omaggio (permessi/regole?).';
+    $('#err').style.display='block';
+  }
+});
+
+await guardFounder();
+</script>
+</body>
+</html>
