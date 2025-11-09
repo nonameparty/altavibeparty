@@ -142,7 +142,7 @@ input{background:#0f0f10;border:1px solid var(--border);border-radius:10px;color
 
 <!-- Scripts -->
 <script type="module">
-  import { app, onUser, doSignOut } from './auth.v2.js?v=3';
+  import { app, onUser, doSignOut, requireActiveUser, ensureUserDoc } from './auth.v2.js?v=3';
   import {
     getFirestore, doc, getDoc, setDoc, collection, getDocs, serverTimestamp
   } from 'https://www.gstatic.com/firebasejs/12.5.0/firebase-firestore.js';
@@ -226,6 +226,9 @@ input{background:#0f0f10;border:1px solid var(--border);border-radius:10px;color
       return !!founders[email];
     }catch(_){ return false; }
   }
+  
+// Blocca utenti non attivi e assicura il doc utente esiste
+await requireActiveUser('./login.html');
 
   onUser(async (u)=>{
     if(!u){
@@ -281,7 +284,15 @@ input{background:#0f0f10;border:1px solid var(--border);border-radius:10px;color
     }else{
       founderBox.classList.add('hidden');
     }
+      async function isFounder(email){
+  try{
+    const snap = await getDoc(doc(db,'config','admins'));
+    const founders = snap.exists() ? (snap.data().founders || {}) : {};
+    return !!founders[(email || '').toLowerCase()];
+  }catch(_){ return false; }
+}
   });
+
 
   btnEdit.addEventListener('click', openModal);
   mCancel.addEventListener('click', closeModal);
