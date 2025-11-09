@@ -3,290 +3,256 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Codici sconto — TRAPPERREO (Founder)</title>
+<title>Founder — Codici sconto</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&display=swap" rel="stylesheet" />
 <style>
 :root{--accent:#8b5cf6;--border:rgba(255,255,255,.12);--muted:rgba(255,255,255,.78)}
 *{box-sizing:border-box;margin:0;padding:0}
 body{background:#000;color:#fff;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;line-height:1.5;min-height:100vh}
-.wrap{max-width:900px;margin:auto;padding:22px}
-h1{font-size:28px;font-weight:900;margin-bottom:8px}
+.wrap{max-width:1100px;margin:auto;padding:22px}
+h1{font-size:32px;font-weight:900;margin-bottom:8px}
+h2{font-size:20px;font-weight:900}
 .muted{color:var(--muted)}
 .card{background:rgba(255,255,255,.06);border:1px solid var(--border);border-radius:16px;padding:18px;margin-top:14px}
-input,select{background:#0f0f10;border:1px solid var(--border);border-radius:10px;color:#fff;padding:10px;width:100%}
+input,select{background:#0f0f10;border:1px solid var(--border);border-radius:10px;color:#fff;padding:10px}
 .btn{display:inline-block;padding:10px 14px;border-radius:10px;background:var(--accent);color:#000;font-weight:900;border:none;cursor:pointer}
 .btn.ghost{background:transparent;border:1px solid var(--border);color:#fff}
-.table{width:100%;border-collapse:collapse;margin-top:10px;font-size:14px}
-.table th,.table td{padding:10px;border-bottom:1px solid rgba(255,255,255,.08)}
-.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.notice{display:none;margin:10px 0;padding:12px;border-radius:10px;background:#0e2a14;border:1px solid #34d399;color:#c6f6d5}
-.err{display:none;margin:10px 0;padding:12px;border-radius:10px;background:#2a0e0e;border:1px solid #ff6b6b;color:#ffdede}
+.table{width:100%;border-collapse:collapse;margin-top:12px;font-size:14px}
+.table th,.table td{padding:10px;border-bottom:1px solid rgba(255,255,255,.08);vertical-align:top}
+.small{font-size:12px}
 .badge{display:inline-block;font-size:12px;border:1px solid var(--border);border-radius:999px;padding:3px 8px}
-.state{font-weight:900}
-.tag{display:inline-block;padding:3px 8px;border-radius:8px;border:1px solid var(--border);font-size:12px;margin-right:6px}
+.right{display:flex;gap:10px;align-items:center}
+.notice{display:none;margin:10px 0;padding:12px;border-radius:10px;background:#2a0e0e;border:1px solid #ff6b6b;color:#ffdede}
+.ok{display:none;margin:10px 0;padding:12px;border-radius:10px;background:#0e2a14;border:1px solid #34d399;color:#c6f6d5}
+.spinner{width:16px;height:16px;border:2px solid rgba(255,255,255,.25);border-top-color:#fff;border-radius:50%;animation:sp 1s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
+.actions-row{display:flex;gap:8px;flex-wrap:wrap}
+.linkbar{display:flex;gap:8px;flex-wrap:wrap}
+.linkbar a{color:#fff;text-decoration:none}
+.linkbar a:hover{color:var(--accent)}
+.code{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;background:#0b0b0b;border:1px solid rgba(255,255,255,.1);border-radius:8px;padding:2px 6px}
 </style>
 </head>
 <body>
 <main class="wrap">
-  <div style="display:flex;justify-content:space-between;align-items:center;gap:10px">
-    <h1>Crea codice sconto</h1>
+  <h1>Codici sconto</h1>
+  <div id="who" class="muted">Verifica permessi…</div>
+
+  <div class="linkbar" style="margin-top:8px">
     <a class="btn ghost" href="./founder.html">← Torna al pannello</a>
+    <a class="btn" href="./create-discount-all.html">+ Crea codice (per tutti)</a>
+    <a class="btn" href="./create-discount-user.html">+ Crea codice (per persona)</a>
   </div>
-  <div class="muted">Il codice digitato viene salvato <strong>solo come hash</strong> in Firestore. La validazione avviene in scrittura ordine tramite regole.</div>
+
+  <div id="errBanner" class="notice"></div>
+  <div id="okBanner" class="ok"></div>
 
   <section class="card">
-    <div class="row">
-      <div>
-        <label>Codice (plaintext — NON verrà salvato)</label>
-        <input id="code" placeholder="es. TRAP-OPENING-10" />
-      </div>
-      <div>
-        <label>Etichetta (label)</label>
-        <input id="label" placeholder="es. Promo Opening" />
-      </div>
-    </div>
-
-    <div class="row" style="margin-top:10px">
-      <div>
-        <label>Tipo</label>
-        <select id="type">
-          <option value="percent">percentuale (%)</option>
-          <option value="fixed">sconto fisso (€)</option>
-        </select>
-      </div>
-      <div>
-        <label>Valore</label>
-        <input id="amount" type="number" step="1" placeholder="es. 10 = 10% o 5 = 5€" />
-      </div>
-    </div>
-
-    <div style="display:flex;gap:10px;align-items:center;margin-top:10px">
-      <label><input id="scopeAll" name="scope" type="radio" value="all" checked> Per tutti</label>
-      <label><input id="scopeUser" name="scope" type="radio" value="user"> Per persona</label>
-      <span class="badge" id="selBadge" style="display:none"></span>
-    </div>
-
-    <!-- blocco ricerca utente (solo se "per persona") -->
-    <div id="userBlock" style="display:none;margin-top:10px">
-      <div class="row">
-        <div>
-          <label>Cerca per email</label>
-          <input id="qEmail" placeholder="es. mario@dominio.it" />
-        </div>
-        <div>
-          <label>Cerca per nome o cognome</label>
-          <input id="qName" placeholder="es. mario rossi" />
-        </div>
-      </div>
-      <div style="margin-top:10px">
+    <div class="right" style="justify-content:space-between;">
+      <h2>Tutti i codici</h2>
+      <div class="right">
+        <input id="q" placeholder="Cerca per codice / email / nome…" style="min-width:260px" />
         <button id="btnSearch" class="btn">Cerca</button>
+        <button id="btnReload" class="btn ghost">Ricarica</button>
+        <div id="listLoad" class="spinner" aria-hidden="true" style="display:none"></div>
       </div>
-      <table class="table" id="tblUsers">
-        <thead><tr><th>Nome</th><th>Email</th><th>UID</th><th></th></tr></thead>
-        <tbody></tbody>
-      </table>
     </div>
 
-    <div style="margin-top:12px;display:flex;gap:10px;justify-content:flex-end">
-      <button id="btnCreate" class="btn">Crea codice</button>
-    </div>
-
-    <div id="ok" class="notice"></div>
-    <div id="err" class="err"></div>
-  </section>
-
-  <!-- LISTA SCONTI -->
-  <section class="card">
-    <div style="display:flex;justify-content:space-between;align-items:center;gap:10px">
-      <h2>Sconti</h2>
-      <button id="btnReload" class="btn ghost">Ricarica</button>
-    </div>
-    <table class="table" id="tblDisc">
+    <table class="table" id="tbl">
       <thead>
         <tr>
-          <th>Stato</th>
-          <th>Label</th>
+          <th>Codice</th>
           <th>Tipo/Valore</th>
           <th>Ambito</th>
-          <th>Hash</th>
+          <th>Stato</th>
+          <th>Ultimo aggiornamento</th>
           <th>Azioni</th>
         </tr>
       </thead>
       <tbody></tbody>
     </table>
-    <div class="muted" id="empty" style="display:none;margin-top:8px">Nessuno sconto.</div>
+    <div id="empty" class="muted small" style="display:none;margin-top:8px">Nessun risultato.</div>
   </section>
 </main>
 
 <script type="module">
+import { app, onUser } from './auth.v2.js?v=6';
 import {
-  app, onUser, isFounderClient, createDiscountCode,
-  listDiscountCodes, setDiscountActive
-} from './auth.v2.js?v=6';
-import {
-  getFirestore, collection, getDocs
+  getFirestore, doc, getDoc, setDoc, deleteDoc,
+  collection, getDocs
 } from 'https://www.gstatic.com/firebasejs/12.5.0/firebase-firestore.js';
 
 const db = getFirestore(app);
-const $  = s => document.querySelector(s);
 
-// --- guardia: solo founder ---
-async function guardFounder(){
-  const u = await new Promise(res=>onUser(res));
-  if(!u){ location.href='./login.html?from=./founder-discount.html'; return null; }
-  const ok = await isFounderClient(u.email, u.uid);
-  if(!ok){ location.href='./account-2.html'; return null; }
-  return u;
+// === UI refs
+const who = document.getElementById('who');
+const errBanner = document.getElementById('errBanner');
+const okBanner  = document.getElementById('okBanner');
+const qInput = document.getElementById('q');
+const btnSearch = document.getElementById('btnSearch');
+const btnReload = document.getElementById('btnReload');
+const tbody = document.querySelector('#tbl tbody');
+const emptyMsg = document.getElementById('empty');
+const listLoad = document.getElementById('listLoad');
+
+function showError(msg){ errBanner.textContent = msg; errBanner.style.display = 'block'; }
+function hideError(){ errBanner.style.display='none'; }
+function showOk(msg){ okBanner.textContent = msg; okBanner.style.display='block'; setTimeout(()=>okBanner.style.display='none', 1500); }
+
+const lc = s => (s||'').toString().trim().toLowerCase();
+function safeTs(v){
+  const u = v?.updatedAt || v?.createdAt;
+  if (!u) return 0;
+  if (typeof u === 'number') return u;
+  if (u?.seconds) return u.seconds * 1000 + Math.floor((u.nanoseconds||0)/1e6);
+  try { return new Date(u).getTime() || 0; } catch { return 0; }
 }
-
-// === UI: scope & ricerca utente ===
-let selectedUser = null;
-function lc(s){ return (s||'').toString().trim().toLowerCase(); }
-function toggleScopeUI(){
-  const isUser = $('#scopeUser').checked;
-  $('#userBlock').style.display = isUser ? 'block' : 'none';
-  if(!isUser){ selectedUser=null; $('#selBadge').style.display='none'; }
-}
-$('#scopeAll').addEventListener('change', toggleScopeUI);
-$('#scopeUser').addEventListener('change', toggleScopeUI);
-
-async function searchUsers(){
-  const qE = lc($('#qEmail').value);
-  const qN = lc($('#qName').value);
-  const snap = await getDocs(collection(db,'users'));
-  const out = [];
-  snap.forEach(d=>{
-    const v = d.data()||{};
-    const email = lc(v.email);
-    const name  = lc(v.name_lc || v.name);
-    if (qE && email.includes(qE)) out.push({ uid:d.id, ...v });
-    else if (qN && (name.startsWith(qN) || name.includes(qN))) out.push({ uid:d.id, ...v });
-  });
-  renderUserRows(out.slice(0,100));
-}
-$('#btnSearch').addEventListener('click', searchUsers);
-$('#qEmail').addEventListener('keydown', e=>{ if(e.key==='Enter') searchUsers(); });
-$('#qName').addEventListener('keydown', e=>{ if(e.key==='Enter') searchUsers(); });
-
-function renderUserRows(users){
-  const tbody = $('#tblUsers tbody');
-  tbody.innerHTML = '';
-  users.forEach(u=>{
-    const tr = document.createElement('tr');
-    tr.innerHTML = `
-      <td>${u.name || '—'}</td>
-      <td>${u.email || '—'}</td>
-      <td class="small">${u.uid}</td>
-      <td><button class="btn ghost" data-pick="${u.uid}">Seleziona</button></td>
-    `;
-    tbody.appendChild(tr);
-  });
-  tbody.querySelectorAll('[data-pick]').forEach(b=>{
-    b.addEventListener('click', ()=>{
-      const uid = b.getAttribute('data-pick');
-      selectedUser = users.find(x=>x.uid===uid) || null;
-      $('#selBadge').textContent = selectedUser ? `Selezionato: ${selectedUser.name || selectedUser.email} (${selectedUser.uid})` : '';
-      $('#selBadge').style.display = selectedUser ? 'inline-block' : 'none';
-    });
-  });
-}
-
-// === CREA CODICE ===
-$('#btnCreate').addEventListener('click', async ()=>{
-  $('#ok').style.display='none'; $('#err').style.display='none';
+function fmtTs(ms){
+  if(!ms) return '—';
   try{
-    const code = ($('#code').value || '').trim();
-    const label= ($('#label').value || '').trim() || 'Promo';
-    const type = ($('#type').value || 'percent');
-    const amount = Number($('#amount').value || '0');
+    const d = new Date(ms);
+    const dd = String(d.getDate()).padStart(2,'0');
+    const mm = String(d.getMonth()+1).padStart(2,'0');
+    const yy = d.getFullYear();
+    const hh = String(d.getHours()).padStart(2,'0');
+    const mi = String(d.getMinutes()).padStart(2,'0');
+    return `${dd}/${mm}/${yy} ${hh}:${mi}`;
+  }catch{ return '—'; }
+}
 
-    if(!code) throw new Error('Inserisci un codice.');
-    if(!(amount>0)) throw new Error('Inserisci un valore > 0.');
+async function isFounder(email){
+  try{
+    const snap = await getDoc(doc(db,'config','admins'));
+    const founders = snap.exists() ? (snap.data().founders || {}) : {};
+    return !!founders[(email||'').toLowerCase()];
+  }catch(_){ return false; }
+}
 
-    const scope = $('#scopeUser').checked ? 'user' : 'all';
-    if(scope==='user' && !selectedUser) throw new Error('Seleziona l’utente per il codice personale.');
+// ==== DATA ====
+let cache = []; // array di codici
 
-    await createDiscountCode({
-      plainCode: code, label, type, amount,
-      appliesTo: scope, userId: scope==='user' ? selectedUser.uid : undefined
+async function loadAll(){
+  hideError();
+  listLoad.style.display='inline-block';
+  try{
+    cache = [];
+    const snap = await getDocs(collection(db, 'discountCodes'));
+    snap.forEach(d=> cache.push({ id:d.id, ...d.data() }));
+    // ordina: updatedAt desc, poi code
+    cache.sort((a,b)=>{
+      const t = safeTs(b) - safeTs(a);
+      if(t!==0) return t;
+      return (lc(a.code)||'').localeCompare(lc(b.code)||'');
     });
-
-    $('#ok').textContent = scope==='all'
-      ? 'Codice creato (per tutti) ✓ — hash salvato in Firestore'
-      : `Codice personale creato per ${selectedUser.name || selectedUser.email} ✓`;
-    $('#ok').style.display='block';
-
-    // pulizia campi essenziali e refresh tabella
-    $('#code').value=''; $('#label').value='';
-    $('#amount').value='';
-    await reloadDiscounts();
+    renderRows(cache);
   }catch(e){
-    console.error(e);
-    $('#err').textContent = e.message || 'Creazione codice fallita (permessi/regole?).';
-    $('#err').style.display='block';
+    console.error('load discounts error', e);
+    showError('Non riesco a caricare i codici (permessi?).');
+    renderRows([]);
+  }finally{
+    listLoad.style.display='none';
   }
-});
+}
 
-// === LISTA SCONTI (attivi + non) ===
-$('#btnReload').addEventListener('click', reloadDiscounts);
+function renderRows(list){
+  tbody.innerHTML='';
+  emptyMsg.style.display = list.length ? 'none' : 'block';
 
-function renderDiscounts(list){
-  const tbody = $('#tblDisc tbody');
-  const empty = $('#empty');
-  tbody.innerHTML = '';
-  empty.style.display = list.length ? 'none' : 'block';
-
-  list.forEach(d=>{
+  list.forEach(v=>{
     const tr = document.createElement('tr');
-    const ambito = d.appliesTo === 'user'
-      ? `<span class="tag">per persona</span><span class="small">${d.userId}</span>`
-      : `<span class="tag">per tutti</span>`;
-
-    const stato = d.active ? '<span class="state" style="color:#22c55e">ATTIVO</span>'
-                           : '<span class="state" style="color:#f59e0b">DISATTIVO</span>';
+    const scope = v.appliesTo==='all'
+      ? 'Tutti'
+      : `Persona • <div class="small">${v.userEmail||''} ${v.userName?('— '+v.userName):''}</div>`;
+    const tv = `${v.type==='fixed'?'€':'%'}${v.amount||0} <div class="small">${v.label||''}</div>`;
+    const active = v.active===true ? 'Attivo' : 'Disattivo';
 
     tr.innerHTML = `
-      <td>${stato}</td>
-      <td>${d.label || '—'}</td>
-      <td>${(d.type||'—')} / ${(d.amount??'—')}</td>
-      <td>${ambito}</td>
-      <td class="small" style="max-width:260px;overflow:hidden;text-overflow:ellipsis">${d.id}</td>
-      <td>
-        <button class="btn ghost" data-toggle="${d.id}" data-active="${d.active ? '1':'0'}">
-          ${d.active ? 'Disattiva' : 'Attiva'}
-        </button>
+      <td><span class="code">${v.code || '—'}</span><div class="small muted">${v.id.slice(0,12)}…</div></td>
+      <td>${tv}</td>
+      <td>${scope}</td>
+      <td>${active}</td>
+      <td>${fmtTs(safeTs(v))}</td>
+      <td class="actions-row">
+        <button class="btn ghost small" data-toggle="${v.id}">${v.active===true?'Disattiva':'Attiva'}</button>
+        <button class="btn ghost small" style="border-color:#ff6b6b;color:#ffb3b3" data-del="${v.id}">Elimina</button>
       </td>
     `;
     tbody.appendChild(tr);
   });
 
-  tbody.querySelectorAll('[data-toggle]').forEach(b=>{
-    b.addEventListener('click', async ()=>{
-      const id = b.getAttribute('data-toggle');
-      const cur = b.getAttribute('data-active') === '1';
+  // bind azioni
+  tbody.querySelectorAll('button[data-toggle]').forEach(btn=>{
+    btn.addEventListener('click', async ()=>{
+      const id = btn.getAttribute('data-toggle');
+      const item = cache.find(x=>x.id===id);
+      if(!item) return;
+      btn.disabled = true; btn.textContent = 'Aggiorno…';
       try{
-        b.disabled = true; b.textContent = 'Aggiorno…';
-        await setDiscountActive(id, !cur);
-        await reloadDiscounts();
+        await setDoc(doc(db,'discountCodes',id), { active: !(item.active===true), updatedAt: Date.now() }, { merge:true });
+        item.active = !(item.active===true);
+        btn.textContent = item.active ? 'Disattiva' : 'Attiva';
+        // aggiorna riga stato
+        const tdState = btn.closest('tr').children[3];
+        tdState.textContent = item.active ? 'Attivo' : 'Disattivo';
+        showOk('Stato aggiornato');
       }catch(e){
         console.error(e);
-        alert('Errore: impossibile aggiornare lo stato del codice.');
+        showError('Errore durante l’aggiornamento.');
       }finally{
-        b.disabled = false;
+        btn.disabled = false;
+      }
+    });
+  });
+
+  tbody.querySelectorAll('button[data-del]').forEach(btn=>{
+    btn.addEventListener('click', async ()=>{
+      const id = btn.getAttribute('data-del');
+      const item = cache.find(x=>x.id===id);
+      if(!item) return;
+      if(!confirm(`Eliminare definitivamente il codice "${item.code||id}"?`)) return;
+      btn.disabled = true; btn.textContent = 'Elimino…';
+      try{
+        await deleteDoc(doc(db,'discountCodes',id));
+        cache = cache.filter(x=>x.id!==id);
+        btn.closest('tr').remove();
+        showOk('Codice eliminato');
+        if(!tbody.children.length) emptyMsg.style.display='block';
+      }catch(e){
+        console.error(e);
+        showError('Errore durante l’eliminazione.');
       }
     });
   });
 }
 
-async function reloadDiscounts(){
-  const list = await listDiscountCodes();
-  renderDiscounts(list);
+function runSearch(){
+  const term = lc(qInput.value);
+  if(!term){ renderRows(cache); return; }
+  const out = cache.filter(v=>{
+    const code = lc(v.code);
+    const mail = lc(v.userEmail);
+    const name = lc(v.userName);
+    return (code.includes(term) || (mail && mail.includes(term)) || (name && name.includes(term)));
+  });
+  renderRows(out);
 }
 
-// boot
-toggleScopeUI();
-await guardFounder();
-await reloadDiscounts();
+// ==== BOOT / PERMISSIONS ====
+onUser(async (u)=>{
+  if(!u){ location.href='./login.html?from=./founder-discounts.html'; return; }
+  const my = await getDoc(doc(db,'users',u.uid)).catch(()=>null);
+  const myData = my && my.exists() ? my.data() : {};
+  const allowed = (myData.role === 'founder') || await isFounder(u.email||'');
+  who.textContent = allowed
+    ? `Ciao ${myData.name || u.email} — permessi Founder attivi.`
+    : 'Accesso negato (solo Founder).';
+  if(!allowed){ setTimeout(()=>location.href='./account-2.html', 1200); return; }
+
+  await loadAll();
+  btnReload.addEventListener('click', loadAll);
+  btnSearch.addEventListener('click', runSearch);
+  qInput.addEventListener('keydown', (e)=>{ if(e.key==='Enter') runSearch(); });
+});
 </script>
 </body>
 </html>
