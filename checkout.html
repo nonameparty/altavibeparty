@@ -175,15 +175,16 @@ h1{font-size:26px;font-weight:900;letter-spacing:-.2px}
 </main>
 
 <script type="module">
-/* ====== Auth ====== */
-import { onUser, doSignOut } from './auth.v2.js?v=6';
+/* ====== Auth & Firebase ====== */
+import { onUser, doSignOut, db as dbFromAuth } from './auth.v2.js?v=6';
 import {
-  getFirestore, collection, getDocs, query, where, limit
+  collection, getDocs, query, where, limit
 } from 'https://www.gstatic.com/firebasejs/12.5.0/firebase-firestore.js';
 
-const db = getFirestore();
+/* usa SEMPRE lo stesso db dell'app già inizializzata in auth.v2.js */
+const db = dbFromAuth;
 
-/* ====== Riferimenti UI esistenti ====== */
+/* ====== UI refs ====== */
 const nav = document.getElementById('navArea');
 const hello = document.getElementById('hello');
 const OUT = `<a href="./login.html?from=./checkout.html">Acquista il tuo biglietto</a><a href="./login.html">Accedi</a><a href="./signup.html">Registrati</a>`;
@@ -198,8 +199,8 @@ const lines   = document.getElementById('lines');
 const grandEl = document.getElementById('grandTot');
 const payBtn  = document.getElementById('payBtn');
 
-const optName = document.getElementById('optNameChange');
-const nameLine= document.getElementById('nameChangeLine');
+const optName  = document.getElementById('optNameChange');
+const nameLine = document.getElementById('nameChangeLine');
 
 /* ====== Box Codice Sconto (garantito) ====== */
 (function ensureDiscountUI(){
@@ -224,7 +225,6 @@ const nameLine= document.getElementById('nameChangeLine');
   wrap.insertBefore(blk, wrap.querySelector('.sticky'));
 })();
 
-const discBlock  = document.getElementById('discBlock');
 const discInput  = document.getElementById('discInput');
 const discApply  = document.getElementById('discApply');
 const discRemove = document.getElementById('discRemove');
@@ -233,11 +233,14 @@ const discHint   = document.getElementById('discHint');
 /* ====== Prezzi & stato ====== */
 const PRICE = { EB:12, STD:15, FAST:20, VIP:25, NAMECHANGE:1.90, STD3:40 };
 let currentUser = null;
+
 onUser((u)=>{
   if(!u){ nav.innerHTML=OUT; location.href='./login.html?from=./checkout.html'; return; }
   currentUser = u;
   nav.innerHTML = IN(u);
-  document.getElementById('logoutLink')?.addEventListener('click', async (e)=>{e.preventDefault();await doSignOut();nav.innerHTML=OUT;location.href='./login.html?from=./checkout.html';});
+  document.getElementById('logoutLink')?.addEventListener('click', async (e)=>{
+    e.preventDefault(); await doSignOut(); nav.innerHTML=OUT; location.href='./login.html?from=./checkout.html';
+  });
   hello.innerHTML = `Ciao, <strong>${(u.displayName||u.email||'Utente').split(' ')[0]}</strong>`;
 });
 
@@ -274,13 +277,14 @@ function restoreCart(){
 const readApplied = () => { try{ return JSON.parse(localStorage.getItem('trapperreo_discount_applied')||'null'); }catch{ return null; } };
 const writeApplied = (s) => { if(!s) localStorage.removeItem('trapperreo_discount_applied'); else localStorage.setItem('trapperreo_discount_applied', JSON.stringify(s)); };
 
-/* ====== Sconti: cache + fetch ====== */
-let allDiscounts = []; // cache “lista”
+/* ====== Sconti: cache + fetch (sia /discounts che /discountCodes) ====== */
+let allDiscounts = []; // cache “lista” unificata
+
 function normalize(d){
   const codeRaw = d.code ?? d.name ?? '';
   const o = {
     code: toUpperNoSpace(codeRaw),
-    type:(d.type||'').toString().toLowerCase(), // percent|fixed
+    type:(d.type||'').toString().toLowerCase(), // 'percent' | 'fixed'
     value:Number(d.value ?? d.amount ?? 0),
     active:(d.active ?? d.enabled ?? true)===true,
     allowedSkus:Array.isArray(d.allowedSkus)?d.allowedSkus:(Array.isArray(d.skus)?d.skus:[]),
@@ -290,13 +294,33 @@ function normalize(d){
   if(!o.code || !o.type || !(o.value>0)) return null;
   return o;
 }
-async function fetchDiscountsList(){
+
+async function fetchCollectionInto(colName, arr){
   try{
-    const snap = await getDocs(collection(db,'discounts'));
-    const arr=[]; snap.forEach(d=>{ const n=normalize(d.data()||{}); if(n && n.active) arr.push(n); });
-    allDiscounts = arr;
-  }catch(e){ allDiscounts = []; }
+    const snap = await getDocs(collection(db,colName));
+    snap.forEach(d=>{
+      const n = normalize(d.data()||{});
+      if(n && n.active) arr.push(n);
+    });
+  }catch(e){
+    console.warn('Read failed on', colName, e);
+  }
 }
+
+async function fetchDiscountsList(){
+  const arr=[];
+  await fetchCollectionInto('discounts', arr);
+  await fetchCollectionInto('discountCodes', arr); // fallback legacy
+  // de-duplica per CODE
+  const seen = new Set();
+  allDiscounts = arr.filter(d=>{ const k=d.code; if(seen.has(k)) return false; seen.add(k); return true; });
+  console.table(allDiscounts);
+  // hint diagnostico
+  if(allDiscounts.length===0){
+    discHint.textContent = 'Nessuno sconto disponibile al momento.';
+  }
+}
+
 function eligibleForUser(d){
   if(!currentUser) return true;
   if(!d.allowedEmails || d.allowedEmails.length===0) return true;
@@ -324,61 +348,33 @@ function findInCache(code){
   }) || null;
 }
 
-/* === Fallback: cerca SOLO quel codice, robusto su maiuscole/nome === */
+/* === Fallback query mirata: cerca in entrambe le collezioni === */
 async function fetchSingleByCode(code){
-  try{
-    const C_UP = toUpperNoSpace(code);
-    const C_LO = toLowerNoSpace(code);
+  const C_UP = toUpperNoSpace(code);
+  const C_LO = toLowerNoSpace(code);
 
-    // 1) code == MAIUSCOLO
-    let qy = query(collection(db,'discounts'), where('code','==', C_UP), limit(1));
-    let snap = await getDocs(qy);
-    if(!snap.empty){
+  async function tryIn(colName, field, value){
+    try{
+      const qy = query(collection(db,colName), where(field,'==', value), limit(1));
+      const snap = await getDocs(qy);
+      if(snap.empty) return null;
       const d = normalize(snap.docs[0].data()||{});
       return (d && d.active && eligibleForUser(d)) ? d : null;
+    }catch(e){
+      console.warn('query failed', colName, field, value, e);
+      return null;
     }
-
-    // 2) code == minuscolo
-    qy = query(collection(db,'discounts'), where('code','==', C_LO), limit(1));
-    snap = await getDocs(qy);
-    if(!snap.empty){
-      const d = normalize(snap.docs[0].data()||{});
-      return (d && d.active && eligibleForUser(d)) ? d : null;
-    }
-
-    // 3) name == MAIUSCOLO (qualcuno salva il “codice” in name)
-    qy = query(collection(db,'discounts'), where('name','==', C_UP), limit(1));
-    snap = await getDocs(qy);
-    if(!snap.empty){
-      const d = normalize(snap.docs[0].data()||{});
-      return (d && d.active && eligibleForUser(d)) ? d : null;
-    }
-
-    // 4) name == minuscolo
-    qy = query(collection(db,'discounts'), where('name','==', C_LO), limit(1));
-    snap = await getDocs(qy);
-    if(!snap.empty){
-      const d = normalize(snap.docs[0].data()||{});
-      return (d && d.active && eligibleForUser(d)) ? d : null;
-    }
-
-    // 5) fallback finale: scarica e confronta client-side (fino a 200 doc)
-    const all = await getDocs(collection(db,'discounts'));
-    let found = null;
-    all.forEach(docu=>{
-      const raw = docu.data()||{};
-      const c1 = toUpperNoSpace(raw.code||'');
-      const n1 = toUpperNoSpace(raw.name||'');
-      if(!found && (c1===C_UP || c1===C_LO || n1===C_UP || n1===C_LO)){
-        const d = normalize(raw);
-        if(d && d.active && eligibleForUser(d)) found = d;
-      }
-    });
-    return found;
-  }catch(e){
-    console.warn('fetchSingleByCode error', e);
-    return null;
   }
+
+  // code/name in discounts
+  let d = await tryIn('discounts','code',C_UP) || await tryIn('discounts','code',C_LO)
+        || await tryIn('discounts','name',C_UP) || await tryIn('discounts','name',C_LO);
+  if(d) return d;
+
+  // code/name in discountCodes (legacy)
+  d = await tryIn('discountCodes','code',C_UP) || await tryIn('discountCodes','code',C_LO)
+    || await tryIn('discountCodes','name',C_UP) || await tryIn('discountCodes','name',C_LO);
+  return d;
 }
 
 /* ====== Render totale con sconto snapshot ====== */
@@ -412,7 +408,12 @@ function render(){
   grandEl.textContent = money(total);
   payBtn.disabled = tCount<=0;
 
-  discHint.textContent = snap ? `Applicato: ${tag}.` : `Inserisci un codice valido`;
+  discHint.textContent = snap
+    ? (disc>0 ? `Applicato: ${tag}.` : `Codice valido ma non applica sconti ai biglietti scelti.`)
+    : `Inserisci un codice valido`;
+
+  // diagnostica utile
+  console.log('[CHECKOUT] parts:', parts, 'gross:', gross, 'snap:', snap, 'disc:', disc, 'total:', total);
 }
 
 /* ====== Bind ====== */
@@ -437,19 +438,20 @@ discApply?.addEventListener('click', async ()=>{
   // 1) cache lista (tollerante)
   let found = findInCache(code);
 
-  // 2) fallback query robusta su Firestore
+  // 2) fallback query robusta su entrambe le collezioni
   if(!found){
     found = await fetchSingleByCode(code);
   }
 
   if(!found){
     alert('Codice sconto non valido');
+    console.warn('[DISCOUNT] Not found for', code, 'allDiscounts:', allDiscounts);
     writeApplied(null);
     render();
     return;
   }
 
-  // snapshot condiviso tra pagine
+  // snapshot condiviso
   writeApplied({
     code: toUpperNoSpace(found.code || found.label || code),
     type: found.type,      // 'percent' | 'fixed'
@@ -457,14 +459,12 @@ discApply?.addEventListener('click', async ()=>{
     allowedSkus: (found.allowedSkus && found.allowedSkus.length?found.allowedSkus:['EB','STD','FAST','VIP'])
   });
 
-  // mostra visivamente quello applicato
   discInput.value = toUpperNoSpace(found.code || found.label || code);
   render();
 });
 
 discRemove?.addEventListener('click', ()=>{
   writeApplied(null);
-  // pulisco input e hint
   if(discInput) discInput.value = '';
   discHint.textContent = 'Inserisci un codice valido';
   render();
@@ -472,7 +472,7 @@ discRemove?.addEventListener('click', ()=>{
 
 /* ====== Init ====== */
 restoreCart();
-await fetchDiscountsList();   // se fallisce, rimane il fallback per singolo codice
+await fetchDiscountsList();   // legge sia /discounts che /discountCodes
 bindQty();
 render();
 
@@ -489,5 +489,6 @@ payBtn.addEventListener('click', ()=>{
   else            location.href = `./attendees-single.html?${qs}`;
 });
 </script>
+
 </body>
 </html>
