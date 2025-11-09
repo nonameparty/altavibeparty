@@ -1,125 +1,233 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Il tuo account — TRAPPERREO</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&display=swap" rel="stylesheet">
+<style>
+:root{--accent:#8b5cf6;--bg:#000;--text:#fff;--muted:rgba(255,255,255,.78);--card:rgba(255,255,255,.06);--border:rgba(255,255,255,.12);--ok:#22c55e}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;line-height:1.5}
+header{position:sticky;top:0;z-index:40;backdrop-filter:saturate(140%) blur(6px);background:rgba(0,0,0,.6);border-bottom:1px solid rgba(255,255,255,.08)}
+.nav{max-width:1200px;margin:auto;padding:14px 20px;display:flex;align-items:center;justify-content:space-between}
+.brand{display:flex;align-items:center;gap:10px;font-weight:900;letter-spacing:-.3px}
+.brand-badge{width:22px;height:22px;background:var(--accent);transform:skew(-6deg);border-radius:3px}
+nav a, nav span{color:#fff;text-decoration:none;margin-left:18px;font-size:14px;opacity:.95}
+nav a:hover{color:var(--accent)}
+
+.wrap{max-width:1100px;margin:auto;padding:24px}
+h1{font-size:clamp(26px,4vw,36px);font-weight:900;letter-spacing:-.2px;margin-bottom:6px}
+.subtitle{color:var(--muted)}
+.badges{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0}
+.badge{background:#0f0f10;border:1px solid var(--border);border-radius:10px;padding:8px 10px;font-size:13px}
+
+.grid{display:grid;gap:16px;margin-top:16px;grid-template-columns:1fr}
+@media(min-width:980px){.grid{grid-template-columns:2fr 1fr}}
+
+.card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:18px}
+.card h2{font-size:20px;font-weight:900;margin-bottom:8px}
+
+.empty{border:1px dashed var(--border);border-radius:14px;padding:18px}
+.empty h3{font-weight:900;margin-bottom:6px}
+.btn{display:inline-block;padding:12px 16px;border-radius:10px;background:var(--accent);color:#000;font-weight:900;text-decoration:none;border:none;cursor:pointer}
+
+.small{font-size:13px;color:var(--muted)}
+.hr{height:1px;background:rgba(255,255,255,.08);margin:14px 0}
+.list{display:grid;gap:10px}
+
+.row{display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center;border:1px solid rgba(255,255,255,.12);background:#0b0b0b;border-radius:12px;padding:12px}
+.ticket-title{font-weight:900}
+.ticket-note{font-size:13px;color:rgba(255,255,255,.88)}
+.ticket-right{text-align:right}
+.qr{width:76px;height:76px;border-radius:10px;background:#111;border:1px solid var(--border);display:grid;place-items:center;font-size:11px;color:var(--muted)}
+
+.profile-grid{display:grid;grid-template-columns:1fr;gap:8px}
+.profile-row{display:grid;grid-template-columns:140px 1fr;gap:10px}
+.k{font-size:12px;letter-spacing:.4px;text-transform:uppercase;color:rgba(255,255,255,.6)}
+.v{font-weight:900}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="nav">
+    <div class="brand"><div class="brand-badge"></div><div>TRAPPERREO</div></div>
+    <nav id="navArea"><span class="subtitle">Caricamento…</span></nav>
+  </div>
+</header>
+
+<main class="wrap">
+  <h1 id="hello">Il tuo account</h1>
+  <div class="subtitle" id="helloSub">Accesso in corso…</div>
+
+  <div class="badges">
+    <span class="badge">Sab 21 Mar 2026</span>
+    <span class="badge">22:30 → 04:30</span>
+    <span class="badge">Via Italia 38, Biella</span>
+  </div>
+
+  <div class="grid">
+    <!-- SINISTRA: biglietti -->
+    <section class="card">
+      <h2>I tuoi biglietti</h2>
+      <p id="ticketsHint" class="small" style="display:none">
+        Mostra il QR all’ingresso. Se hai attivato la protezione, puoi cambiare nominativo fino a 48h prima.
+      </p>
+
+      <div id="ticketsList" class="list" style="margin-top:12px"></div>
+
+      <div id="emptyState" class="empty" style="display:none">
+        <h3>Compra ora il tuo biglietto</h3>
+        <p class="small">Scegli la prevendita e blocca l’ingresso alla serata.</p>
+        <div style="margin-top:10px"><a class="btn" href="./checkout.html">Acquista</a></div>
+      </div>
+    </section>
+
+    <!-- DESTRA: profilo -->
+    <aside class="card">
+      <h2>Profilo</h2>
+      <div id="profileBox">
+        <div class="profile-grid">
+          <div class="profile-row"><div class="k">Nome e cognome</div><div class="v" id="pfName">—</div></div>
+          <div class="profile-row"><div class="k">Data di nascita</div><div class="v" id="pfDob">—</div></div>
+          <div class="profile-row"><div class="k">Email</div><div class="v" id="pfEmail">—</div></div>
+        </div>
+      </div>
+    </aside>
+  </div>
+</main>
+
 <script type="module">
-import { app, onUser, doSignOut } from './auth.v2.js';
-import { getFirestore, doc, getDoc, setDoc, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+/* ======= Auth + Firestore ======= */
+import { app as appFromAuth, onUser, doSignOut } from './auth.v2.js?v=3';
+import { getApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import {
+  getFirestore, doc, getDoc, setDoc, serverTimestamp,
+  collection, query, where, getDocs
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { getAuth } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
-// --- helpers UI ---
-const $ = s => document.querySelector(s);
-const $$ = s => document.querySelectorAll(s);
+const app = appFromAuth || getApp();
+const db  = getFirestore(app);
 
-const nameEl = $('#p_name');
-const dobEl  = $('#p_dob');
-const mailEl = $('#p_mail');
-const helloH1 = $('#helloTitle');    // se ce l'hai, altrimenti ignora
-const ticketsBox = $('#ticketsBox'); // contenitore sinistro
-const ctaBuy = $('#ctaBuy');         // bottone "Compra ora il tuo biglietto" (crealo se non c'è)
+const nav  = document.getElementById('navArea');
+const hello= document.getElementById('hello');
+const helloSub = document.getElementById('helloSub');
 
-// fallback se non esistono questi ID:
-function text(el, v){ if(el) el.textContent = v; }
+const pfName = document.getElementById('pfName');
+const pfDob  = document.getElementById('pfDob');
+const pfEmail= document.getElementById('pfEmail');
 
-// --- Firestore ---
-const db = getFirestore(app);
+const ticketsHint = document.getElementById('ticketsHint');
+const ticketsList = document.getElementById('ticketsList');
+const emptyState  = document.getElementById('emptyState');
 
-// crea profilo minimo se manca
-async function ensureUserDoc(u) {
-  const ref = doc(db, 'users', u.uid);
-  const snap = await getDoc(ref);
-  if (!snap.exists()) {
-    // Prova a derivare nome/cognome da displayName/email
-    const baseName = (u.displayName || u.email || '').trim();
-    await setDoc(ref, {
+const OUT = `<a href="./login.html?from=./account-2.html">Accedi</a> <a href="./signup.html">Registrati</a>`;
+const IN  = (u)=>`<span>👋 Ciao, <strong>${(u.displayName||u.email||'Utente').split(' ')[0]}</strong></span>
+                  <a href="./checkout.html">Vai al checkout</a>
+                  <a href="#" id="logoutLink" style="color:#8b5cf6">Logout</a>`;
+
+function fmtDOB(iso){
+  if(!iso) return '—';
+  const d = new Date(iso);
+  if(isNaN(d.getTime())) return iso;
+  return d.toLocaleDateString('it-IT',{day:'2-digit',month:'2-digit',year:'numeric'});
+}
+
+async function ensureUserDoc(u){
+  const uref = doc(db, 'users', u.uid);
+  const snap = await getDoc(uref);
+  if(!snap.exists()){
+    const parts = (u.displayName||'').trim().split(' ');
+    const firstName = parts[0] || '';
+    const lastName  = parts.slice(1).join(' ') || '';
+    await setDoc(uref, {
       uid: u.uid,
-      name: baseName,
-      dob: null,
-      email: u.email || null,
-      role: 'customer',
-      createdAt: Date.now()
-    });
-    return (await getDoc(ref)).data();
+      email: u.email || '',
+      firstName, lastName, dob: '',
+      createdAt: serverTimestamp()
+    }, { merge: true });
+    return { firstName, lastName, dob:'', email:u.email||'' };
   }
   return snap.data();
 }
 
-// carica ordini/ticket dell’utente (per ora: lista “attivi”)
-async function loadMyTickets(u) {
-  // Esempio: ordini con stato=active
-  const q = query(collection(db, 'orders'), where('uid', '==', u.uid), where('status', '==', 'active'));
-  const qs = await getDocs(q);
-  const items = [];
-  for (const o of qs.docs) {
-    const orderId = o.id;
-    const tRef = collection(db, `orders/${orderId}/tickets`);
-    const tQs = await getDocs(tRef);
-    tQs.forEach(t => items.push({ orderId, ticketId: t.id, ...t.data() }));
-  }
-  return items;
-}
+async function renderFor(u){
+  nav.innerHTML = IN(u);
+  document.getElementById('logoutLink')?.addEventListener('click', async (e)=>{ e.preventDefault(); await doSignOut(); });
 
-// renderizza sezione “I tuoi biglietti”
-function renderTickets(tickets){
-  if(!tickets || tickets.length===0){
-    ticketsBox.innerHTML = `
-      <div class="muted">Nessun biglietto attivo al momento.</div>
-      <div style="margin-top:12px">
-        <a id="buyNow" class="btn" href="./checkout.html">Compra ora il tuo biglietto</a>
-      </div>
-    `;
+  const first = (u.displayName||u.email||'Utente').split(' ')[0];
+  helloSub.innerHTML  = `Ciao, <strong>${first}</strong> — ecco i tuoi biglietti.`;
+
+  // profilo
+  const ud = await ensureUserDoc(u);
+  pfName.textContent  = (ud.firstName||ud.lastName) ? `${ud.firstName||''} ${ud.lastName||''}`.trim() : (u.displayName||'—');
+  pfDob.textContent   = fmtDOB(ud.dob||'');
+  pfEmail.textContent = u.email || ud.email || '—';
+
+  // ordini/ticket
+  const q = query(collection(db, 'orders'), where('uid','==',u.uid));
+  const os = await getDocs(q);
+
+  if(os.empty){
+    ticketsHint.style.display = 'none';
+    emptyState.style.display  = 'block';
+    ticketsList.innerHTML = '';
     return;
   }
-  ticketsBox.innerHTML = tickets.map(t => `
-    <div class="card" style="margin-bottom:10px">
-      <div style="display:flex;justify-content:space-between;align-items:center">
+
+  let html = '';
+  let any = false;
+  for(const o of os.docs){
+    const ts = await getDocs(collection(db,'orders',o.id,'tickets'));
+    ts.forEach(t=>{
+      any = true;
+      const d = t.data();
+      const map = {EB:'Early Bird', STD:'Standard', FAST:'Fast Entry', VIP:'VIP Entry'};
+      const title = map[d.type] || d.type;
+      const holder = `${d.holderName||'-'} ${d.holderSurname||''}`.trim();
+      const mail   = d.holderEmail || '';
+      const prot   = d.protection ? ' • Protezione attiva' : '';
+      html += `<div class="row">
         <div>
-          <div style="font-weight:900">${t.type || 'Ticket'}</div>
-          <div class="muted" style="font-size:13px">${t.holderName || '—'} • ${t.holderEmail || '—'}</div>
+          <div class="ticket-title">${title}</div>
+          <div class="ticket-note">Intestatario: <strong>${holder||'—'}</strong> • ${mail||'—'}${prot}</div>
         </div>
-        <div class="badge">QR disponibile</div>
-      </div>
-    </div>
-  `).join('');
+        <div class="ticket-right"><div class="qr">QR</div></div>
+      </div>`;
+    });
+  }
+  if(any){
+    ticketsHint.style.display = 'block';
+    emptyState.style.display  = 'none';
+    ticketsList.innerHTML = html;
+  }else{
+    ticketsHint.style.display = 'none';
+    emptyState.style.display  = 'block';
+    ticketsList.innerHTML = '';
+  }
 }
 
-// render profilo
-function renderProfile(userDoc, authUser){
-  const full = userDoc?.name || (authUser.displayName || '');
-  text(nameEl,  full || '—');
-  text(dobEl,   userDoc?.dob ? new Date(userDoc.dob).toLocaleDateString('it-IT') : '—');
-  text(mailEl,  authUser.email || '—');
-  const first = (full || authUser.email || 'ospite').split(' ')[0];
-  if(helloH1) helloH1.innerHTML = `Ciao, <strong>${first}</strong>`;
-}
-
-// main
-function boot(){
-  const nav = $('#navArea');
-  const OUT = `<a href="./login.html?from=./account-2.html">Accedi</a> <a href="./signup.html">Registrati</a>`;
-  const IN  = (u)=> `<span>👋 Ciao, <strong>${(u.displayName||u.email||'Utente').split(' ')[0]}</strong></span>
-                     <a href="#" id="logoutLink" style="color:#8b5cf6">Logout</a>`;
+/* ---- Login flow robusto ---- */
+function start(){
+  let resolved = false;
 
   onUser(async (u)=>{
-    if(!u){
-      if(nav) nav.innerHTML = OUT;
-      // mostra “Accesso in corso…” già presente, poi redirect volendo
-      return;
-    }
-    if(nav){
-      nav.innerHTML = IN(u);
-      $('#logoutLink')?.addEventListener('click', async (e)=>{ e.preventDefault(); await doSignOut(); location.href='./login.html?from=./account-2.html'; });
-    }
-
-    // carica/crea profilo e render
-    const userDoc = await ensureUserDoc(u);
-    renderProfile(userDoc, u);
-
-    // carica biglietti
-    try{
-      const tickets = await loadMyTickets(u);
-      renderTickets(tickets);
-    }catch(err){
-      console.warn('Tickets non disponibili (ok in demo):', err);
-      renderTickets([]); // così appare il bottone "Compra ora..."
-    }
+    resolved = true;
+    if(!u){ nav.innerHTML = OUT; location.href='./login.html?from=./account-2.html'; return; }
+    await renderFor(u);
   });
-}
 
-boot();
+  // fallback dopo 2s se il wrapper non chiama
+  setTimeout(async ()=>{
+    if(resolved) return;
+    const auth = getAuth();
+    const u = auth.currentUser;
+    if(!u){ nav.innerHTML = OUT; location.href='./login.html?from=./account-2.html'; return; }
+    await renderFor(u);
+  }, 2000);
+}
+start();
 </script>
+</body>
+</html>
