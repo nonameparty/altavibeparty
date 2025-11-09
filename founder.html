@@ -1,0 +1,131 @@
+<!DOCTYPE html><html lang="it"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Area Founder</title>
+<style>
+body{background:#000;color:#fff;font-family:Inter,system-ui,sans-serif;margin:0;padding:20px}
+.card{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:14px;padding:16px;margin-bottom:14px}
+input,select,button{background:#0b0b0b;border:1px solid rgba(255,255,255,.2);color:#fff;border-radius:10px;padding:10px}
+button{cursor:pointer;font-weight:800}
+.row{display:flex;gap:10px;flex-wrap:wrap}
+label{font-size:13px;opacity:.8;display:block;margin-bottom:6px}
+h1{font-weight:800;margin:0 0 10px}
+h2{font-weight:800;margin:0 0 8px;font-size:18px}
+small{opacity:.75}
+.hidden{display:none}
+.table{width:100%;border-collapse:collapse;margin-top:10px}
+.table th,.table td{border-bottom:1px solid rgba(255,255,255,.1);padding:8px;text-align:left}
+.ok{color:#22c55e}.warn{color:#f59e0b}.err{color:#ef4444}
+</style></head><body>
+<h1>Area Founder</h1>
+
+<div class="card"><h2>Controllo accesso</h2><div id="me">Verifica ruolo…</div></div>
+
+<div class="card">
+  <h2>Cerca utente</h2>
+  <div class="row">
+    <div><label>Email esatta</label><input id="qEmail" placeholder="utente@example.com" size="28"></div>
+    <div><label>&nbsp;</label><button id="btnFind">Cerca</button></div>
+  </div>
+  <div id="result"></div>
+</div>
+
+<div class="card">
+  <h2>Azione rapido profilo</h2>
+  <div class="row">
+    <div><label>UID</label><input id="uid" placeholder="uid" size="34"></div>
+    <div><label>Ruolo</label>
+      <select id="role">
+        <option value="customer">customer</option>
+        <option value="pr">pr</option>
+        <option value="admin">admin</option>
+        <option value="founder">founder</option>
+      </select>
+    </div>
+  </div>
+  <div class="row" style="margin-top:8px">
+    <button id="btnSetRole">Imposta ruolo</button>
+    <button id="btnBan" class="warn">Banna</button>
+    <button id="btnUnban" class="ok">Unban</button>
+  </div>
+  <div id="opMsg" style="margin-top:8px"></div>
+</div>
+
+<div class="card"><h2>Statistiche (ordini)</h2><div id="stats">Calcolo…</div></div>
+
+<script type="module">
+import { app, onUser } from './auth.v2.js';
+import {
+  getFirestore, doc, getDoc, setDoc, collection, query, where, getDocs
+} from "https://www.gstatic.com/firebasejs/12.5.0/firebase-firestore.js";
+
+const db = getFirestore(app);
+const $ = (s)=>document.querySelector(s);
+const me = $('#me'), qEmail = $('#qEmail'), btnFind = $('#btnFind');
+const result = $('#result'), uidInput = $('#uid'), roleSel = $('#role'), opMsg = $('#opMsg');
+
+async function isFounder(email){
+  const cfg = await getDoc(doc(db,'config','admins'));
+  const founders = cfg.exists() ? (cfg.data().founders || {}) : {};
+  return founders[email] === true;
+}
+
+onUser(async (u)=>{
+  if(!u){ location.href='./login.html?from=./founder.html'; return; }
+  if(!(await isFounder(u.email))){
+    me.innerHTML = '<span class="err">Accesso negato (non sei founder)</span>'; return;
+  }
+  me.innerHTML = `<span class="ok">Sei founder</span> — ${u.email}`;
+  loadStats();
+});
+
+btnFind.addEventListener('click', async ()=>{
+  const email = qEmail.value.trim().toLowerCase();
+  if(!email){ result.textContent='Inserisci email'; return; }
+  const q = query(collection(db,'users'), where('email','==',email));
+  const snap = await getDocs(q);
+  if(snap.empty){ result.innerHTML = '<div class="err">Nessun utente trovato</div>'; return; }
+  const rows = [];
+  snap.forEach(d=>{
+    const x=d.data();
+    rows.push(`<tr>
+      <td>${d.id}</td><td>${x.email||''}</td>
+      <td>${x.firstName||''} ${x.lastName||''}</td>
+      <td>${x.role||''}</td>
+      <td>${x.banned?'<span class="err">banned</span>':'ok'}</td>
+      <td><button data-uid="${d.id}" class="pick">Seleziona</button></td>
+    </tr>`);
+  });
+  result.innerHTML = `<table class="table">
+    <thead><tr><th>UID</th><th>Email</th><th>Nome</th><th>Ruolo</th><th>Stato</th><th></th></tr></thead>
+    <tbody>${rows.join('')}</tbody></table>`;
+  result.querySelectorAll('.pick').forEach(b=>{
+    b.addEventListener('click', ()=>{ uidInput.value = b.getAttribute('data-uid')||''; opMsg.textContent=''; });
+  });
+});
+
+$('#btnSetRole').addEventListener('click', async ()=>{
+  const uid = uidInput.value.trim(); const role = roleSel.value;
+  if(!uid){ opMsg.textContent='UID mancante'; return; }
+  await setDoc(doc(db,'users',uid), { role, updatedAt: Date.now() }, { merge:true });
+  opMsg.innerHTML = `<span class="ok">Ruolo aggiornato: ${role}</span>`;
+});
+
+$('#btnBan').addEventListener('click', async ()=>{
+  const uid = uidInput.value.trim(); if(!uid){ opMsg.textContent='UID mancante'; return; }
+  await setDoc(doc(db,'users',uid), { banned:true, bannedAt: Date.now() }, { merge:true });
+  opMsg.innerHTML = `<span class="warn">Utente bannato</span>`;
+});
+$('#btnUnban').addEventListener('click', async ()=>{
+  const uid = uidInput.value.trim(); if(!uid){ opMsg.textContent='UID mancante'; return; }
+  await setDoc(doc(db,'users',uid), { banned:false }, { merge:true });
+  opMsg.innerHTML = `<span class="ok">Utente sbloccato</span>`;
+});
+
+async function loadStats(){
+  const snap = await getDocs(collection(db,'orders'));
+  let gross=0, net=0, count=0;
+  snap.forEach(d=>{ const x=d.data(); count++; gross+=Number(x.amountGross||0); net+=Number(x.amountNet||0); });
+  $('#stats').innerHTML = `Ordini: <b>${count}</b><br>Lordo: <b>€${gross.toFixed(2)}</b><br>Netto: <b>€${net.toFixed(2)}</b>`;
+}
+</script>
+</body></html>
