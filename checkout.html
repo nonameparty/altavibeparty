@@ -217,12 +217,19 @@ h1{font-size:26px;font-weight:900;letter-spacing:-.2px}
 
 <script type="module">
 /* ==== Auth & Firestore ==== */
-import { onUser, doSignOut, sha256Hex } from './auth.v2.js?v=6';
+import { app, onUser, doSignOut } from './auth.v2.js?v=6';
 import {
   getFirestore, doc, getDoc, getDocs, collection, query, where, limit
 } from 'https://www.gstatic.com/firebasejs/12.5.0/firebase-firestore.js';
 
-const db = getFirestore();
+const db = getFirestore(app);
+
+/* ==== SHA-256 locale (niente import esterni) ==== */
+async function sha256Hex(str){
+  const enc = new TextEncoder().encode(str);
+  const buf = await crypto.subtle.digest('SHA-256', enc);
+  return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');
+}
 
 /* ==== Nav/Login ==== */
 const nav = document.getElementById('navArea');
@@ -244,7 +251,7 @@ const promoApply = document.getElementById('promoApply');
 const promoRemove= document.getElementById('promoRemove');
 const promoMsg   = document.getElementById('promoMsg');
 
-/* ==== Settimane & stock (come prima) ==== */
+/* ==== Settimane & stock ==== */
 const weekBtns = document.querySelectorAll('.weeks button');
 let week = 4;
 const STOCK = {
@@ -286,7 +293,7 @@ const lines = document.getElementById('lines');
 const nameLine = document.getElementById('nameChangeLine');
 const optName  = document.getElementById('optNameChange');
 const grand = document.getElementById('grandTot');
-const payBtn = document.getElementById('payBtn');
+const payBtn = document.getElementById('payBtn'); /* <-- UNA sola dichiarazione */
 
 function money(n){ return n.toFixed(2).replace('.00','')+'€'; }
 function qty(){ return { EB:+(qEB.value||0), STD:+(qSTD.value||0), FAST:+(qFAST.value||0), VIP:+(qVIP.value||0) }; }
@@ -313,7 +320,7 @@ function render(){
   const q = qty();
 
   let subtotal=0;
-  let ticketSubtotal=0; // solo biglietti (per applicare sconto qui)
+  let ticketSubtotal=0; // solo biglietti
 
   const arr=[];
   const add  = (label, val)=>{ arr.push(`<div class="line"><span>${label}</span><span>${money(val)}</span></div>`); subtotal+=val; };
@@ -479,15 +486,13 @@ promoRemove.addEventListener('click', ()=>{
 });
 
 /* Procedi */
-const payBtn = document.getElementById('payBtn');
 payBtn.addEventListener('click', ()=>{
   const q = qty();
   const tickets = q.EB + q.STD + q.FAST + q.VIP;
   const qs = new URLSearchParams({
     std:q.STD||0, fast:q.FAST||0, vip:q.VIP||0, eb:q.EB||0, nc: optName.checked?1:0
   }).toString();
-  // qui potresti passare anche il codice in chiaro, se vuoi legarlo al flusso ordine
-  // location.href conserva il carrello in localStorage
+
   if(tickets > 1){
     location.href = `./attendees.html?${qs}`;
   }else{
