@@ -1,64 +1,53 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>Il tuo account — TRAPPERREO</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&display=swap" rel="stylesheet">
 <style>
-:root{--accent:#8b5cf6;--bg:#000;--text:#fff;--muted:rgba(255,255,255,.78);--card:rgba(255,255,255,.06);--border:rgba(255,255,255,.12);--ok:#22c55e}
+:root{
+  --bg:#000;--text:#fff;--accent:#8b5cf6;--border:rgba(255,255,255,.12);
+  --card:rgba(255,255,255,.06);--muted:rgba(255,255,255,.78);
+}
 *{box-sizing:border-box;margin:0;padding:0}
-body{background:var(--bg);color:var(--text);font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;line-height:1.5}
+body{background:var(--bg);color:var(--text);font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;line-height:1.5;min-height:100vh}
 header{position:sticky;top:0;z-index:40;backdrop-filter:saturate(140%) blur(6px);background:rgba(0,0,0,.6);border-bottom:1px solid rgba(255,255,255,.08)}
-.nav{max-width:1200px;margin:auto;padding:14px 20px;display:flex;align-items:center;justify-content:space-between}
-.brand{display:flex;align-items:center;gap:10px;font-weight:900;letter-spacing:-.3px}
+.nav{max-width:1100px;margin:auto;padding:14px 20px;display:flex;align-items:center;justify-content:space-between}
+.brand{display:flex;align-items:center;gap:10px;font-weight:900}
 .brand-badge{width:22px;height:22px;background:var(--accent);transform:skew(-6deg);border-radius:3px}
-nav a, nav span{color:#fff;text-decoration:none;margin-left:18px;font-size:14px;opacity:.95}
-nav a:hover{color:var(--accent)}
-
-.wrap{max-width:1100px;margin:auto;padding:24px}
-h1{font-size:clamp(26px,4vw,36px);font-weight:900;letter-spacing:-.2px;margin-bottom:6px}
-.subtitle{color:var(--muted)}
-.badges{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0}
+.wrap{max-width:1100px;margin:0 auto;padding:24px 20px}
+h1{font-size:32px;font-weight:900;letter-spacing:-.2px;margin-bottom:8px}
+.badges{display:flex;gap:10px;flex-wrap:wrap;margin:8px 0 16px}
 .badge{background:#0f0f10;border:1px solid var(--border);border-radius:10px;padding:8px 10px;font-size:13px}
-
-.grid{display:grid;gap:16px;margin-top:16px;grid-template-columns:1fr}
-@media(min-width:980px){.grid{grid-template-columns:2fr 1fr}}
-
+.grid{display:grid;grid-template-columns:1fr;gap:16px}
+@media(min-width:900px){.grid{grid-template-columns:2fr 1fr}}
 .card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:18px}
-.card h2{font-size:20px;font-weight:900;margin-bottom:8px}
-
-.empty{border:1px dashed var(--border);border-radius:14px;padding:18px}
-.empty h3{font-weight:900;margin-bottom:6px}
+.h2{font-weight:900;font-size:22px;margin-bottom:8px}
+.muted{color:var(--muted)}
 .btn{display:inline-block;padding:12px 16px;border-radius:10px;background:var(--accent);color:#000;font-weight:900;text-decoration:none;border:none;cursor:pointer}
-
-.small{font-size:13px;color:var(--muted)}
-.hr{height:1px;background:rgba(255,255,255,.08);margin:14px 0}
-.list{display:grid;gap:10px}
-
-.row{display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center;border:1px solid rgba(255,255,255,.12);background:#0b0b0b;border-radius:12px;padding:12px}
-.ticket-title{font-weight:900}
-.ticket-note{font-size:13px;color:rgba(255,255,255,.88)}
-.ticket-right{text-align:right}
-.qr{width:76px;height:76px;border-radius:10px;background:#111;border:1px solid var(--border);display:grid;place-items:center;font-size:11px;color:var(--muted)}
-
-.profile-grid{display:grid;grid-template-columns:1fr;gap:8px}
-.profile-row{display:grid;grid-template-columns:140px 1fr;gap:10px}
-.k{font-size:12px;letter-spacing:.4px;text-transform:uppercase;color:rgba(255,255,255,.6)}
-.v{font-weight:900}
+.btn.outline{background:transparent;color:#fff;border:1px solid var(--accent)}
+.hr{height:1px;background:rgba(255,255,255,.08);margin:12px 0}
+.row{display:flex;justify-content:space-between;gap:14px;margin:8px 0}
+.k{opacity:.75}
+.v{font-weight:800}
+.ticket{display:flex;align-items:center;justify-content:space-between;border:1px solid rgba(255,255,255,.12);border-radius:12px;padding:12px;margin:8px 0;background:#0b0b0b}
+.empty{display:flex;align-items:center;justify-content:space-between;background:#0b0b0b;border:1px dashed rgba(255,255,255,.2);border-radius:12px;padding:14px}
+.alert{background:rgba(139,92,246,.12);border:1px solid rgba(139,92,246,.4);border-radius:12px;padding:12px;font-size:14px;margin-bottom:10px}
+.err{background:rgba(239,68,68,.15);border:1px solid rgba(239,68,68,.4);border-radius:12px;padding:12px;margin-top:12px;font-size:14px}
 </style>
 </head>
 <body>
-
 <header>
   <div class="nav">
     <div class="brand"><div class="brand-badge"></div><div>TRAPPERREO</div></div>
-    <nav id="navArea"><span class="subtitle">Caricamento…</span></nav>
+    <nav id="navArea" class="muted">Caricamento…</nav>
   </div>
 </header>
 
 <main class="wrap">
-  <h1 id="hello">Il tuo account</h1>
-  <div class="subtitle" id="helloSub">Accesso in corso…</div>
+  <h1 id="title">Il tuo account</h1>
+  <div id="greeting" class="muted">Accesso in corso...</div>
 
   <div class="badges">
     <span class="badge">Sab 21 Mar 2026</span>
@@ -67,167 +56,160 @@ h1{font-size:clamp(26px,4vw,36px);font-weight:900;letter-spacing:-.2px;margin-bo
   </div>
 
   <div class="grid">
-    <!-- SINISTRA: biglietti -->
+    <!-- Biglietti -->
     <section class="card">
-      <h2>I tuoi biglietti</h2>
-      <p id="ticketsHint" class="small" style="display:none">
-        Mostra il QR all’ingresso. Se hai attivato la protezione, puoi cambiare nominativo fino a 48h prima.
-      </p>
-
-      <div id="ticketsList" class="list" style="margin-top:12px"></div>
-
-      <div id="emptyState" class="empty" style="display:none">
-        <h3>Compra ora il tuo biglietto</h3>
-        <p class="small">Scegli la prevendita e blocca l’ingresso alla serata.</p>
-        <div style="margin-top:10px"><a class="btn" href="./checkout.html">Acquista</a></div>
+      <div class="h2">I tuoi biglietti</div>
+      <div id="ticketsArea">
+        <!-- Se non ci sono ticket appare CTA -->
       </div>
     </section>
 
-    <!-- DESTRA: profilo -->
+    <!-- Profilo -->
     <aside class="card">
-      <h2>Profilo</h2>
-      <div id="profileBox">
-        <div class="profile-grid">
-          <div class="profile-row"><div class="k">Nome e cognome</div><div class="v" id="pfName">—</div></div>
-          <div class="profile-row"><div class="k">Data di nascita</div><div class="v" id="pfDob">—</div></div>
-          <div class="profile-row"><div class="k">Email</div><div class="v" id="pfEmail">—</div></div>
-        </div>
-      </div>
+      <div class="h2">Profilo</div>
+      <div class="row"><div class="k">Nome e cognome</div><div id="pfName" class="v">—</div></div>
+      <div class="row"><div class="k">Data di nascita</div><div id="pfDob" class="v">—</div></div>
+      <div class="row"><div class="k">Email</div><div id="pfMail" class="v">—</div></div>
+      <div class="hr"></div>
+      <button id="logoutBtn" class="btn outline">Logout</button>
     </aside>
   </div>
+
+  <div id="errBox" class="err" style="display:none"></div>
 </main>
 
 <script type="module">
-/* ======= Auth + Firestore ======= */
-import { app as appFromAuth, onUser, doSignOut } from './auth.v2.js?v=3';
-import { getApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+/* ====== IMPORT ====== */
+import { app, onUser, doSignOut, loadProfile } from './auth.v2.js?v=3';
 import {
-  getFirestore, doc, getDoc, setDoc, serverTimestamp,
-  collection, query, where, getDocs
-} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-import { getAuth } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+  getFirestore, doc, getDoc, collection, query, where, getDocs
+} from "https://www.gstatic.com/firebasejs/12.5.0/firebase-firestore.js";
 
-const app = appFromAuth || getApp();
-const db  = getFirestore(app);
+/* ====== SETUP ====== */
+const db = getFirestore(app);
 
 const nav  = document.getElementById('navArea');
-const hello= document.getElementById('hello');
-const helloSub = document.getElementById('helloSub');
-
+const greet= document.getElementById('greeting');
 const pfName = document.getElementById('pfName');
 const pfDob  = document.getElementById('pfDob');
-const pfEmail= document.getElementById('pfEmail');
+const pfMail = document.getElementById('pfMail');
+const ticketsArea = document.getElementById('ticketsArea');
+const errBox = document.getElementById('errBox');
 
-const ticketsHint = document.getElementById('ticketsHint');
-const ticketsList = document.getElementById('ticketsList');
-const emptyState  = document.getElementById('emptyState');
+document.getElementById('logoutBtn').addEventListener('click', async ()=>{
+  await doSignOut();
+  location.href = './login.html?from=./account-2.html';
+});
 
-const OUT = `<a href="./login.html?from=./account-2.html">Accedi</a> <a href="./signup.html">Registrati</a>`;
-const IN  = (u)=>`<span>👋 Ciao, <strong>${(u.displayName||u.email||'Utente').split(' ')[0]}</strong></span>
-                  <a href="./checkout.html">Vai al checkout</a>
-                  <a href="#" id="logoutLink" style="color:#8b5cf6">Logout</a>`;
-
-function fmtDOB(iso){
-  if(!iso) return '—';
-  const d = new Date(iso);
-  if(isNaN(d.getTime())) return iso;
-  return d.toLocaleDateString('it-IT',{day:'2-digit',month:'2-digit',year:'numeric'});
+/* ====== HELPERS UI ====== */
+function showError(e){
+  console.error(e);
+  errBox.style.display='block';
+  errBox.textContent = `Errore: ${e?.message || e}`;
+}
+function fmtDOB(dob){
+  if(!dob) return '—';
+  try{
+    const d=new Date(dob);
+    return d.toLocaleDateString('it-IT',{day:'2-digit',month:'2-digit',year:'numeric'});
+  }catch{ return '—'; }
+}
+function ticketCard(t){
+  const lab = t.type || 'Ticket';
+  const who = (t.holderName || '—');
+  const code = (t.code || t.ticketId || '—');
+  const status = (t.status || 'active');
+  return `
+    <div class="ticket">
+      <div>
+        <div style="font-weight:900">${lab}</div>
+        <div class="muted" style="font-size:13px">Intestato a: ${who}</div>
+      </div>
+      <div style="text-align:right">
+        <div class="muted" style="font-size:13px">Codice</div>
+        <div style="font-weight:900">${code}</div>
+        <div class="muted" style="font-size:12px;margin-top:4px">Stato: ${status}</div>
+      </div>
+    </div>`;
+}
+function emptyCTA(){
+  ticketsArea.innerHTML = `
+    <div class="empty">
+      <div>Non hai biglietti attivi.</div>
+      <a class="btn" href="./checkout.html">Compra ora il tuo biglietto</a>
+    </div>
+  `;
 }
 
-async function ensureUserDoc(u){
-  const uref = doc(db, 'users', u.uid);
-  const snap = await getDoc(uref);
-  if(!snap.exists()){
-    const parts = (u.displayName||'').trim().split(' ');
-    const firstName = parts[0] || '';
-    const lastName  = parts.slice(1).join(' ') || '';
-    await setDoc(uref, {
-      uid: u.uid,
-      email: u.email || '',
-      firstName, lastName, dob: '',
-      createdAt: serverTimestamp()
-    }, { merge: true });
-    return { firstName, lastName, dob:'', email:u.email||'' };
+/* ====== CARICAMENTO DATI ====== */
+onUser(async (u)=>{
+  try{
+    if(!u){
+      // non loggato → vai al login
+      location.href = './login.html?from=./account-2.html';
+      return;
+    }
+
+    // Navbar
+    nav.innerHTML = `<span>👋 Ciao, ${(u.displayName||u.email||'Utente').split(' ')[0]}</span>`;
+
+    // Greeting
+    greet.innerHTML = `Ciao, <strong>${(u.displayName||u.email||'Utente').split(' ')[0]}</strong>`;
+
+    // Profilo da Firestore se presente
+    let name = (u.displayName || '').trim();
+    let dob  = null;
+
+    try{
+      const snap = await getDoc(doc(db,'users',u.uid));
+      if(snap.exists()){
+        const d = snap.data();
+        if(d?.name) name = d.name;
+        if(d?.dob)  dob = d.dob;
+      }else{
+        // fallback: dato locale (come nel tuo salvataggio attuale)
+        const local = loadProfile(u.uid);
+        if(local?.dob) dob = local.dob;
+      }
+    }catch(e){ console.warn('Profilo Firestore non disponibile', e); }
+
+    pfName.textContent = name || (u.email?.split('@')[0] || '—');
+    pfDob.textContent  = fmtDOB(dob);
+    pfMail.textContent = u.email || '—';
+
+    // Biglietti (orders/{orderId}/tickets) — se non ci sono, mostra CTA
+    try{
+      const qOrd = query(collection(db,'orders'), where('uid','==',u.uid), where('status','==','active'));
+      const ordersSnap = await getDocs(qOrd);
+
+      const allTickets = [];
+      for(const docOrd of ordersSnap.docs){
+        const ordId = docOrd.id;
+        const tSnap = await getDocs(collection(db, `orders/${ordId}/tickets`));
+        tSnap.forEach(t => allTickets.push({ orderId: ordId, ticketId: t.id, ...t.data() }));
+      }
+
+      if(allTickets.length === 0){
+        emptyCTA();
+      }else{
+        ticketsArea.innerHTML = `
+          <div class="alert">Mostra il QR all’ingresso. Se hai attivato la protezione puoi cambiare nominativo fino a 48h prima.</div>
+          ${allTickets.map(ticketCard).join('')}
+        `;
+      }
+    }catch(e){
+      console.warn('Query ticket fallita', e);
+      emptyCTA();
+    }
+
+  }catch(e){
+    showError(e);
   }
-  return snap.data();
-}
+});
 
-async function renderFor(u){
-  nav.innerHTML = IN(u);
-  document.getElementById('logoutLink')?.addEventListener('click', async (e)=>{ e.preventDefault(); await doSignOut(); });
-
-  const first = (u.displayName||u.email||'Utente').split(' ')[0];
-  helloSub.innerHTML  = `Ciao, <strong>${first}</strong> — ecco i tuoi biglietti.`;
-
-  // profilo
-  const ud = await ensureUserDoc(u);
-  pfName.textContent  = (ud.firstName||ud.lastName) ? `${ud.firstName||''} ${ud.lastName||''}`.trim() : (u.displayName||'—');
-  pfDob.textContent   = fmtDOB(ud.dob||'');
-  pfEmail.textContent = u.email || ud.email || '—';
-
-  // ordini/ticket
-  const q = query(collection(db, 'orders'), where('uid','==',u.uid));
-  const os = await getDocs(q);
-
-  if(os.empty){
-    ticketsHint.style.display = 'none';
-    emptyState.style.display  = 'block';
-    ticketsList.innerHTML = '';
-    return;
-  }
-
-  let html = '';
-  let any = false;
-  for(const o of os.docs){
-    const ts = await getDocs(collection(db,'orders',o.id,'tickets'));
-    ts.forEach(t=>{
-      any = true;
-      const d = t.data();
-      const map = {EB:'Early Bird', STD:'Standard', FAST:'Fast Entry', VIP:'VIP Entry'};
-      const title = map[d.type] || d.type;
-      const holder = `${d.holderName||'-'} ${d.holderSurname||''}`.trim();
-      const mail   = d.holderEmail || '';
-      const prot   = d.protection ? ' • Protezione attiva' : '';
-      html += `<div class="row">
-        <div>
-          <div class="ticket-title">${title}</div>
-          <div class="ticket-note">Intestatario: <strong>${holder||'—'}</strong> • ${mail||'—'}${prot}</div>
-        </div>
-        <div class="ticket-right"><div class="qr">QR</div></div>
-      </div>`;
-    });
-  }
-  if(any){
-    ticketsHint.style.display = 'block';
-    emptyState.style.display  = 'none';
-    ticketsList.innerHTML = html;
-  }else{
-    ticketsHint.style.display = 'none';
-    emptyState.style.display  = 'block';
-    ticketsList.innerHTML = '';
-  }
-}
-
-/* ---- Login flow robusto ---- */
-function start(){
-  let resolved = false;
-
-  onUser(async (u)=>{
-    resolved = true;
-    if(!u){ nav.innerHTML = OUT; location.href='./login.html?from=./account-2.html'; return; }
-    await renderFor(u);
-  });
-
-  // fallback dopo 2s se il wrapper non chiama
-  setTimeout(async ()=>{
-    if(resolved) return;
-    const auth = getAuth();
-    const u = auth.currentUser;
-    if(!u){ nav.innerHTML = OUT; location.href='./login.html?from=./account-2.html'; return; }
-    await renderFor(u);
-  }, 2000);
-}
-start();
+/* ====== SAFETY: mostra errori JS in pagina invece del bianco ====== */
+window.addEventListener('error', (ev)=>{ showError(ev.error || ev.message); });
+window.addEventListener('unhandledrejection', (ev)=>{ showError(ev.reason || 'Promise rejection'); });
 </script>
 </body>
 </html>
