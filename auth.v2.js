@@ -1,94 +1,66 @@
-<!DOCTYPE html>
-<html lang="it">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Accedi — TRAPPERREO</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&display=swap" rel="stylesheet">
-<style>
-:root{--accent:#8b5cf6;--bg:#000;--text:#fff}
-*{box-sizing:border-box;margin:0;padding:0}
-html,body{height:100%}
-body{background:radial-gradient(60% 60% at 50% 40%, rgba(139,92,246,.12), transparent 60%), #000; color:#fff; font-family:Inter,system-ui,sans-serif; min-height:100vh; display:grid; place-items:center}
-a{color:var(--accent);text-decoration:none}
-.card{width:min(92%,460px);background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:16px;padding:26px;backdrop-filter:blur(6px)}
-h1{font-size:28px;font-weight:900;margin-bottom:6px}
-.muted{opacity:.8;margin-bottom:18px}
-label{font-size:13px;opacity:.8}
-input{width:100%;margin-top:6px;margin-bottom:14px;padding:12px;border:none;border-radius:10px;background:#0f0f10;color:#fff}
-.btn{width:100%;padding:12px 16px;border:none;border-radius:10px;background:var(--accent);color:#000;font-weight:900;cursor:pointer}
-.row{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-top:12px}
-.error,.success{padding:10px;border-radius:10px;margin-bottom:12px;display:none}
-.error{background:#2a0e0e;border:1px solid #ff6b6b;color:#ffdede}
-.success{background:#0e2a14;border:1px solid #34d399;color:#c6f6d5}
-#resetBox{display:none;margin-top:12px;background:#0f0f10;padding:12px;border-radius:10px;border:1px solid rgba(255,255,255,.15)}
-.small{font-size:13px;opacity:.8}
-</style>
-</head>
-<body>
-  <div class="card">
-    <h1>Accedi</h1>
-    <p class="muted">Entra per acquistare il tuo biglietto.</p>
+// auth.v2.js — versione minima/robusta
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-app.js";
+import {
+  getAuth, onAuthStateChanged, updateProfile,
+  signInWithEmailAndPassword, createUserWithEmailAndPassword,
+  sendPasswordResetEmail, signOut
+} from "https://www.gstatic.com/firebasejs/12.5.0/firebase-auth.js";
+import {
+  getFirestore, doc, getDoc, setDoc
+} from "https://www.gstatic.com/firebasejs/12.5.0/firebase-firestore.js";
 
-    <div id="msg" class="success"></div>
-    <div id="err" class="error"></div>
+const firebaseConfig = {
+  apiKey: "AIzaSyDF6BiYXreDirGnT3RPkGwDNlwj5ploUyo",
+  authDomain: "trappereo.firebaseapp.com",
+  projectId: "trappereo",
+  storageBucket: "trappereo.firebasestorage.app",
+  messagingSenderId: "767231932063",
+  appId: "1:767231932063:web:b1431de1c04bbe5dc0d4aa",
+  measurementId: "G-BDBRZQ6J8S"
+};
 
-    <label>Email</label>
-    <input id="email" type="email" placeholder="tuo@email.it" autocomplete="email" required>
+export const app  = initializeApp(firebaseConfig);
+export const auth = getAuth(app);
+export const db   = getFirestore(app);
 
-    <label>Password</label>
-    <input id="password" type="password" placeholder="Minimo 6 caratteri" autocomplete="current-password" required>
+// ----------------- API base -----------------
+export async function emailSignUp(email, pwd){ return createUserWithEmailAndPassword(auth, email, pwd); }
+export async function emailSignIn(email, pwd){ return signInWithEmailAndPassword(auth, email, pwd); }
+export async function sendReset(email){ return sendPasswordResetEmail(auth, email); }
+export async function doSignOut(){ return signOut(auth); }
+export function onUser(cb){ return onAuthStateChanged(auth, cb); }
+export async function setDisplayName(user, fullName){
+  if (user) try { await updateProfile(user, { displayName: fullName }); } catch {}
+}
 
-    <button id="loginBtn" class="btn" type="button">Entra</button>
+// ----------------- ensureUserDoc -----------------
+// Crea/aggiorna SEMPRE /users/{uid} con campi minimi.
+// NIENTE serverTimestamp per semplicità: usiamo Date.now().
+export async function ensureUserDoc(u, extra = {}){
+  if (!u) return null;
+  const ref = doc(db, 'users', u.uid);
+  const snap = await getDoc(ref);
 
-    <div class="row small">
-      <a href="#" id="forgotToggle">Password dimenticata?</a>
-      <span>Non hai un account? <a href="./signup.html">Registrati</a></span>
-    </div>
+  const baseName = (u.displayName || u.email || '').trim();
+  const patchBase = {
+    uid: u.uid,
+    email: u.email || null,
+    name: baseName,
+    name_lc: baseName.toLowerCase(),
+    role: 'customer',
+    status: 'active',
+    createdAt: Date.now()
+  };
 
-    <div id="resetBox">
-      <label>Email per il reset</label>
-      <input id="resetEmail" type="email" placeholder="tuo@email.it">
-      <button id="resetBtn" class="btn" type="button" style="margin-top:6px">Invia email di reset</button>
-      <div id="resetMsg" class="success" style="display:none;margin-top:10px"></div>
-      <div id="resetErr" class="error" style="display:none;margin-top:10px"></div>
-    </div>
-
-    <div class="row small" style="justify-content:flex-start;margin-top:10px">
-      <a href="./index.html">← Torna alla home</a>
-    </div>
-  </div>
-
-<script type="module">
-import { emailSignIn, sendReset } from './auth.v2.js?v=3';
-
-const $ = q => document.querySelector(q);
-const getParam = n => new URLSearchParams(location.search).get(n);
-
-$('#loginBtn').addEventListener('click', async ()=>{
-  $('#err').style.display='none'; $('#msg').style.display='none';
-  try{
-    const email = $('#email').value.trim();
-    const pwd   = $('#password').value;
-    if(!email || !pwd) throw Error('Inserisci email e password.');
-    await emailSignIn(email, pwd);
-    const dest = getParam('from') || './account.html';
-    location.assign(dest);
-  }catch(e){
-    const box = $('#err'); box.textContent = e.message || 'Errore imprevisto'; box.style.display='block';
+  if (!snap.exists()) {
+    await setDoc(ref, { ...patchBase, ...extra }, { merge:true });
+    return (await getDoc(ref)).data();
   }
-});
 
-$('#forgotToggle').addEventListener('click', e=>{
-  e.preventDefault();
-  const b = $('#resetBox'); b.style.display = (b.style.display==='none' || !b.style.display) ? 'block' : 'none';
-});
-$('#resetBtn').addEventListener('click', async ()=>{
-  const em = $('#resetEmail').value.trim();
-  const E = $('#resetErr'), M = $('#resetMsg'); E.style.display='none'; M.style.display='none';
-  try{ if(!em) throw Error("Inserisci l'email."); await sendReset(em); M.textContent="Email di reset inviata."; M.style.display='block'; }
-  catch(err){ E.textContent=err.message||'Errore imprevisto'; E.style.display='block'; }
-});
-</script>
-</body>
-</html>
+  const cur = snap.data() || {};
+  const patch = {...extra};
+  if (!cur.createdAt) patch.createdAt = Date.now();
+  if (cur.name && !cur.name_lc) patch.name_lc = String(cur.name).toLowerCase();
+  if (Object.keys(patch).length) await setDoc(ref, patch, { merge:true });
+  return (await getDoc(ref)).data();
+}
