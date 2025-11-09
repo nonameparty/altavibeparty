@@ -66,38 +66,16 @@ input{width:100%;background:#0f0f10;border:1px solid var(--border);border-radius
 </main>
 
 <script type="module">
-/* ======= Import utente per “Usa i miei dati” ======= */
 import { onUser } from './auth.v2.js?v=6';
 
-/* ======= Config prezzi (come checkout) ======= */
 const PRICE = { EB:12, STD:15, FAST:20, VIP:25, NAMECHANGE:1.90, STD3:40 };
-
-/* ======= Helpers ======= */
 const money = n => (n<0?'-':'') + Math.abs(n).toFixed(2).replace('.00','') + '€';
 const $ = s => document.querySelector(s);
 
-/* ======= Letture base ======= */
-function readLS(k, def=null){ try{ return JSON.parse(localStorage.getItem(k)||'null') ?? def; }catch{ return def; } }
+/* ====== letture ====== */
+function readLS(k,def=null){ try{ return JSON.parse(localStorage.getItem(k)||'null') ?? def; }catch{ return def; } }
 function readCart(){ return readLS('trapperreo_cart', {}); }
-function readDiscountSnapshot(){
-  const raw = localStorage.getItem('trapperreo_discount_applied')
-        || localStorage.getItem('trapperreo_discount')
-        || localStorage.getItem('trapperreo_discount_snapshot');
-  if(!raw) return null;
-  try{ return JSON.parse(raw); }catch{ return null; }
-}
-function normalizeDiscount(d){
-  if(!d) return null;
-  const out = {
-    code:(d.code||d.name||'').toString().trim(),
-    type:(d.type||'').toString().toLowerCase(),
-    value:Number(d.value ?? d.amount ?? 0),
-    active:(d.active ?? d.enabled ?? true)===true,
-    allowedSkus:Array.isArray(d.allowedSkus)?d.allowedSkus:(Array.isArray(d.skus)?d.skus:null)
-  };
-  if(!out.code || !out.active || !out.type || !(out.value>0)) return null;
-  return out;
-}
+function readApplied(){ try{ return JSON.parse(localStorage.getItem('trapperreo_discount_applied')||'null'); }catch{ return null; } }
 
 const qs = new URLSearchParams(location.search);
 const qty = {
@@ -108,18 +86,16 @@ const qty = {
 };
 const nameProt = (+(qs.get('nc')||0) || (readCart().nc|0)) === 1;
 
-/* ======= UI generazione nominativi (+ “Usa i miei dati”) ======= */
-const list = $('#tickets');
+/* ====== nominativi con “usa i miei dati” ====== */
+const list = document.getElementById('tickets');
 const order = [['EB','Early Bird'],['STD','Standard'],['FAST','Fast Entry'],['VIP','VIP Entry']];
-const rows=[];
+const rows = [];
 let me = { first:'', last:'', email:'' };
 
 onUser(u=>{
   if(!u) return;
-  const parts=(u.displayName||'').trim().split(' ');
-  me.first = parts[0] || '';
-  me.last  = parts.slice(1).join(' ') || '';
-  me.email = (u.email||'');
+  const p=(u.displayName||'').trim().split(' ');
+  me.first=p[0]||''; me.last=p.slice(1).join(' ')||''; me.email=(u.email||'');
 });
 
 for(const [sku,label] of order){
@@ -135,7 +111,6 @@ for(const [sku,label] of order){
       <input class="em" type="email" placeholder="email@email.it">
       <label class="use-me"><input type="checkbox" class="useCheck"> <strong>Usa i miei dati per questo biglietto</strong></label>
     `;
-    // bind “use my data”
     el.querySelector('.useCheck').addEventListener('change', (e)=>{
       const fn=el.querySelector('.fn'), ln=el.querySelector('.ln'), em=el.querySelector('.em');
       if(e.target.checked){ fn.value=me.first; ln.value=me.last; em.value=me.email; [fn,ln,em].forEach(i=>i.classList.remove('err')); }
@@ -144,13 +119,11 @@ for(const [sku,label] of order){
     list.appendChild(el); rows.push(el);
   }
 }
-if(rows.length===0){
-  list.innerHTML='<div class="small">Nessun nominativo necessario.</div>';
-}
+if(rows.length===0) list.innerHTML = `<div class="small">Nessun nominativo necessario.</div>`;
 
-/* ======= Calcolo subtotale biglietti (con promo 3×40 per STD) ======= */
+/* ====== calcoli ====== */
 function stdTotal(q){ const b=Math.floor(q/3), r=q%3; return b*PRICE.STD3 + r*PRICE.STD; }
-function subtotalBySku(){
+function parts(){
   return {
     EB: (qty.EB||0)*PRICE.EB,
     STD: stdTotal(qty.STD||0),
@@ -158,55 +131,54 @@ function subtotalBySku(){
     VIP: (qty.VIP||0)*PRICE.VIP
   };
 }
+function allowedSet(snap){
+  return (Array.isArray(snap?.allowedSkus) && snap.allowedSkus.length>0) ? snap.allowedSkus : ['EB','STD','FAST','VIP'];
+}
+function compute(){
+  const P = parts();
+  const gross = P.EB + P.STD + P.FAST + P.VIP;
 
-/* ======= Applicazione sconto a livello ordine ======= */
-function computeTotals(){
-  const parts = subtotalBySku();
-  const gross = parts.EB + parts.STD + parts.FAST + parts.VIP;
-  const dSnap = normalizeDiscount(readDiscountSnapshot());
-  const allowed = dSnap?.allowedSkus || ['EB','STD','FAST','VIP'];
-
-  const baseDisc =
-    (allowed.includes('EB')  ? parts.EB  : 0) +
-    (allowed.includes('STD') ? parts.STD : 0) +
-    (allowed.includes('FAST')? parts.FAST: 0) +
-    (allowed.includes('VIP') ? parts.VIP : 0);
-
-  let disc = 0;
-  if(dSnap){
-    if(dSnap.type==='percent') disc = Math.max(0, Math.min(gross, baseDisc * (dSnap.value/100)));
-    else if(dSnap.type==='fixed') disc = Math.max(0, Math.min(gross, dSnap.value));
+  const snap = readApplied(); // {code,type,value,allowedSkus}
+  let disc = 0, tag=null;
+  if(snap){
+    const allow = allowedSet(snap);
+    const base =
+      (allow.includes('EB')?P.EB:0) + (allow.includes('STD')?P.STD:0) +
+      (allow.includes('FAST')?P.FAST:0) + (allow.includes('VIP')?P.VIP:0);
+    if(snap.type==='percent') disc=Math.max(0, base*(snap.value/100));
+    else if(snap.type==='fixed') disc=Math.max(0, Math.min(base, snap.value));
+    tag = `${snap.code} — ${snap.type==='percent' ? '%'+snap.value : '−'+money(snap.value)}`;
   }
 
-  const ticketsCount = (qty.EB|0)+(qty.STD|0)+(qty.FAST|0)+(qty.VIP|0);
-  const prot = nameProt ? ticketsCount*PRICE.NAMECHANGE : 0;
+  const t = (qty.EB|0)+(qty.STD|0)+(qty.FAST|0)+(qty.VIP|0);
+  const prot = nameProt ? t*PRICE.NAMECHANGE : 0;
   const net = Math.max(0, gross - disc) + prot;
-
-  return { parts, gross, disc, prot, net, dSnap, ticketsCount };
+  return {P,gross,disc,prot,net,tag};
 }
 
-/* ======= Rendering ======= */
-function label(k){ return {EB:'Early Bird',STD:'Standard',FAST:'Fast Entry',VIP:'VIP Entry'}[k] || k; }
+/* ====== render ====== */
+const LINES = document.getElementById('lines');
+const GRAND = document.getElementById('grand');
 function render(){
-  const L = $('#lines');
-  const {parts,disc,prot,net,dSnap} = computeTotals();
-  const lines=[];
-  if(qty.EB>0)   lines.push(`<div class="row"><div>${label('EB')} × ${qty.EB}</div><div>${money(parts.EB)}</div></div>`);
-  if(qty.STD>0)  lines.push(`<div class="row"><div>${label('STD')} × ${qty.STD}</div><div>${money(parts.STD)}</div></div>`);
-  if(qty.FAST>0) lines.push(`<div class="row"><div>${label('FAST')} × ${qty.FAST}</div><div>${money(parts.FAST)}</div></div>`);
-  if(qty.VIP>0)  lines.push(`<div class="row"><div>${label('VIP')} × ${qty.VIP}</div><div>${money(parts.VIP)}</div></div>`);
-  if(dSnap){ lines.push(`<div class="row save"><div>Sconto (${dSnap.code})</div><div>-${money(disc)}</div></div>`); }
+  const {P,disc,prot,net,tag} = compute();
+  const L=[]; const label = k=>({EB:'Early Bird',STD:'Standard',FAST:'Fast Entry',VIP:'VIP Entry'})[k];
+  if(qty.EB>0)   L.push(`<div class="row"><div>${label('EB')} × ${qty.EB}</div><div>${money(P.EB)}</div></div>`);
+  if(qty.STD>0)  L.push(`<div class="row"><div>${label('STD')} × ${qty.STD}</div><div>${money(P.STD)}</div></div>`);
+  if(qty.FAST>0) L.push(`<div class="row"><div>${label('FAST')} × ${qty.FAST}</div><div>${money(P.FAST)}</div></div>`);
+  if(qty.VIP>0)  L.push(`<div class="row"><div>${label('VIP')} × ${qty.VIP}</div><div>${money(P.VIP)}</div></div>`);
+  if(tag)        L.push(`<div class="row save"><div>Sconto (${tag})</div><div>- ${money(disc)}</div></div>`);
   if(nameProt){
-    const t = (qty.EB|0)+(qty.STD|0)+(qty.FAST|0)+(qty.VIP|0);
-    lines.push(`<div class="row"><div>Protezione cambio nome × ${t}</div><div>${money(prot)}</div></div>`);
+    const t=(qty.EB|0)+(qty.STD|0)+(qty.FAST|0)+(qty.VIP|0);
+    L.push(`<div class="row"><div>Protezione cambio nome × ${t}</div><div>${money(prot)}</div></div>`);
   }
-  L.innerHTML = lines.join('');
-  $('#grand').textContent = money(net);
+  LINES.innerHTML = L.join('');
+  GRAND.textContent = money(net);
 }
+render();
 
-/* ======= Validazione ======= */
+/* ====== validazione minima ====== */
 function isEmail(v){ return /^\S+@\S+\.\S+$/.test((v||'').trim()); }
-function validateRows(){
+function validate(){
   let ok=true;
   rows.forEach(r=>{
     const fn=r.querySelector('.fn'), ln=r.querySelector('.ln'), em=r.querySelector('.em');
@@ -218,15 +190,9 @@ function validateRows(){
   return ok;
 }
 
-/* ======= Bind ======= */
-$('#back').addEventListener('click', ()=>history.back());
-$('#pay').addEventListener('click', ()=>{
-  if(!validateRows()) return;
-  alert('Pagamento avviato (simulazione).');
-});
-
-/* init */
-render();
+/* ====== bottoni ====== */
+document.getElementById('back').addEventListener('click', ()=>history.back());
+document.getElementById('pay').addEventListener('click', ()=>{ if(!validate()) return; alert('Pagamento avviato (simulazione).'); });
 </script>
 </body>
 </html>
