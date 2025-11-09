@@ -231,22 +231,19 @@ const discHint   = document.getElementById('discHint');
 /* ====== Prezzi & stato ====== */
 const PRICE = { EB:12, STD:15, FAST:20, VIP:25, NAMECHANGE:1.90, STD3:40 };
 let currentUser = null;
+let readyUserResolver;
+const readyUser = new Promise(res=>{ readyUserResolver = res; });
 
 onUser((u)=>{
   if(!u){ nav.innerHTML=OUT; location.href='./login.html?from=./checkout.html'; return; }
-  // se cambia utente, resetta stato sconto legato all'altro utente
-  const prevUid = currentUser?.uid;
   currentUser = u;
-  if(prevUid && prevUid !== currentUser.uid){
-    writeApplied(null); // svuota sconto dell'altro utente
-  }
-
   nav.innerHTML = IN(u);
   document.getElementById('logoutLink')?.addEventListener('click', async (e)=>{
     e.preventDefault(); await doSignOut(); nav.innerHTML=OUT; location.href='./login.html?from=./checkout.html';
   });
   hello.innerHTML = `Ciao, <strong>${(u.displayName||u.email||'Utente').split(' ')[0]}</strong>`;
-  render(); // ricalcola subito con l'utente giusto
+  readyUserResolver?.();
+  render();
 });
 
 /* ====== Helpers ====== */
@@ -288,9 +285,7 @@ const writeApplied = (s) => {
   else localStorage.setItem(k, JSON.stringify(s));
 };
 
-/* ====== Sconti: LISTA unificata ====== */
-let allDiscounts = [];
-
+/* ====== Normalizzazione doc sconto ====== */
 function asArray(v){ if(v==null) return []; return Array.isArray(v)?v:[v]; }
 function normalize(doc){
   const codeRaw = doc.code ?? doc.name ?? '';
@@ -313,7 +308,7 @@ function normalize(doc){
     value: Number(doc.value ?? doc.amount ?? 0),
     active: (doc.active ?? doc.enabled ?? true) === true,
     allowedSkus: Array.isArray(doc.allowedSkus) ? doc.allowedSkus
-                 : (Array.isArray(doc.skus) ? doc.skus : []),
+               : (Array.isArray(doc.skus) ? doc.skus : []),
     allowedEmails,
     allowedUids,
     appliesTo: (doc.appliesTo||'').toString().toLowerCase() // 'all' | 'user' | ''
@@ -322,25 +317,7 @@ function normalize(doc){
   return o;
 }
 
-async function fetchCollectionInto(col, arr){
-  try{
-    const snap = await getDocs(collection(db,col));
-    snap.forEach(d=>{
-      const n = normalize(d.data()||{});
-      if(n && n.active) arr.push(n);
-    });
-  }catch(e){ console.warn('Read failed on', col, e); }
-}
-async function fetchDiscountsList(){
-  const arr=[];
-  await fetchCollectionInto('discounts', arr);
-  await fetchCollectionInto('discountCodes', arr);
-  const seen=new Set();
-  allDiscounts = arr.filter(d=>{ const k=d.code; if(seen.has(k)) return false; seen.add(k); return true; });
-  console.table(allDiscounts);
-  if(allDiscounts.length===0) discHint.textContent = 'Nessuno sconto disponibile al momento.';
-}
-
+/* ====== Eligibility ====== */
 function allowedSet(d){
   return (d?.allowedSkus && d.allowedSkus.length>0) ? d.allowedSkus : ['EB','STD','FAST','VIP'];
 }
@@ -349,22 +326,45 @@ function eligibleForUser(d){
   const meEmail = lo(currentUser.email || '');
   const meUid   = String(currentUser.uid || '');
 
-  // Se personale esplicito
+  // Personale esplicito
   if(d.appliesTo === 'user'){
     const hasEmails = d.allowedEmails?.length>0;
     const hasUids   = d.allowedUids?.length>0;
-    if(!hasEmails && !hasUids) return false;
+    if(!hasEmails && !hasUids) return false; // personale senza target = non valido
     const okEmail = hasEmails ? d.allowedEmails.includes(meEmail) : false;
     const okUid   = hasUids   ? d.allowedUids.includes(meUid)   : false;
     return okEmail || okUid;
   }
-  // Se ha target specifici ma non marcato user, richiede match
+  // Target specifici anche senza appliesTo:user
   if(d.allowedEmails?.length>0) return !!meEmail && d.allowedEmails.includes(meEmail);
   if(d.allowedUids?.length>0)   return !!meUid   && d.allowedUids.includes(meUid);
-  // nessun target: vale per tutti
+  // nessun target: per tutti
   return true;
 }
 
+/* ====== Query mirata del codice (no-cache) ====== */
+async function resolveDiscountByCode(raw){
+  const C_UP = up(raw), C_LO = lo(raw);
+
+  async function tryIn(col, field, value){
+    const qy = query(collection(db,col), where(field,'==', value), limit(1));
+    const snap = await getDocs(qy);
+    if(snap.empty) return null;
+    const n = normalize(snap.docs[0].data()||{});
+    return (n && n.active) ? n : null;
+  }
+
+  // prova code e name in entrambe le collezioni, case-insensitive
+  let d = await tryIn('discounts','code',C_UP) || await tryIn('discounts','code',C_LO)
+        || await tryIn('discounts','name',C_UP) || await tryIn('discounts','name',C_LO);
+  if(d) return d;
+
+  d = await tryIn('discountCodes','code',C_UP) || await tryIn('discountCodes','code',C_LO)
+    || await tryIn('discountCodes','name',C_UP) || await tryIn('discountCodes','name',C_LO);
+  return d;
+}
+
+/* ====== Calcolo sconto ====== */
 function computeDiscountAmount(d, parts){
   if(!d) return 0;
   const allow = allowedSet(d);
@@ -375,54 +375,24 @@ function computeDiscountAmount(d, parts){
   return 0;
 }
 
-function findInCacheByCode(code){
-  const C_UP = up(code), C_LO = lo(code);
-  return allDiscounts.find(d=>{
-    const dc = up(d.code||'');
-    const dl = up(d.label||'');
-    return (dc===C_UP || dc===C_LO || dl===C_UP || dl===C_LO);
-  }) || null;
-}
-async function fetchSingleByCode(code){
-  const C_UP = up(code), C_LO = lo(code);
-  async function tryIn(col, field, value){
-    try{
-      const qy = query(collection(db,col), where(field,'==', value), limit(1));
-      const snap = await getDocs(qy);
-      if(snap.empty) return null;
-      const n = normalize(snap.docs[0].data()||{});
-      return (n && n.active) ? n : null;
-    }catch(e){ console.warn('query failed', col, field, value, e); return null; }
-  }
-  let d = await tryIn('discounts','code',C_UP) || await tryIn('discounts','code',C_LO)
-        || await tryIn('discounts','name',C_UP) || await tryIn('discounts','name',C_LO);
-  if(d) return d;
-  d = await tryIn('discountCodes','code',C_UP) || await tryIn('discountCodes','code',C_LO)
-    || await tryIn('discountCodes','name',C_UP) || await tryIn('discountCodes','name',C_LO);
-  return d;
-}
-
 /* ====== Totali + sconto ====== */
 function render(){
   const parts = subtotalBySku();
   const gross = parts.EB + parts.STD + parts.FAST + parts.VIP;
 
-  // 1) recupera snapshot del codice salvato per QUESTO utente
   const snap = readApplied(); // { code }
-  let applied = null; // discount doc normalizzato idoneo
+  let applied = null;
 
   if(snap?.code){
-    // 2) prova a risolvere il doc reale dalla cache/lista
-    let cand = findInCacheByCode(snap.code);
-    // se non lo trovo in cache (es. appena aggiunto), niente async qui per non bloccare: verrà trovato al prossimo fetch
-    if(cand && eligibleForUser(cand)) applied = cand;
-    else {
-      // se non idoneo o non trovato, rimuovi lo snapshot
+    // Non blocchiamo con fetch; validiamo solo con lo snapshot già risolto in precedenza
+    // e lo scartiamo se non idoneo / non impatta. La conferma reale avviene su apply.
+    applied = snap._resolved && snap._resolved.active ? snap._resolved : null;
+    if(applied && !eligibleForUser(applied)) {
       writeApplied(null);
+      applied = null;
     }
   }
 
-  // 3) calcola sconto SOLO se il doc è idoneo per l'utente
   let disc = 0; let tag=null;
   if(applied){
     disc = computeDiscountAmount(applied, parts);
@@ -439,7 +409,9 @@ function render(){
   if(q.STD>0)  L.push(`<div class="line"><span>${label('STD')} × ${q.STD}</span><span>${money(parts.STD)}</span></div>`);
   if(q.FAST>0) L.push(`<div class="line"><span>${label('FAST')} × ${q.FAST}</span><span>${money(parts.FAST)}</span></div>`);
   if(q.VIP>0)  L.push(`<div class="line"><span>${label('VIP')} × ${q.VIP}</span><span>${money(parts.VIP)}</span></div>`);
-  if(tag)      L.push(`<div class="line" style="color:#22c55e;font-weight:800"><span>Sconto (${tag})</span><span>- ${money(disc)}</span></div>`);
+  if(applied){
+    L.push(`<div class="line" style="color:#22c55e;font-weight:800"><span>Sconto (${tag})</span><span>- ${money(disc)}</span></div>`);
+  }
   if(optName.checked && tCount>0){
     L.push(`<div class="line"><span>Protezione cambio nome × ${tCount}</span><span>${money(prot)}</span></div>`);
   }
@@ -448,11 +420,11 @@ function render(){
   payBtn.disabled = tCount<=0;
 
   discHint.textContent = applied
-    ? (disc>0 ? `Applicato: ${tag}.` : `Codice valido ma non applica sconti ai biglietti scelti.`)
+    ? (disc>0 ? `Applicato: ${tag}.` : `Codice valido, ma non applica sconti ai biglietti selezionati.`)
     : `Inserisci un codice valido`;
 }
 
-/* ====== Bind ====== */
+/* ====== Bind qty ====== */
 function bindQty(){
   document.querySelectorAll('[data-plus]').forEach(b=>{
     b.addEventListener('click',()=>{ const t=document.querySelector(b.getAttribute('data-plus')); t.value=(parseInt(t.value||0)+1); saveCart(); render(); });
@@ -465,30 +437,29 @@ function bindQty(){
   });
 }
 
-/* ====== Applica / rimuovi ====== */
+/* ====== Applica / rimuovi (risoluzione certa) ====== */
 discApply?.addEventListener('click', async ()=>{
-  const code = up(discInput?.value||'');
+  const raw = discInput?.value || '';
+  const code = up(raw);
   if(!code){ alert('Inserisci un codice'); return; }
+  await readyUser;
 
-  // risolvo il codice sulla lista (o lo aggiungerà il prossimo fetch)
-  let cand = findInCacheByCode(code);
-  if(!cand){
-    // opzionale: tentativo singolo (async) – non blocca il render successivo
-    cand = await fetchSingleByCode(code);
-    if(cand) allDiscounts = [cand, ...allDiscounts]; // cache veloce
-  }
-
-  if(!cand || !eligibleForUser(cand)){
-    alert('Codice sconto non valido');
-    writeApplied(null);
+  try{
+    const d = await resolveDiscountByCode(code);
+    if(!d || !eligibleForUser(d)){
+      alert('Codice sconto non valido');
+      writeApplied(null);
+      render();
+      return;
+    }
+    // memorizziamo codice + doc risolto (per evitare secondo fetch a ogni render)
+    writeApplied({ code: d.code, _resolved: d });
+    discInput.value = d.code;
     render();
-    return;
+  }catch(e){
+    console.error('apply discount error', e);
+    alert('Impossibile verificare il codice in questo momento.');
   }
-
-  // Salvo SOLO il codice (non i dettagli) per costringere sempre il controllo idoneità utente
-  writeApplied({ code: cand.code });
-  discInput.value = cand.code;
-  render();
 });
 
 discRemove?.addEventListener('click', ()=>{
@@ -500,7 +471,6 @@ discRemove?.addEventListener('click', ()=>{
 
 /* ====== Init ====== */
 restoreCart();
-await fetchDiscountsList();
 bindQty();
 render();
 
@@ -517,6 +487,7 @@ payBtn.addEventListener('click', ()=>{
   else            location.href = `./attendees-single.html?${qs}`;
 });
 </script>
+
 
 
 </body>
