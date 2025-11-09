@@ -13,6 +13,7 @@
 html,body{height:100%;scroll-behavior:smooth}
 body{background:var(--bg);color:var(--text);font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;line-height:1.5}
 a{color:inherit}
+
 /* NAV */
 header{position:sticky;top:0;z-index:50;backdrop-filter:saturate(140%) blur(6px);background:rgba(0,0,0,.6);border-bottom:1px solid rgba(255,255,255,.08)}
 .nav{max-width:1200px;margin:auto;padding:14px 20px;display:flex;align-items:center;justify-content:space-between}
@@ -20,6 +21,7 @@ header{position:sticky;top:0;z-index:50;backdrop-filter:saturate(140%) blur(6px)
 .brand-badge{width:22px;height:22px;background:var(--accent);transform:skew(-6deg);border-radius:3px}
 nav a, nav span{color:#fff;text-decoration:none;margin-left:18px;font-size:14px;opacity:.95}
 nav a:hover{color:var(--accent)}
+
 /* HERO */
 .hero{min-height:95vh;display:flex;align-items:center;justify-content:center;color:#fff;
 background-image:radial-gradient(60% 60% at 50% 40%, rgba(139,92,246,.18), transparent 60%),
@@ -33,14 +35,13 @@ h1 .accent{color:var(--accent);text-shadow:0 0 16px rgba(139,92,246,.25)}
 .hero p{margin-top:12px;color:rgba(255,255,255,.9);font-size:clamp(16px,2.3vw,18px)}
 .btn{display:inline-block;margin-top:24px;padding:13px 22px;background:var(--accent);color:#000;font-weight:800;border-radius:10px;text-decoration:none}
 .btn.outline{background:transparent;border:1px solid var(--accent);color:#fff}
-.btn.ghost{background:transparent;border:1px solid rgba(255,255,255,.25);color:#fff}
-.btn-row{display:flex;gap:12px;flex-wrap:wrap;margin-top:8px}
-.hide{display:none !important}
+
 /* SECTIONS */
 section{padding:72px 20px;border-top:1px solid rgba(255,255,255,.08)}
 .container{max-width:1100px;margin:auto}
 h2{font-size:32px;font-weight:900;margin-bottom:18px}
 .lead{color:rgba(255,255,255,.78);max-width:760px}
+
 /* EVENTO */
 .event-card{background:linear-gradient(180deg,var(--accent-weak),rgba(255,255,255,.04));border:1px solid rgba(255,255,255,.14);border-radius:18px;padding:28px;display:grid;gap:18px}
 .event-meta{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
@@ -48,12 +49,14 @@ h2{font-size:32px;font-weight:900;margin-bottom:18px}
 .meta-k{font-size:12px;letter-spacing:.6px;text-transform:uppercase;color:rgba(255,255,255,.6)}
 .meta-v{font-weight:900;margin-top:6px}
 @media(max-width:720px){.event-meta{grid-template-columns:1fr}}
+
 /* FAQ */
 .faq{max-width:900px;margin:auto}
 .faq-item{border:1px solid rgba(255,255,255,.15);border-radius:12px;margin:10px 0;overflow:hidden;background:rgba(255,255,255,.04)}
 .faq-q{width:100%;text-align:left;background:transparent;color:#fff;border:none;padding:16px 18px;font-weight:700;cursor:pointer}
 .faq-a{display:none;padding:0 18px 16px 18px;color:rgba(255,255,255,.85)}
 .faq-item.open .faq-a{display:block}
+
 /* FOOTER */
 footer{padding:0;border-top:1px solid rgba(255,255,255,.08)}
 .footer-top{display:grid;grid-template-columns:repeat(12,1fr);gap:18px;max-width:1200px;margin:0 auto;padding:40px 20px}
@@ -87,12 +90,9 @@ footer{padding:0;border-top:1px solid rgba(255,255,255,.08)}
     <div class="kicker">Biella • Trap & Reggaeton</div>
     <h1>TRAPPERREO — <span class="accent">La notte</span> che accende la città</h1>
     <p>Trap, reggaeton e latin vibes. Accesso con prevendita. Energia pura fino all’alba.</p>
-    <div class="btn-row">
-      <a class="btn" id="ctaBuy" href="./login.html?from=./checkout.html">Acquista il tuo biglietto</a>
-      <a class="btn outline" href="#faq">Domande frequenti</a>
-      <!-- compare solo se loggato -->
-      <a class="btn ghost hide" id="ctaAccount" href="./account-2.html">Area personale</a>
-    </div>
+    <a class="btn" id="ctaBuy" href="./login.html?from=./checkout.html">Acquista il tuo biglietto</a>
+    <a class="btn outline" href="#faq">Domande frequenti</a>
+    <a class="btn outline" href="./account-2.html">Area personale</a>
   </div>
 </section>
 
@@ -104,16 +104,16 @@ footer{padding:0;border-top:1px solid rgba(255,255,255,.08)}
         <h3 style="font-size:26px;font-weight:900;margin-bottom:6px;">TRAPPERREO – Opening Night</h3>
         <p class="lead">Trap & reggaeton all night. Stage, laser, visual.</p>
       </div>
+
       <div class="event-meta">
         <div class="meta-box"><div class="meta-k">Data</div><div class="meta-v">Sabato 21 Marzo 2026</div></div>
         <div class="meta-box"><div class="meta-k">Orario</div><div class="meta-v">22:30 → 04:30</div></div>
         <div class="meta-box"><div class="meta-k">Location</div><div class="meta-v">Via Italia 38, Biella</div></div>
       </div>
-      <div class="btn-row">
+
+      <!-- SOLO questo bottone -->
+      <div style="display:flex;gap:12px;flex-wrap:wrap">
         <a class="btn" id="btnBuy2" href="./login.html?from=./checkout.html">Acquista il tuo biglietto</a>
-        <a class="btn outline" href="#faq">Domande frequenti</a>
-        <!-- compare solo se loggato -->
-        <a class="btn ghost hide" id="btnAccount2" href="./account-2.html">Area personale</a>
       </div>
     </div>
   </div>
@@ -146,15 +146,13 @@ footer{padding:0;border-top:1px solid rgba(255,255,255,.08)}
   </div>
 </footer>
 
-<!-- Navbar dinamica + CTA/Area personale -->
+<!-- Navbar dinamica + CTA con Firebase -->
 <script type="module">
 import { onUser, doSignOut } from './auth.v2.js?v=6';
 
 const nav  = document.getElementById('navArea');
 const cta1 = document.getElementById('ctaBuy');
-const cta2 = document.getElementById('btnBuy2');
-const acc1 = document.getElementById('ctaAccount');
-const acc2 = document.getElementById('btnAccount2');
+const cta2 = document.getElementById('btnBuy2'); // può non esserci in futuro
 
 const OUT = `
   <a href="./login.html?from=./checkout.html">Acquista il tuo biglietto</a>
@@ -165,8 +163,8 @@ const IN = (u) => {
   const name = (u.displayName || (u.email ? u.email.split('@')[0] : 'Utente')).split(' ')[0];
   return `
     <span>👋 Ciao, ${name}</span>
-    <a href="./account-2.html">Area personale</a>
     <a href="./checkout.html">Vai al checkout</a>
+    <a href="./account-2.html">Area personale</a>
     <a href="#" id="logoutLink" style="color:#8b5cf6">Logout</a>
   `;
 };
@@ -174,25 +172,18 @@ const IN = (u) => {
 onUser((u)=>{
   if(!u){
     nav.innerHTML = OUT;
-    cta1.href = "./login.html?from=./checkout.html";
-    cta2.href = "./login.html?from=./checkout.html";
-    acc1.classList.add('hide');
-    acc2.classList.add('hide');
+    if (cta1) cta1.href = "./login.html?from=./checkout.html";
+    if (cta2) cta2.href = "./login.html?from=./checkout.html";
   }else{
     nav.innerHTML = IN(u);
-    cta1.href = "./checkout.html";
-    cta2.href = "./checkout.html";
-    acc1.classList.remove('hide');
-    acc2.classList.remove('hide');
-
+    if (cta1) cta1.href = "./checkout.html";
+    if (cta2) cta2.href = "./checkout.html";
     document.getElementById('logoutLink')?.addEventListener('click', async (e)=>{
       e.preventDefault();
       await doSignOut();
       nav.innerHTML = OUT;
-      cta1.href = "./login.html?from=./checkout.html";
-      cta2.href = "./login.html?from=./checkout.html";
-      acc1.classList.add('hide');
-      acc2.classList.add('hide');
+      if (cta1) cta1.href = "./login.html?from=./checkout.html";
+      if (cta2) cta2.href = "./login.html?from=./checkout.html";
     });
   }
 });
