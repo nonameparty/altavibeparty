@@ -27,7 +27,8 @@ h1{font-size:clamp(26px,4vw,36px);font-weight:900;letter-spacing:-.2px;margin-bo
 .card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:18px}
 .card h2{font-size:20px;font-weight:900;margin-bottom:8px}
 
-.empty{border:1px dashed var(--border);border-radius:14px;padding:16px;color:var(--muted)}
+.empty{border:1px dashed var(--border);border-radius:14px;padding:18px}
+.empty h3{font-weight:900;margin-bottom:6px}
 .row{display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center;border:1px solid rgba(255,255,255,.12);background:#0b0b0b;border-radius:12px;padding:12px}
 .ticket-title{font-weight:900}
 .ticket-note{font-size:13px;color:rgba(255,255,255,.88)}
@@ -40,6 +41,10 @@ h1{font-size:clamp(26px,4vw,36px);font-weight:900;letter-spacing:-.2px;margin-bo
 .btn.outline{background:transparent;border:1px solid var(--accent);color:#fff}
 .small{font-size:13px;color:var(--muted)}
 .hr{height:1px;background:rgba(255,255,255,.08);margin:14px 0}
+.list{display:grid;gap:10px}
+.profile-grid{display:grid;grid-template-columns:1fr;gap:8px}
+.profile-row{display:grid;grid-template-columns:140px 1fr;gap:10px}
+.profile-row .k{align-self:center}
 </style>
 </head>
 <body>
@@ -56,7 +61,6 @@ h1{font-size:clamp(26px,4vw,36px);font-weight:900;letter-spacing:-.2px;margin-bo
   <div class="subtitle" id="helloSub">Accesso in corso…</div>
 
   <div class="badges">
-    <span class="badge">Ruolo: <strong id="roleBadge" style="margin-left:6px">—</strong></span>
     <span class="badge">Sab 21 Mar 2026</span>
     <span class="badge">22:30 → 04:30</span>
     <span class="badge">Via Italia 38, Biella</span>
@@ -66,18 +70,29 @@ h1{font-size:clamp(26px,4vw,36px);font-weight:900;letter-spacing:-.2px;margin-bo
     <!-- SINISTRA: biglietti -->
     <section class="card">
       <h2>I tuoi biglietti</h2>
-      <p class="small">Mostra il QR all’ingresso. Se hai attivato la protezione, puoi cambiare nominativo fino a 48h prima.</p>
-      <div id="ticketsList" class="hr" style="margin-top:12px"></div>
+      <p id="ticketsHint" class="small" style="display:none">
+        Mostra il QR all’ingresso. Se hai attivato la protezione, puoi cambiare nominativo fino a 48h prima.
+      </p>
+
+      <div id="ticketsList" class="list" style="margin-top:12px"></div>
+
       <div id="emptyState" class="empty" style="display:none">
-        Nessun biglietto attivo al momento.
-        <div style="margin-top:10px"><a class="btn" href="./checkout.html">Compra un biglietto</a></div>
+        <h3>Compra ora il tuo biglietto</h3>
+        <p class="small">Scegli la prevendita e blocca l’ingresso alla serata.</p>
+        <div style="margin-top:10px"><a class="btn" href="./checkout.html">Acquista</a></div>
       </div>
     </section>
 
     <!-- DESTRA: profilo -->
     <aside class="card">
       <h2>Profilo</h2>
-      <div id="profileBox" class="small">Caricamento profilo…</div>
+      <div id="profileBox">
+        <div class="profile-grid">
+          <div class="profile-row"><div class="k">Nome e cognome</div><div class="v" id="pfName">—</div></div>
+          <div class="profile-row"><div class="k">Data di nascita</div><div class="v" id="pfDob">—</div></div>
+          <div class="profile-row"><div class="k">Email</div><div class="v" id="pfEmail">—</div></div>
+        </div>
+      </div>
       <div class="hr"></div>
       <a class="btn" href="./checkout.html">Compra un altro biglietto</a>
       <a class="btn outline" href="./account.html" style="margin-left:8px">Versione classica</a>
@@ -85,9 +100,9 @@ h1{font-size:clamp(26px,4vw,36px);font-weight:900;letter-spacing:-.2px;margin-bo
   </div>
 </main>
 
-<!-- Firebase (riuso auth + Firestore moduli) -->
+<!-- Firebase: riuso del tuo modulo -->
 <script type="module">
-import { onUser, doSignOut, app } from './auth.v2.js?v=3'; // il tuo modulo esistente (inizializza Firebase + auth)
+import { onUser, doSignOut, app } from './auth.v2.js?v=3';
 import {
   getFirestore, doc, getDoc, setDoc, serverTimestamp,
   collection, query, where, getDocs
@@ -97,7 +112,12 @@ const db   = getFirestore(app);
 const nav  = document.getElementById('navArea');
 const hello= document.getElementById('hello');
 const helloSub = document.getElementById('helloSub');
-const roleBadge = document.getElementById('roleBadge');
+
+const pfName = document.getElementById('pfName');
+const pfDob  = document.getElementById('pfDob');
+const pfEmail= document.getElementById('pfEmail');
+
+const ticketsHint = document.getElementById('ticketsHint');
 const ticketsList = document.getElementById('ticketsList');
 const emptyState  = document.getElementById('emptyState');
 
@@ -105,6 +125,13 @@ const OUT = `<a href="./login.html?from=./account-2.html">Accedi</a> <a href="./
 const IN  = (u)=>`<span>👋 Ciao, <strong>${(u.displayName||u.email||'Utente').split(' ')[0]}</strong></span>
                   <a href="./checkout.html">Vai al checkout</a>
                   <a href="#" id="logoutLink" style="color:#8b5cf6">Logout</a>`;
+
+function fmtDOB(iso){
+  if(!iso) return '—';
+  const d = new Date(iso);
+  if(isNaN(d.getTime())) return iso;
+  return d.toLocaleDateString('it-IT',{day:'2-digit',month:'2-digit',year:'numeric'});
+}
 
 onUser(async (u)=>{
   if(!u){ nav.innerHTML=OUT; location.href='./login.html?from=./account-2.html'; return; }
@@ -114,51 +141,50 @@ onUser(async (u)=>{
   hello.textContent   = `Il tuo account`;
   helloSub.innerHTML  = `Ciao, <strong>${(u.displayName||u.email||'Utente').split(' ')[0]}</strong> — ecco i tuoi biglietti.`;
 
-  // 1) USERS/{uid}: crea se manca, non esponiamo controlli per cambiare ruolo
+  // USERS/{uid}: leggi (crea se manca con dati base)
   const uref = doc(db, 'users', u.uid);
   const usnap = await getDoc(uref);
-  let role = 'customer';
+  let firstName = '', lastName = '', dob = '';
   if(!usnap.exists()){
+    // prova a separare il displayName in nome/cognome
+    const parts = (u.displayName||'').trim().split(' ');
+    firstName = parts[0] || '';
+    lastName  = parts.slice(1).join(' ') || '';
     await setDoc(uref, {
       uid: u.uid,
       email: u.email || '',
-      displayName: u.displayName || '',
-      role: 'customer',
+      firstName, lastName, dob: '',
       createdAt: serverTimestamp()
-    });
-  }else{
-    role = usnap.data().role || 'customer';
+    }, { merge: true });
+  } else {
+    const d = usnap.data();
+    firstName = d.firstName || '';
+    lastName  = d.lastName  || '';
+    dob       = d.dob       || '';
   }
-  roleBadge.textContent = role;
 
-  // 2) ORDINI dell'utente
+  pfName.textContent  = (firstName || lastName) ? `${firstName} ${lastName}`.trim() : (u.displayName || '—');
+  pfDob.textContent   = fmtDOB(dob);
+  pfEmail.textContent = u.email || '—';
+
+  // ORDERS dell'utente
   const q = query(collection(db, 'orders'), where('uid','==',u.uid));
   const os = await getDocs(q);
 
   if(os.empty){
-    emptyState.style.display = 'block';
+    ticketsHint.style.display = 'none';
+    emptyState.style.display  = 'block';
     ticketsList.innerHTML = '';
     return;
   }
 
-  // Render: per ogni ordine, mostra ticket della subcollection
+  // Render tickets
   let html = '';
+  let anyTicket = false;
   for (const o of os.docs){
-    const odata = o.data();
-    html += `<div class="small" style="margin:8px 0 6px;color:rgba(255,255,255,.7)">
-               <span class="k">Ordine</span> <span class="v">${o.id.slice(0,8)}</span>
-               • <span class="k">Stato</span> <span class="v">${odata.status||'created'}</span>
-             </div>`;
-
-    // carica tickets
     const tsQ = await getDocs(collection(db,'orders',o.id,'tickets'));
-    if(tsQ.empty){
-      html += `<div class="row"><div><div class="ticket-title">Nessun ticket</div>
-               <div class="ticket-note">L'ordine non contiene biglietti.</div></div>
-               <div class="ticket-right"><div class="qr">QR</div></div></div>`;
-      continue;
-    }
     tsQ.forEach(t=>{
+      anyTicket = true;
       const d=t.data();
       const map = {EB:'Early Bird', STD:'Standard', FAST:'Fast Entry', VIP:'VIP Entry'};
       const title = map[d.type] || d.type;
@@ -169,20 +195,22 @@ onUser(async (u)=>{
         <div class="row">
           <div>
             <div class="ticket-title">${title}</div>
-            <div class="ticket-note">
-              Intestatario: <strong>${holder||'—'}</strong> • ${mail||'—'}${prot}
-            </div>
+            <div class="ticket-note">Intestatario: <strong>${holder||'—'}</strong> • ${mail||'—'}${prot}</div>
           </div>
-          <div class="ticket-right">
-            <!-- Placeholder QR (lo implementiamo quando generiamo i codici) -->
-            <div class="qr">QR</div>
-          </div>
+          <div class="ticket-right"><div class="qr">QR</div></div>
         </div>`;
     });
-    html += `<div class="hr"></div>`;
   }
-  emptyState.style.display = 'none';
-  ticketsList.innerHTML = html;
+
+  if(anyTicket){
+    ticketsHint.style.display = 'block';
+    emptyState.style.display  = 'none';
+    ticketsList.innerHTML = html || '';
+  }else{
+    ticketsHint.style.display = 'none';
+    emptyState.style.display  = 'block';
+    ticketsList.innerHTML = '';
+  }
 });
 </script>
 </body>
