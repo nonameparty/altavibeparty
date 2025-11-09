@@ -21,11 +21,13 @@ h1{font-size:28px;font-weight:900;letter-spacing:-.2px;margin-bottom:10px}
 label{display:block;margin:6px 0 4px}
 input{width:100%;background:#0f0f10;border:1px solid var(--border);border-radius:10px;color:#fff;padding:10px}
 .ticket{background:#0b0b0b;border:1px solid rgba(255,255,255,.14);border-radius:12px;padding:12px;margin:10px 0}
+.ticket .use-me{display:flex;align-items:center;gap:10px;margin-top:8px;background:rgba(139,92,246,.12);border:1px solid rgba(139,92,246,.45);border-radius:10px;padding:10px}
+.use-me input{accent-color:var(--accent)}
 .small{font-size:13px;color:var(--muted)}
 .btn{display:inline-block;padding:12px 16px;border-radius:10px;background:var(--accent);color:#000;font-weight:900;border:none;cursor:pointer}
 .btn.ghost{background:transparent;border:1px solid var(--border);color:#fff}
 .save{color:var(--ok);font-weight:800}
-.err{border-color:var(--danger) !important;box-shadow:0 0 0 2px rgba(239,68,68,.25)}
+.err{border-color:#ef4444 !important;box-shadow:0 0 0 2px rgba(239,68,68,.25)}
 </style>
 </head>
 <body>
@@ -37,15 +39,6 @@ input{width:100%;background:#0f0f10;border:1px solid var(--border);border-radius
     <section class="card">
       <div class="sectionTitle">Inserisci i nominativi</div>
       <div id="tickets"></div>
-
-      <div class="card" style="margin-top:10px">
-        <div class="sectionTitle" style="margin-bottom:6px">Attenzione</div>
-        <div class="small">
-          I nominativi devono coincidere con il documento d’identità mostrato all’ingresso.
-          Ogni amico riceverà la prevendita via email. La <strong>Protezione cambio nome</strong>
-          (se attiva nel checkout) consente <strong>1 cambio</strong> fino a 48h prima dell’evento.
-        </div>
-      </div>
     </section>
 
     <!-- DESTRA: riepilogo -->
@@ -58,6 +51,12 @@ input{width:100%;background:#0f0f10;border:1px solid var(--border);border-radius
       <div class="hr"></div>
       <div class="row total"><div>Totale (IVA inclusa)</div><div id="grand">0€</div></div>
 
+      <div class="small" style="margin-top:10px">
+        Se un amico non è ancora registrato, potrà farlo dopo l’acquisto:
+        gli invieremo un link e i biglietti saranno già visibili nella sua area personale.
+        La <strong>Protezione cambio nome</strong> (se attiva) consente 1 cambio fino a 48h dall’evento.
+      </div>
+
       <div style="display:flex;gap:10px;margin-top:14px;justify-content:flex-end">
         <button class="btn ghost" id="back">Indietro</button>
         <button class="btn" id="pay">Paga ora</button>
@@ -67,6 +66,9 @@ input{width:100%;background:#0f0f10;border:1px solid var(--border);border-radius
 </main>
 
 <script type="module">
+/* ======= Import utente per “Usa i miei dati” ======= */
+import { onUser } from './auth.v2.js?v=6';
+
 /* ======= Config prezzi (come checkout) ======= */
 const PRICE = { EB:12, STD:15, FAST:20, VIP:25, NAMECHANGE:1.90, STD3:40 };
 
@@ -87,15 +89,11 @@ function readDiscountSnapshot(){
 function normalizeDiscount(d){
   if(!d) return null;
   const out = {
-    code: (d.code||d.Code||d.name||'').toString().trim(),
-    type: (d.type||d.kind||'').toString().toLowerCase(),  // 'percent' | 'fixed'
-    value: Number(d.value ?? d.amount ?? 0),
-    active: (d.active ?? d.enabled ?? true) === true,
-    scope: (d.scope||'all'),
-    userEmail: (d.userEmail||d.email||'')?.toLowerCase?.() || '',
-    allowedSkus: Array.isArray(d.allowedSkus)? d.allowedSkus
-                 : Array.isArray(d.skus)? d.skus
-                 : null
+    code:(d.code||d.name||'').toString().trim(),
+    type:(d.type||'').toString().toLowerCase(),
+    value:Number(d.value ?? d.amount ?? 0),
+    active:(d.active ?? d.enabled ?? true)===true,
+    allowedSkus:Array.isArray(d.allowedSkus)?d.allowedSkus:(Array.isArray(d.skus)?d.skus:null)
   };
   if(!out.code || !out.active || !out.type || !(out.value>0)) return null;
   return out;
@@ -110,10 +108,20 @@ const qty = {
 };
 const nameProt = (+(qs.get('nc')||0) || (readCart().nc|0)) === 1;
 
-/* ======= UI generazione nominativi ======= */
+/* ======= UI generazione nominativi (+ “Usa i miei dati”) ======= */
 const list = $('#tickets');
 const order = [['EB','Early Bird'],['STD','Standard'],['FAST','Fast Entry'],['VIP','VIP Entry']];
 const rows=[];
+let me = { first:'', last:'', email:'' };
+
+onUser(u=>{
+  if(!u) return;
+  const parts=(u.displayName||'').trim().split(' ');
+  me.first = parts[0] || '';
+  me.last  = parts.slice(1).join(' ') || '';
+  me.email = (u.email||'');
+});
+
 for(const [sku,label] of order){
   const n = qty[sku]||0; for(let i=0;i<n;i++){
     const el=document.createElement('div'); el.className='ticket'; el.dataset.sku=sku;
@@ -125,7 +133,14 @@ for(const [sku,label] of order){
       </div>
       <label style="margin-top:6px">Email</label>
       <input class="em" type="email" placeholder="email@email.it">
+      <label class="use-me"><input type="checkbox" class="useCheck"> <strong>Usa i miei dati per questo biglietto</strong></label>
     `;
+    // bind “use my data”
+    el.querySelector('.useCheck').addEventListener('change', (e)=>{
+      const fn=el.querySelector('.fn'), ln=el.querySelector('.ln'), em=el.querySelector('.em');
+      if(e.target.checked){ fn.value=me.first; ln.value=me.last; em.value=me.email; [fn,ln,em].forEach(i=>i.classList.remove('err')); }
+      else { fn.value=''; ln.value=''; em.value=''; }
+    });
     list.appendChild(el); rows.push(el);
   }
 }
@@ -148,16 +163,14 @@ function subtotalBySku(){
 function computeTotals(){
   const parts = subtotalBySku();
   const gross = parts.EB + parts.STD + parts.FAST + parts.VIP;
-
   const dSnap = normalizeDiscount(readDiscountSnapshot());
   const allowed = dSnap?.allowedSkus || ['EB','STD','FAST','VIP'];
 
-  // base imponibile scontabile = somma dei soli SKU consentiti
   const baseDisc =
-      (allowed.includes('EB')   ? parts.EB   : 0) +
-      (allowed.includes('STD')  ? parts.STD  : 0) +
-      (allowed.includes('FAST') ? parts.FAST : 0) +
-      (allowed.includes('VIP')  ? parts.VIP  : 0);
+    (allowed.includes('EB')  ? parts.EB  : 0) +
+    (allowed.includes('STD') ? parts.STD : 0) +
+    (allowed.includes('FAST')? parts.FAST: 0) +
+    (allowed.includes('VIP') ? parts.VIP : 0);
 
   let disc = 0;
   if(dSnap){
@@ -167,14 +180,13 @@ function computeTotals(){
 
   const ticketsCount = (qty.EB|0)+(qty.STD|0)+(qty.FAST|0)+(qty.VIP|0);
   const prot = nameProt ? ticketsCount*PRICE.NAMECHANGE : 0;
-
   const net = Math.max(0, gross - disc) + prot;
+
   return { parts, gross, disc, prot, net, dSnap, ticketsCount };
 }
 
 /* ======= Rendering ======= */
 function label(k){ return {EB:'Early Bird',STD:'Standard',FAST:'Fast Entry',VIP:'VIP Entry'}[k] || k; }
-
 function render(){
   const L = $('#lines');
   const {parts,disc,prot,net,dSnap} = computeTotals();
@@ -183,12 +195,10 @@ function render(){
   if(qty.STD>0)  lines.push(`<div class="row"><div>${label('STD')} × ${qty.STD}</div><div>${money(parts.STD)}</div></div>`);
   if(qty.FAST>0) lines.push(`<div class="row"><div>${label('FAST')} × ${qty.FAST}</div><div>${money(parts.FAST)}</div></div>`);
   if(qty.VIP>0)  lines.push(`<div class="row"><div>${label('VIP')} × ${qty.VIP}</div><div>${money(parts.VIP)}</div></div>`);
-
-  if(dSnap && disc>0){
-    lines.push(`<div class="row save"><div>Sconto (${dSnap.code})</div><div>-${money(disc)}</div></div>`);
-  }
+  if(dSnap){ lines.push(`<div class="row save"><div>Sconto (${dSnap.code})</div><div>-${money(disc)}</div></div>`); }
   if(nameProt){
-    lines.push(`<div class="row"><div>Protezione cambio nome × ${(qty.EB|0)+(qty.STD|0)+(qty.FAST|0)+(qty.VIP|0)}</div><div>${money(prot)}</div></div>`);
+    const t = (qty.EB|0)+(qty.STD|0)+(qty.FAST|0)+(qty.VIP|0);
+    lines.push(`<div class="row"><div>Protezione cambio nome × ${t}</div><div>${money(prot)}</div></div>`);
   }
   L.innerHTML = lines.join('');
   $('#grand').textContent = money(net);
