@@ -22,7 +22,8 @@ input,select{background:#0f0f10;border:1px solid var(--border);border-radius:10p
 .notice{display:none;margin:10px 0;padding:12px;border-radius:10px;background:#0e2a14;border:1px solid #34d399;color:#c6f6d5}
 .err{display:none;margin:10px 0;padding:12px;border-radius:10px;background:#2a0e0e;border:1px solid #ff6b6b;color:#ffdede}
 .badge{display:inline-block;font-size:12px;border:1px solid var(--border);border-radius:999px;padding:3px 8px}
-.toggle{display:flex;gap:10px;margin-top:10px;align-items:center}
+.state{font-weight:900}
+.tag{display:inline-block;padding:3px 8px;border-radius:8px;border:1px solid var(--border);font-size:12px;margin-right:6px}
 </style>
 </head>
 <body>
@@ -31,7 +32,7 @@ input,select{background:#0f0f10;border:1px solid var(--border);border-radius:10p
     <h1>Crea codice sconto</h1>
     <a class="btn ghost" href="./founder.html">← Torna al pannello</a>
   </div>
-  <div class="muted">Genera un codice sconto. Il codice digitato viene salvato **solo come hash** in Firestore.</div>
+  <div class="muted">Il codice digitato viene salvato <strong>solo come hash</strong> in Firestore. La validazione avviene in scrittura ordine tramite regole.</div>
 
   <section class="card">
     <div class="row">
@@ -59,7 +60,7 @@ input,select{background:#0f0f10;border:1px solid var(--border);border-radius:10p
       </div>
     </div>
 
-    <div class="toggle">
+    <div style="display:flex;gap:10px;align-items:center;margin-top:10px">
       <label><input id="scopeAll" name="scope" type="radio" value="all" checked> Per tutti</label>
       <label><input id="scopeUser" name="scope" type="radio" value="user"> Per persona</label>
       <span class="badge" id="selBadge" style="display:none"></span>
@@ -80,33 +81,56 @@ input,select{background:#0f0f10;border:1px solid var(--border);border-radius:10p
       <div style="margin-top:10px">
         <button id="btnSearch" class="btn">Cerca</button>
       </div>
-      <table class="table" id="tbl">
+      <table class="table" id="tblUsers">
         <thead><tr><th>Nome</th><th>Email</th><th>UID</th><th></th></tr></thead>
         <tbody></tbody>
       </table>
     </div>
 
-    <div id="ok" class="notice"></div>
-    <div id="err" class="err"></div>
-
     <div style="margin-top:12px;display:flex;gap:10px;justify-content:flex-end">
       <button id="btnCreate" class="btn">Crea codice</button>
     </div>
+
+    <div id="ok" class="notice"></div>
+    <div id="err" class="err"></div>
+  </section>
+
+  <!-- LISTA SCONTI -->
+  <section class="card">
+    <div style="display:flex;justify-content:space-between;align-items:center;gap:10px">
+      <h2>Sconti</h2>
+      <button id="btnReload" class="btn ghost">Ricarica</button>
+    </div>
+    <table class="table" id="tblDisc">
+      <thead>
+        <tr>
+          <th>Stato</th>
+          <th>Label</th>
+          <th>Tipo/Valore</th>
+          <th>Ambito</th>
+          <th>Hash</th>
+          <th>Azioni</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+    <div class="muted" id="empty" style="display:none;margin-top:8px">Nessuno sconto.</div>
   </section>
 </main>
 
 <script type="module">
-import { app, onUser, isFounderClient, createDiscountCode } from './auth.v2.js?v=6';
-import { getFirestore, collection, getDocs } from 'https://www.gstatic.com/firebasejs/12.5.0/firebase-firestore.js';
+import {
+  app, onUser, isFounderClient, createDiscountCode,
+  listDiscountCodes, setDiscountActive
+} from './auth.v2.js?v=6';
+import {
+  getFirestore, collection, getDocs
+} from 'https://www.gstatic.com/firebasejs/12.5.0/firebase-firestore.js';
 
 const db = getFirestore(app);
-const $ = s => document.querySelector(s);
-const tbody = $('#tbl tbody');
+const $  = s => document.querySelector(s);
 
-let selectedUser = null;
-
-function lc(s){ return (s||'').toString().trim().toLowerCase(); }
-
+// --- guardia: solo founder ---
 async function guardFounder(){
   const u = await new Promise(res=>onUser(res));
   if(!u){ location.href='./login.html?from=./founder-discount.html'; return null; }
@@ -115,7 +139,37 @@ async function guardFounder(){
   return u;
 }
 
-function renderRows(users){
+// === UI: scope & ricerca utente ===
+let selectedUser = null;
+function lc(s){ return (s||'').toString().trim().toLowerCase(); }
+function toggleScopeUI(){
+  const isUser = $('#scopeUser').checked;
+  $('#userBlock').style.display = isUser ? 'block' : 'none';
+  if(!isUser){ selectedUser=null; $('#selBadge').style.display='none'; }
+}
+$('#scopeAll').addEventListener('change', toggleScopeUI);
+$('#scopeUser').addEventListener('change', toggleScopeUI);
+
+async function searchUsers(){
+  const qE = lc($('#qEmail').value);
+  const qN = lc($('#qName').value);
+  const snap = await getDocs(collection(db,'users'));
+  const out = [];
+  snap.forEach(d=>{
+    const v = d.data()||{};
+    const email = lc(v.email);
+    const name  = lc(v.name_lc || v.name);
+    if (qE && email.includes(qE)) out.push({ uid:d.id, ...v });
+    else if (qN && (name.startsWith(qN) || name.includes(qN))) out.push({ uid:d.id, ...v });
+  });
+  renderUserRows(out.slice(0,100));
+}
+$('#btnSearch').addEventListener('click', searchUsers);
+$('#qEmail').addEventListener('keydown', e=>{ if(e.key==='Enter') searchUsers(); });
+$('#qName').addEventListener('keydown', e=>{ if(e.key==='Enter') searchUsers(); });
+
+function renderUserRows(users){
+  const tbody = $('#tblUsers tbody');
   tbody.innerHTML = '';
   users.forEach(u=>{
     const tr = document.createElement('tr');
@@ -137,36 +191,7 @@ function renderRows(users){
   });
 }
 
-async function search(){
-  const qE = lc($('#qEmail').value);
-  const qN = lc($('#qName').value);
-  const snap = await getDocs(collection(db,'users'));
-  const out = [];
-  snap.forEach(d=>{
-    const v = d.data()||{};
-    const email = lc(v.email);
-    const name  = lc(v.name_lc || v.name);
-    if (qE && email.includes(qE)) out.push({ uid:d.id, ...v });
-    else if (qN && (name.startsWith(qN) || name.includes(qN))) out.push({ uid:d.id, ...v });
-  });
-  renderRows(out.slice(0,100));
-}
-
-function toggleScopeUI(){
-  const isUser = $('#scopeUser').checked;
-  $('#userBlock').style.display = isUser ? 'block' : 'none';
-  if(!isUser){
-    selectedUser = null;
-    $('#selBadge').style.display = 'none';
-  }
-}
-
-$('#scopeAll').addEventListener('change', toggleScopeUI);
-$('#scopeUser').addEventListener('change', toggleScopeUI);
-$('#btnSearch').addEventListener('click', search);
-$('#qEmail').addEventListener('keydown', e=>{ if(e.key==='Enter') search(); });
-$('#qName').addEventListener('keydown', e=>{ if(e.key==='Enter') search(); });
-
+// === CREA CODICE ===
 $('#btnCreate').addEventListener('click', async ()=>{
   $('#ok').style.display='none'; $('#err').style.display='none';
   try{
@@ -182,18 +207,19 @@ $('#btnCreate').addEventListener('click', async ()=>{
     if(scope==='user' && !selectedUser) throw new Error('Seleziona l’utente per il codice personale.');
 
     await createDiscountCode({
-      plainCode: code,
-      label,
-      type,
-      amount,
-      appliesTo: scope,
-      userId: scope==='user' ? selectedUser.uid : undefined
+      plainCode: code, label, type, amount,
+      appliesTo: scope, userId: scope==='user' ? selectedUser.uid : undefined
     });
 
     $('#ok').textContent = scope==='all'
       ? 'Codice creato (per tutti) ✓ — hash salvato in Firestore'
       : `Codice personale creato per ${selectedUser.name || selectedUser.email} ✓`;
     $('#ok').style.display='block';
+
+    // pulizia campi essenziali e refresh tabella
+    $('#code').value=''; $('#label').value='';
+    $('#amount').value='';
+    await reloadDiscounts();
   }catch(e){
     console.error(e);
     $('#err').textContent = e.message || 'Creazione codice fallita (permessi/regole?).';
@@ -201,8 +227,66 @@ $('#btnCreate').addEventListener('click', async ()=>{
   }
 });
 
+// === LISTA SCONTI (attivi + non) ===
+$('#btnReload').addEventListener('click', reloadDiscounts);
+
+function renderDiscounts(list){
+  const tbody = $('#tblDisc tbody');
+  const empty = $('#empty');
+  tbody.innerHTML = '';
+  empty.style.display = list.length ? 'none' : 'block';
+
+  list.forEach(d=>{
+    const tr = document.createElement('tr');
+    const ambito = d.appliesTo === 'user'
+      ? `<span class="tag">per persona</span><span class="small">${d.userId}</span>`
+      : `<span class="tag">per tutti</span>`;
+
+    const stato = d.active ? '<span class="state" style="color:#22c55e">ATTIVO</span>'
+                           : '<span class="state" style="color:#f59e0b">DISATTIVO</span>';
+
+    tr.innerHTML = `
+      <td>${stato}</td>
+      <td>${d.label || '—'}</td>
+      <td>${(d.type||'—')} / ${(d.amount??'—')}</td>
+      <td>${ambito}</td>
+      <td class="small" style="max-width:260px;overflow:hidden;text-overflow:ellipsis">${d.id}</td>
+      <td>
+        <button class="btn ghost" data-toggle="${d.id}" data-active="${d.active ? '1':'0'}">
+          ${d.active ? 'Disattiva' : 'Attiva'}
+        </button>
+      </td>
+    `;
+    tbody.appendChild(tr);
+  });
+
+  tbody.querySelectorAll('[data-toggle]').forEach(b=>{
+    b.addEventListener('click', async ()=>{
+      const id = b.getAttribute('data-toggle');
+      const cur = b.getAttribute('data-active') === '1';
+      try{
+        b.disabled = true; b.textContent = 'Aggiorno…';
+        await setDiscountActive(id, !cur);
+        await reloadDiscounts();
+      }catch(e){
+        console.error(e);
+        alert('Errore: impossibile aggiornare lo stato del codice.');
+      }finally{
+        b.disabled = false;
+      }
+    });
+  });
+}
+
+async function reloadDiscounts(){
+  const list = await listDiscountCodes();
+  renderDiscounts(list);
+}
+
+// boot
 toggleScopeUI();
 await guardFounder();
+await reloadDiscounts();
 </script>
 </body>
 </html>
