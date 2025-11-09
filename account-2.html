@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>Il tuo account — TRAPPERREO</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&display=swap" rel="stylesheet" />
 <style>
 :root{--accent:#8b5cf6;--border:rgba(255,255,255,.12);--muted:rgba(255,255,255,.78)}
 *{box-sizing:border-box;margin:0;padding:0}
@@ -106,14 +106,14 @@ input{background:#0f0f10;border:1px solid var(--border);border-radius:10px;color
     </aside>
   </div>
 
-  <!-- Founder panel (UI gating) -->
+  <!-- Founder panel -->
   <aside id="founderBox" class="card hidden" style="margin-top:16px">
     <span class="badge-admin">Founder</span>
     <h2>Pannello Founder</h2>
     <div id="founderHello" class="muted" style="margin-bottom:12px"></div>
     <div style="display:grid;gap:10px;grid-template-columns:repeat(2, minmax(200px, 1fr))">
-      <a class="btn" href="./founder-users.html" style="text-align:center">Gestione utenti</a>
-      <a class="btn" href="./founder-stats.html" style="text-align:center">Statistiche & guadagni</a>
+      <a class="btn" href="./founder.html" style="text-align:center">Apri pannello</a>
+      <a class="btn" href="./checkout.html" style="text-align:center">Nuovo ordine</a>
     </div>
   </aside>
 </main>
@@ -124,13 +124,13 @@ input{background:#0f0f10;border:1px solid var(--border);border-radius:10px;color
     <h3>Modifica profilo</h3>
     <div class="grid">
       <label>Nome e cognome
-        <input id="inpName" placeholder="Es. Mario Rossi">
+        <input id="inpName" placeholder="Es. Mario Rossi" />
       </label>
       <label>Data di nascita
-        <input id="inpDob" type="date">
+        <input id="inpDob" type="date" />
       </label>
       <label>Email (non modificabile)
-        <input id="inpEmail" disabled>
+        <input id="inpEmail" disabled />
       </label>
     </div>
     <div class="modal-actions">
@@ -147,7 +147,6 @@ input{background:#0f0f10;border:1px solid var(--border);border-radius:10px;color
     getFirestore, doc, getDoc, setDoc, collection, getDocs, serverTimestamp
   } from 'https://www.gstatic.com/firebasejs/12.5.0/firebase-firestore.js';
 
-  // ---- NAV dinamica (come index) ----
   const nav  = document.getElementById('navArea');
   const OUT  = `
     <a href="./login.html?from=./account-2.html">Acquista il tuo biglietto</a>
@@ -160,21 +159,16 @@ input{background:#0f0f10;border:1px solid var(--border);border-radius:10px;color
     <a href="#" id="logoutLink" style="color:#8b5cf6">Logout</a>
   `;
 
-  // ---- UI refs ----
   const hello = document.getElementById('hello');
   const title = document.getElementById('title');
-
   const vName = document.getElementById('vName');
   const vDob  = document.getElementById('vDob');
   const vEmail= document.getElementById('vEmail');
-
   const ticketsWrap = document.getElementById('tickets');
   const ticketsEmpty= document.getElementById('ticketsEmpty');
-
   const founderBox   = document.getElementById('founderBox');
   const founderHello = document.getElementById('founderHello');
 
-  // Modal refs
   const modal   = document.getElementById('modal');
   const btnEdit = document.getElementById('btnEdit');
   const mCancel = document.getElementById('mCancel');
@@ -185,11 +179,9 @@ input{background:#0f0f10;border:1px solid var(--border);border-radius:10px;color
 
   const db = getFirestore(app);
 
-  // util
   const asDateStr = (dob) => {
     try {
       if(!dob) return '—';
-      // accetta 'YYYY-MM-DD' o Timestamp ISO
       if (/^\d{4}-\d{2}-\d{2}$/.test(dob)) return dob;
       const d = new Date(dob);
       if (isNaN(d)) return '—';
@@ -200,10 +192,7 @@ input{background:#0f0f10;border:1px solid var(--border);border-radius:10px;color
   function openModal(){ modal.style.display='flex'; modal.setAttribute('aria-hidden','false'); }
   function closeModal(){ modal.style.display='none'; modal.setAttribute('aria-hidden','true'); }
 
-  // carica biglietti (MVP)
   async function loadTickets(uid){
-    // Se hai già una collection: tickets dove ogni doc ha {ownerUid, type, qr, status}
-    // qui leggiamo i ticket dell'utente. In mancanza, fallback al localStorage demo.
     try{
       const qSnap = await getDocs(collection(db, 'users', uid, 'tickets'));
       if(qSnap.empty){
@@ -224,17 +213,23 @@ input{background:#0f0f10;border:1px solid var(--border);border-radius:10px;color
       });
       ticketsWrap.innerHTML = frags.join('');
     }catch(e){
-      // se non esiste la subcollection, mostriamo il CTA
       ticketsWrap.innerHTML = '';
       ticketsEmpty.classList.remove('hidden');
     }
   }
 
-  // main
+  // --- founder helper: legge config/admins (mappa founders: {email:true})
+  async function isFounder(email){
+    try{
+      const snap = await getDoc(doc(db,'config','admins'));
+      const founders = snap.exists() ? (snap.data().founders || {}) : {};
+      return !!founders[email];
+    }catch(_){ return false; }
+  }
+
   onUser(async (u)=>{
     if(!u){
       nav.innerHTML = OUT;
-      // Protezione pagina
       const back = encodeURIComponent(location.pathname + location.search);
       location.href = `./login.html?from=${back}`;
       return;
@@ -247,39 +242,40 @@ input{background:#0f0f10;border:1px solid var(--border);border-radius:10px;color
     title.textContent = 'Il tuo account';
     hello.innerHTML = `Ciao, <strong>${(u.displayName || u.email || 'Utente').split(' ')[0]}</strong>`;
 
-    // profilo da Firestore
+    // profilo
     const docRef = doc(db, 'users', u.uid);
     const snap   = await getDoc(docRef);
-    const data   = snap.exists() ? snap.data() : {};
-
-    // fallback: se manca, crea base
+    let data;
     if(!snap.exists()){
       await setDoc(docRef, {
+        uid: u.uid,
         email: u.email || '',
         name:  u.displayName || '',
         dob:   '',
         role:  'customer',
         status:'active',
+        createdAt: serverTimestamp(),
         updatedAt: serverTimestamp()
       }, { merge:true });
+      data = (await getDoc(docRef)).data() || {};
+    }else{
+      data = snap.data() || {};
     }
 
-    // mostra valori
     vName.textContent  = data.name  || (u.displayName || '—');
     vDob.textContent   = asDateStr(data.dob || '');
     vEmail.textContent = data.email || u.email || '—';
-
-    // modal preload
     inpName.value  = data.name  || (u.displayName || '');
     inpDob.value   = asDateStr(data.dob || '');
     inpEmail.value = data.email || u.email || '';
 
-    // tickets
     await loadTickets(u.uid);
 
-    // founder gating
+    // founder gating: ruolo o presenza in config/admins
     const role = (data.role || 'customer');
-    if(role === 'founder'){
+    const founderByConfig = await isFounder(u.email || '');
+    const isFndr = (role === 'founder') || founderByConfig;
+    if(isFndr){
       founderBox.classList.remove('hidden');
       founderHello.textContent = `Ciao ${data.name || (u.displayName || u.email)}, puoi gestire utenti e statistiche.`;
     }else{
@@ -287,13 +283,11 @@ input{background:#0f0f10;border:1px solid var(--border);border-radius:10px;color
     }
   });
 
-  // Edit handlers
   btnEdit.addEventListener('click', openModal);
   mCancel.addEventListener('click', closeModal);
   mSave.addEventListener('click', async ()=>{
-    // validazioni minime
     const name = inpName.value.trim();
-    const dob  = inpDob.value; // YYYY-MM-DD
+    const dob  = inpDob.value;
     if(!name){ alert('Inserisci nome e cognome.'); return; }
 
     const user = await new Promise(res=>onUser(res));
@@ -306,10 +300,8 @@ input{background:#0f0f10;border:1px solid var(--border);border-radius:10px;color
       updatedAt: serverTimestamp()
     }, { merge:true });
 
-    // aggiorna UI
     vName.textContent = name;
     vDob.textContent  = asDateStr(dob);
-
     closeModal();
   });
 </script>
