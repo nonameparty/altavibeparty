@@ -2,162 +2,105 @@
 <html lang="it">
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Ultimo passaggio — TRAPPERREO</title>
+<title>Assegna nominativo — 1 biglietto</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#000;--text:#fff;--accent:#8b5cf6;--border:rgba(255,255,255,.12);--card:rgba(255,255,255,.06);--muted:rgba(255,255,255,.78)}
+:root{--accent:#8b5cf6;--border:rgba(255,255,255,.12);--card:rgba(255,255,255,.06);--muted:rgba(255,255,255,.78)}
 *{box-sizing:border-box;margin:0;padding:0}
-body{background:var(--bg);color:var(--text);font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;line-height:1.5;min-height:100vh;display:grid;grid-template-rows:auto 1fr}
-header{position:sticky;top:0;z-index:50;backdrop-filter:saturate(140%) blur(6px);background:rgba(0,0,0,.6);border-bottom:1px solid rgba(255,255,255,.08)}
-.nav{max-width:1100px;margin:auto;padding:14px 20px;display:flex;align-items:center;justify-content:space-between}
-.brand{display:flex;align-items:center;gap:10px;font-weight:900;letter-spacing:-.3px}
-.brand-badge{width:22px;height:22px;background:var(--accent);transform:skew(-6deg);border-radius:3px}
-nav a{color:#fff;text-decoration:none}
-.wrap{max-width:800px;margin:auto;padding:24px}
-h1{font-size:28px;font-weight:900;letter-spacing:-.2px}
-.sub{color:var(--muted);margin-top:6px}
-.card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:18px;margin-top:16px}
-.badges{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px}
-.badge{display:inline-block;background:#0f0f10;border:1px solid var(--border);border-radius:10px;padding:6px 10px;font-size:13px}
-.line{display:flex;justify-content:space-between;align-items:center;margin:8px 0}
+body{background:#000;color:#fff;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
+.wrap{max-width:900px;margin:auto;padding:20px}
+.card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:18px;margin-top:14px}
+.line{display:flex;justify-content:space-between;margin:6px 0}
 .hr{height:1px;background:rgba(255,255,255,.08);margin:14px 0}
-.total{font-size:22px;font-weight:900}
-.pay{display:inline-block;padding:12px 16px;border-radius:10px;text-decoration:none;font-weight:900;background:var(--accent);color:#000;border:none;cursor:pointer}
-.btn-outline{background:transparent;border:1px solid var(--border);color:#fff}
-.actions{display:flex;gap:10px;justify-content:flex-end;margin-top:14px}
-.checkbox{display:flex;align-items:center;gap:8px;cursor:pointer;margin-top:10px}
-.checkbox input{width:18px;height:18px}
-.small{font-size:13px;color:var(--muted)}
+.total{font-size:20px;font-weight:900}
+.badge{border:1px solid var(--border);border-radius:8px;padding:2px 6px;font-size:12px}
+.small{font-size:12px;color:var(--muted)}
+.btn{display:inline-block;padding:12px 16px;border-radius:10px;background:var(--accent);color:#000;font-weight:900;border:none;cursor:pointer}
 </style>
 </head>
 <body>
-<header>
-  <div class="nav">
-    <div class="brand"><div class="brand-badge"></div><div>TRAPPERREO</div></div>
-    <nav><a href="./index.html">Home</a></nav>
-  </div>
-</header>
-
 <main class="wrap">
-  <h1>Ultimo passaggio</h1>
-  <div class="sub" id="hello">Stai acquistando: <strong>—</strong></div>
+  <h1>Conferma dati — 1 biglietto</h1>
 
-  <div class="card">
-    <div class="badges">
-      <span class="badge">Sab 21 Mar 2026</span>
-      <span class="badge">22:30 → 04:30</span>
-      <span class="badge">Via Italia 38, Biella</span>
-    </div>
-
-    <!-- Riepilogo a scendere -->
-    <div id="summary">
-      <div class="line"><div id="ticketLine">—</div><div id="ticketPrice">0€</div></div>
-      <div class="line" id="protLine" style="display:none"><div>Protezione cambio nome × 1</div><div id="protPrice">+1,90€</div></div>
-    </div>
-
+  <section class="card">
+    <div id="summary"></div>
     <div class="hr"></div>
-
-    <!-- Toggle Protezione -->
-    <label class="checkbox">
-      <input type="checkbox" id="nameProt">
-      <span><strong>Aggiungi Protezione cambio nome</strong> (+1,90€)</span>
-    </label>
-    <div class="small">Consente di cambiare il nominativo 1 volta fino a 48h dall’evento.</div>
-
-    <div class="hr"></div>
-    <div class="line total">
-      <div>Totale (IVA inclusa)</div>
-      <div id="grandTot">0€</div>
-    </div>
-
-    <div class="actions">
-      <a class="pay btn-outline" id="backBtn">Indietro</a>
-      <button class="pay" id="payBtn">Paga ora</button>
-    </div>
-  </div>
+    <div class="line total"><span>Totale</span><strong id="tot">0€</strong></div>
+    <div class="small" id="discInfo"></div>
+    <div style="margin-top:12px"><button class="btn" id="pay">Paga ora</button></div>
+  </section>
 </main>
 
 <script type="module">
-import { onUser } from './auth.v2.js?v=3';
+import { app } from './auth.v2.js?v=6';
+import { getFirestore, collection, getDocs } from 'https://www.gstatic.com/firebasejs/12.5.0/firebase-firestore.js';
+const db=getFirestore(app);
 
-const PRICE = { EB:12, STD:15, FAST:20, VIP:25, NAMECHANGE:1.90 };
-
-onUser(u=>{
-  if(u){
-    const name=(u.displayName||u.email||'ospite').split(' ')[0];
-    document.getElementById('hello').innerHTML =
-      `Stai acquistando: <strong id="skuName">—</strong> • Ciao <strong>${name}</strong>`;
-  }
-});
-
-function money(n){ return n.toFixed(2).replace('.00','')+'€'; }
-function readCart(){ try { return JSON.parse(localStorage.getItem('trapperreo_cart')||'null')||{}; } catch { return {}; } }
-function writeCart(c){ localStorage.setItem('trapperreo_cart', JSON.stringify(c)); }
-function getInt(v){ return Math.max(0, parseInt(v||0)); }
-
-/* --- Sorgenti dati: 1) localStorage  2) querystring (fallback) --- */
-const cart = readCart();
+const PRICE={EB:12,STD:15,FAST:20,VIP:25,NAMECHANGE:1.90,STD3:40};
 const qs = new URLSearchParams(location.search);
-const qEB   = getInt(qs.get('eb'));
-const qSTD  = getInt(qs.get('std'));
-const qFAST = getInt(qs.get('fast'));
-const qVIP  = getInt(qs.get('vip'));
+const cart = JSON.parse(localStorage.getItem('trapperreo_cart')||'{}');
+const codeSaved = (localStorage.getItem('trapperreo_discount_code')||'').toUpperCase();
 
-const qty = {
-  eb:  (cart.eb ?? qEB)   | 0,
-  std: (cart.std ?? qSTD) | 0,
-  fast:(cart.fast?? qFAST)| 0,
-  vip: (cart.vip ?? qVIP) | 0,
-};
-if (!('nc' in cart) && qs.has('nc')) cart.nc = getInt(qs.get('nc')) ? 1 : 0; // rispetta query se manca
+const qty = {EB:+(qs.get('eb')||0), STD:+(qs.get('std')||0), FAST:+(qs.get('fast')||0), VIP:+(qs.get('vip')||0)};
+const nameProt = Number(qs.get('nc')||0)===1;
 
-// individua singolo biglietto
-const map=[['eb','Early Bird','EB'],['std','Standard','STD'],['fast','Fast Entry','FAST'],['vip','VIP Entry','VIP']];
-let skuKey=null, skuLabel='', base=0;
-for(const [k,lab,code] of map){
-  if((qty[k]||0) > 0){ skuKey=k; skuLabel=lab; base=PRICE[code]; break; }
+function money(n){ const v=Math.max(0,Math.round(n*100)/100); return (v.toFixed(2).replace('.00',''))+'€'; }
+
+function eligibleSubtotal(q, allowed){
+  let sub=0;
+  if(allowed.includes('EB'))   sub += q.EB   * PRICE.EB;
+  if(allowed.includes('STD')){ const bundles=Math.floor(q.STD/3); const rem=q.STD%3; sub += bundles*PRICE.STD3 + rem*PRICE.STD; }
+  if(allowed.includes('FAST')) sub += q.FAST * PRICE.FAST;
+  if(allowed.includes('VIP'))  sub += q.VIP  * PRICE.VIP;
+  return sub;
 }
-if(!skuKey){ skuKey='std'; skuLabel='Standard'; base=PRICE.STD; } // fallback
 
-// UI bind
-const ticketLine = document.getElementById('ticketLine');
-const ticketPrice= document.getElementById('ticketPrice');
-const skuName    = document.getElementById('skuName');
-const nameProt   = document.getElementById('nameProt');
-const protLine   = document.getElementById('protLine');
-const protPrice  = document.getElementById('protPrice');
-const grandTot   = document.getElementById('grandTot');
-
-if(skuName)    skuName.textContent = skuLabel;
-ticketLine.textContent  = `${skuLabel} × 1`;
-ticketPrice.textContent = money(base);
-protPrice.textContent   = `+${money(PRICE.NAMECHANGE)}`;
-
-// stato iniziale (se presa dal checkout)
-nameProt.checked = cart.nc === 1;
-protLine.style.display = nameProt.checked ? 'flex':'none';
-
-function render(){
-  const extra = nameProt.checked ? PRICE.NAMECHANGE : 0;
-  protLine.style.display = nameProt.checked ? 'flex':'none';
-  grandTot.textContent = money(base + extra);
+let discounts=[];
+async function loadDiscounts(){
+  const snap = await getDocs(collection(db,'discountCodes'));
+  snap.forEach(d=>{
+    const v=d.data()||{};
+    if(v.active===true && v.code){
+      discounts.push({code:String(v.code).toUpperCase(), type:v.type, amount:Number(v.amount||0), appliesTo:v.appliesTo||'all', userEmail:(v.userEmail||'').toLowerCase(), allowedSkus:(v.allowedSkus&&v.allowedSkus.length)?v.allowedSkus:['EB','STD','FAST','VIP']});
+    }
+  });
 }
+function findCode(name, email){
+  const C=(name||'').toUpperCase().trim(); if(!C) return null;
+  const mine = discounts.find(x=>x.code===C && x.appliesTo==='user' && (email||'').toLowerCase()===x.userEmail);
+  if(mine) return mine;
+  return discounts.find(x=>x.code===C && x.appliesTo==='all')||null;
+}
+
+async function render(){
+  await loadDiscounts();
+  const email = (cart?.meEmail||localStorage.getItem('trapperreo_me_email')||'').toLowerCase(); // facoltativo
+  const d = findCode(codeSaved, email);
+
+  let subtotal=0; const rows=[];
+  const add=(l,v)=>{ rows.push(`<div class="line"><span>${l}</span><span>${money(v)}</span></div>`); subtotal+=v; };
+
+  if(qty.EB>0)   add(`Early Bird × ${qty.EB}`, qty.EB*PRICE.EB);
+  if(qty.STD>0){ const b=Math.floor(qty.STD/3), r=qty.STD%3; add(`Standard × ${qty.STD}`, b*PRICE.STD3 + r*PRICE.STD); }
+  if(qty.FAST>0) add(`Fast Entry × ${qty.FAST}`, qty.FAST*PRICE.FAST);
+  if(qty.VIP>0)  add(`VIP Entry × ${qty.VIP}`,  qty.VIP*PRICE.VIP);
+
+  const tickets = qty.EB+qty.STD+qty.FAST+qty.VIP;
+  if(nameProt && tickets>0) add(`Protezione cambio nome × ${tickets}`, tickets*PRICE.NAMECHANGE);
+
+  if(d){
+    const elig = eligibleSubtotal(qty, d.allowedSkus);
+    let discount = elig>0 ? (d.type==='percent' ? elig*(d.amount/100) : d.amount) : 0;
+    discount = Math.min(discount, subtotal);
+    if(discount>0){ add(`Sconto (${d.code})`, -discount); document.getElementById('discInfo').innerHTML=`Codice <strong>${d.code}</strong> applicato su ${d.allowedSkus.map(s=>`<span class="badge">${s}</span>`).join(' ')}`; }
+  }
+
+  document.getElementById('summary').innerHTML = rows.join('');
+  document.getElementById('tot').textContent = money(subtotal);
+}
+
 render();
-
-// persistenza on change
-nameProt.addEventListener('change', ()=>{
-  cart.nc = nameProt.checked ? 1 : 0;
-  writeCart(cart);
-  render();
-});
-
-// back & pay
-document.getElementById('backBtn').addEventListener('click', (e)=>{
-  e.preventDefault(); location.href='./checkout.html';
-});
-document.getElementById('payBtn').addEventListener('click', ()=>{
-  alert('Pagamento avviato (simulazione).');
-});
+document.getElementById('pay').addEventListener('click', ()=> alert('Pagamento placeholder — totale: '+document.getElementById('tot').textContent));
 </script>
 </body>
 </html>
