@@ -33,6 +33,9 @@ h1 .accent{color:var(--accent);text-shadow:0 0 16px rgba(139,92,246,.25)}
 .hero p{margin-top:12px;color:rgba(255,255,255,.9);font-size:clamp(16px,2.3vw,18px)}
 .btn{display:inline-block;margin-top:24px;padding:13px 22px;background:var(--accent);color:#000;font-weight:800;border-radius:10px;text-decoration:none}
 .btn.outline{background:transparent;border:1px solid var(--accent);color:#fff}
+.btn.ghost{background:transparent;border:1px solid rgba(255,255,255,.25);color:#fff}
+.btn-row{display:flex;gap:12px;flex-wrap:wrap;margin-top:8px}
+.hide{display:none !important}
 /* SECTIONS */
 section{padding:72px 20px;border-top:1px solid rgba(255,255,255,.08)}
 .container{max-width:1100px;margin:auto}
@@ -84,7 +87,12 @@ footer{padding:0;border-top:1px solid rgba(255,255,255,.08)}
     <div class="kicker">Biella • Trap & Reggaeton</div>
     <h1>TRAPPERREO — <span class="accent">La notte</span> che accende la città</h1>
     <p>Trap, reggaeton e latin vibes. Accesso con prevendita. Energia pura fino all’alba.</p>
-    <a class="btn" id="ctaBuy" href="./login.html?from=./checkout.html">Acquista il tuo biglietto</a>
+    <div class="btn-row">
+      <a class="btn" id="ctaBuy" href="./login.html?from=./checkout.html">Acquista il tuo biglietto</a>
+      <a class="btn outline" href="#faq">Domande frequenti</a>
+      <!-- compare solo se loggato -->
+      <a class="btn ghost hide" id="ctaAccount" href="./account-2.html">Area personale</a>
+    </div>
   </div>
 </section>
 
@@ -101,9 +109,11 @@ footer{padding:0;border-top:1px solid rgba(255,255,255,.08)}
         <div class="meta-box"><div class="meta-k">Orario</div><div class="meta-v">22:30 → 04:30</div></div>
         <div class="meta-box"><div class="meta-k">Location</div><div class="meta-v">Via Italia 38, Biella</div></div>
       </div>
-      <div style="display:flex;gap:12px;flex-wrap:wrap">
+      <div class="btn-row">
         <a class="btn" id="btnBuy2" href="./login.html?from=./checkout.html">Acquista il tuo biglietto</a>
         <a class="btn outline" href="#faq">Domande frequenti</a>
+        <!-- compare solo se loggato -->
+        <a class="btn ghost hide" id="btnAccount2" href="./account-2.html">Area personale</a>
       </div>
     </div>
   </div>
@@ -136,13 +146,15 @@ footer{padding:0;border-top:1px solid rgba(255,255,255,.08)}
   </div>
 </footer>
 
-<!-- Navbar dinamica + CTA con Firebase (riuso di auth.v2.js) -->
+<!-- Navbar dinamica + CTA/Area personale -->
 <script type="module">
-import { onUser, doSignOut } from './auth.v2.js?v=3';
+import { onUser, doSignOut } from './auth.v2.js?v=6';
 
 const nav  = document.getElementById('navArea');
 const cta1 = document.getElementById('ctaBuy');
 const cta2 = document.getElementById('btnBuy2');
+const acc1 = document.getElementById('ctaAccount');
+const acc2 = document.getElementById('btnAccount2');
 
 const OUT = `
   <a href="./login.html?from=./checkout.html">Acquista il tuo biglietto</a>
@@ -153,6 +165,7 @@ const IN = (u) => {
   const name = (u.displayName || (u.email ? u.email.split('@')[0] : 'Utente')).split(' ')[0];
   return `
     <span>👋 Ciao, ${name}</span>
+    <a href="./account-2.html">Area personale</a>
     <a href="./checkout.html">Vai al checkout</a>
     <a href="#" id="logoutLink" style="color:#8b5cf6">Logout</a>
   `;
@@ -163,16 +176,23 @@ onUser((u)=>{
     nav.innerHTML = OUT;
     cta1.href = "./login.html?from=./checkout.html";
     cta2.href = "./login.html?from=./checkout.html";
+    acc1.classList.add('hide');
+    acc2.classList.add('hide');
   }else{
     nav.innerHTML = IN(u);
     cta1.href = "./checkout.html";
     cta2.href = "./checkout.html";
+    acc1.classList.remove('hide');
+    acc2.classList.remove('hide');
+
     document.getElementById('logoutLink')?.addEventListener('click', async (e)=>{
       e.preventDefault();
       await doSignOut();
       nav.innerHTML = OUT;
       cta1.href = "./login.html?from=./checkout.html";
       cta2.href = "./login.html?from=./checkout.html";
+      acc1.classList.add('hide');
+      acc2.classList.add('hide');
     });
   }
 });
