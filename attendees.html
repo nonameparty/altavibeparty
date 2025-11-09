@@ -2,280 +2,112 @@
 <html lang="it">
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Assegna i biglietti — TRAPPERREO</title>
+<title>Assegna nominativi — più biglietti</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&display=swap" rel="stylesheet">
 <style>
-:root{
-  --bg:#000; --text:#fff; --accent:#8b5cf6; --border:rgba(255,255,255,.12);
-  --card:rgba(255,255,255,.06); --muted:rgba(255,255,255,.78); --ok:#22c55e; --danger:#ef4444;
-  --c-eb:#8b5cf6; --c-std:#60a5fa; --c-fast:#34d399; --c-vip:#f59e0b;
-}
+:root{--accent:#8b5cf6;--border:rgba(255,255,255,.12);--card:rgba(255,255,255,.06);--muted:rgba(255,255,255,.78)}
 *{box-sizing:border-box;margin:0;padding:0}
-body{background:var(--bg);color:var(--text);font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;line-height:1.5}
-header{position:sticky;top:0;z-index:50;backdrop-filter:saturate(140%) blur(6px);background:rgba(0,0,0,.6);border-bottom:1px solid rgba(255,255,255,.08)}
-.nav{max-width:1200px;margin:auto;padding:14px 20px;display:flex;align-items:center;justify-content:space-between}
-.brand{display:flex;align-items:center;gap:10px;font-weight:900;letter-spacing:-.3px}
-.brand-badge{width:22px;height:22px;background:var(--accent);transform:skew(-6deg);border-radius:3px}
-nav a{color:#fff;text-decoration:none;margin-left:18px;font-size:14px;opacity:.95}
-nav a:hover{color:var(--accent)}
-
-.wrap{max-width:1100px;margin:auto;padding:24px}
-h1{font-size:26px;font-weight:900;letter-spacing:-.2px;text-align:center}
-.subtitle{color:var(--muted);text-align:center;margin-top:6px}
-
-/* alert */
-.alert{margin:16px auto 8px;max-width:900px;background:linear-gradient(180deg, rgba(139,92,246,.12), rgba(255,255,255,.04));border:1px solid rgba(139,92,246,.35);border-radius:14px;padding:12px 14px;display:flex;gap:10px;align-items:flex-start}
-.alert .icon{font-weight:900}
-.alert.danger{border-color:rgba(239,68,68,.5);background:linear-gradient(180deg, rgba(239,68,68,.12), rgba(255,255,255,.04));}
-
-/* layout */
-.gridPage{display:grid;gap:16px;margin-top:16px}
-@media(min-width:900px){.gridPage{grid-template-columns:2fr 1fr}}
-.card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:18px}
-.sectionTitle{font-size:18px;font-weight:900;margin-bottom:10px;text-align:center}
-
-/* lista nominativi */
-.list{display:grid;gap:10px}
-.row{display:grid;grid-template-columns:1fr 1fr 1.4fr 1.2fr;gap:8px;align-items:center;background:#0b0b0b;border:1px solid rgba(255,255,255,.1);border-radius:12px;padding:12px}
-.row .tag{font-size:12px;opacity:.95}
-.badge{display:inline-flex;align-items:center;gap:6px;background:#0f0f10;border:1px solid rgba(255,255,255,.15);border-radius:10px;padding:6px 8px;font-size:12px}
-.pill{width:8px;height:8px;border-radius:999px;display:inline-block}
-.p-eb{background:var(--c-eb)} .p-std{background:var(--c-std)} .p-fast{background:var(--c-fast)} .p-vip{background:var(--c-vip)}
-input[type="text"], input[type="email"]{background:#0f0f10;border:1px solid var(--border);border-radius:10px;color:#fff;padding:10px;outline:none}
-input.err{border-color:var(--danger) !important; box-shadow:0 0 0 2px rgba(239,68,68,.25)}
-.small{font-size:13px;opacity:.85}
-
-/* helper “usa i miei dati” (subito dopo il 1° biglietto) */
-.use-me{display:flex;align-items:center;gap:10px;margin:6px 0 14px 0;background:rgba(139,92,246,.12);border:1px solid rgba(139,92,246,.45);border-radius:12px;padding:12px 14px;font-weight:800}
-.use-me input{accent-color:var(--accent)}
-
-/* protezione globale (solo se non già attiva) */
-.cn-block{margin-top:12px;background:#0b0b0b;border:1px dashed rgba(255,255,255,.18);border-radius:12px;padding:12px}
-.cn-title{font-weight:900;margin-bottom:6px}
-.cn-row{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
-.cn-row label{display:flex;align-items:center;gap:10px;cursor:pointer}
-.cn-row input[type="checkbox"]{accent-color:var(--accent)}
-.cn-help{opacity:.9}
-
-/* riepilogo (come checkout) */
-.line{display:flex;justify-content:space-between;font-size:14px;margin:6px 0}
+body{background:#000;color:#fff;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
+.wrap{max-width:1000px;margin:auto;padding:20px}
+.grid{display:grid;grid-template-columns:2fr 1fr;gap:16px}
+.card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:18px;margin-top:14px}
+.line{display:flex;justify-content:space-between;margin:6px 0}
 .hr{height:1px;background:rgba(255,255,255,.08);margin:14px 0}
-.save{color:#22c55e;font-weight:800}
-.total{font-size:22px;font-weight:900}
-
-/* bottoni */
-.actions{display:flex;gap:10px;margin-top:16px;flex-wrap:wrap;justify-content:center}
-.btn{display:inline-block;padding:12px 16px;border-radius:10px;background:var(--accent);color:#000;font-weight:900;text-decoration:none;border:none;cursor:pointer}
-.btn.alt{background:transparent;border:1px solid var(--accent);color:#fff}
-.btn.ok{background:#22c55e;color:#061d10}
-.btn:disabled{opacity:.5;cursor:not-allowed}
+.total{font-size:20px;font-weight:900}
+.badge{border:1px solid var(--border);border-radius:8px;padding:2px 6px;font-size:12px}
+.small{font-size:12px;color:var(--muted)}
+.btn{display:inline-block;padding:12px 16px;border-radius:10px;background:var(--accent);color:#000;font-weight:900;border:none;cursor:pointer}
 </style>
 </head>
 <body>
+<main class="wrap">
+  <h1>Conferma dati — più biglietti</h1>
 
-<header>
-  <div class="nav">
-    <div class="brand"><div class="brand-badge"></div><div>TRAPPERREO</div></div>
-    <nav><a href="./index.html">Home</a></nav>
-  </div>
-</header>
+  <div class="grid">
+    <section class="card">
+      <div class="small">Inserimento nominativi — placeholder</div>
+    </section>
 
-<div class="wrap">
-  <h1 id="pageTitle">Ciao, <strong>ospite</strong> — assegna i biglietti</h1>
-
-  <!-- ALERT PRINCIPALE -->
-  <div id="mainAlert" class="alert">
-    <div class="icon">⚠️</div>
-    <div class="small">
-      Inserisci i nominativi. Gli amici hanno tempo <strong>fino a 2 ore</strong> prima dell’evento per registrarsi; una volta registrati riceveranno la prevendita entro <strong>30 minuti</strong>.<br>
-      <strong>Nome e cognome devono coincidere col documento d’identità</strong> mostrato all’ingresso e — se non sono ancora registrati — con il <strong>nome usato in fase di registrazione</strong>.
-    </div>
-  </div>
-
-  <div id="errAlert" class="alert danger" style="display:none">
-    <div class="icon">!</div>
-    <div class="small">Controlla i campi evidenziati in rosso (nome, cognome ed email validi per ogni biglietto).</div>
-  </div>
-
-  <div class="gridPage">
-    <!-- SINISTRA -->
-    <div class="card">
-      <div class="sectionTitle">Nominativi</div>
-      <div id="list" class="list"></div>
-
-      <!-- blocco protezione (solo se NON attiva nel checkout) -->
-      <div id="cnBlock"></div>
-    </div>
-
-    <!-- DESTRA -->
     <aside class="card">
-      <h2 class="sectionTitle">Riepilogo</h2>
-      <div id="lines"></div>
-
-      <!-- Protezione sopra ai totali -->
+      <div id="summary"></div>
       <div class="hr"></div>
-      <div class="line">
-        <span>Protezione cambio nome</span>
-        <span id="cnTot">0€</span>
-      </div>
-
-      <div class="hr"></div>
-      <div class="line total"><span>Totale (IVA inclusa)</span><strong id="grand">0€</strong></div>
-
-      <div class="actions">
-        <button id="back" class="btn alt" type="button">Indietro</button>
-        <button id="pay" class="btn ok" type="button">Procedi al pagamento</button>
-      </div>
+      <div class="line total"><span>Totale</span><strong id="tot">0€</strong></div>
+      <div class="small" id="discInfo"></div>
+      <div style="margin-top:12px"><button class="btn" id="pay">Paga ora</button></div>
     </aside>
   </div>
-</div>
+</main>
 
 <script type="module">
-import { onUser } from './auth.v2.js?v=3';
+import { app } from './auth.v2.js?v=6';
+import { getFirestore, collection, getDocs } from 'https://www.gstatic.com/firebasejs/12.5.0/firebase-firestore.js';
+const db=getFirestore(app);
 
-/* Saluto */
-let me={first:'',last:'',email:''};
-onUser((u)=>{
-  if(!u) return;
-  const parts=(u.displayName||'').trim().split(' ');
-  me.first=parts[0]||''; me.last=parts.slice(1).join(' ')||''; me.email=(u.email||'').trim();
-  document.getElementById('pageTitle').innerHTML = `Ciao, <strong>${me.first||'ospite'}</strong> — assegna i biglietti`;
-});
-
-/* Parametri dal checkout */
+const PRICE={EB:12,STD:15,FAST:20,VIP:25,NAMECHANGE:1.90,STD3:40};
 const qs = new URLSearchParams(location.search);
-const nStd  = +(qs.get('std')||0);
-const nFast = +(qs.get('fast')||0);
-const nVip  = +(qs.get('vip')||0);
-const nEb   = +(qs.get('eb')||0);
-const promoNC = qs.get('nc') === '1'; // selezionata prima?
+const cart = JSON.parse(localStorage.getItem('trapperreo_cart')||'{}');
+const codeSaved = (localStorage.getItem('trapperreo_discount_code')||'').toUpperCase();
 
-/* Prezzi come checkout */
-const PRICE = { EB:12, STD:15, FAST:20, VIP:25, NAMECHANGE:1.90, STD3:40 };
+const qty = {EB:+(qs.get('eb')||0), STD:+(qs.get('std')||0), FAST:+(qs.get('fast')||0), VIP:+(qs.get('vip')||0)};
+const nameProt = Number(qs.get('nc')||0)===1;
 
-/* Costruzione lista: primo biglietto + helper, poi gli altri */
-const list = document.getElementById('list');
-const rows = [];
-function addRow(type,label,pill){
-  const el=document.createElement('div'); el.className='row'; el.dataset.type=type;
-  el.innerHTML=`
-    <div>
-      <div class="tag">Biglietto ${rows.length+1}</div>
-      <span class="badge" style="margin-top:4px;display:inline-flex"><span class="pill ${pill}"></span>${label}</span>
-    </div>
-    <input class="fn" type="text" placeholder="Nome">
-    <input class="ln" type="text" placeholder="Cognome">
-    <input class="em" type="email" placeholder="Email">
-  `;
-  list.appendChild(el); rows.push(el);
+function money(n){ const v=Math.max(0,Math.round(n*100)/100); return (v.toFixed(2).replace('.00',''))+'€'; }
+
+function eligibleSubtotal(q, allowed){
+  let sub=0;
+  if(allowed.includes('EB'))   sub += q.EB   * PRICE.EB;
+  if(allowed.includes('STD')){ const b=Math.floor(q.STD/3), r=q.STD%3; sub += b*PRICE.STD3 + r*PRICE.STD; }
+  if(allowed.includes('FAST')) sub += q.FAST * PRICE.FAST;
+  if(allowed.includes('VIP'))  sub += q.VIP  * PRICE.VIP;
+  return sub;
 }
 
-const seq = [];
-for(let i=0;i<nEb;i++)   seq.push(['EB','Early Bird','p-eb']);
-for(let i=0;i<nStd;i++)  seq.push(['STD','Standard','p-std']);
-for(let i=0;i<nFast;i++) seq.push(['FAST','Fast Entry','p-fast']);
-for(let i=0;i<nVip;i++)  seq.push(['VIP','VIP Entry','p-vip']);
-
-if(seq.length){
-  addRow(...seq[0]);
-  const helper=document.createElement('label');
-  helper.className='use-me';
-  helper.innerHTML=`<input id="useMe" type="checkbox"><span>Usa i miei dati per il primo biglietto</span>`;
-  list.appendChild(helper);
-  helper.querySelector('#useMe').addEventListener('change',(e)=>{
-    const r=rows[0]; const fn=r.querySelector('.fn'), ln=r.querySelector('.ln'), em=r.querySelector('.em');
-    if(e.target.checked){ fn.value=me.first; ln.value=me.last; em.value=me.email; [fn,ln,em].forEach(i=>i.classList.remove('err')); }
-    else { fn.value=''; ln.value=''; em.value=''; }
+let discounts=[];
+async function loadDiscounts(){
+  const snap = await getDocs(collection(db,'discountCodes'));
+  snap.forEach(d=>{
+    const v=d.data()||{};
+    if(v.active===true && v.code){
+      discounts.push({code:String(v.code).toUpperCase(), type:v.type, amount:Number(v.amount||0), appliesTo:v.appliesTo||'all', userEmail:(v.userEmail||'').toLowerCase(), allowedSkus:(v.allowedSkus&&v.allowedSkus.length)?v.allowedSkus:['EB','STD','FAST','VIP']});
+    }
   });
-  for(let i=1;i<seq.length;i++) addRow(...seq[i]);
-} else {
-  list.innerHTML = `<div class="small">Nessuna assegnazione necessaria.</div>`;
+}
+function findCode(name,email){
+  const C=(name||'').toUpperCase().trim(); if(!C) return null;
+  const mine = discounts.find(x=>x.code===C && x.appliesTo==='user' && (email||'').toLowerCase()===x.userEmail);
+  if(mine) return mine;
+  return discounts.find(x=>x.code===C && x.appliesTo==='all')||null;
 }
 
-/* Blocco protezione: SOLO se non era attiva */
-let cnGlobalChecked = promoNC;
-const cnBlock = document.getElementById('cnBlock');
-if(!promoNC){
-  cnBlock.className='cn-block';
-  cnBlock.innerHTML = `
-    <div class="cn-title">Sei sicuro di procedere senza protezione?</div>
-    <div class="cn-row">
-      <label>
-        <input id="cnGlobal" type="checkbox">
-        <span><strong>Attiva Protezione cambio nome</strong> per <em>tutti</em> i biglietti <span class="small">(1,90€ / biglietto)</span></span>
-      </label>
-      <span class="small cn-help">Puoi cambiare il nominativo 1 volta fino a 48h dall’evento.</span>
-    </div>`;
-  document.getElementById('cnGlobal').addEventListener('change',(e)=>{ cnGlobalChecked=e.target.checked; render(); saveCart(); });
-}
+async function render(){
+  await loadDiscounts();
+  const email = (cart?.meEmail||localStorage.getItem('trapperreo_me_email')||'').toLowerCase();
 
-/* Riepilogo come checkout */
-const lines = document.getElementById('lines');
-const cnTot = document.getElementById('cnTot');
-const grand = document.getElementById('grand');
+  const d = findCode(codeSaved, email);
+  let subtotal=0; const rows=[];
+  const add=(l,v)=>{ rows.push(`<div class="line"><span>${l}</span><span>${money(v)}</span></div>`); subtotal+=v; };
 
-function money(n){ return n.toFixed(2).replace('.00','')+'€'; }
-function count(t){ return rows.filter(r=>r.dataset.type===t).length; }
-function tix(){ return count('EB')+count('STD')+count('FAST')+count('VIP'); }
-function stdTotal(q){ const b=Math.floor(q/3), r=q%3; return b*PRICE.STD3 + r*PRICE.STD; }
+  if(qty.EB>0)   add(`Early Bird × ${qty.EB}`, qty.EB*PRICE.EB);
+  if(qty.STD>0){ const b=Math.floor(qty.STD/3), r=qty.STD%3; add(`Standard × ${qty.STD}`, b*PRICE.STD3 + r*PRICE.STD); }
+  if(qty.FAST>0) add(`Fast Entry × ${qty.FAST}`, qty.FAST*PRICE.FAST);
+  if(qty.VIP>0)  add(`VIP Entry × ${qty.VIP}`,  qty.VIP*PRICE.VIP);
 
-function render(){
-  const qEB=count('EB'), qSTD=count('STD'), qFAST=count('FAST'), qVIP=count('VIP');
-  let subtotal=0; const arr=[];
-  const add=(label,val)=>{ arr.push(`<div class="line"><span>${label}</span><span>${money(val)}</span></div>`); subtotal+=val; };
-  const info=(label)=>{ arr.push(`<div class="line save"><span>${label}</span><span></span></div>`); };
+  const tickets = qty.EB+qty.STD+qty.FAST+qty.VIP;
+  if(nameProt && tickets>0) add(`Protezione cambio nome × ${tickets}`, tickets*PRICE.NAMECHANGE);
 
-  if(qEB>0){ add(`Early Bird × ${qEB}`, qEB*PRICE.EB); info(`Drink incluso × ${qEB}`); }
-  if(qSTD>0){ add(`Standard × ${qSTD}`, stdTotal(qSTD)); info(`Drink incluso × ${qSTD}`); }
-  if(qFAST>0){ add(`Fast Entry × ${qFAST}`, qFAST*PRICE.FAST); info(`Drink incluso × ${qFAST}`); }
-  if(qVIP>0){ add(`VIP Entry × ${qVIP}`, qVIP*PRICE.VIP); info(`Drink incluso × ${qVIP}`); info(`Guardaroba incluso × ${qVIP}`); }
-
-  const extra = cnGlobalChecked ? tix()*PRICE.NAMECHANGE : 0;
-  if(extra>0) add(`Protezione cambio nome × ${tix()}`, extra);
-
-  lines.innerHTML = arr.join('');
-  cnTot.textContent = money(extra);
-  grand.textContent = money(subtotal + extra);
-}
-render();
-
-/* Validazione senza popup: colora in rosso */
-function isEmail(v){ return /^\S+@\S+\.\S+$/.test(v.trim()); }
-function validateFields(){
-  let ok=true;
-  rows.forEach(r=>{
-    const fn=r.querySelector('.fn'), ln=r.querySelector('.ln'), em=r.querySelector('.em');
-    [fn,ln,em].forEach(i=>i.classList.remove('err'));
-    if(!fn.value.trim()){ fn.classList.add('err'); ok=false; }
-    if(!ln.value.trim()){ ln.classList.add('err'); ok=false; }
-    if(!isEmail(em.value)){ em.classList.add('err'); ok=false; }
-  });
-  document.getElementById('errAlert').style.display = ok ? 'none' : 'flex';
-  return ok;
-}
-
-/* Persistenza carrello per tornare al checkout con riepilogo pieno */
-function saveCart(){
-  const cart = { eb:nEb, std:nStd, fast:nFast, vip:nVip, nc: cnGlobalChecked?1:0 };
-  localStorage.setItem('trapperreo_cart', JSON.stringify(cart));
-}
-saveCart();
-
-document.getElementById('back').addEventListener('click', ()=>{
-  saveCart();
-  location.href='./checkout.html';
-});
-
-document.getElementById('pay').addEventListener('click', ()=>{
-  if(!validateFields()) return;
-  if(!promoNC && !cnGlobalChecked){
-    // niente popup: evidenzio solo il blocco e non procedo se non confermano la protezione opzionale
-    // Qui, se vuoi obbligare conferma esplicita, potresti aggiungere un toggle; per ora proseguiamo.
+  if(d){
+    const elig = eligibleSubtotal(qty, d.allowedSkus);
+    let discount = elig>0 ? (d.type==='percent' ? elig*(d.amount/100) : d.amount) : 0;
+    discount = Math.min(discount, subtotal);
+    if(discount>0){ add(`Sconto (${d.code})`, -discount); document.getElementById('discInfo').innerHTML=`Codice <strong>${d.code}</strong> applicato su ${d.allowedSkus.map(s=>`<span class="badge">${s}</span>`).join(' ')}`; }
   }
-  // simulazione pagamento
-  console.log('Pagamento avviato (simulazione).');
-  alert('Pagamento avviato (simulazione).'); // se vuoi rimuoverlo, elimina questa riga
-});
+
+  document.getElementById('summary').innerHTML = rows.join('');
+  document.getElementById('tot').textContent = money(subtotal);
+}
+
+render();
+document.getElementById('pay').addEventListener('click', ()=> alert('Pagamento placeholder — totale: '+document.getElementById('tot').textContent));
 </script>
 </body>
 </html>
