@@ -242,6 +242,12 @@ onUser((u)=>{
 });
 
 /* ====== Helpers ====== */
+function norm(s){
+  return (s||'').toString().trim().normalize('NFKC').replace(/\s+/g,' ');
+}
+function toUpperNoSpace(s){ return norm(s).toUpperCase(); }
+function toLowerNoSpace(s){ return norm(s).toLowerCase(); }
+
 const money = n => (n<0?'-':'') + Math.abs(n).toFixed(2).replace('.00','') + '€';
 const qty = ()=>({ EB:+(qEB.value||0), STD:+(qSTD.value||0), FAST:+(qFAST.value||0), VIP:+(qVIP.value||0) });
 function stdTotal(q){ const b=Math.floor(q/3), r=q%3; return b*PRICE.STD3 + r*PRICE.STD; }
@@ -271,14 +277,15 @@ const writeApplied = (s) => { if(!s) localStorage.removeItem('trapperreo_discoun
 /* ====== Sconti: cache + fetch ====== */
 let allDiscounts = []; // cache “lista”
 function normalize(d){
+  const codeRaw = d.code ?? d.name ?? '';
   const o = {
-    code:(d.code||d.name||'').toString().trim().toUpperCase(),
+    code: toUpperNoSpace(codeRaw),
     type:(d.type||'').toString().toLowerCase(), // percent|fixed
     value:Number(d.value ?? d.amount ?? 0),
     active:(d.active ?? d.enabled ?? true)===true,
     allowedSkus:Array.isArray(d.allowedSkus)?d.allowedSkus:(Array.isArray(d.skus)?d.skus:[]),
-    allowedEmails:Array.isArray(d.allowedEmails)?d.allowedEmails.map(x=>String(x).toLowerCase()):[],
-    label:d.label||d.title||''
+    allowedEmails:Array.isArray(d.allowedEmails)?d.allowedEmails.map(x=>toLowerNoSpace(x)):[],
+    label:d.label||d.title||toUpperNoSpace(codeRaw)
   };
   if(!o.code || !o.type || !(o.value>0)) return null;
   return o;
@@ -293,7 +300,7 @@ async function fetchDiscountsList(){
 function eligibleForUser(d){
   if(!currentUser) return true;
   if(!d.allowedEmails || d.allowedEmails.length===0) return true;
-  return d.allowedEmails.includes((currentUser.email||'').toLowerCase());
+  return d.allowedEmails.includes(toLowerNoSpace(currentUser.email||''));
 }
 function allowedSet(d){
   return (d?.allowedSkus && d.allowedSkus.length>0) ? d.allowedSkus : ['EB','STD','FAST','VIP'];
@@ -308,21 +315,70 @@ function computeDiscountAmount(d, parts){
   return 0;
 }
 function findInCache(code){
-  const C = (code||'').toString().trim().toUpperCase();
-  return allDiscounts.find(d=>d.code===C && eligibleForUser(d)) || null;
+  const C_UP = toUpperNoSpace(code);
+  const C_LO = toLowerNoSpace(code);
+  return allDiscounts.find(d=>{
+    const dc = toUpperNoSpace(d.code||'');
+    const dn = toUpperNoSpace(d.label||d.name||'');
+    return eligibleForUser(d) && (dc===C_UP || dc===C_LO || dn===C_UP || dn===C_LO);
+  }) || null;
 }
 
-/* === Fallback: cerca SOLO quel codice se la lista è vuota o non trovata === */
+/* === Fallback: cerca SOLO quel codice, robusto su maiuscole/nome === */
 async function fetchSingleByCode(code){
   try{
-    const C = code.toString().trim().toUpperCase();
-    const qy = query(collection(db,'discounts'), where('code','==',C), limit(1));
-    const snap = await getDocs(qy);
-    if(snap.empty) return null;
-    const d = normalize(snap.docs[0].data()||{});
-    if(!d || !d.active) return null;
-    return eligibleForUser(d) ? d : null;
-  }catch{ return null; }
+    const C_UP = toUpperNoSpace(code);
+    const C_LO = toLowerNoSpace(code);
+
+    // 1) code == MAIUSCOLO
+    let qy = query(collection(db,'discounts'), where('code','==', C_UP), limit(1));
+    let snap = await getDocs(qy);
+    if(!snap.empty){
+      const d = normalize(snap.docs[0].data()||{});
+      return (d && d.active && eligibleForUser(d)) ? d : null;
+    }
+
+    // 2) code == minuscolo
+    qy = query(collection(db,'discounts'), where('code','==', C_LO), limit(1));
+    snap = await getDocs(qy);
+    if(!snap.empty){
+      const d = normalize(snap.docs[0].data()||{});
+      return (d && d.active && eligibleForUser(d)) ? d : null;
+    }
+
+    // 3) name == MAIUSCOLO (qualcuno salva il “codice” in name)
+    qy = query(collection(db,'discounts'), where('name','==', C_UP), limit(1));
+    snap = await getDocs(qy);
+    if(!snap.empty){
+      const d = normalize(snap.docs[0].data()||{});
+      return (d && d.active && eligibleForUser(d)) ? d : null;
+    }
+
+    // 4) name == minuscolo
+    qy = query(collection(db,'discounts'), where('name','==', C_LO), limit(1));
+    snap = await getDocs(qy);
+    if(!snap.empty){
+      const d = normalize(snap.docs[0].data()||{});
+      return (d && d.active && eligibleForUser(d)) ? d : null;
+    }
+
+    // 5) fallback finale: scarica e confronta client-side (fino a 200 doc)
+    const all = await getDocs(collection(db,'discounts'));
+    let found = null;
+    all.forEach(docu=>{
+      const raw = docu.data()||{};
+      const c1 = toUpperNoSpace(raw.code||'');
+      const n1 = toUpperNoSpace(raw.name||'');
+      if(!found && (c1===C_UP || c1===C_LO || n1===C_UP || n1===C_LO)){
+        const d = normalize(raw);
+        if(d && d.active && eligibleForUser(d)) found = d;
+      }
+    });
+    return found;
+  }catch(e){
+    console.warn('fetchSingleByCode error', e);
+    return null;
+  }
 }
 
 /* ====== Render totale con sconto snapshot ====== */
@@ -335,7 +391,7 @@ function render(){
   if(snap){
     const d = { code:snap.code, type:snap.type, value:snap.value, allowedSkus:(snap.allowedSkus&&snap.allowedSkus.length?snap.allowedSkus:['EB','STD','FAST','VIP']), active:true };
     disc = computeDiscountAmount(d, parts);
-    tag  = `${snap.code} — ${snap.type==='percent' ? '%'+snap.value : '−'+money(snap.value)}`;
+    tag  = `${snap.code} — ${snap.type==='percent' ? (snap.value+'%') : ('−'+money(snap.value))}`;
   }
 
   const tCount = ticketsCount();
@@ -374,35 +430,49 @@ function bindQty(){
 
 /* ====== Applica / rimuovi ====== */
 discApply?.addEventListener('click', async ()=>{
-  const code = (discInput?.value||'').trim().toUpperCase();
+  const raw = (discInput?.value||'');
+  const code = toUpperNoSpace(raw);
   if(!code){ alert('Inserisci un codice'); return; }
 
-  // 1) prova cache (lista)
+  // 1) cache lista (tollerante)
   let found = findInCache(code);
 
-  // 2) fallback query mirata per quel codice
+  // 2) fallback query robusta su Firestore
   if(!found){
     found = await fetchSingleByCode(code);
   }
 
-  if(!found){ alert('Codice sconto non valido'); writeApplied(null); render(); return; }
+  if(!found){
+    alert('Codice sconto non valido');
+    writeApplied(null);
+    render();
+    return;
+  }
 
-  // salva snapshot minimale condiviso tra pagine
+  // snapshot condiviso tra pagine
   writeApplied({
-    code: found.code,
+    code: toUpperNoSpace(found.code || found.label || code),
     type: found.type,      // 'percent' | 'fixed'
     value: found.value,
     allowedSkus: (found.allowedSkus && found.allowedSkus.length?found.allowedSkus:['EB','STD','FAST','VIP'])
   });
+
+  // mostra visivamente quello applicato
+  discInput.value = toUpperNoSpace(found.code || found.label || code);
   render();
 });
 
-discRemove?.addEventListener('click', ()=>{ writeApplied(null); render(); });
+discRemove?.addEventListener('click', ()=>{
+  writeApplied(null);
+  // pulisco input e hint
+  if(discInput) discInput.value = '';
+  discHint.textContent = 'Inserisci un codice valido';
+  render();
+});
 
 /* ====== Init ====== */
 restoreCart();
-// prova caricare la lista (se fallisce comunque il box resta visibile e il fallback su singolo codice funziona)
-await fetchDiscountsList();
+await fetchDiscountsList();   // se fallisce, rimane il fallback per singolo codice
 bindQty();
 render();
 
@@ -419,6 +489,5 @@ payBtn.addEventListener('click', ()=>{
   else            location.href = `./attendees-single.html?${qs}`;
 });
 </script>
-
 </body>
 </html>
