@@ -35,6 +35,14 @@ h1{font-size:32px;font-weight:900;letter-spacing:-.2px;margin-bottom:8px}
 .empty{display:flex;align-items:center;justify-content:space-between;background:#0b0b0b;border:1px dashed rgba(255,255,255,.2);border-radius:12px;padding:14px}
 .alert{background:rgba(139,92,246,.12);border:1px solid rgba(139,92,246,.4);border-radius:12px;padding:12px;font-size:14px;margin-bottom:10px}
 .err{background:rgba(239,68,68,.15);border:1px solid rgba(239,68,68,.4);border-radius:12px;padding:12px;margin-top:12px;font-size:14px}
+
+/* form modifica */
+.form{display:grid;gap:10px;margin-top:10px}
+.input{background:#0f0f10;border:1px solid var(--border);border-radius:10px;color:#fff;padding:10px}
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+.hidden{display:none}
+.badge2{display:inline-block;padding:6px 10px;border:1px solid var(--border);border-radius:10px;font-size:12px}
+.notice{font-size:13px;color:var(--muted);margin-top:6px}
 </style>
 </head>
 <body>
@@ -59,17 +67,40 @@ h1{font-size:32px;font-weight:900;letter-spacing:-.2px;margin-bottom:8px}
     <!-- Biglietti -->
     <section class="card">
       <div class="h2">I tuoi biglietti</div>
-      <div id="ticketsArea">
-        <!-- Se non ci sono ticket appare CTA -->
-      </div>
+      <div id="ticketsArea"></div>
     </section>
 
     <!-- Profilo -->
     <aside class="card">
-      <div class="h2">Profilo</div>
-      <div class="row"><div class="k">Nome e cognome</div><div id="pfName" class="v">—</div></div>
-      <div class="row"><div class="k">Data di nascita</div><div id="pfDob" class="v">—</div></div>
-      <div class="row"><div class="k">Email</div><div id="pfMail" class="v">—</div></div>
+      <div style="display:flex;align-items:center;justify-content:space-between">
+        <div class="h2">Profilo</div>
+        <button id="editBtn" class="btn outline" style="padding:8px 12px;font-weight:800">Modifica</button>
+      </div>
+
+      <!-- view -->
+      <div id="profileView">
+        <div class="row"><div class="k">Nome e cognome</div><div id="pfName" class="v">—</div></div>
+        <div class="row"><div class="k">Data di nascita</div><div id="pfDob" class="v">—</div></div>
+        <div class="row"><div class="k">Email</div><div id="pfMail" class="v">—</div></div>
+      </div>
+
+      <!-- edit -->
+      <form id="profileForm" class="form hidden" novalidate>
+        <div class="row" style="gap:8px">
+          <input id="inFirst" class="input" placeholder="Nome" style="flex:1">
+          <input id="inLast" class="input" placeholder="Cognome" style="flex:1">
+        </div>
+        <div>
+          <label class="badge2" for="inDob">Data di nascita</label>
+          <input id="inDob" class="input" type="date" max="2100-12-31">
+        </div>
+        <div class="notice">L’email non è modificabile da qui.</div>
+        <div class="actions">
+          <button id="saveBtn" type="submit" class="btn">Salva</button>
+          <button id="cancelBtn" type="button" class="btn outline">Annulla</button>
+        </div>
+      </form>
+
       <div class="hr"></div>
       <button id="logoutBtn" class="btn outline">Logout</button>
     </aside>
@@ -80,9 +111,10 @@ h1{font-size:32px;font-weight:900;letter-spacing:-.2px;margin-bottom:8px}
 
 <script type="module">
 /* ====== IMPORT ====== */
-import { app, onUser, doSignOut, loadProfile } from './auth.v2.js?v=3';
+import { app, onUser, doSignOut, loadProfile, setDisplayName, saveDOB } from './auth.v2.js?v=3';
 import {
-  getFirestore, doc, getDoc, collection, query, where, getDocs
+  getFirestore, doc, getDoc, setDoc, updateDoc,
+  collection, query, where, getDocs
 } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-firestore.js";
 
 /* ====== SETUP ====== */
@@ -96,23 +128,28 @@ const pfMail = document.getElementById('pfMail');
 const ticketsArea = document.getElementById('ticketsArea');
 const errBox = document.getElementById('errBox');
 
+const editBtn = document.getElementById('editBtn');
+const viewBox = document.getElementById('profileView');
+const formBox = document.getElementById('profileForm');
+const inFirst = document.getElementById('inFirst');
+const inLast  = document.getElementById('inLast');
+const inDob   = document.getElementById('inDob');
+const saveBtn = document.getElementById('saveBtn');
+const cancelBtn = document.getElementById('cancelBtn');
+
 document.getElementById('logoutBtn').addEventListener('click', async ()=>{
   await doSignOut();
   location.href = './login.html?from=./account-2.html';
 });
 
-/* ====== HELPERS UI ====== */
-function showError(e){
-  console.error(e);
-  errBox.style.display='block';
-  errBox.textContent = `Errore: ${e?.message || e}`;
-}
-function fmtDOB(dob){
-  if(!dob) return '—';
-  try{
-    const d=new Date(dob);
-    return d.toLocaleDateString('it-IT',{day:'2-digit',month:'2-digit',year:'numeric'});
-  }catch{ return '—'; }
+function showError(e){ console.error(e); errBox.style.display='block'; errBox.textContent = `Errore: ${e?.message || e}`; }
+function fmtDOB(dob){ if(!dob) return '—'; try{ const d=new Date(dob); return d.toLocaleDateString('it-IT',{day:'2-digit',month:'2-digit',year:'numeric'});}catch{return '—';} }
+function emptyCTA(){
+  ticketsArea.innerHTML = `
+    <div class="empty">
+      <div>Non hai biglietti attivi.</div>
+      <a class="btn" href="./checkout.html">Compra ora il tuo biglietto</a>
+    </div>`;
 }
 function ticketCard(t){
   const lab = t.type || 'Ticket';
@@ -132,82 +169,141 @@ function ticketCard(t){
       </div>
     </div>`;
 }
-function emptyCTA(){
-  ticketsArea.innerHTML = `
-    <div class="empty">
-      <div>Non hai biglietti attivi.</div>
-      <a class="btn" href="./checkout.html">Compra ora il tuo biglietto</a>
-    </div>
-  `;
-}
 
-/* ====== CARICAMENTO DATI ====== */
+/* ====== STATO ====== */
+let CURRENT_USER = null;
+let CURRENT_NAME = '';
+let CURRENT_DOB = null;
+
+/* ====== CARICAMENTO ====== */
 onUser(async (u)=>{
   try{
-    if(!u){
-      // non loggato → vai al login
-      location.href = './login.html?from=./account-2.html';
-      return;
-    }
+    if(!u){ location.href = './login.html?from=./account-2.html'; return; }
+    CURRENT_USER = u;
 
-    // Navbar
     nav.innerHTML = `<span>👋 Ciao, ${(u.displayName||u.email||'Utente').split(' ')[0]}</span>`;
-
-    // Greeting
     greet.innerHTML = `Ciao, <strong>${(u.displayName||u.email||'Utente').split(' ')[0]}</strong>`;
 
-    // Profilo da Firestore se presente
+    // profilo
     let name = (u.displayName || '').trim();
     let dob  = null;
-
     try{
       const snap = await getDoc(doc(db,'users',u.uid));
       if(snap.exists()){
         const d = snap.data();
         if(d?.name) name = d.name;
-        if(d?.dob)  dob = d.dob;
+        if(d?.dob)  dob  = d.dob;
       }else{
-        // fallback: dato locale (come nel tuo salvataggio attuale)
         const local = loadProfile(u.uid);
         if(local?.dob) dob = local.dob;
       }
     }catch(e){ console.warn('Profilo Firestore non disponibile', e); }
 
-    pfName.textContent = name || (u.email?.split('@')[0] || '—');
-    pfDob.textContent  = fmtDOB(dob);
+    CURRENT_NAME = name || (u.email?.split('@')[0] || '—');
+    CURRENT_DOB  = dob || null;
+
+    pfName.textContent = CURRENT_NAME;
+    pfDob.textContent  = fmtDOB(CURRENT_DOB);
     pfMail.textContent = u.email || '—';
 
-    // Biglietti (orders/{orderId}/tickets) — se non ci sono, mostra CTA
+    // ticket
     try{
       const qOrd = query(collection(db,'orders'), where('uid','==',u.uid), where('status','==','active'));
       const ordersSnap = await getDocs(qOrd);
-
       const allTickets = [];
       for(const docOrd of ordersSnap.docs){
-        const ordId = docOrd.id;
-        const tSnap = await getDocs(collection(db, `orders/${ordId}/tickets`));
-        tSnap.forEach(t => allTickets.push({ orderId: ordId, ticketId: t.id, ...t.data() }));
+        const tSnap = await getDocs(collection(db, `orders/${docOrd.id}/tickets`));
+        tSnap.forEach(t => allTickets.push({ orderId: docOrd.id, ticketId: t.id, ...t.data() }));
       }
+      if(allTickets.length === 0) emptyCTA();
+      else ticketsArea.innerHTML = `
+        <div class="alert">Mostra il QR all’ingresso. Se hai attivato la protezione puoi cambiare nominativo fino a 48h prima.</div>
+        ${allTickets.map(ticketCard).join('')}
+      `;
+    }catch(e){ console.warn('Ticket non disponibili', e); emptyCTA(); }
 
-      if(allTickets.length === 0){
-        emptyCTA();
-      }else{
-        ticketsArea.innerHTML = `
-          <div class="alert">Mostra il QR all’ingresso. Se hai attivato la protezione puoi cambiare nominativo fino a 48h prima.</div>
-          ${allTickets.map(ticketCard).join('')}
-        `;
-      }
-    }catch(e){
-      console.warn('Query ticket fallita', e);
-      emptyCTA();
-    }
-
-  }catch(e){
-    showError(e);
-  }
+  }catch(e){ showError(e); }
 });
 
-/* ====== SAFETY: mostra errori JS in pagina invece del bianco ====== */
+/* ====== EDIT UI ====== */
+editBtn.addEventListener('click', ()=>{
+  if(!CURRENT_USER) return;
+  viewBox.classList.add('hidden');
+  formBox.classList.remove('hidden');
+
+  // pre-compila
+  const parts = (CURRENT_NAME || '').split(' ');
+  inFirst.value = parts[0] || '';
+  inLast.value  = parts.slice(1).join(' ') || '';
+  inDob.value   = (CURRENT_DOB ? String(CURRENT_DOB).substring(0,10) : '');
+});
+
+cancelBtn.addEventListener('click', ()=>{
+  formBox.reset();
+  formBox.classList.add('hidden');
+  viewBox.classList.remove('hidden');
+});
+
+/* ====== SALVA ====== */
+formBox.addEventListener('submit', async (e)=>{
+  e.preventDefault();
+  if(!CURRENT_USER) return;
+
+  const first = inFirst.value.trim();
+  const last  = inLast.value.trim();
+  const dob   = inDob.value ? new Date(inDob.value).toISOString() : null;
+
+  const fullName = [first,last].filter(Boolean).join(' ').trim();
+  if(!fullName){ alert('Inserisci almeno nome o cognome'); return; }
+
+  try{
+    saveBtn.disabled = true;
+
+    // 1) Firebase Auth (displayName)
+    await setDisplayName(CURRENT_USER, fullName);
+
+    // 2) Firestore users/{uid}
+    await setDoc(doc(db,'users',CURRENT_USER.uid), { name: fullName, dob: dob }, { merge:true });
+
+    // 3) Fallback locale (DOB) per coerenza con il resto del sito
+    if(dob) saveDOB(CURRENT_USER.uid, dob);
+
+    // 4) Propagazione facoltativa ai ticket intestati all’utente
+    try{
+      const qOrd = query(collection(db,'orders'), where('uid','==',CURRENT_USER.uid), where('status','==','active'));
+      const ords = await getDocs(qOrd);
+      for(const ord of ords.docs){
+        const tSnap = await getDocs(collection(db,`orders/${ord.id}/tickets`));
+        for(const t of tSnap.docs){
+          const td = t.data();
+          // aggiorna solo i ticket il cui holderUid è l’utente (o se il nome coincide al vecchio)
+          if(td.holderUid === CURRENT_USER.uid || td.holderName === CURRENT_NAME){
+            await updateDoc(doc(db,`orders/${ord.id}/tickets/${t.id}`), {
+              holderUid: CURRENT_USER.uid,
+              holderName: fullName
+            });
+          }
+        }
+      }
+    }catch(_e){ /* è ok se le regole non permettono la scrittura */ }
+
+    // 5) UI refresh
+    CURRENT_NAME = fullName;
+    CURRENT_DOB  = dob;
+    pfName.textContent = CURRENT_NAME;
+    pfDob.textContent  = fmtDOB(CURRENT_DOB);
+    // nav + greeting
+    nav.innerHTML = `<span>👋 Ciao, ${first || (CURRENT_USER.email?.split('@')[0] || 'Utente')}</span>`;
+    document.getElementById('greeting').innerHTML = `Ciao, <strong>${first || (CURRENT_USER.email?.split('@')[0] || 'Utente')}</strong>`;
+
+    formBox.classList.add('hidden');
+    viewBox.classList.remove('hidden');
+
+  }catch(e){ showError(e); }
+  finally{ saveBtn.disabled = false; }
+});
+
+/* ====== ERROR VISUAL ====== */
 window.addEventListener('error', (ev)=>{ showError(ev.error || ev.message); });
 window.addEventListener('unhandledrejection', (ev)=>{ showError(ev.reason || 'Promise rejection'); });
 </script>
