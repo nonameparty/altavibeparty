@@ -304,6 +304,67 @@ input{background:#0f0f10;border:1px solid var(--border);border-radius:10px;color
     vDob.textContent  = asDateStr(dob);
     closeModal();
   });
+// Crea il doc /users/{uid} se manca, oppure aggiorna campi base.
+// Chiama questa funzione subito dopo signup/login.
+export async function ensureUserDoc(u) {
+  const db = getFirestore(app);
+  const ref = doc(db, 'users', u.uid);
+  const snap = await getDoc(ref);
+
+  const base = {
+    uid: u.uid,
+    email: (u.email || '').toLowerCase(),
+    name: (u.displayName || u.email || '').trim(),
+    name_lc: (u.displayName || u.email || '').trim().toLowerCase(),
+    role: 'customer',
+    status: 'active',
+  };
+
+  if (!snap.exists()) {
+    // prima creazione (consentita dalle rules se status='active')
+    await setDoc(ref, { ...base, createdAt: Date.now(), updatedAt: Date.now() });
+  } else {
+    // aggiorna solo campi utili
+    const cur = snap.data() || {};
+    await setDoc(ref, {
+      name: base.name || cur.name || '',
+      name_lc: base.name_lc || cur.name_lc || '',
+      email: base.email || cur.email || '',
+      updatedAt: Date.now()
+    }, { merge: true });
+  }
+  return (await getDoc(ref)).data();
+}
+
+  // Richiede utente loggato E con status === 'active' sul doc users/{uid}
+export async function requireActiveUser(redirect = "./login.html") {
+  return new Promise(res => onAuthStateChanged(auth, async (u) => {
+    if (!u) {
+      const back = encodeURIComponent(location.pathname + location.search);
+      location.href = `${redirect}?from=${back}`;
+      return;
+    }
+    try {
+      const db = getFirestore(app);
+      // assicura che il doc esista (es. se viene da vecchio signup)
+      await ensureUserDoc(u);
+      const snap = await getDoc(doc(db, 'users', u.uid));
+      const data = snap.exists() ? snap.data() : {};
+      if ((data.status || 'active') !== 'active') {
+        alert('Il tuo account è sospeso. Contatta il supporto.');
+        await signOut(auth);
+        location.href = './login.html';
+        return;
+      }
+      res(u);
+    } catch (e) {
+      console.error(e);
+      await signOut(auth);
+      location.href = './login.html';
+    }
+  }));
+}
+
 </script>
 </body>
 </html>
