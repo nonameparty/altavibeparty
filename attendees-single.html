@@ -73,81 +73,189 @@ input{width:100%;background:#0f0f10;border:1px solid var(--border);border-radius
 
 <script type="module">
 import { onUser } from './auth.v2.js?v=6';
+import {
+  collection, getDocs, query, where, limit, getFirestore
+} from 'https://www.gstatic.com/firebasejs/12.5.0/firebase-firestore.js';
+const db = getFirestore();
 
+/* === UI refs === */
+const summary = document.getElementById('summary');
+const grand   = document.getElementById('grandTot');
+const protChk = document.getElementById('nameProt');
+const protRow = document.getElementById('protLine');
+const ticketLine = document.getElementById('ticketLine');
+const ticketPrice= document.getElementById('ticketPrice');
+const payBtn = document.getElementById('payBtn');
+
+/* === Prezzi === */
 const PRICE = { EB:12, STD:15, FAST:20, VIP:25, NAMECHANGE:1.90 };
-const money = n => (n<0?'-':'') + Math.abs(n).toFixed(2).replace('.00','') + '€';
-const $ = s => document.querySelector(s);
 
-/* ====== leggi carrello e sconto applicato ====== */
-function readCart(){
-  try{ return JSON.parse(localStorage.getItem('trapperreo_cart')||'null')||{}; }catch{ return {}; }
-}
-function readApplied(){ try{ return JSON.parse(localStorage.getItem('trapperreo_discount_applied')||'null'); }catch{ return null; } }
-
+/* === SKU dal carrello (localStorage / querystring) === */
+function readCart(){ try { return JSON.parse(localStorage.getItem('trapperreo_cart')||'null')||{}; } catch { return {}; } }
+const cart = readCart();
 const qs = new URLSearchParams(location.search);
 const qty = {
-  EB: +(qs.get('eb')||0)   || (readCart().eb|0),
-  STD:+(qs.get('std')||0)  || (readCart().std|0),
-  FAST:+(qs.get('fast')||0)|| (readCart().fast|0),
-  VIP: +(qs.get('vip')||0) || (readCart().vip|0),
+  eb:  Number(cart.eb ?? qs.get('eb') ?? 0)   || 0,
+  std: Number(cart.std ?? qs.get('std') ?? 0) || 0,
+  fast:Number(cart.fast?? qs.get('fast')??0)  || 0,
+  vip: Number(cart.vip ?? qs.get('vip') ?? 0) || 0,
 };
-const nameProt = (+(qs.get('nc')||0) || (readCart().nc|0)) === 1;
-const order = ['EB','STD','FAST','VIP'];
-let sku = order.find(k=>(qty[k]||0)>0) || 'STD';
-const base = PRICE[sku];
+let sku=null, base=0, skuLabel='Standard';
+if(qty.eb>0){ sku='EB'; base=PRICE.EB; skuLabel='Early Bird'; }
+else if(qty.std>0){ sku='STD'; base=PRICE.STD; skuLabel='Standard'; }
+else if(qty.fast>0){ sku='FAST'; base=PRICE.FAST; skuLabel='Fast Entry'; }
+else if(qty.vip>0){ sku='VIP'; base=PRICE.VIP; skuLabel='VIP Entry'; }
+else { sku='STD'; base=PRICE.STD; }
 
-/* ====== prefill dati acquirente ====== */
-onUser(u=>{
-  if(!u) return;
-  const parts=(u.displayName||'').trim().split(' ');
-  document.getElementById('fn').value = parts[0]||'';
-  document.getElementById('ln').value = parts.slice(1).join(' ')||'';
-  document.getElementById('em').value = (u.email||'');
-});
+ticketLine.textContent = `${skuLabel} × 1`;
+ticketPrice.textContent= base.toFixed(2).replace('.00','')+'€';
+protChk.checked = (cart.nc === 1);
+protRow.style.display = protChk.checked ? 'flex':'none';
 
-/* ====== calcolo con sconto ====== */
-function allowedSet(snap){
-  return (Array.isArray(snap?.allowedSkus) && snap.allowedSkus.length>0) ? snap.allowedSkus : ['EB','STD','FAST','VIP'];
+/* === Sconto: stesso motore === */
+let currentUser=null, readyUserResolver;
+const readyUser = new Promise(res=>{ readyUserResolver = res; });
+onUser(u=>{ currentUser=u||null; readyUserResolver?.(); });
+
+const norm = s => (s||'').toString().trim().normalize('NFKC').replace(/\s+/g,' ');
+const up   = s => norm(s).toUpperCase();
+const lo   = s => norm(s).toLowerCase();
+function asArray(v){ if(v==null) return []; return Array.isArray(v)?v:[v]; }
+function normalize(doc){
+  const codeRaw = doc.code ?? doc.name ?? '';
+  const labelRaw= doc.label ?? doc.title ?? codeRaw;
+  const emailFields=['allowedEmails','emails','forEmails'], singleEmail=['email','forEmail'];
+  let allowedEmails = emailFields.flatMap(f=>asArray(doc[f])).concat(singleEmail.map(f=>doc[f]).filter(Boolean));
+  allowedEmails = allowedEmails.map(e=>lo(e)).filter(Boolean);
+  const uidFields=['allowedUids','allowedUserIds','userIds','uids'], singleUid=['userId','uid'];
+  let allowedUids = uidFields.flatMap(f=>asArray(doc[f])).concat(singleUid.map(f=>doc[f]).filter(Boolean));
+  allowedUids = allowedUids.map(u=>String(u)).filter(Boolean);
+  const o={ code:up(codeRaw), label:up(labelRaw), type:String(doc.type||'').toLowerCase(),
+    value:Number(doc.value ?? doc.amount ?? 0), active:(doc.active??doc.enabled??true)===true,
+    allowedSkus:Array.isArray(doc.allowedSkus)?doc.allowedSkus:(Array.isArray(doc.skus)?doc.skus:[]),
+    allowedEmails, allowedUids, appliesTo:String(doc.appliesTo||'').toLowerCase() };
+  if(!o.code || !o.type || !(o.value>0)) return null; return o;
 }
-function compute(){
-  const snap = readApplied(); // {code,type,value,allowedSkus}
-  let disc = 0, tag=null;
-  if(snap && allowedSet(snap).includes(sku)){
-    if(snap.type==='percent') disc = Math.max(0, base*(snap.value/100));
-    else if(snap.type==='fixed') disc = Math.max(0, Math.min(base, snap.value));
-    tag = `${snap.code} — ${snap.type==='percent' ? '%'+snap.value : '−'+money(snap.value)}`;
+function allowedSet(d){ return (d?.allowedSkus && d.allowedSkus.length>0) ? d.allowedSkus : ['EB','STD','FAST','VIP']; }
+function eligibleForUser(d){
+  if(!currentUser) return true;
+  const meEmail = lo(currentUser.email||''), meUid = String(currentUser.uid||'');
+  if(d.appliesTo==='user'){
+    const hasE=d.allowedEmails?.length>0, hasU=d.allowedUids?.length>0;
+    if(!hasE && !hasU) return false;
+    return (hasE && d.allowedEmails.includes(meEmail)) || (hasU && d.allowedUids.includes(meUid));
   }
-  const prot = nameProt ? PRICE.NAMECHANGE : 0;
-  const net  = Math.max(0, base - disc) + prot;
-  return {disc, prot, net, tag};
+  if(d.allowedEmails?.length>0) return d.allowedEmails.includes(meEmail);
+  if(d.allowedUids?.length>0)   return d.allowedUids.includes(meUid);
+  return true;
 }
-function label(k){ return {EB:'Early Bird',STD:'Standard',FAST:'Fast Entry',VIP:'VIP Entry'}[k]||'Biglietto'; }
+async function resolveDiscountByCode(raw){
+  const C_UP = up(raw), C_LO = lo(raw);
+  async function tryIn(col, field, value){
+    const qy = query(collection(getFirestore(),col), where(field,'==', value), limit(1));
+    const snap = await getDocs(qy);
+    if(snap.empty) return null;
+    const n = normalize(snap.docs[0].data()||{});
+    return (n && n.active) ? n : null;
+  }
+  let d = await tryIn('discounts','code',C_UP) || await tryIn('discounts','code',C_LO)
+        || await tryIn('discounts','name',C_UP) || await tryIn('discounts','name',C_LO);
+  if(d) return d;
+  d = await tryIn('discountCodes','code',C_UP) || await tryIn('discountCodes','code',C_LO)
+    || await tryIn('discountCodes','name',C_UP) || await tryIn('discountCodes','name',C_LO);
+  return d;
+}
+function computeDiscountAmount(d){
+  if(!d) return 0;
+  const allow = allowedSet(d);
+  const base = allow.includes(sku) ? basePrice() : 0;
+  if(d.type==='percent') return Math.max(0, base*(d.value/100));
+  if(d.type==='fixed')   return Math.max(0, Math.min(base, d.value));
+  return 0;
+}
+function basePrice(){ return base; }
 
+/* === UI box sconto (come checkout) === */
+(function ensureDiscUI(){
+  const card = document.querySelector('.card');
+  if(!card || document.getElementById('discBlock')) return;
+  const blk = document.createElement('div');
+  blk.innerHTML = `
+    <div class="hr"></div>
+    <div id="discBlock">
+      <div class="line" style="align-items:center;gap:8px">
+        <label class="small" style="opacity:.95">Codice sconto</label>
+      </div>
+      <div style="display:flex;gap:8px;margin-top:6px">
+        <input id="discInput" placeholder="Es. OPENING10" style="flex:1;background:#0f0f10;border:1px solid rgba(255,255,255,.15);border-radius:10px;color:#fff;padding:10px">
+        <button id="discApply" class="pay" type="button" style="min-width:92px">Applica</button>
+        <button id="discRemove" class="pay btn-outline" type="button" style="min-width:92px">Rimuovi</button>
+      </div>
+      <div id="discHint" class="small" style="margin-top:6px;opacity:.85"></div>
+    </div>
+  `;
+  card.appendChild(blk);
+})();
+const discInput  = document.getElementById('discInput');
+const discApply  = document.getElementById('discApply');
+const discRemove = document.getElementById('discRemove');
+const discHint   = document.getElementById('discHint');
+
+/* === Storage per-utente === */
+function discKey(){ return currentUser ? `trapperreo_discount_${currentUser.uid}` : 'trapperreo_discount_anon'; }
+const readApplied = ()=>{ try{ return JSON.parse(localStorage.getItem(discKey())||'null'); }catch{ return null; } };
+const writeApplied = (s)=>{ const k=discKey(); if(!s) localStorage.removeItem(k); else localStorage.setItem(k, JSON.stringify(s)); };
+
+/* === Render riepilogo === */
 function render(){
-  const {disc,prot,net,tag} = compute();
-  const L = document.getElementById('lines');
-  const rows=[];
-  rows.push(`<div class="row"><div id="ticketLine">${label(sku)} × 1</div><div>${money(base)}</div></div>`);
-  if(tag) rows.push(`<div class="row save"><div>Sconto (${tag})</div><div>- ${money(disc)}</div></div>`);
-  if(nameProt) rows.push(`<div class="row"><div>Protezione cambio nome</div><div>${money(prot)}</div></div>`);
-  L.innerHTML = rows.join('');
-  document.getElementById('grand').textContent = money(net);
+  const snap = readApplied();
+  const d = snap?._resolved && snap._resolved.active ? snap._resolved : null;
+
+  let disc=0, tag=null;
+  if(d && eligibleForUser(d)){
+    disc = computeDiscountAmount(d);
+    tag = `${d.code} — ${d.type==='percent' ? (d.value+'%') : ('−'+(d.value.toFixed(2).replace('.00','')+'€'))}`;
+  }
+
+  const extra = protChk.checked ? PRICE.NAMECHANGE : 0;
+  const total = Math.max(0, base - disc) + extra;
+
+  const summaryLines = [];
+  summaryLines.push(`<div class="line"><div>${skuLabel} × 1</div><div>${ticketPrice.textContent}</div></div>`);
+  if(d) summaryLines.push(`<div class="line" style="color:#22c55e;font-weight:800"><div>Sconto (${tag})</div><div>- ${(disc.toFixed(2).replace('.00','')+'€')}</div></div>`);
+  protRow.style.display = protChk.checked ? 'flex':'none';
+  summary.innerHTML = summaryLines.join('');
+  grand.textContent = (total.toFixed(2).replace('.00','')+'€');
+
+  discHint.textContent = d
+    ? (disc>0 ? `Applicato: ${tag}.` : `Codice valido ma non si applica a questo biglietto.`)
+    : `Inserisci un codice valido`;
 }
 
-/* ====== validazione ====== */
-function isEmail(v){ return /^\S+@\S+\.\S+$/.test((v||'').trim()); }
-function validate(){
-  const fn=$('#fn'), ln=$('#ln'), em=$('#em'); let ok=true;
-  [fn,ln,em].forEach(i=>i.classList.remove('err'));
-  if(!fn.value.trim()){ fn.classList.add('err'); ok=false; }
-  if(!ln.value.trim()){ ln.classList.add('err'); ok=false; }
-  if(!isEmail(em.value)){ em.classList.add('err'); ok=false; }
-  return ok;
-}
+discApply?.addEventListener('click', async ()=>{
+  await readyUser;
+  const raw = discInput?.value||'';
+  const code = up(raw);
+  if(!code){ alert('Inserisci un codice'); return; }
+  try{
+    const d = await resolveDiscountByCode(code);
+    if(!d || !eligibleForUser(d)){
+      alert('Codice sconto non valido');
+      writeApplied(null);
+      render();
+      return;
+    }
+    writeApplied({ code: d.code, _resolved: d });
+    discInput.value = d.code;
+    render();
+  }catch(e){ console.error(e); alert('Errore verifica codice.'); }
+});
+discRemove?.addEventListener('click', ()=>{ writeApplied(null); discInput.value=''; render(); });
 
-/* ====== bind ====== */
-document.getElementById('back').addEventListener('click', ()=>history.back());
-document.getElementById('pay').addEventListener('click', ()=>{ if(!validate()) return; alert('Pagamento avviato (simulazione).'); });
+protChk.addEventListener('change', ()=>{ 
+  const cart = readCart(); cart.nc = protChk.checked?1:0; localStorage.setItem('trapperreo_cart', JSON.stringify(cart)); 
+  render(); 
+});
 
 render();
 </script>
