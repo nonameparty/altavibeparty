@@ -18,6 +18,7 @@ input,select{background:#0f0f10;border:1px solid var(--border);border-radius:10p
 .btn{display:inline-block;padding:10px 14px;border-radius:10px;background:var(--accent);color:#000;font-weight:900;border:none;cursor:pointer}
 .btn.ghost{background:transparent;border:1px solid var(--border);color:#fff}
 .btn.small{font-size:12px;padding:6px 10px}
+.btn:disabled{opacity:.6;cursor:not-allowed}
 .table{width:100%;border-collapse:collapse;margin-top:12px;font-size:14px}
 .table th,.table td{padding:10px;border-bottom:1px solid rgba(255,255,255,.08);vertical-align:top}
 .small{font-size:12px}
@@ -35,6 +36,8 @@ input,select{background:#0f0f10;border:1px solid var(--border);border-radius:10p
 .copy{background:#0f0f10;border:1px solid var(--border);color:#fff;border-radius:8px;padding:4px 8px;font-size:12px;cursor:pointer}
 .copy:hover{border-color:#8b5cf6}
 .danger{border-color:#ff6b6b;color:#ffb3b3}
+.inline{display:inline-flex;gap:6px;align-items:center;flex-wrap:wrap}
+.inline input{padding:6px 8px}
 </style>
 </head>
 <body>
@@ -56,8 +59,8 @@ input,select{background:#0f0f10;border:1px solid var(--border);border-radius:10p
       <h2>Tutti i codici</h2>
       <div class="right">
         <input id="q" placeholder="Cerca per codice / email / nome…" style="min-width:260px" />
-        <button id="btnSearch" class="btn">Cerca</button>
-        <button id="btnReload" class="btn ghost">Ricarica</button>
+        <button id="btnSearch" class="btn" type="button">Cerca</button>
+        <button id="btnReload" class="btn ghost" type="button">Ricarica</button>
         <div id="listLoad" class="spinner" aria-hidden="true" style="display:none"></div>
       </div>
     </div>
@@ -88,7 +91,7 @@ import {
 
 const db = getFirestore(app);
 
-// UI helpers
+// UI refs
 const who = document.getElementById('who');
 const errBanner = document.getElementById('errBanner');
 const okBanner  = document.getElementById('okBanner');
@@ -164,9 +167,19 @@ function renderRows(list){
   list.forEach(v=>{
     const tr = document.createElement('tr');
 
-    // codice in chiaro + bottone copia
-    const codeText = v.code || '(manca campo "code")';
+    const hasCode = !!v.code;
+    const codeText = v.code || '';
     const hashShort = (v.id||'').slice(0,12)+'…';
+
+    // se manca "code", mostro editor inline per salvarlo
+    const codeCell = hasCode
+      ? `<div class="inline"><span class="code" data-code="${codeText}">${codeText}</span><button class="copy" data-copy="${codeText}" type="button">Copia</button></div>
+         <div class="small muted">${hashShort}</div>`
+      : `<div class="inline">
+           <input type="text" placeholder="Inserisci codice da usare" data-code-input="${v.id}" />
+           <button class="btn small" data-setcode="${v.id}" type="button">Salva</button>
+         </div>
+         <div class="small muted">${hashShort} • <em>manca campo "code"</em></div>`;
 
     const scope = v.appliesTo==='all'
       ? 'Tutti'
@@ -177,85 +190,101 @@ function renderRows(list){
     const ts = fmtTs(safeTs(v));
 
     tr.innerHTML = `
-      <td>
-        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
-          <span class="code" data-code="${codeText}">${codeText}</span>
-          <button class="copy" data-copy="${codeText}">Copia</button>
-        </div>
-        <div class="small muted">${hashShort}</div>
-      </td>
+      <td>${codeCell}</td>
       <td>${tv}</td>
       <td>${scope}</td>
       <td data-state="${v.id}">${active}</td>
       <td>${ts}</td>
       <td class="row-actions">
-        <button class="btn ghost small" data-toggle="${v.id}">${v.active===true?'Disattiva':'Attiva'}</button>
-        <button class="btn ghost small danger" data-del="${v.id}">Elimina</button>
+        <button class="btn ghost small" data-toggle="${v.id}" type="button">${v.active===true?'Disattiva':'Attiva'}</button>
+        <button class="btn ghost small danger" data-del="${v.id}" type="button">Elimina</button>
       </td>
     `;
     tbody.appendChild(tr);
   });
+
+  // BIND DIRETTO (oltre alla delegation più sotto)
+  tbody.querySelectorAll('[data-copy]').forEach(b=> b.addEventListener('click', onCopy));
+  tbody.querySelectorAll('[data-toggle]').forEach(b=> b.addEventListener('click', onToggle));
+  tbody.querySelectorAll('[data-del]').forEach(b=> b.addEventListener('click', onDelete));
+  tbody.querySelectorAll('[data-setcode]').forEach(b=> b.addEventListener('click', onSetCode));
 }
 
-/* === Event delegation per TUTTI i bottoni (affidabile) === */
-tbody.addEventListener('click', async (e)=>{
-  const t = e.target;
+// === HANDLERS ===
+async function onCopy(e){
+  const code = e.currentTarget.getAttribute('data-copy') || '';
+  try{ await navigator.clipboard.writeText(code); e.currentTarget.textContent='Copiato ✓'; }
+  catch(_){ e.currentTarget.textContent='Copiato'; }
+  setTimeout(()=>{ e.currentTarget.textContent='Copia'; }, 900);
+}
 
-  // copia codice
-  if(t.matches('[data-copy]')){
-    const code = t.getAttribute('data-copy');
-    try{
-      await navigator.clipboard.writeText(code);
-      t.textContent = 'Copiato ✓';
-      setTimeout(()=>{ t.textContent = 'Copia'; }, 900);
-    }catch(_){ /* fallback visivo */ t.textContent='Copiato'; setTimeout(()=>t.textContent='Copia', 900); }
-    return;
+async function onToggle(e){
+  const btn = e.currentTarget;
+  const id = btn.getAttribute('data-toggle');
+  const item = cache.find(x=>x.id===id);
+  if(!item) return;
+  btn.disabled = true; btn.textContent = 'Aggiorno…';
+  try{
+    await setDoc(doc(db,'discountCodes',id), { active: !(item.active===true), updatedAt: Date.now() }, { merge:true });
+    item.active = !(item.active===true);
+    btn.textContent = item.active ? 'Disattiva' : 'Attiva';
+    const tdState = tbody.querySelector(`td[data-state="${id}"]`);
+    if(tdState) tdState.textContent = item.active ? 'Attivo' : 'Disattivo';
+    showOk('Stato aggiornato');
+  }catch(e){
+    console.error(e);
+    showError('Errore durante l’aggiornamento (controlla le regole Firestore).');
+    btn.textContent = item.active ? 'Disattiva' : 'Attiva';
+  }finally{
+    btn.disabled = false;
   }
+}
 
-  // toggle attivo
-  if(t.matches('[data-toggle]')){
-    const id = t.getAttribute('data-toggle');
-    const item = cache.find(x=>x.id===id);
-    if(!item) return;
-    t.disabled = true; t.textContent = 'Aggiorno…';
-    try{
-      await setDoc(doc(db,'discountCodes',id), { active: !(item.active===true), updatedAt: Date.now() }, { merge:true });
-      item.active = !(item.active===true);
-      t.textContent = item.active ? 'Disattiva' : 'Attiva';
-      const tdState = tbody.querySelector(`td[data-state="${id}"]`);
-      if(tdState) tdState.textContent = item.active ? 'Attivo' : 'Disattivo';
-      showOk('Stato aggiornato');
-    }catch(e){
-      console.error(e);
-      showError('Errore durante l’aggiornamento (controlla le regole Firestore).');
-      t.textContent = item.active ? 'Disattiva' : 'Attiva';
-    }finally{
-      t.disabled = false;
-    }
-    return;
+async function onDelete(e){
+  const btn = e.currentTarget;
+  const id = btn.getAttribute('data-del');
+  const item = cache.find(x=>x.id===id);
+  if(!item) return;
+  if(!confirm(`Eliminare definitivamente il codice "${item.code || id}"?`)) return;
+  btn.disabled = true; btn.textContent = 'Elimino…';
+  try{
+    await deleteDoc(doc(db,'discountCodes',id));
+    cache = cache.filter(x=>x.id!==id);
+    btn.closest('tr')?.remove();
+    showOk('Codice eliminato');
+    if(!tbody.children.length) emptyMsg.style.display='block';
+  }catch(e){
+    console.error(e);
+    showError('Errore durante l’eliminazione (controlla le regole Firestore).');
+    btn.textContent='Elimina'; btn.disabled=false;
   }
+}
 
-  // elimina
-  if(t.matches('[data-del]')){
-    const id = t.getAttribute('data-del');
-    const item = cache.find(x=>x.id===id);
-    if(!item) return;
-    if(!confirm(`Eliminare definitivamente il codice "${item.code || id}"?`)) return;
-    t.disabled = true; t.textContent = 'Elimino…';
-    try{
-      await deleteDoc(doc(db,'discountCodes',id));
-      cache = cache.filter(x=>x.id!==id);
-      t.closest('tr')?.remove();
-      showOk('Codice eliminato');
-      if(!tbody.children.length) emptyMsg.style.display='block';
-    }catch(e){
-      console.error(e);
-      showError('Errore durante l’eliminazione (controlla le regole Firestore).');
-      t.textContent = 'Elimina';
-      t.disabled = false;
-    }
-    return;
+async function onSetCode(e){
+  const btn = e.currentTarget;
+  const id = btn.getAttribute('data-setcode');
+  const input = tbody.querySelector(`[data-code-input="${id}"]`);
+  const value = (input?.value || '').trim();
+  if(!value){ input?.focus(); return; }
+  btn.disabled = true; btn.textContent='Salvo…';
+  try{
+    await setDoc(doc(db,'discountCodes',id), { code:value, updatedAt: Date.now() }, { merge:true });
+    const item = cache.find(x=>x.id===id); if(item) item.code = value;
+    showOk('Codice salvato');
+    await loadAll(); // ricarica per vedere la chip con Copia
+  }catch(err){
+    console.error(err);
+    showError('Impossibile salvare il campo "code" (permessi?).');
+    btn.disabled=false; btn.textContent='Salva';
   }
+}
+
+// Delegation (ridondante per massima robustezza)
+tbody.addEventListener('click', (e)=>{
+  if(e.target.closest('[data-copy]'))  { onCopy({currentTarget:e.target.closest('[data-copy]')}); }
+  if(e.target.closest('[data-toggle]')){ onToggle({currentTarget:e.target.closest('[data-toggle]')}); }
+  if(e.target.closest('[data-del]'))   { onDelete({currentTarget:e.target.closest('[data-del]')}); }
+  if(e.target.closest('[data-setcode]')){ onSetCode({currentTarget:e.target.closest('[data-setcode]')}); }
 });
 
 function runSearch(){
