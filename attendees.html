@@ -11,7 +11,7 @@
   --c-eb:#8b5cf6; --c-std:#60a5fa; --c-fast:#34d399; --c-vip:#f59e0b;
 }
 *{box-sizing:border-box;margin:0;padding:0}
-body{background:var(--bg);color:var(--text);font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
+body{background:var(--bg);color:var(--text);font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;line-height:1.5}
 header{position:sticky;top:0;z-index:50;backdrop-filter:saturate(140%) blur(6px);background:rgba(0,0,0,.6);border-bottom:1px solid rgba(255,255,255,.08)}
 .nav{max-width:1200px;margin:auto;padding:14px 20px;display:flex;align-items:center;justify-content:space-between}
 .brand{display:flex;align-items:center;gap:10px;font-weight:900;letter-spacing:-.3px}
@@ -23,14 +23,17 @@ nav a:hover{color:var(--accent)}
 h1{font-size:26px;font-weight:900;letter-spacing:-.2px;text-align:center}
 .subtitle{color:var(--muted);text-align:center;margin-top:6px}
 
+/* alert */
 .alert{margin:16px auto 8px;max-width:900px;background:linear-gradient(180deg, rgba(139,92,246,.12), rgba(255,255,255,.04));border:1px solid rgba(139,92,246,.35);border-radius:14px;padding:12px 14px;display:flex;gap:10px;align-items:flex-start}
 .alert .icon{font-weight:900}
+
+/* layout */
 .gridPage{display:grid;gap:16px;margin-top:16px}
 @media(min-width:900px){.gridPage{grid-template-columns:2fr 1fr}}
 .card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:18px}
 .sectionTitle{font-size:18px;font-weight:900;margin-bottom:10px;text-align:center}
 
-/* lista */
+/* lista nominativi */
 .list{display:grid;gap:10px}
 .row{display:grid;grid-template-columns:1fr 1fr 1.4fr 1.2fr;gap:8px;align-items:center;background:#0b0b0b;border:1px solid rgba(255,255,255,.1);border-radius:12px;padding:12px}
 .row .tag{font-size:12px;opacity:.95}
@@ -41,11 +44,11 @@ input[type="text"], input[type="email"]{background:#0f0f10;border:1px solid var(
 .small{font-size:13px;opacity:.85}
 .err{border-color:#ef4444 !important}
 
-/* helper “usa i miei dati” visibile */
-.use-me{display:flex;align-items:center;gap:10px;margin:6px 0 14px 0;background:rgba(139,92,246,.12);border:1px solid rgba(139,92,246,.45);border-radius:12px;padding:10px 12px;font-weight:800}
+/* helper “usa i miei dati” (subito dopo il 1° biglietto) */
+.use-me{display:flex;align-items:center;gap:10px;margin:6px 0 14px 0;background:rgba(139,92,246,.12);border:1px solid rgba(139,92,246,.45);border-radius:12px;padding:12px 14px;font-weight:800}
 .use-me input{accent-color:var(--accent)}
 
-/* blocco protezione globale (solo se NON già attiva) */
+/* protezione globale (solo se non già attiva) */
 .cn-block{margin-top:12px;background:#0b0b0b;border:1px dashed rgba(255,255,255,.18);border-radius:12px;padding:12px}
 .cn-title{font-weight:900;margin-bottom:6px}
 .cn-row{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
@@ -58,6 +61,13 @@ input[type="text"], input[type="email"]{background:#0f0f10;border:1px solid var(
 .hr{height:1px;background:rgba(255,255,255,.08);margin:14px 0}
 .save{color:#22c55e;font-weight:800}
 .total{font-size:22px;font-weight:900}
+
+/* bottoni “fighi” come checkout */
+.actions{display:flex;gap:10px;margin-top:16px;flex-wrap:wrap;justify-content:center}
+.btn{display:inline-block;padding:12px 16px;border-radius:10px;background:var(--accent);color:#000;font-weight:900;text-decoration:none;border:none;cursor:pointer}
+.btn.alt{background:transparent;border:1px solid var(--accent);color:#fff}
+.btn.ok{background:#22c55e;color:#061d10}
+.btn:disabled{opacity:.5;cursor:not-allowed}
 </style>
 </head>
 <body>
@@ -83,10 +93,8 @@ input[type="text"], input[type="email"]{background:#0f0f10;border:1px solid var(
     <div class="card">
       <div class="sectionTitle">Nominativi</div>
       <div id="list" class="list"></div>
-      <!-- sotto il primo aggiungo l’helper “Usa i miei dati” -->
-      <div id="useMeWrap"></div>
 
-      <!-- BLOCCO PROTEZIONE (mostrato solo se NON era già attiva) -->
+      <!-- blocco protezione (solo se NON attiva nel checkout) -->
       <div id="cnBlock"></div>
     </div>
 
@@ -105,7 +113,7 @@ input[type="text"], input[type="email"]{background:#0f0f10;border:1px solid var(
       <div class="hr"></div>
       <div class="line total"><span>Totale (IVA inclusa)</span><strong id="grand">0€</strong></div>
 
-      <div class="line" style="justify-content:center;margin-top:14px">
+      <div class="actions">
         <button id="back" class="btn alt" type="button">Indietro</button>
         <button id="pay" class="btn ok" type="button">Procedi al pagamento</button>
       </div>
@@ -116,7 +124,7 @@ input[type="text"], input[type="email"]{background:#0f0f10;border:1px solid var(
 <script type="module">
 import { onUser } from './auth.v2.js?v=3';
 
-/* --- saluto --- */
+/* Saluto */
 let me={first:'',last:'',email:''};
 onUser((u)=>{
   if(!u) return;
@@ -125,25 +133,25 @@ onUser((u)=>{
   document.getElementById('pageTitle').innerHTML = `Ciao, <strong>${me.first||'ospite'}</strong> — assegna i biglietti`;
 });
 
-/* --- parametri dal checkout --- */
+/* Parametri dal checkout */
 const qs = new URLSearchParams(location.search);
 const nStd  = +(qs.get('std')||0);
 const nFast = +(qs.get('fast')||0);
 const nVip  = +(qs.get('vip')||0);
 const nEb   = +(qs.get('eb')||0);
-const promoNC = qs.get('nc') === '1';   // protezione già attiva dal checkout?
+const promoNC = qs.get('nc') === '1'; // se selezionata prima
 
-/* --- prezzi come checkout --- */
+/* Prezzi come checkout */
 const PRICE = { EB:12, STD:15, FAST:20, VIP:25, NAMECHANGE:1.90, STD3:40 };
 
-/* --- costruzione lista --- */
+/* Costruzione lista: primo biglietto + helper, poi tutti gli altri */
 const list = document.getElementById('list');
-const rows = []; let idx = 1;
+const rows = [];
 function addRow(type,label,pill){
   const el=document.createElement('div'); el.className='row'; el.dataset.type=type;
-  el.innerHTML = `
+  el.innerHTML=`
     <div>
-      <div class="tag">Biglietto ${idx++}</div>
+      <div class="tag">Biglietto ${rows.length+1}</div>
       <span class="badge" style="margin-top:4px;display:inline-flex"><span class="pill ${pill}"></span>${label}</span>
     </div>
     <input class="fn" type="text" placeholder="Nome">
@@ -152,27 +160,36 @@ function addRow(type,label,pill){
   `;
   list.appendChild(el); rows.push(el);
 }
-for(let i=0;i<nEb;i++)   addRow('EB','Early Bird','p-eb');
-for(let i=0;i<nStd;i++)  addRow('STD','Standard','p-std');
-for(let i=0;i<nFast;i++) addRow('FAST','Fast Entry','p-fast');
-for(let i=0;i<nVip;i++)  addRow('VIP','VIP Entry','p-vip');
 
-/* --- helper “Usa i miei dati per il primo biglietto” molto visibile --- */
-if(rows.length){
-  const wrap=document.getElementById('useMeWrap');
-  wrap.innerHTML = `
-    <label class="use-me"><input id="useMe" type="checkbox">
-      <span>Usa i miei dati per il primo biglietto</span>
-    </label>`;
-  document.getElementById('useMe').addEventListener('change',(e)=>{
+/* Produci una sequenza ordinata: EB -> STD -> FAST -> VIP */
+const seq = [];
+for(let i=0;i<nEb;i++)   seq.push(['EB','Early Bird','p-eb']);
+for(let i=0;i<nStd;i++)  seq.push(['STD','Standard','p-std']);
+for(let i=0;i<nFast;i++) seq.push(['FAST','Fast Entry','p-fast']);
+for(let i=0;i<nVip;i++)  seq.push(['VIP','VIP Entry','p-vip']);
+
+if(seq.length){
+  // primo biglietto
+  addRow(...seq[0]);
+  // helper subito dopo il primo biglietto
+  const helper=document.createElement('label');
+  helper.className='use-me';
+  helper.innerHTML=`<input id="useMe" type="checkbox"><span>Usa i miei dati per il primo biglietto</span>`;
+  list.appendChild(helper);
+  helper.querySelector('#useMe').addEventListener('change',(e)=>{
     const r=rows[0]; const fn=r.querySelector('.fn'), ln=r.querySelector('.ln'), em=r.querySelector('.em');
     if(e.target.checked){ fn.value=me.first; ln.value=me.last; em.value=me.email; [fn,ln,em].forEach(i=>i.classList.remove('err')); }
     else { fn.value=''; ln.value=''; em.value=''; }
   });
+  // resto dei biglietti
+  for(let i=1;i<seq.length;i++) addRow(...seq[i]);
+} else {
+  // nessuna assegnazione necessaria (1 solo ticket o 0)
+  list.innerHTML = `<div class="small">Nessuna assegnazione necessaria.</div>`;
 }
 
-/* --- blocco protezione: mostrato SOLO se non era attiva --- */
-let cnGlobalChecked = promoNC;  // se già attiva, resta true ma non mostriamo nulla
+/* Blocco protezione: SOLO se non era attiva */
+let cnGlobalChecked = promoNC;
 const cnBlock = document.getElementById('cnBlock');
 if(!promoNC){
   cnBlock.className='cn-block';
@@ -188,7 +205,7 @@ if(!promoNC){
   document.getElementById('cnGlobal').addEventListener('change',(e)=>{ cnGlobalChecked=e.target.checked; render(); saveCart(); });
 }
 
-/* --- riepilogo (uguale al checkout) --- */
+/* Riepilogo come checkout */
 const lines = document.getElementById('lines');
 const cnTot = document.getElementById('cnTot');
 const grand = document.getElementById('grand');
@@ -218,20 +235,7 @@ function render(){
 }
 render();
 
-/* --- salvataggio carrello per tornare al checkout con dati aggiornati --- */
-function saveCart(){
-  const cart = { eb:nEb, std:nStd, fast:nFast, vip:nVip, nc: cnGlobalChecked?1:0 };
-  localStorage.setItem('trapperreo_cart', JSON.stringify(cart));
-}
-// salva subito lo stato attuale
-saveCart();
-
-document.getElementById('back').addEventListener('click', ()=>{
-  saveCart();
-  location.href = './checkout.html';
-});
-
-/* --- validazione e conferma se protezione OFF (solo se non attiva già) --- */
+/* Validazione & conferma se protezione OFF */
 function valid(){
   let ok=true;
   rows.forEach(r=>{
@@ -244,6 +248,19 @@ function valid(){
   if(!ok) alert('Compila nome, cognome ed email validi per ogni biglietto.');
   return ok;
 }
+
+/* Persistenza carrello per tornare al checkout con riepilogo pieno */
+function saveCart(){
+  const cart = { eb:nEb, std:nStd, fast:nFast, vip:nVip, nc: cnGlobalChecked?1:0 };
+  localStorage.setItem('trapperreo_cart', JSON.stringify(cart));
+}
+saveCart();
+
+document.getElementById('back').addEventListener('click', ()=>{
+  saveCart();
+  location.href='./checkout.html';
+});
+
 document.getElementById('pay').addEventListener('click', ()=>{
   if(!valid()) return;
   if(!promoNC && !cnGlobalChecked){
