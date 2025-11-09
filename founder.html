@@ -36,13 +36,11 @@ input,select{background:#0f0f10;border:1px solid var(--border);border-radius:10p
   <!-- Banner errori -->
   <div id="errBanner" class="notice"></div>
 
-  <!-- Azioni rapide aggiunte -->
+  <!-- Azioni rapide (ora link verso pagine dedicate) -->
   <div class="card" style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
-    <input id="eventIdInput" placeholder="eventId (es. event-001)" style="flex:1;min-width:220px">
+    <a href="./founder-gift.html" class="btn ghost">Crea omaggio</a>
+    <a href="./founder-discount.html" class="btn ghost">Codice sconto</a>
     <button id="btnExportCSV" class="btn">Export CSV utenti</button>
-    <button id="btnGift" class="btn ghost">Crea omaggio…</button>
-    <button id="btnDiscAll" class="btn ghost">Codice sconto (per tutti)…</button>
-    <button id="btnDiscUser" class="btn ghost">Codice sconto (per persona)…</button>
   </div>
 
   <section class="card">
@@ -79,10 +77,8 @@ input,select{background:#0f0f10;border:1px solid var(--border);border-radius:10p
 </main>
 
 <script type="module">
-import { app, onUser, exportUsersCSV, createGiftTicket, createDiscountCode } from './auth.v2.js?v=6';
-import {
-  getFirestore, doc, getDoc, setDoc, collection, getDocs
-} from 'https://www.gstatic.com/firebasejs/12.5.0/firebase-firestore.js';
+import { app, onUser, exportUsersCSV } from './auth.v2.js?v=6';
+import { getFirestore, doc, getDoc, setDoc, collection, getDocs } from 'https://www.gstatic.com/firebasejs/12.5.0/firebase-firestore.js';
 
 const db = getFirestore(app);
 
@@ -98,13 +94,7 @@ const btnReload = document.getElementById('btnReload');
 const tbody     = document.querySelector('#tbl tbody');
 const emptyMsg  = document.getElementById('empty');
 const listLoad  = document.getElementById('listLoad');
-
-// nuovi
-const eventIdInput = document.getElementById('eventIdInput');
 const btnExportCSV = document.getElementById('btnExportCSV');
-const btnGift      = document.getElementById('btnGift');
-const btnDiscAll   = document.getElementById('btnDiscAll');
-const btnDiscUser  = document.getElementById('btnDiscUser');
 
 const lc = s => (s||'').toString().trim().toLowerCase();
 
@@ -148,15 +138,11 @@ function renderRows(users){
           ${['active','suspended','deleted'].map(s=>`<option value="${s}" ${u.status===s?'selected':''}>${s}</option>`).join('')}
         </select>
       </td>
-      <td>
-        <button class="btn ghost small" data-save="${u.uid}">Salva</button>
-        <button class="btn ghost small" data-gift="${u.uid}">Omaggio</button>
-      </td>
+      <td><button class="btn ghost small" data-save="${u.uid}">Salva</button></td>
     `;
     tbody.appendChild(tr);
   });
 
-  // bind salva
   tbody.querySelectorAll('button[data-save]').forEach(btn=>{
     btn.addEventListener('click', async ()=>{
       const uid = btn.getAttribute('data-save');
@@ -172,25 +158,6 @@ function renderRows(users){
         showError('Errore durante il salvataggio. Controlla le regole o i permessi.');
       }finally{
         setTimeout(()=>{ btn.textContent='Salva'; btn.disabled=false; }, 900);
-      }
-    });
-  });
-
-  // bind omaggio per riga
-  tbody.querySelectorAll('button[data-gift]').forEach(btn=>{
-    btn.addEventListener('click', async ()=>{
-      const uid = btn.getAttribute('data-gift');
-      const eventId = (eventIdInput?.value || 'event-001').trim();
-      btn.disabled = true; btn.textContent = 'Creo…';
-      try{
-        await createGiftTicket(uid, { eventId });
-        btn.textContent = 'Omaggio ✓';
-      }catch(e){
-        console.error(e);
-        btn.textContent = 'Errore';
-        showError('Non posso creare il biglietto omaggio (permessi/regole?).');
-      }finally{
-        setTimeout(()=>{ btn.textContent='Omaggio'; btn.disabled=false; }, 1000);
       }
     });
   });
@@ -289,51 +256,6 @@ onUser(async (u)=>{
       btnExportCSV.textContent = 'Export CSV utenti';
     }finally{
       setTimeout(()=>{ btnExportCSV.disabled=false; btnExportCSV.textContent='Export CSV utenti'; },1000);
-    }
-  });
-
-  // Omaggio (dialog semplice)
-  btnGift?.addEventListener('click', async ()=>{
-    const uid = prompt('UID destinatario (users/{uid})');
-    if(!uid) return;
-    const eventId = (eventIdInput?.value || 'event-001').trim();
-    try{
-      await createGiftTicket(uid.trim(), { eventId });
-      alert('Omaggio creato ✓');
-    }catch(e){
-      console.error(e); showError('Non posso creare l\'omaggio (permessi/regole?).');
-    }
-  });
-
-  // Codice sconto per tutti
-  btnDiscAll?.addEventListener('click', async ()=>{
-    const code = prompt('Codice (testo libero, NON sarà salvato in chiaro)');
-    if(!code) return;
-    const label = prompt('Etichetta (es. Promo Opening)') || 'Promo';
-    const type  = prompt('Tipo: "percent" oppure "fixed"', 'percent') || 'percent';
-    const amount= Number(prompt('Valore (es. 10 = 10% oppure 5 = 5€)', '10') || '10');
-    try{
-      await createDiscountCode({ plainCode: code, label, type, amount, appliesTo: 'all' });
-      alert('Codice per tutti creato ✓ (hash salvato in Firestore)');
-    }catch(e){
-      console.error(e); showError('Creazione codice fallita (permessi/regole?).');
-    }
-  });
-
-  // Codice sconto per persona
-  btnDiscUser?.addEventListener('click', async ()=>{
-    const code = prompt('Codice personale (NON salvato in chiaro)');
-    if(!code) return;
-    const userId = prompt('UID assegnatario (users/{uid})');
-    if(!userId) return;
-    const label = prompt('Etichetta', 'Promo Personal') || 'Promo Personal';
-    const type  = prompt('Tipo: "percent" oppure "fixed"', 'percent') || 'percent';
-    const amount= Number(prompt('Valore (es. 10 = 10% oppure 5 = 5€)', '10') || '10');
-    try{
-      await createDiscountCode({ plainCode: code, label, type, amount, appliesTo: 'user', userId: userId.trim() });
-      alert('Codice personale creato ✓');
-    }catch(e){
-      console.error(e); showError('Creazione codice fallita (permessi/regole?).');
     }
   });
 });
