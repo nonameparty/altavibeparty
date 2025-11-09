@@ -1,131 +1,162 @@
-<!DOCTYPE html><html lang="it"><head>
-<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Area Founder</title>
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Founder — TRAPPERREO</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&display=swap" rel="stylesheet" />
 <style>
-body{background:#000;color:#fff;font-family:Inter,system-ui,sans-serif;margin:0;padding:20px}
-.card{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:14px;padding:16px;margin-bottom:14px}
-input,select,button{background:#0b0b0b;border:1px solid rgba(255,255,255,.2);color:#fff;border-radius:10px;padding:10px}
-button{cursor:pointer;font-weight:800}
-.row{display:flex;gap:10px;flex-wrap:wrap}
-label{font-size:13px;opacity:.8;display:block;margin-bottom:6px}
-h1{font-weight:800;margin:0 0 10px}
-h2{font-weight:800;margin:0 0 8px;font-size:18px}
-small{opacity:.75}
-.hidden{display:none}
-.table{width:100%;border-collapse:collapse;margin-top:10px}
-.table th,.table td{border-bottom:1px solid rgba(255,255,255,.1);padding:8px;text-align:left}
-.ok{color:#22c55e}.warn{color:#f59e0b}.err{color:#ef4444}
-</style></head><body>
-<h1>Area Founder</h1>
+:root{--accent:#8b5cf6;--border:rgba(255,255,255,.12);--muted:rgba(255,255,255,.78)}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#000;color:#fff;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;line-height:1.5;min-height:100vh}
+.wrap{max-width:1100px;margin:auto;padding:22px}
+h1{font-size:32px;font-weight:900;margin-bottom:8px}
+.muted{color:var(--muted)}
+.card{background:rgba(255,255,255,.06);border:1px solid var(--border);border-radius:16px;padding:18px;margin-top:14px}
+input,select{background:#0f0f10;border:1px solid var(--border);border-radius:10px;color:#fff;padding:10px}
+.btn{display:inline-block;padding:10px 14px;border-radius:10px;background:var(--accent);color:#000;font-weight:900;border:none;cursor:pointer}
+.btn.ghost{background:transparent;border:1px solid var(--border);color:#fff}
+.grid2{display:grid;grid-template-columns:1fr auto;gap:10px}
+.table{width:100%;border-collapse:collapse;margin-top:12px;font-size:14px}
+.table th,.table td{padding:10px;border-bottom:1px solid rgba(255,255,255,.08)}
+.badge{display:inline-block;font-size:12px;border:1px solid var(--border);border-radius:999px;padding:3px 8px}
+</style>
+</head>
+<body>
+<main class="wrap">
+  <h1>Pannello Founder</h1>
+  <div id="who" class="muted">Verifica permessi…</div>
 
-<div class="card"><h2>Controllo accesso</h2><div id="me">Verifica ruolo…</div></div>
-
-<div class="card">
-  <h2>Cerca utente</h2>
-  <div class="row">
-    <div><label>Email esatta</label><input id="qEmail" placeholder="utente@example.com" size="28"></div>
-    <div><label>&nbsp;</label><button id="btnFind">Cerca</button></div>
-  </div>
-  <div id="result"></div>
-</div>
-
-<div class="card">
-  <h2>Azione rapido profilo</h2>
-  <div class="row">
-    <div><label>UID</label><input id="uid" placeholder="uid" size="34"></div>
-    <div><label>Ruolo</label>
-      <select id="role">
-        <option value="customer">customer</option>
-        <option value="pr">pr</option>
-        <option value="admin">admin</option>
-        <option value="founder">founder</option>
-      </select>
+  <section class="card">
+    <h2>Statistiche rapide</h2>
+    <div style="display:flex;gap:16px;flex-wrap:wrap;margin-top:8px">
+      <div class="badge">Utenti attivi: <span id="statActive">—</span></div>
+      <div class="badge">Utenti totali: <span id="statTotal">—</span></div>
     </div>
-  </div>
-  <div class="row" style="margin-top:8px">
-    <button id="btnSetRole">Imposta ruolo</button>
-    <button id="btnBan" class="warn">Banna</button>
-    <button id="btnUnban" class="ok">Unban</button>
-  </div>
-  <div id="opMsg" style="margin-top:8px"></div>
-</div>
+  </section>
 
-<div class="card"><h2>Statistiche (ordini)</h2><div id="stats">Calcolo…</div></div>
+  <section class="card">
+    <h2>Gestione utenti</h2>
+    <div class="grid2">
+      <input id="q" placeholder="Cerca per email o nome…" />
+      <button id="btnSearch" class="btn">Cerca</button>
+    </div>
+    <table class="table" id="tbl">
+      <thead>
+        <tr><th>Nome</th><th>Email</th><th>Ruolo</th><th>Status</th><th>Azioni</th></tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </section>
+</main>
 
 <script type="module">
-import { app, onUser } from './auth.v2.js';
+import { app, onUser } from './auth.v2.js?v=3';
 import {
-  getFirestore, doc, getDoc, setDoc, collection, query, where, getDocs
-} from "https://www.gstatic.com/firebasejs/12.5.0/firebase-firestore.js";
+  getFirestore, doc, getDoc, setDoc, collection, query, where, getDocs, updateDoc
+} from 'https://www.gstatic.com/firebasejs/12.5.0/firebase-firestore.js';
 
 const db = getFirestore(app);
-const $ = (s)=>document.querySelector(s);
-const me = $('#me'), qEmail = $('#qEmail'), btnFind = $('#btnFind');
-const result = $('#result'), uidInput = $('#uid'), roleSel = $('#role'), opMsg = $('#opMsg');
+const who = document.getElementById('who');
+const statActive = document.getElementById('statActive');
+const statTotal  = document.getElementById('statTotal');
+const qInput = document.getElementById('q');
+const btnSearch = document.getElementById('btnSearch');
+const tbody = document.querySelector('#tbl tbody');
 
 async function isFounder(email){
-  const cfg = await getDoc(doc(db,'config','admins'));
-  const founders = cfg.exists() ? (cfg.data().founders || {}) : {};
-  return founders[email] === true;
+  try{
+    const snap = await getDoc(doc(db,'config','admins'));
+    const founders = snap.exists() ? (snap.data().founders || {}) : {};
+    return !!founders[email];
+  }catch(_){ return false; }
+}
+
+function renderRows(users){
+  tbody.innerHTML = '';
+  users.forEach(u=>{
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>${u.name || '—'}</td>
+      <td>${u.email || '—'}</td>
+      <td>
+        <select data-uid="${u.uid}" class="roleSel">
+          ${['customer','pr','admin','founder'].map(r=>`<option value="${r}" ${u.role===r?'selected':''}>${r}</option>`).join('')}
+        </select>
+      </td>
+      <td>
+        <select data-uid="${u.uid}" class="statusSel">
+          ${['active','suspended','deleted'].map(s=>`<option value="${s}" ${u.status===s?'selected':''}>${s}</option>`).join('')}
+        </select>
+      </td>
+      <td><button class="btn ghost" data-save="${u.uid}">Salva</button></td>
+    `;
+    tbody.appendChild(tr);
+  });
+
+  // Bind salvataggi
+  tbody.querySelectorAll('button[data-save]').forEach(btn=>{
+    btn.addEventListener('click', async ()=>{
+      const uid = btn.getAttribute('data-save');
+      const role = tbody.querySelector(`select.roleSel[data-uid="${uid}"]`).value;
+      const status = tbody.querySelector(`select.statusSel[data-uid="${uid}"]`).value;
+      await updateDoc(doc(db,'users',uid), { role, status });
+      btn.textContent = 'Salvato ✓';
+      setTimeout(()=>btn.textContent='Salva', 1200);
+    });
+  });
+}
+
+async function runStats(){
+  const usersCol = collection(db,'users');
+  const all = await getDocs(usersCol);
+  let active=0;
+  all.forEach(d=>{ if((d.data().status||'active')==='active') active++; });
+  statActive.textContent = active;
+  statTotal.textContent  = all.size;
+}
+
+async function searchUsers(qs){
+  const out = [];
+  if(!qs){ tbody.innerHTML=''; return; }
+
+  // 1) by email (exact)
+  const byEmail = await getDocs(query(collection(db,'users'), where('email','==',qs)));
+  byEmail.forEach(d=>out.push({uid:d.id, ...d.data()}));
+
+  // 2) by lowercase name startsWith
+  const qlc = qs.toLowerCase();
+  const byName = await getDocs(collection(db,'users'));
+  byName.forEach(d=>{
+    const v=d.data();
+    if((v.name_lc||'').startsWith(qlc)) out.push({uid:d.id, ...v});
+  });
+
+  // dedup per uid
+  const seen = new Set();
+  const list = out.filter(x=>{ if(seen.has(x.uid)) return false; seen.add(x.uid); return true; });
+
+  renderRows(list);
 }
 
 onUser(async (u)=>{
-  if(!u){ location.href='./login.html?from=./founder.html'; return; }
-  if(!(await isFounder(u.email))){
-    me.innerHTML = '<span class="err">Accesso negato (non sei founder)</span>'; return;
+  if(!u){ location.href = './login.html?from=./founder.html'; return; }
+
+  const uDoc = await getDoc(doc(db,'users',u.uid));
+  const data = uDoc.exists() ? uDoc.data() : {};
+  const allowed = (data.role === 'founder') || await isFounder(u.email || '');
+  if(!allowed){
+    who.textContent = 'Accesso negato (solo Founder).';
+    setTimeout(()=>location.href='./account-2.html', 1200);
+    return;
   }
-  me.innerHTML = `<span class="ok">Sei founder</span> — ${u.email}`;
-  loadStats();
-});
+  who.textContent = `Ciao ${data.name || u.email} — hai pieni poteri Founder.`;
 
-btnFind.addEventListener('click', async ()=>{
-  const email = qEmail.value.trim().toLowerCase();
-  if(!email){ result.textContent='Inserisci email'; return; }
-  const q = query(collection(db,'users'), where('email','==',email));
-  const snap = await getDocs(q);
-  if(snap.empty){ result.innerHTML = '<div class="err">Nessun utente trovato</div>'; return; }
-  const rows = [];
-  snap.forEach(d=>{
-    const x=d.data();
-    rows.push(`<tr>
-      <td>${d.id}</td><td>${x.email||''}</td>
-      <td>${x.firstName||''} ${x.lastName||''}</td>
-      <td>${x.role||''}</td>
-      <td>${x.banned?'<span class="err">banned</span>':'ok'}</td>
-      <td><button data-uid="${d.id}" class="pick">Seleziona</button></td>
-    </tr>`);
-  });
-  result.innerHTML = `<table class="table">
-    <thead><tr><th>UID</th><th>Email</th><th>Nome</th><th>Ruolo</th><th>Stato</th><th></th></tr></thead>
-    <tbody>${rows.join('')}</tbody></table>`;
-  result.querySelectorAll('.pick').forEach(b=>{
-    b.addEventListener('click', ()=>{ uidInput.value = b.getAttribute('data-uid')||''; opMsg.textContent=''; });
-  });
-});
+  await runStats();
 
-$('#btnSetRole').addEventListener('click', async ()=>{
-  const uid = uidInput.value.trim(); const role = roleSel.value;
-  if(!uid){ opMsg.textContent='UID mancante'; return; }
-  await setDoc(doc(db,'users',uid), { role, updatedAt: Date.now() }, { merge:true });
-  opMsg.innerHTML = `<span class="ok">Ruolo aggiornato: ${role}</span>`;
+  btnSearch.addEventListener('click', ()=>searchUsers(qInput.value.trim()));
+  qInput.addEventListener('keydown', (e)=>{ if(e.key==='Enter') btnSearch.click(); });
 });
-
-$('#btnBan').addEventListener('click', async ()=>{
-  const uid = uidInput.value.trim(); if(!uid){ opMsg.textContent='UID mancante'; return; }
-  await setDoc(doc(db,'users',uid), { banned:true, bannedAt: Date.now() }, { merge:true });
-  opMsg.innerHTML = `<span class="warn">Utente bannato</span>`;
-});
-$('#btnUnban').addEventListener('click', async ()=>{
-  const uid = uidInput.value.trim(); if(!uid){ opMsg.textContent='UID mancante'; return; }
-  await setDoc(doc(db,'users',uid), { banned:false }, { merge:true });
-  opMsg.innerHTML = `<span class="ok">Utente sbloccato</span>`;
-});
-
-async function loadStats(){
-  const snap = await getDocs(collection(db,'orders'));
-  let gross=0, net=0, count=0;
-  snap.forEach(d=>{ const x=d.data(); count++; gross+=Number(x.amountGross||0); net+=Number(x.amountNet||0); });
-  $('#stats').innerHTML = `Ordini: <b>${count}</b><br>Lordo: <b>€${gross.toFixed(2)}</b><br>Netto: <b>€${net.toFixed(2)}</b>`;
-}
 </script>
-</body></html>
+</body>
+</html>
