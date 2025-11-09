@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Crea sconto — per tutti</title>
+<title>Crea sconto — per persona</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&display=swap" rel="stylesheet" />
 <style>
 :root{--accent:#8b5cf6;--border:rgba(255,255,255,.12);--muted:rgba(255,255,255,.78)}
@@ -20,13 +20,17 @@ input,select{width:100%;background:#0f0f10;border:1px solid var(--border);border
 .btn.ghost{background:transparent;border:1px solid var(--border);color:#fff}
 .notice{display:none;margin:10px 0;padding:12px;border-radius:10px;background:#2a0e0e;border:1px solid #ff6b6b;color:#ffdede}
 .ok{display:none;margin:10px 0;padding:12px;border-radius:10px;background:#0e2a14;border:1px solid #34d399;color:#c6f6d5}
-.chkline{display:flex;gap:10px;flex-wrap:wrap}
+.suggest{margin-top:8px;border:1px solid var(--border);border-radius:10px;overflow:hidden}
+.suggest div{padding:10px;background:#0b0b0b;border-bottom:1px solid rgba(255,255,255,.08);cursor:pointer}
+.suggest div:hover{background:#111}
+.chkline{display:flex;gap:10px;flex-wrap:wrap;margin-top:8px}
 .chkline label{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--border);border-radius:10px;padding:8px 10px}
+.badge{display:inline-block;border:1px solid var(--border);border-radius:999px;padding:3px 8px;font-size:12px}
 </style>
 </head>
 <body>
 <main class="wrap">
-  <h1>Crea codice sconto — <span class="muted">per tutti</span></h1>
+  <h1>Crea codice sconto — <span class="muted">per persona</span></h1>
   <div class="muted" id="who">Verifica permessi…</div>
 
   <div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap">
@@ -37,8 +41,13 @@ input,select{width:100%;background:#0f0f10;border:1px solid var(--border);border
   <div id="ok" class="ok"></div>
 
   <section class="card">
-    <label>Codice da digitare (es. <strong>OPENING10</strong>)</label>
-    <input id="code" placeholder="Inserisci il codice" />
+    <label>Seleziona utente (email o nome/cognome)</label>
+    <input id="userQuery" placeholder="Es. mario.rossi@email.it o 'mario rossi'" />
+    <div id="suggest" class="suggest" style="display:none"></div>
+    <div id="picked" class="muted" style="margin-top:6px"></div>
+
+    <label style="margin-top:12px">Codice da digitare</label>
+    <input id="code" placeholder="Es. VIPMARCO" />
 
     <div class="row">
       <div>
@@ -55,9 +64,9 @@ input,select{width:100%;background:#0f0f10;border:1px solid var(--border);border
     </div>
 
     <label>Etichetta (facoltativa)</label>
-    <input id="label" placeholder="Es. PROMO OPENING" />
+    <input id="label" placeholder="Es. PRIVÉ MARCO" />
 
-    <label style="margin-top:12px">Tipologie su cui si applica</label>
+    <label style="margin-top:10px">Tipologie su cui si applica</label>
     <div class="chkline" id="skuBox">
       <label><input type="checkbox" data-sku="ALL" checked /> Tutte</label>
       <label><input type="checkbox" data-sku="EB" /> Early Bird</label>
@@ -82,9 +91,10 @@ import {
 } from 'https://www.gstatic.com/firebasejs/12.5.0/firebase-firestore.js';
 
 const db = getFirestore(app);
-const E = id=>document.getElementById(id);
-const err=E('err'), ok=E('ok');
+const E=id=>document.getElementById(id);
+const err=E('err'), ok=E('ok'), suggest=E('suggest'), picked=E('picked');
 const norm = s => (s||'').toString().trim().toUpperCase().replace(/\s+/g,'').replace(/[^A-Z0-9_-]/g,'');
+const lc = s => (s||'').toString().trim().toLowerCase();
 function showErr(m){ err.textContent=m; err.style.display='block'; }
 function hideErr(){ err.style.display='none'; }
 function showOk(m){ ok.textContent=m; ok.style.display='block'; setTimeout(()=> ok.style.display='none', 1600); }
@@ -96,22 +106,41 @@ function readAllowedSkus(){
   const arr = all.filter(c=>c.dataset.sku!=='ALL' && c.checked).map(c=>c.dataset.sku);
   return arr.length ? arr : ['EB','STD','FAST','VIP'];
 }
-
 async function isFounder(email){
   try{
-    const s = await getDoc(doc(db,'config','admins'));
-    return (s.exists() ? (s.data().founders||{})[ (email||'').toLowerCase() ] : false) === true;
+    const s=await getDoc(doc(db,'config','admins'));
+    return (s.exists()? (s.data().founders||{})[ (email||'').toLowerCase() ]: false)===true;
   }catch(_){ return false; }
 }
 async function codeExists(code){
   const snap = await getDocs(collection(db,'discountCodes'));
-  const l = code.toLowerCase(); let found=false;
-  snap.forEach(d=>{ if((d.data().code||'').toString().toLowerCase()===l) found=true; });
-  return found;
+  const l=code.toLowerCase(); let f=false;
+  snap.forEach(d=>{ if((d.data().code||'').toString().toLowerCase()===l) f=true; });
+  return f;
+}
+async function searchUsers(term){
+  const s = await getDocs(collection(db,'users'));
+  const t = lc(term); const out=[];
+  s.forEach(d=>{
+    const v=d.data()||{};
+    const em=lc(v.email), nm=lc(v.name_lc||v.name||'');
+    if(!t) return;
+    if (em===t || em.startsWith(t) || (nm && nm.startsWith(t))) out.push({uid:d.id,email:v.email||'',name:v.name||''});
+  });
+  out.sort((a,b)=> (a.name||'').localeCompare(b.name||'')); return out.slice(0,10);
+}
+
+let chosen=null;
+function renderSuggest(list){
+  if(!list.length){ suggest.style.display='none'; suggest.innerHTML=''; return; }
+  suggest.innerHTML = list.map(u=>`<div data-uid="${u.uid}" data-email="${u.email}" data-name="${u.name}">
+    <strong>${u.name||'—'}</strong> <span class="badge">${u.email}</span>
+  </div>`).join('');
+  suggest.style.display='block';
 }
 
 onUser(async (u)=>{
-  if(!u){ location.href='./login.html?from=./create-discount-all.html'; return; }
+  if(!u){ location.href='./login.html?from=./create-discount-user.html'; return; }
   const me = await getDoc(doc(db,'users',u.uid)).catch(()=>null);
   const meData = me && me.exists() ? me.data() : {};
   const allowed = (meData.role==='founder') || await isFounder(u.email||'');
@@ -120,11 +149,23 @@ onUser(async (u)=>{
     : 'Accesso negato (solo Founder).';
   if(!allowed){ setTimeout(()=>location.href='./account-2.html',1200); return; }
 
-  // logica "Tutte" → spunta/dispunta gli altri
   const all = document.querySelector('#skuBox input[data-sku="ALL"]');
   const others = [...document.querySelectorAll('#skuBox input[data-sku]:not([data-sku="ALL"])')];
   all.addEventListener('change',()=>{ if(all.checked) others.forEach(c=>c.checked=false); });
   others.forEach(c=>c.addEventListener('change',()=>{ if(others.some(x=>x.checked)) all.checked=false; }));
+
+  E('userQuery').addEventListener('input', async e=>{
+    chosen=null; picked.textContent='';
+    const term=e.target.value.trim();
+    if(term.length<2){ renderSuggest([]); return; }
+    const list = await searchUsers(term); renderSuggest(list);
+  });
+  suggest.addEventListener('click', e=>{
+    const r=e.target.closest('div[data-uid]'); if(!r) return;
+    chosen={ uid:r.dataset.uid, email:r.dataset.email, name:r.dataset.name };
+    E('userQuery').value = `${chosen.name} <${chosen.email}>`;
+    suggest.style.display='none'; picked.textContent=`Selezionato: ${chosen.name} — ${chosen.email}`;
+  });
 
   E('save').addEventListener('click', async ()=>{
     hideErr();
@@ -135,6 +176,7 @@ onUser(async (u)=>{
     const active = E('active').checked;
     const allowedSkus = readAllowedSkus();
 
+    if(!chosen) return showErr('Seleziona prima un utente.');
     if(!code) return showErr('Inserisci un codice valido.');
     if(amount<=0) return showErr('Inserisci un valore maggiore di zero.');
     if(await codeExists(code)) return showErr('Esiste già un codice con questo nome.');
@@ -142,9 +184,8 @@ onUser(async (u)=>{
     try{
       await addDoc(collection(db,'discountCodes'), {
         code, type, amount, label,
-        appliesTo:'all', allowedSkus,
-        active: !!active,
-        createdAt: serverTimestamp(), updatedAt: serverTimestamp()
+        appliesTo:'user', userEmail: chosen.email.toLowerCase(), userName: chosen.name||'',
+        allowedSkus, active: !!active, createdAt: serverTimestamp(), updatedAt: serverTimestamp()
       });
       showOk('Codice creato!'); setTimeout(()=>location.href='./founder-discount.html',600);
     }catch(e){ console.error(e); showErr('Errore nel salvataggio (regole?).'); }
