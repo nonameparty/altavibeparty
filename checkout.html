@@ -338,7 +338,7 @@ function render(){
   }
 
   lines.innerHTML = arr.join('');
-  grand.textContent = money(subtotal + extra);  // <-- include protezione
+  grand.textContent = money(subtotal); // il subtotale include già la riga Protezione  // <-- include protezione
   payBtn.disabled = tickets<=0;
 
   saveCartFromUI();
