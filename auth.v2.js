@@ -7,7 +7,6 @@ import {
 } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-auth.js";
 import {
   getFirestore, doc, getDoc, setDoc, serverTimestamp,
-  // === AGGIUNTA ===
   collection, getDocs, addDoc, updateDoc
 } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-firestore.js";
 
@@ -104,7 +103,7 @@ export function requireActiveUser(redirect = "./login.html"){
   }));
 }
 
-// === AGGIUNTA: utilità founder lato client (stessa logica regole) ===
+// === Founder helper (client) ===
 export async function isFounderClient(email, uid){
   try{
     const cfg = await getDoc(doc(db,'config','admins'));
@@ -118,7 +117,7 @@ export async function isFounderClient(email, uid){
   return false;
 }
 
-// === AGGIUNTA: CSV lato client ===
+// === CSV lato client ===
 export function toCSV(rows){
   if(!rows?.length) return "";
   const headers = Array.from(new Set(rows.flatMap(r=>Object.keys(r))));
@@ -135,14 +134,14 @@ export function downloadCSV(filename, rows){
   document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
 }
 
-// === AGGIUNTA: SHA-256 per codici sconto sicuri ===
+// === SHA-256 per codici sconto sicuri ===
 export async function sha256Hex(s){
   const enc = new TextEncoder().encode(s);
   const buf = await crypto.subtle.digest("SHA-256", enc);
   return [...new Uint8Array(buf)].map(b => b.toString(16).padStart(2,"0")).join("");
 }
 
-// === AGGIUNTA: crea codice sconto (solo founder) ===
+// === Codici sconto (create/list/toggle) ===
 export async function createDiscountCode({ plainCode, label, type, amount, appliesTo, userId }){
   const u = auth.currentUser;
   if(!u) throw new Error("not-signed-in");
@@ -150,11 +149,11 @@ export async function createDiscountCode({ plainCode, label, type, amount, appli
   const hash = await sha256Hex(plainCode);
   await setDoc(doc(db,"discountCodes",hash), {
     label,
-    type,           // "percent" | "fixed"
-    amount,         // numero
-    appliesTo,      // "all" | "user"
+    type,              // "percent" | "fixed"
+    amount,            // numero
+    appliesTo,         // "all" | "user"
     userId: appliesTo==="user" ? (userId || u.uid) : null,
-    maxRedemptions: appliesTo==="user" ? 1 : 999999, // nota: limite globale forte richiede backend
+    maxRedemptions: appliesTo==="user" ? 1 : 999999,
     redeemedCount: 0,
     active: true,
     updatedAt: serverTimestamp(),
@@ -163,7 +162,35 @@ export async function createDiscountCode({ plainCode, label, type, amount, appli
   return hash; // NON salviamo il codice in chiaro
 }
 
-// === AGGIUNTA: crea “omaggio” (ticket gratuito) ===
+export async function listDiscountCodes(){
+  const u = auth.currentUser;
+  if(!u) throw new Error("not-signed-in");
+  if(!(await isFounderClient(u.email, u.uid))) throw new Error("forbidden");
+  const snap = await getDocs(collection(db,"discountCodes"));
+  const out = [];
+  snap.forEach(d => out.push({ id:d.id, ...(d.data()||{}) }));
+  // ordina attivi prima, poi per updatedAt desc
+  out.sort((a,b)=>{
+    const act = (b.active===true) - (a.active===true);
+    const ta  = (a.updatedAt?.seconds||a.createdAt?.seconds||0);
+    const tb  = (b.updatedAt?.seconds||b.createdAt?.seconds||0);
+    return act || (tb - ta);
+  });
+  return out;
+}
+
+export async function setDiscountActive(hash, active){
+  const u = auth.currentUser;
+  if(!u) throw new Error("not-signed-in");
+  if(!(await isFounderClient(u.email, u.uid))) throw new Error("forbidden");
+  await updateDoc(doc(db,"discountCodes",hash), {
+    active: !!active,
+    updatedAt: serverTimestamp()
+  });
+  return true;
+}
+
+// === Omaggi ===
 export async function createGiftTicket(targetUid, { eventId, note } = {}){
   const u = auth.currentUser;
   if(!u) throw new Error("not-signed-in");
@@ -179,7 +206,7 @@ export async function createGiftTicket(targetUid, { eventId, note } = {}){
   return true;
 }
 
-// === AGGIUNTA: crea ordine lato client (+ ticket) ===
+// === Ordini (client-only) ===
 // items: [{ sku:"EB|STD|FAST|VIP", qty:number, price:number }]
 export async function createOrder({ items, total, enteredCode, eventId }){
   const u = auth.currentUser;
@@ -191,16 +218,11 @@ export async function createOrder({ items, total, enteredCode, eventId }){
     createdAt: serverTimestamp()
   };
   if(enteredCode){
-    payload.discountHash = await sha256Hex(enteredCode); // le regole verificheranno il doc /discountCodes/{hash}
+    payload.discountHash = await sha256Hex(enteredCode); // validato dalle rules
   }
-  // scrivi ordine
   const orderRef = await addDoc(collection(db,"users",u.uid,"orders"), payload);
 
-  // crea i ticket relativi (uno per quantità) — lato client
-  const mapType = sku => ({
-    EB:"early_bird", STD:"standard", FAST:"fast_entry", VIP:"vip_entry"
-  }[sku] || "standard");
-
+  const mapType = sku => ({ EB:"early_bird", STD:"standard", FAST:"fast_entry", VIP:"vip_entry" }[sku] || "standard");
   const ts = serverTimestamp();
   for(const it of items){
     const t = mapType(it.sku);
@@ -218,7 +240,7 @@ export async function createOrder({ items, total, enteredCode, eventId }){
   return orderRef.id;
 }
 
-// === AGGIUNTA: export CSV utili (founder)
+// === Export CSV (founder) ===
 export async function exportUsersCSV(){
   const u = auth.currentUser; if(!u) throw new Error("not-signed-in");
   if(!(await isFounderClient(u.email,u.uid))) throw new Error("forbidden");
