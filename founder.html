@@ -6,7 +6,7 @@
 <title>Founder — TRAPPERREO</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&display=swap" rel="stylesheet" />
 <style>
-:root{--accent:#8b5cf6;--border:rgba(255,255,255,.12);--muted:rgba(255,255,255,.78);--danger:#ef4444}
+:root{--accent:#8b5cf6;--border:rgba(255,255,255,.12);--muted:rgba(255,255,255,.78)}
 *{box-sizing:border-box;margin:0;padding:0}
 body{background:#000;color:#fff;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;line-height:1.5;min-height:100vh}
 .wrap{max-width:1100px;margin:auto;padding:22px}
@@ -25,14 +25,14 @@ input,select{background:#0f0f10;border:1px solid var(--border);border-radius:10p
 .small{font-size:12px}
 .spinner{width:16px;height:16px;border:2px solid rgba(255,255,255,.25);border-top-color:#fff;border-radius:50%;animation:sp 1s linear infinite}
 @keyframes sp{to{transform:rotate(360deg)}}
-.alert{margin-top:12px;background:rgba(239,68,68,.12);border:1px solid rgba(239,68,68,.45);color:#fecaca;padding:10px;border-radius:10px;display:none}
+.err{background:#2a0e0e;border:1px solid #ff6b6b;color:#ffdede;padding:10px;border-radius:10px;margin-top:10px;display:none}
 </style>
 </head>
 <body>
 <main class="wrap">
   <h1>Pannello Founder</h1>
   <div id="who" class="muted">Verifica permessi…</div>
-  <div id="alert" class="alert"></div>
+  <div id="topErr" class="err"></div>
 
   <section class="card">
     <div class="right">
@@ -49,14 +49,16 @@ input,select{background:#0f0f10;border:1px solid var(--border);border-radius:10p
     <div class="right" style="justify-content:space-between;">
       <h2>Gestione utenti</h2>
       <div class="right">
-        <button id="btnReload" class="btn ghost small">Carica ultimi</button>
+        <button id="btnReload" class="btn ghost small" type="button">Carica ultimi</button>
         <div id="listLoad" class="spinner" aria-hidden="true" style="display:none"></div>
       </div>
     </div>
+
     <div class="grid2" style="margin-top:10px">
       <input id="q" placeholder="Cerca per email o nome…" />
-      <button id="btnSearch" class="btn">Cerca</button>
+      <button id="btnSearch" class="btn" type="button">Cerca</button>
     </div>
+
     <table class="table" id="tbl">
       <thead>
         <tr><th>Nome</th><th>Email</th><th>Ruolo</th><th>Status</th><th>Azioni</th></tr>
@@ -71,18 +73,17 @@ input,select{background:#0f0f10;border:1px solid var(--border);border-radius:10p
 import { app, onUser } from './auth.v2.js?v=6';
 import {
   getFirestore, doc, getDoc, setDoc,
-  collection, getDocs, query, where, orderBy, limit
+  collection, getDocs, query, orderBy, limit
 } from 'https://www.gstatic.com/firebasejs/12.5.0/firebase-firestore.js';
 
 const db = getFirestore(app);
 
+// UI refs
 const who = document.getElementById('who');
-const alertBox = document.getElementById('alert');
-
+const topErr = document.getElementById('topErr');
 const statActive = document.getElementById('statActive');
 const statTotal  = document.getElementById('statTotal');
 const statLoad   = document.getElementById('statLoad');
-
 const qInput   = document.getElementById('q');
 const btnSearch= document.getElementById('btnSearch');
 const btnReload= document.getElementById('btnReload');
@@ -90,25 +91,21 @@ const tbody    = document.querySelector('#tbl tbody');
 const emptyMsg = document.getElementById('empty');
 const listLoad = document.getElementById('listLoad');
 
-const lc = (s)=> (s||'').toString().trim().toLowerCase();
-const showErr = (msg)=>{ alertBox.textContent = msg; alertBox.style.display = 'block'; };
-const clearErr= ()=>{ alertBox.style.display = 'none'; alertBox.textContent=''; };
+const lc = s => (s||'').toString().trim().toLowerCase();
 
-// ---- permesso founder (case-insensitive, coerente con le regole) ----
 async function isFounder(email){
   try{
     const snap = await getDoc(doc(db,'config','admins'));
-    if(!snap.exists()) return false;
-    const founders = snap.data()?.founders || {};
+    const founders = snap.exists() ? (snap.data().founders || {}) : {};
     return founders[lc(email)] === true;
-  }catch(e){
-    console.error('isFounder error:', e);
-    showErr('Errore lettura config/admins.');
-    return false;
-  }
+  }catch(_){ return false; }
 }
 
-// ---- render tabella ----
+function showTopErr(msg){
+  topErr.textContent = msg;
+  topErr.style.display = 'block';
+}
+
 function renderRows(users){
   tbody.innerHTML = '';
   emptyMsg.style.display = users.length ? 'none' : 'block';
@@ -128,12 +125,12 @@ function renderRows(users){
           ${['active','suspended','deleted'].map(s=>`<option value="${s}" ${u.status===s?'selected':''}>${s}</option>`).join('')}
         </select>
       </td>
-      <td><button class="btn ghost small" data-save="${u.uid}">Salva</button></td>
+      <td><button class="btn ghost small" data-save="${u.uid}" type="button">Salva</button></td>
     `;
     tbody.appendChild(tr);
   });
 
-  // salva ruolo/status
+  // Bind salvataggi
   tbody.querySelectorAll('button[data-save]').forEach(btn=>{
     btn.addEventListener('click', async ()=>{
       const uid = btn.getAttribute('data-save');
@@ -145,16 +142,15 @@ function renderRows(users){
         btn.textContent = 'Salvato ✓';
       }catch(e){
         console.error(e);
-        showErr('Salvataggio negato (permessi o regole).');
+        showTopErr('Permesso negato o regole non allineate. Controlla config/admins e le rules.');
         btn.textContent = 'Errore';
       }finally{
-        setTimeout(()=>{ btn.textContent='Salva'; btn.disabled=false; }, 900);
+        setTimeout(()=>{ btn.textContent='Salva'; btn.disabled=false; }, 1000);
       }
     });
   });
 }
 
-// ---- stats ----
 async function runStats(){
   statLoad.style.display = 'inline-block';
   try{
@@ -165,25 +161,21 @@ async function runStats(){
     statTotal.textContent  = all.size;
   }catch(e){
     console.error(e);
-    showErr('Lettura statistiche negata (controlla i permessi Founder).');
+    showTopErr('Non riesco a leggere gli utenti (forse non sei founder secondo le rules).');
   }
   statLoad.style.display = 'none';
 }
 
-// ---- lista ultimi ----
 async function loadLatest(){
-  clearErr();
   listLoad.style.display = 'inline-block';
   try{
     let list = [];
+    // Prova a ordinare per createdAt (numero). Se serve indice o non esiste, fa fallback.
     try{
-      // Se c’è createdAt
       const q1 = query(collection(db,'users'), orderBy('createdAt','desc'), limit(50));
       const snap1 = await getDocs(q1);
       snap1.forEach(d=>list.push({uid:d.id, ...d.data()}));
-      if(list.length === 0) throw new Error('no-createdAt');
     }catch(_){
-      // Fallback: tutti, poi ordina localmente
       const snap2 = await getDocs(collection(db,'users'));
       snap2.forEach(d=>list.push({uid:d.id, ...d.data()}));
       list.sort((a,b)=> lc(a.name_lc||a.name).localeCompare(lc(b.name_lc||b.name)));
@@ -192,27 +184,28 @@ async function loadLatest(){
     renderRows(list);
   }catch(e){
     console.error(e);
-    showErr('Impossibile caricare gli utenti.');
+    showTopErr('Non riesco a caricare la lista utenti (permessi?).');
     renderRows([]);
   }
   listLoad.style.display = 'none';
 }
 
-// ---- ricerca ----
 async function searchUsers(qs){
-  clearErr();
   const term = lc(qs);
   if(!term){ renderRows([]); return; }
   listLoad.style.display = 'inline-block';
 
   const out = [];
   try{
+    // scan semplice in client per compatibilità rules (no indici extra)
     const snap = await getDocs(collection(db,'users'));
     snap.forEach(d=>{
-      const v = d.data();
-      const emailMatch = lc(v.email) === term;
-      const nameMatch  = lc(v.name_lc||v.name||'').startsWith(term);
-      if(emailMatch || nameMatch) out.push({uid:d.id, ...v});
+      const v=d.data();
+      const nameLc = lc(v.name_lc||v.name||'');
+      const emailLc= lc(v.email||'');
+      if (nameLc.startsWith(term) || emailLc===term) {
+        out.push({uid:d.id, ...v});
+      }
     });
 
     // dedup
@@ -221,34 +214,23 @@ async function searchUsers(qs){
     renderRows(list);
   }catch(e){
     console.error(e);
-    showErr('Ricerca negata (permessi o regole).');
+    showTopErr('Ricerca utenti non autorizzata (permessi founder mancanti).');
     renderRows([]);
   }
   listLoad.style.display = 'none';
 }
 
-// ---- bootstrap ----
 onUser(async (u)=>{
   if(!u){ location.href = './login.html?from=./founder.html'; return; }
 
-  let allowed = false;
-  try{
-    const uDoc = await getDoc(doc(db,'users',u.uid));
-    const data = uDoc.exists() ? uDoc.data() : {};
-    allowed = (data.role === 'founder') || await isFounder(u.email||'');
-    who.textContent = allowed
-      ? `Ciao ${data.name || u.email} — hai pieni poteri Founder.`
-      : 'Accesso negato (solo Founder).';
-  }catch{
-    allowed = await isFounder(u.email||'');
-    who.textContent = allowed ? `Ciao ${u.email} — hai pieni poteri Founder.` : 'Accesso negato (solo Founder).';
-  }
-
+  // Check founder lato client (doc config/admins) per UX
+  const allowed = await isFounder(u.email||'');
   if(!allowed){
-    showErr('Non hai i permessi Founder. Verrai reindirizzato al tuo account.');
-    setTimeout(()=>location.href='./account-2.html', 1200);
+    who.textContent = 'Accesso negato (solo Founder).';
+    showTopErr('Il tuo account non risulta founder. Aggiungi la tua email in config/admins.founders (lowercase).');
     return;
   }
+  who.textContent = `Ciao ${u.email} — permessi Founder attivi.`;
 
   await runStats();
   await loadLatest();
@@ -257,9 +239,6 @@ onUser(async (u)=>{
   btnSearch.addEventListener('click', ()=>searchUsers(qInput.value.trim()));
   qInput.addEventListener('keydown', (e)=>{ if(e.key==='Enter') btnSearch.click(); });
 });
-
-  console.error('users query failed:', e.code, e.message);
-
 </script>
 </body>
 </html>
