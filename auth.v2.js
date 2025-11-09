@@ -1,6 +1,4 @@
-<!-- Salva come auth.v2.js -->
-<script type="module">
-// auth.v2.js
+// auth.v2.js  (JS puro, nessun <script>!)
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-app.js";
 import {
   getAuth, onAuthStateChanged, updateProfile,
@@ -25,7 +23,7 @@ export const app  = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
 export const db   = getFirestore(app);
 
-// ---- API base
+// API base
 export const emailSignUp  = (email, pwd) => createUserWithEmailAndPassword(auth, email, pwd);
 export const emailSignIn  = (email, pwd) => signInWithEmailAndPassword(auth, email, pwd);
 export const sendReset    = (email)      => sendPasswordResetEmail(auth, email);
@@ -33,15 +31,7 @@ export const doSignOut    = ()           => signOut(auth);
 export const onUser       = (cb)         => onAuthStateChanged(auth, cb);
 export async function setDisplayName(user, fullName){ if(user) try{ await updateProfile(user,{displayName:fullName}); }catch{} }
 
-// ---- Helpers local opzionali (DOB locale)
-export function saveDOB(uid, dobISO){
-  if(!uid || !dobISO) return;
-  localStorage.setItem(`trapperreo_profile_${uid}`, JSON.stringify({ dob: dobISO }));
-}
-export function loadProfile(uid){
-  try { return JSON.parse(localStorage.getItem(`trapperreo_profile_${uid}`) || "null"); }
-  catch { return null; }
-}
+// Helpers opzionali
 export function calcAge(dobISO){
   const d=new Date(dobISO), t=new Date();
   let a=t.getFullYear()-d.getFullYear();
@@ -50,7 +40,7 @@ export function calcAge(dobISO){
   return a;
 }
 
-// ---- Firestore: garantisce /users/{uid} e merge di extras
+// Firestore: garantisce /users/{uid}
 export async function ensureUserDoc(u, extras = {}){
   if(!u) return null;
   const ref = doc(db, 'users', u.uid);
@@ -71,7 +61,6 @@ export async function ensureUserDoc(u, extras = {}){
   if(!snap.exists()){
     await setDoc(ref, { ...payload, createdAt: serverTimestamp() }, { merge: true });
   } else {
-    // merge “soft” su campi base per non perdere dati preesistenti
     const cur = snap.data() || {};
     await setDoc(ref, {
       email: payload.email || cur.email || '',
@@ -86,7 +75,7 @@ export async function ensureUserDoc(u, extras = {}){
   return (await getDoc(ref)).data();
 }
 
-// ---- Richiede login + status attivo (altrimenti esce e manda al login)
+// Richiede login + status attivo
 export function requireActiveUser(redirect = "./login.html"){
   return new Promise(res => onAuthStateChanged(auth, async (u)=>{
     if(!u){
@@ -112,4 +101,6 @@ export function requireActiveUser(redirect = "./login.html"){
     }
   }));
 }
-</script>
+
+// debug visivo: puoi toglierlo
+console.log("AUTH LOADED OK");
