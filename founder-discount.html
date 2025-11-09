@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Codici sconto — TRAPPERREO (Founder)</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&display=swap" rel="stylesheet" />
+<style>
+:root{--accent:#8b5cf6;--border:rgba(255,255,255,.12);--muted:rgba(255,255,255,.78)}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#000;color:#fff;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;line-height:1.5;min-height:100vh}
+.wrap{max-width:900px;margin:auto;padding:22px}
+h1{font-size:28px;font-weight:900;margin-bottom:8px}
+.muted{color:var(--muted)}
+.card{background:rgba(255,255,255,.06);border:1px solid var(--border);border-radius:16px;padding:18px;margin-top:14px}
+input,select{background:#0f0f10;border:1px solid var(--border);border-radius:10px;color:#fff;padding:10px;width:100%}
+.btn{display:inline-block;padding:10px 14px;border-radius:10px;background:var(--accent);color:#000;font-weight:900;border:none;cursor:pointer}
+.btn.ghost{background:transparent;border:1px solid var(--border);color:#fff}
+.table{width:100%;border-collapse:collapse;margin-top:10px;font-size:14px}
+.table th,.table td{padding:10px;border-bottom:1px solid rgba(255,255,255,.08)}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.notice{display:none;margin:10px 0;padding:12px;border-radius:10px;background:#0e2a14;border:1px solid #34d399;color:#c6f6d5}
+.err{display:none;margin:10px 0;padding:12px;border-radius:10px;background:#2a0e0e;border:1px solid #ff6b6b;color:#ffdede}
+.badge{display:inline-block;font-size:12px;border:1px solid var(--border);border-radius:999px;padding:3px 8px}
+.toggle{display:flex;gap:10px;margin-top:10px;align-items:center}
+</style>
+</head>
+<body>
+<main class="wrap">
+  <div style="display:flex;justify-content:space-between;align-items:center;gap:10px">
+    <h1>Crea codice sconto</h1>
+    <a class="btn ghost" href="./founder.html">← Torna al pannello</a>
+  </div>
+  <div class="muted">Genera un codice sconto. Il codice digitato viene salvato **solo come hash** in Firestore.</div>
+
+  <section class="card">
+    <div class="row">
+      <div>
+        <label>Codice (plaintext — NON verrà salvato)</label>
+        <input id="code" placeholder="es. TRAP-OPENING-10" />
+      </div>
+      <div>
+        <label>Etichetta (label)</label>
+        <input id="label" placeholder="es. Promo Opening" />
+      </div>
+    </div>
+
+    <div class="row" style="margin-top:10px">
+      <div>
+        <label>Tipo</label>
+        <select id="type">
+          <option value="percent">percentuale (%)</option>
+          <option value="fixed">sconto fisso (€)</option>
+        </select>
+      </div>
+      <div>
+        <label>Valore</label>
+        <input id="amount" type="number" step="1" placeholder="es. 10 = 10% o 5 = 5€" />
+      </div>
+    </div>
+
+    <div class="toggle">
+      <label><input id="scopeAll" name="scope" type="radio" value="all" checked> Per tutti</label>
+      <label><input id="scopeUser" name="scope" type="radio" value="user"> Per persona</label>
+      <span class="badge" id="selBadge" style="display:none"></span>
+    </div>
+
+    <!-- blocco ricerca utente (solo se "per persona") -->
+    <div id="userBlock" style="display:none;margin-top:10px">
+      <div class="row">
+        <div>
+          <label>Cerca per email</label>
+          <input id="qEmail" placeholder="es. mario@dominio.it" />
+        </div>
+        <div>
+          <label>Cerca per nome o cognome</label>
+          <input id="qName" placeholder="es. mario rossi" />
+        </div>
+      </div>
+      <div style="margin-top:10px">
+        <button id="btnSearch" class="btn">Cerca</button>
+      </div>
+      <table class="table" id="tbl">
+        <thead><tr><th>Nome</th><th>Email</th><th>UID</th><th></th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+
+    <div id="ok" class="notice"></div>
+    <div id="err" class="err"></div>
+
+    <div style="margin-top:12px;display:flex;gap:10px;justify-content:flex-end">
+      <button id="btnCreate" class="btn">Crea codice</button>
+    </div>
+  </section>
+</main>
+
+<script type="module">
+import { app, onUser, isFounderClient, createDiscountCode } from './auth.v2.js?v=6';
+import { getFirestore, collection, getDocs } from 'https://www.gstatic.com/firebasejs/12.5.0/firebase-firestore.js';
+
+const db = getFirestore(app);
+const $ = s => document.querySelector(s);
+const tbody = $('#tbl tbody');
+
+let selectedUser = null;
+
+function lc(s){ return (s||'').toString().trim().toLowerCase(); }
+
+async function guardFounder(){
+  const u = await new Promise(res=>onUser(res));
+  if(!u){ location.href='./login.html?from=./founder-discount.html'; return null; }
+  const ok = await isFounderClient(u.email, u.uid);
+  if(!ok){ location.href='./account-2.html'; return null; }
+  return u;
+}
+
+function renderRows(users){
+  tbody.innerHTML = '';
+  users.forEach(u=>{
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>${u.name || '—'}</td>
+      <td>${u.email || '—'}</td>
+      <td class="small">${u.uid}</td>
+      <td><button class="btn ghost" data-pick="${u.uid}">Seleziona</button></td>
+    `;
+    tbody.appendChild(tr);
+  });
+  tbody.querySelectorAll('[data-pick]').forEach(b=>{
+    b.addEventListener('click', ()=>{
+      const uid = b.getAttribute('data-pick');
+      selectedUser = users.find(x=>x.uid===uid) || null;
+      $('#selBadge').textContent = selectedUser ? `Selezionato: ${selectedUser.name || selectedUser.email} (${selectedUser.uid})` : '';
+      $('#selBadge').style.display = selectedUser ? 'inline-block' : 'none';
+    });
+  });
+}
+
+async function search(){
+  const qE = lc($('#qEmail').value);
+  const qN = lc($('#qName').value);
+  const snap = await getDocs(collection(db,'users'));
+  const out = [];
+  snap.forEach(d=>{
+    const v = d.data()||{};
+    const email = lc(v.email);
+    const name  = lc(v.name_lc || v.name);
+    if (qE && email.includes(qE)) out.push({ uid:d.id, ...v });
+    else if (qN && (name.startsWith(qN) || name.includes(qN))) out.push({ uid:d.id, ...v });
+  });
+  renderRows(out.slice(0,100));
+}
+
+function toggleScopeUI(){
+  const isUser = $('#scopeUser').checked;
+  $('#userBlock').style.display = isUser ? 'block' : 'none';
+  if(!isUser){
+    selectedUser = null;
+    $('#selBadge').style.display = 'none';
+  }
+}
+
+$('#scopeAll').addEventListener('change', toggleScopeUI);
+$('#scopeUser').addEventListener('change', toggleScopeUI);
+$('#btnSearch').addEventListener('click', search);
+$('#qEmail').addEventListener('keydown', e=>{ if(e.key==='Enter') search(); });
+$('#qName').addEventListener('keydown', e=>{ if(e.key==='Enter') search(); });
+
+$('#btnCreate').addEventListener('click', async ()=>{
+  $('#ok').style.display='none'; $('#err').style.display='none';
+  try{
+    const code = ($('#code').value || '').trim();
+    const label= ($('#label').value || '').trim() || 'Promo';
+    const type = ($('#type').value || 'percent');
+    const amount = Number($('#amount').value || '0');
+
+    if(!code) throw new Error('Inserisci un codice.');
+    if(!(amount>0)) throw new Error('Inserisci un valore > 0.');
+
+    const scope = $('#scopeUser').checked ? 'user' : 'all';
+    if(scope==='user' && !selectedUser) throw new Error('Seleziona l’utente per il codice personale.');
+
+    await createDiscountCode({
+      plainCode: code,
+      label,
+      type,
+      amount,
+      appliesTo: scope,
+      userId: scope==='user' ? selectedUser.uid : undefined
+    });
+
+    $('#ok').textContent = scope==='all'
+      ? 'Codice creato (per tutti) ✓ — hash salvato in Firestore'
+      : `Codice personale creato per ${selectedUser.name || selectedUser.email} ✓`;
+    $('#ok').style.display='block';
+  }catch(e){
+    console.error(e);
+    $('#err').textContent = e.message || 'Creazione codice fallita (permessi/regole?).';
+    $('#err').style.display='block';
+  }
+});
+
+toggleScopeUI();
+await guardFounder();
+</script>
+</body>
+</html>
