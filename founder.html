@@ -11,6 +11,7 @@
 body{background:#000;color:#fff;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;line-height:1.5;min-height:100vh}
 .wrap{max-width:1100px;margin:auto;padding:22px}
 h1{font-size:32px;font-weight:900;margin-bottom:8px}
+h2{font-size:20px;font-weight:900}
 .muted{color:var(--muted)}
 .card{background:rgba(255,255,255,.06);border:1px solid var(--border);border-radius:16px;padding:18px;margin-top:14px}
 input,select{background:#0f0f10;border:1px solid var(--border);border-radius:10px;color:#fff;padding:10px}
@@ -20,6 +21,11 @@ input,select{background:#0f0f10;border:1px solid var(--border);border-radius:10p
 .table{width:100%;border-collapse:collapse;margin-top:12px;font-size:14px}
 .table th,.table td{padding:10px;border-bottom:1px solid rgba(255,255,255,.08)}
 .badge{display:inline-block;font-size:12px;border:1px solid var(--border);border-radius:999px;padding:3px 8px}
+.right{display:flex;gap:10px;align-items:center}
+.small{font-size:12px}
+.center{display:flex;justify-content:center;align-items:center}
+.spinner{width:16px;height:16px;border:2px solid rgba(255,255,255,.25);border-top-color:#fff;border-radius:50%;animation:sp 1s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
 </style>
 </head>
 <body>
@@ -28,7 +34,10 @@ input,select{background:#0f0f10;border:1px solid var(--border);border-radius:10p
   <div id="who" class="muted">Verifica permessi…</div>
 
   <section class="card">
-    <h2>Statistiche rapide</h2>
+    <div class="right">
+      <h2>Statistiche rapide</h2>
+      <div id="statLoad" class="spinner" aria-hidden="true"></div>
+    </div>
     <div style="display:flex;gap:16px;flex-wrap:wrap;margin-top:8px">
       <div class="badge">Utenti attivi: <span id="statActive">—</span></div>
       <div class="badge">Utenti totali: <span id="statTotal">—</span></div>
@@ -36,8 +45,14 @@ input,select{background:#0f0f10;border:1px solid var(--border);border-radius:10p
   </section>
 
   <section class="card">
-    <h2>Gestione utenti</h2>
-    <div class="grid2">
+    <div class="right" style="justify-content:space-between;">
+      <h2>Gestione utenti</h2>
+      <div class="right">
+        <button id="btnReload" class="btn ghost small">Carica ultimi</button>
+        <div id="listLoad" class="spinner" aria-hidden="true" style="display:none"></div>
+      </div>
+    </div>
+    <div class="grid2" style="margin-top:10px">
       <input id="q" placeholder="Cerca per email o nome…" />
       <button id="btnSearch" class="btn">Cerca</button>
     </div>
@@ -47,33 +62,46 @@ input,select{background:#0f0f10;border:1px solid var(--border);border-radius:10p
       </thead>
       <tbody></tbody>
     </table>
+    <div id="empty" class="muted small" style="display:none;margin-top:8px">Nessun risultato.</div>
   </section>
 </main>
 
 <script type="module">
 import { app, onUser } from './auth.v2.js?v=3';
 import {
-  getFirestore, doc, getDoc, setDoc, collection, query, where, getDocs, updateDoc
+  getFirestore, doc, getDoc, setDoc, updateDoc,
+  collection, getDocs, query, where, orderBy, limit
 } from 'https://www.gstatic.com/firebasejs/12.5.0/firebase-firestore.js';
 
 const db = getFirestore(app);
+
 const who = document.getElementById('who');
 const statActive = document.getElementById('statActive');
 const statTotal  = document.getElementById('statTotal');
-const qInput = document.getElementById('q');
-const btnSearch = document.getElementById('btnSearch');
-const tbody = document.querySelector('#tbl tbody');
+const statLoad   = document.getElementById('statLoad');
+
+const qInput   = document.getElementById('q');
+const btnSearch= document.getElementById('btnSearch');
+const btnReload= document.getElementById('btnReload');
+const tbody    = document.querySelector('#tbl tbody');
+const emptyMsg = document.getElementById('empty');
+const listLoad = document.getElementById('listLoad');
+
+function lc(s){ return (s||'').toString().trim().toLowerCase(); }
 
 async function isFounder(email){
   try{
     const snap = await getDoc(doc(db,'config','admins'));
-    const founders = snap.exists() ? (snap.data().founders || {}) : {};
-    return !!founders[email];
+    if(!snap.exists()) return false;
+    const founders = snap.data()?.founders || {};
+    return founders[lc(email)] === true;
   }catch(_){ return false; }
 }
 
 function renderRows(users){
   tbody.innerHTML = '';
+  emptyMsg.style.display = users.length ? 'none' : 'block';
+
   users.forEach(u=>{
     const tr = document.createElement('tr');
     tr.innerHTML = `
@@ -89,7 +117,7 @@ function renderRows(users){
           ${['active','suspended','deleted'].map(s=>`<option value="${s}" ${u.status===s?'selected':''}>${s}</option>`).join('')}
         </select>
       </td>
-      <td><button class="btn ghost" data-save="${u.uid}">Salva</button></td>
+      <td><button class="btn ghost small" data-save="${u.uid}">Salva</button></td>
     `;
     tbody.appendChild(tr);
   });
@@ -100,60 +128,109 @@ function renderRows(users){
       const uid = btn.getAttribute('data-save');
       const role = tbody.querySelector(`select.roleSel[data-uid="${uid}"]`).value;
       const status = tbody.querySelector(`select.statusSel[data-uid="${uid}"]`).value;
-      await updateDoc(doc(db,'users',uid), { role, status });
-      btn.textContent = 'Salvato ✓';
-      setTimeout(()=>btn.textContent='Salva', 1200);
+      btn.disabled = true; btn.textContent = 'Salvo…';
+      try{
+        await setDoc(doc(db,'users',uid), { role, status }, { merge:true });
+        btn.textContent = 'Salvato ✓';
+      }catch(e){
+        console.error(e);
+        btn.textContent = 'Errore';
+      }finally{
+        setTimeout(()=>{ btn.textContent='Salva'; btn.disabled=false; }, 1000);
+      }
     });
   });
 }
 
 async function runStats(){
-  const usersCol = collection(db,'users');
-  const all = await getDocs(usersCol);
-  let active=0;
-  all.forEach(d=>{ if((d.data().status||'active')==='active') active++; });
-  statActive.textContent = active;
-  statTotal.textContent  = all.size;
+  statLoad.style.display = 'inline-block';
+  try{
+    const all = await getDocs(collection(db,'users'));
+    let active=0;
+    all.forEach(d=>{ if(lc(d.data().status||'active')==='active') active++; });
+    statActive.textContent = active;
+    statTotal.textContent  = all.size;
+  }catch(e){ console.error(e); }
+  statLoad.style.display = 'none';
+}
+
+async function loadLatest(){
+  listLoad.style.display = 'inline-block';
+  try{
+    let list = [];
+    // prova a ordinare per createdAt
+    try{
+      const q1 = query(collection(db,'users'), orderBy('createdAt','desc'), limit(50));
+      const snap1 = await getDocs(q1);
+      snap1.forEach(d=>list.push({uid:d.id, ...d.data()}));
+    }catch(_){
+      // fallback: prendi tutto e ordina localmente per name_lc
+      const snap2 = await getDocs(collection(db,'users'));
+      snap2.forEach(d=>list.push({uid:d.id, ...d.data()}));
+      list.sort((a,b)=> lc(a.name_lc||a.name).localeCompare(lc(b.name_lc||b.name)));
+      list = list.slice(0,50);
+    }
+    renderRows(list);
+  }catch(e){
+    console.error(e);
+    renderRows([]);
+  }
+  listLoad.style.display = 'none';
 }
 
 async function searchUsers(qs){
+  const term = lc(qs);
+  if(!term){ renderRows([]); return; }
+  listLoad.style.display = 'inline-block';
+
   const out = [];
-  if(!qs){ tbody.innerHTML=''; return; }
+  try{
+    // 1) by email (exact, case-insensitive: confrontiamo in lowercase)
+    const allForEmail = await getDocs(collection(db,'users'));
+    allForEmail.forEach(d=>{
+      const v=d.data(); if(lc(v.email)===term) out.push({uid:d.id, ...v});
+    });
 
-  // 1) by email (exact)
-  const byEmail = await getDocs(query(collection(db,'users'), where('email','==',qs)));
-  byEmail.forEach(d=>out.push({uid:d.id, ...d.data()}));
+    // 2) by name prefix
+    const snap = await getDocs(collection(db,'users'));
+    snap.forEach(d=>{
+      const v=d.data();
+      if(lc(v.name_lc||v.name||'').startsWith(term)) out.push({uid:d.id, ...v});
+    });
 
-  // 2) by lowercase name startsWith
-  const qlc = qs.toLowerCase();
-  const byName = await getDocs(collection(db,'users'));
-  byName.forEach(d=>{
-    const v=d.data();
-    if((v.name_lc||'').startsWith(qlc)) out.push({uid:d.id, ...v});
-  });
-
-  // dedup per uid
-  const seen = new Set();
-  const list = out.filter(x=>{ if(seen.has(x.uid)) return false; seen.add(x.uid); return true; });
-
-  renderRows(list);
+    // dedup
+    const seen = new Set();
+    const list = out.filter(x=>{ if(seen.has(x.uid)) return false; seen.add(x.uid); return true; });
+    renderRows(list);
+  }catch(e){
+    console.error(e);
+    renderRows([]);
+  }
+  listLoad.style.display = 'none';
 }
 
 onUser(async (u)=>{
   if(!u){ location.href = './login.html?from=./founder.html'; return; }
 
-  const uDoc = await getDoc(doc(db,'users',u.uid));
-  const data = uDoc.exists() ? uDoc.data() : {};
-  const allowed = (data.role === 'founder') || await isFounder(u.email || '');
-  if(!allowed){
-    who.textContent = 'Accesso negato (solo Founder).';
-    setTimeout(()=>location.href='./account-2.html', 1200);
-    return;
+  // verifica permesso founder
+  let allowed = false;
+  try{
+    const uDoc = await getDoc(doc(db,'users',u.uid));
+    const data = uDoc.exists() ? uDoc.data() : {};
+    allowed = (data.role === 'founder') || await isFounder(u.email||'');
+    who.textContent = allowed
+      ? `Ciao ${data.name || u.email} — hai pieni poteri Founder.`
+      : 'Accesso negato (solo Founder).';
+  }catch(_){
+    allowed = await isFounder(u.email||'');
+    who.textContent = allowed ? `Ciao ${u.email} — hai pieni poteri Founder.` : 'Accesso negato (solo Founder).';
   }
-  who.textContent = `Ciao ${data.name || u.email} — hai pieni poteri Founder.`;
+  if(!allowed){ setTimeout(()=>location.href='./account-2.html', 1200); return; }
 
   await runStats();
+  await loadLatest();
 
+  btnReload.addEventListener('click', loadLatest);
   btnSearch.addEventListener('click', ()=>searchUsers(qInput.value.trim()));
   qInput.addEventListener('keydown', (e)=>{ if(e.key==='Enter') btnSearch.click(); });
 });
