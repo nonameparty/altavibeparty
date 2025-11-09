@@ -198,7 +198,7 @@ h1{font-size:26px;font-weight:900;letter-spacing:-.2px}
 </main>
 
 <script type="module">
-/* ==== Auth solo via auth.v2.js ==== */
+/* ==== Auth via auth.v2.js ==== */
 import { onUser, doSignOut } from './auth.v2.js?v=3';
 
 const nav = document.getElementById('navArea');
@@ -256,7 +256,7 @@ function highlightByWeek(){
     el.style.boxShadow = (week===w) ? '0 0 0 2px rgba(139,92,246,.18)' : 'none';
   });
 }
-function leftText(left){ if(left<=0) return 'Esaurito'; if(left<=20) return `Mancano ${left} prevendite`; if(left<=50) return `Mancano ${left} prevendite`; return `Disponibili ${left}`; }
+function leftText(left){ if(left<=0) return 'Esaurito'; if(left<=50) return `Mancano ${left} prevendite`; return `Disponibili ${left}`; }
 
 /* ==== Quantità & stock ==== */
 const qEB = document.getElementById('qEB'), qSTD = document.getElementById('qSTD'), qFAST = document.getElementById('qFAST'), qVIP = document.getElementById('qVIP');
@@ -338,10 +338,9 @@ function render(){
   }
 
   lines.innerHTML = arr.join('');
-  grand.textContent = money(subtotal);
+  grand.textContent = money(subtotal + extra);  // <-- include protezione
   payBtn.disabled = tickets<=0;
 
-  // salva stato UI
   saveCartFromUI();
 }
 
@@ -365,13 +364,28 @@ document.getElementById('vipMore').addEventListener('click', (e)=>{ e.preventDef
 /* Procedi */
 payBtn.addEventListener('click', ()=>{
   const q = qty();
-  const qs = new URLSearchParams({
-    std:q.STD||0, fast:q.FAST||0, vip:q.VIP||0, eb:q.EB||0, nc: optName.checked?1:0
-  }).toString();
   const tickets = q.EB + q.STD + q.FAST + q.VIP;
+  const nameChange = optName.checked ? 1 : 0;
+
+  const qs = new URLSearchParams({
+    std:q.STD||0, fast:q.FAST||0, vip:q.VIP||0, eb:q.EB||0, nc:nameChange
+  }).toString();
+
   saveCartFromUI();
-  if(tickets>1) location.href = `./attendees.html?${qs}`;
-  else alert('Simulazione pagamento: ordine creato!');
+
+  if (tickets > 1) {
+    // più biglietti → pagina assegnazione
+    location.href = `./attendees.html?${qs}`;
+  } else if (tickets === 1) {
+    // un solo biglietto:
+    if (nameChange === 1) {
+      // protezione attiva → vai direttamente al pagamento
+      alert('Pagamento avviato (simulazione).');
+    } else {
+      // protezione non attiva → pagina dedicata single
+      location.href = `./attendees-single.html?${qs}`;
+    }
+  }
 });
 </script>
 </body>
