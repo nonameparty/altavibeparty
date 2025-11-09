@@ -19,6 +19,36 @@ const firebaseConfig = {
   measurementId: "G-BDBRZQ6J8S"
 };
 
+// In auth.v2.js
+import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-firestore.js";
+
+export async function requireActiveUser(redirect="./login.html") {
+  return new Promise(res => onAuthStateChanged(auth, async (u)=>{
+    if(!u){
+      const back = encodeURIComponent(location.pathname + location.search);
+      location.href = `${redirect}?from=${back}`;
+      return;
+    }
+    try{
+      const db = getFirestore(app);
+      const snap = await getDoc(doc(db,'users',u.uid));
+      const data = snap.exists() ? snap.data() : {};
+      if((data.status || 'active') !== 'active'){
+        alert('Il tuo account è sospeso. Contatta il supporto.');
+        await signOut(auth);
+        location.href = './login.html';
+        return;
+      }
+      res(u);
+    }catch(e){
+      // in caso di errore, meglio non dare accesso
+      await signOut(auth);
+      location.href = './login.html';
+    }
+  }));
+}
+
+
 export const app  = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
 export const db   = getFirestore(app);
