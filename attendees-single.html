@@ -72,93 +72,71 @@ input{width:100%;background:#0f0f10;border:1px solid var(--border);border-radius
 </main>
 
 <script type="module">
-/* ======= Import utente per autocompilare ======= */
 import { onUser } from './auth.v2.js?v=6';
 
-/* ======= Config prezzi (come checkout) ======= */
 const PRICE = { EB:12, STD:15, FAST:20, VIP:25, NAMECHANGE:1.90 };
-
-/* ======= helpers ======= */
 const money = n => (n<0?'-':'') + Math.abs(n).toFixed(2).replace('.00','') + '€';
 const $ = s => document.querySelector(s);
 
-/* ======= Letture base ======= */
+/* ====== leggi carrello e sconto applicato ====== */
 function readCart(){
   try{ return JSON.parse(localStorage.getItem('trapperreo_cart')||'null')||{}; }catch{ return {}; }
 }
-function readDiscountSnapshot(){
-  const raw = localStorage.getItem('trapperreo_discount_applied')
-        || localStorage.getItem('trapperreo_discount')
-        || localStorage.getItem('trapperreo_discount_snapshot');
-  if(!raw) return null;
-  try{ return JSON.parse(raw); }catch{ return null; }
-}
-function normalizeDiscount(d){
-  if(!d) return null;
-  const out = {
-    code:(d.code||d.name||'').toString().trim(),
-    type:(d.type||'').toString().toLowerCase(),
-    value:Number(d.value ?? d.amount ?? 0),
-    active:(d.active ?? d.enabled ?? true)===true,
-    allowedSkus:Array.isArray(d.allowedSkus)?d.allowedSkus:(Array.isArray(d.skus)?d.skus:null)
-  };
-  if(!out.code || !out.active || !out.type || !(out.value>0)) return null;
-  return out;
-}
+function readApplied(){ try{ return JSON.parse(localStorage.getItem('trapperreo_discount_applied')||'null'); }catch{ return null; } }
 
-/* Carico quantità da query o da localStorage */
 const qs = new URLSearchParams(location.search);
 const qty = {
-  EB: +(qs.get('eb')||0) || (readCart().eb|0),
-  STD:+(qs.get('std')||0) || (readCart().std|0),
+  EB: +(qs.get('eb')||0)   || (readCart().eb|0),
+  STD:+(qs.get('std')||0)  || (readCart().std|0),
   FAST:+(qs.get('fast')||0)|| (readCart().fast|0),
   VIP: +(qs.get('vip')||0) || (readCart().vip|0),
 };
 const nameProt = (+(qs.get('nc')||0) || (readCart().nc|0)) === 1;
-
-/* Individuo SKU singolo (fallback STD) */
 const order = ['EB','STD','FAST','VIP'];
-let sku = order.find(k => (qty[k]||0)>0) || 'STD';
+let sku = order.find(k=>(qty[k]||0)>0) || 'STD';
 const base = PRICE[sku];
 
-function computeTotals(){
-  const dSnap = normalizeDiscount(readDiscountSnapshot());
-  const allowed = dSnap?.allowedSkus || ['EB','STD','FAST','VIP'];
-  const gross = base;
-  let disc = 0;
-  if(dSnap && allowed.includes(sku)){
-    if(dSnap.type==='percent') disc = Math.max(0, Math.min(gross, gross * (dSnap.value/100)));
-    else if(dSnap.type==='fixed') disc = Math.max(0, Math.min(gross, dSnap.value));
-  }
-  const prot = nameProt ? PRICE.NAMECHANGE : 0;
-  const net = Math.max(0, gross - disc) + prot;
-  return { dSnap, gross, disc, prot, net };
-}
-
-function skuLabel(k){ return {EB:'Early Bird', STD:'Standard', FAST:'Fast Entry', VIP:'VIP Entry'}[k] || 'Biglietto'; }
-
-function render(){
-  const {dSnap,gross,disc,prot,net} = computeTotals();
-  const L = $('#lines'); const rows=[];
-  rows.push(`<div class="row"><div>${skuLabel(sku)} × 1</div><div>${money(gross)}</div></div>`);
-  if(dSnap){ rows.push(`<div class="row save"><div>Sconto (${dSnap.code})</div><div>-${money(disc)}</div></div>`); }
-  if(nameProt){ rows.push(`<div class="row"><div>Protezione cambio nome</div><div>${money(prot)}</div></div>`); }
-  L.innerHTML = rows.join('');
-  $('#grand').textContent = money(net);
-}
-
-/* Prefill con dati utente loggato */
+/* ====== prefill dati acquirente ====== */
 onUser(u=>{
   if(!u) return;
   const parts=(u.displayName||'').trim().split(' ');
-  $('#fn').value = parts[0] || '';
-  $('#ln').value = parts.slice(1).join(' ') || '';
-  $('#em').value = (u.email||'');
+  document.getElementById('fn').value = parts[0]||'';
+  document.getElementById('ln').value = parts.slice(1).join(' ')||'';
+  document.getElementById('em').value = (u.email||'');
 });
 
-/* Validazione */
+/* ====== calcolo con sconto ====== */
+function allowedSet(snap){
+  return (Array.isArray(snap?.allowedSkus) && snap.allowedSkus.length>0) ? snap.allowedSkus : ['EB','STD','FAST','VIP'];
+}
+function compute(){
+  const snap = readApplied(); // {code,type,value,allowedSkus}
+  let disc = 0, tag=null;
+  if(snap && allowedSet(snap).includes(sku)){
+    if(snap.type==='percent') disc = Math.max(0, base*(snap.value/100));
+    else if(snap.type==='fixed') disc = Math.max(0, Math.min(base, snap.value));
+    tag = `${snap.code} — ${snap.type==='percent' ? '%'+snap.value : '−'+money(snap.value)}`;
+  }
+  const prot = nameProt ? PRICE.NAMECHANGE : 0;
+  const net  = Math.max(0, base - disc) + prot;
+  return {disc, prot, net, tag};
+}
+function label(k){ return {EB:'Early Bird',STD:'Standard',FAST:'Fast Entry',VIP:'VIP Entry'}[k]||'Biglietto'; }
+
+function render(){
+  const {disc,prot,net,tag} = compute();
+  const L = document.getElementById('lines');
+  const rows=[];
+  rows.push(`<div class="row"><div id="ticketLine">${label(sku)} × 1</div><div>${money(base)}</div></div>`);
+  if(tag) rows.push(`<div class="row save"><div>Sconto (${tag})</div><div>- ${money(disc)}</div></div>`);
+  if(nameProt) rows.push(`<div class="row"><div>Protezione cambio nome</div><div>${money(prot)}</div></div>`);
+  L.innerHTML = rows.join('');
+  document.getElementById('grand').textContent = money(net);
+}
+
+/* ====== validazione ====== */
 function isEmail(v){ return /^\S+@\S+\.\S+$/.test((v||'').trim()); }
-function validateForm(){
+function validate(){
   const fn=$('#fn'), ln=$('#ln'), em=$('#em'); let ok=true;
   [fn,ln,em].forEach(i=>i.classList.remove('err'));
   if(!fn.value.trim()){ fn.classList.add('err'); ok=false; }
@@ -167,9 +145,9 @@ function validateForm(){
   return ok;
 }
 
-/* Bind */
-$('#back').addEventListener('click', ()=>history.back());
-$('#pay').addEventListener('click', ()=>{ if(!validateForm()) return; alert('Pagamento avviato (simulazione).'); });
+/* ====== bind ====== */
+document.getElementById('back').addEventListener('click', ()=>history.back());
+document.getElementById('pay').addEventListener('click', ()=>{ if(!validate()) return; alert('Pagamento avviato (simulazione).'); });
 
 render();
 </script>
