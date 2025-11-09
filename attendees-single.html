@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Conferma — TRAPPERREO</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#000; --text:#fff; --accent:#8b5cf6; --border:rgba(255,255,255,.12);
+  --card:rgba(255,255,255,.06); --muted:rgba(255,255,255,.78); --ok:#22c55e; --danger:#ef4444;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;line-height:1.5;min-height:100vh;display:grid;grid-template-rows:auto 1fr}
+header{position:sticky;top:0;z-index:50;backdrop-filter:saturate(140%) blur(6px);background:rgba(0,0,0,.6);border-bottom:1px solid rgba(255,255,255,.08)}
+.nav{max-width:1100px;margin:auto;padding:14px 20px;display:flex;align-items:center;justify-content:space-between}
+.brand{display:flex;align-items:center;gap:10px;font-weight:900;letter-spacing:-.3px}
+.brand-badge{width:22px;height:22px;background:var(--accent);transform:skew(-6deg);border-radius:3px}
+.wrap{max-width:900px;margin:auto;padding:24px}
+h1{font-size:26px;font-weight:900;letter-spacing:-.2px;text-align:center}
+.card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:18px}
+.center{display:grid;gap:14px;max-width:700px;margin:18px auto}
+.line{display:flex;justify-content:space-between;margin:6px 0}
+.hr{height:1px;background:rgba(255,255,255,.08);margin:12px 0}
+.btn{display:inline-block;padding:12px 16px;border-radius:10px;background:var(--accent);color:#000;font-weight:900;text-decoration:none;border:none;cursor:pointer}
+.btn.alt{background:transparent;border:1px solid var(--accent);color:#fff}
+.btn.ok{background:#22c55e;color:#061d10}
+.actions{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+.badge{display:inline-block;background:#0f0f10;border:1px solid rgba(255,255,255,.15);border-radius:10px;padding:6px 10px;font-size:12px}
+.confirm{display:flex;align-items:center;gap:10px;background:rgba(139,92,246,.12);border:1px solid rgba(139,92,246,.35);border-radius:12px;padding:10px 12px}
+.confirm input{accent-color:var(--accent)}
+</style>
+</head>
+<body>
+<header>
+  <div class="nav">
+    <div class="brand"><div class="brand-badge"></div><div>TRAPPERREO</div></div>
+    <nav><a href="./checkout.html">Torna al checkout</a></nav>
+  </div>
+</header>
+
+<div class="wrap">
+  <h1>Ultimo passaggio</h1>
+  <div class="card center" id="content">
+    <!-- Contenuto generato da JS -->
+  </div>
+</div>
+
+<script type="module">
+const qs = new URLSearchParams(location.search);
+const q = { std:+(qs.get('std')||0), fast:+(qs.get('fast')||0), vip:+(qs.get('vip')||0), eb:+(qs.get('eb')||0), nc: +(qs.get('nc')||0) };
+const tickets = q.std + q.fast + q.vip + q.eb;
+const PRICE = { EB:12, STD:15, FAST:20, VIP:25, NAMECHANGE:1.90, STD3:40 };
+
+function money(n){ return n.toFixed(2).replace('.00','')+'€'; }
+
+const c = document.getElementById('content');
+
+function label(){
+  if(q.eb) return 'Early Bird';
+  if(q.std) return 'Standard';
+  if(q.fast) return 'Fast Entry';
+  return 'VIP Entry';
+}
+function price(){
+  if(q.eb) return PRICE.EB;
+  if(q.std) return PRICE.STD;
+  if(q.fast) return PRICE.FAST;
+  return PRICE.VIP;
+}
+
+if(tickets !== 1){
+  // fallback: se non è 1, manda alla pagina multi
+  location.href = `./attendees.html?${qs.toString()}`;
+} else if(q.nc === 1){
+  // protezione già attiva → vai al pagamento
+  c.innerHTML = `
+    <div class="badge">Protezione cambio nome attiva</div>
+    <div>Stai acquistando: <strong>${label()}</strong> — Totale ${money(price())}</div>
+    <div class="actions">
+      <button class="btn ok" id="go">Procedi al pagamento</button>
+    </div>`;
+  document.getElementById('go').addEventListener('click', ()=>{ console.log('Pagamento (simulazione)'); alert('Pagamento avviato (simulazione).'); });
+} else {
+  // nessuna protezione → pagina di conferma
+  const total = price();
+  c.innerHTML = `
+    <div>Stai acquistando: <strong>${label()}</strong> — Totale ${money(total)}</div>
+    <div class="hr"></div>
+    <div class="confirm"><input id="ack" type="checkbox">
+      <div><strong>Procedi senza Protezione cambio nome</strong><br><span class="badge">1,90€ / biglietto</span> ti consentirebbe di cambiare il nominativo 1 volta fino a 48h dall’evento.</div>
+    </div>
+    <div class="actions">
+      <button class="btn alt" id="back">Torna ad attivarla</button>
+      <button class="btn ok" id="pay" disabled>Procedi al pagamento</button>
+    </div>
+  `;
+  document.getElementById('ack').addEventListener('change',(e)=>{ document.getElementById('pay').disabled = !e.target.checked; });
+  document.getElementById('back').addEventListener('click', ()=>{ location.href = './checkout.html'; });
+  document.getElementById('pay').addEventListener('click', ()=>{ console.log('Pagamento (simulazione)'); alert('Pagamento avviato (simulazione).'); });
+}
+</script>
+</body>
+</html>
