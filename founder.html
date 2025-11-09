@@ -36,6 +36,15 @@ input,select{background:#0f0f10;border:1px solid var(--border);border-radius:10p
   <!-- Banner errori -->
   <div id="errBanner" class="notice"></div>
 
+  <!-- Azioni rapide aggiunte -->
+  <div class="card" style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+    <input id="eventIdInput" placeholder="eventId (es. event-001)" style="flex:1;min-width:220px">
+    <button id="btnExportCSV" class="btn">Export CSV utenti</button>
+    <button id="btnGift" class="btn ghost">Crea omaggio…</button>
+    <button id="btnDiscAll" class="btn ghost">Codice sconto (per tutti)…</button>
+    <button id="btnDiscUser" class="btn ghost">Codice sconto (per persona)…</button>
+  </div>
+
   <section class="card">
     <div class="right">
       <h2>Statistiche rapide</h2>
@@ -70,7 +79,7 @@ input,select{background:#0f0f10;border:1px solid var(--border);border-radius:10p
 </main>
 
 <script type="module">
-import { app, onUser } from './auth.v2.js?v=6';
+import { app, onUser, exportUsersCSV, createGiftTicket, createDiscountCode } from './auth.v2.js?v=6';
 import {
   getFirestore, doc, getDoc, setDoc, collection, getDocs
 } from 'https://www.gstatic.com/firebasejs/12.5.0/firebase-firestore.js';
@@ -90,6 +99,13 @@ const tbody     = document.querySelector('#tbl tbody');
 const emptyMsg  = document.getElementById('empty');
 const listLoad  = document.getElementById('listLoad');
 
+// nuovi
+const eventIdInput = document.getElementById('eventIdInput');
+const btnExportCSV = document.getElementById('btnExportCSV');
+const btnGift      = document.getElementById('btnGift');
+const btnDiscAll   = document.getElementById('btnDiscAll');
+const btnDiscUser  = document.getElementById('btnDiscUser');
+
 const lc = s => (s||'').toString().trim().toLowerCase();
 
 async function isFounder(email){
@@ -101,10 +117,7 @@ async function isFounder(email){
   }catch(_){ return false; }
 }
 
-function showError(msg){
-  errBanner.textContent = msg;
-  errBanner.style.display = 'block';
-}
+function showError(msg){ errBanner.textContent = msg; errBanner.style.display = 'block'; }
 function hideError(){ errBanner.style.display='none'; }
 
 function safeName(v){ return (v?.name || v?.name_lc || v?.email || '').toString(); }
@@ -135,7 +148,10 @@ function renderRows(users){
           ${['active','suspended','deleted'].map(s=>`<option value="${s}" ${u.status===s?'selected':''}>${s}</option>`).join('')}
         </select>
       </td>
-      <td><button class="btn ghost small" data-save="${u.uid}">Salva</button></td>
+      <td>
+        <button class="btn ghost small" data-save="${u.uid}">Salva</button>
+        <button class="btn ghost small" data-gift="${u.uid}">Omaggio</button>
+      </td>
     `;
     tbody.appendChild(tr);
   });
@@ -156,6 +172,25 @@ function renderRows(users){
         showError('Errore durante il salvataggio. Controlla le regole o i permessi.');
       }finally{
         setTimeout(()=>{ btn.textContent='Salva'; btn.disabled=false; }, 900);
+      }
+    });
+  });
+
+  // bind omaggio per riga
+  tbody.querySelectorAll('button[data-gift]').forEach(btn=>{
+    btn.addEventListener('click', async ()=>{
+      const uid = btn.getAttribute('data-gift');
+      const eventId = (eventIdInput?.value || 'event-001').trim();
+      btn.disabled = true; btn.textContent = 'Creo…';
+      try{
+        await createGiftTicket(uid, { eventId });
+        btn.textContent = 'Omaggio ✓';
+      }catch(e){
+        console.error(e);
+        btn.textContent = 'Errore';
+        showError('Non posso creare il biglietto omaggio (permessi/regole?).');
+      }finally{
+        setTimeout(()=>{ btn.textContent='Omaggio'; btn.disabled=false; }, 1000);
       }
     });
   });
@@ -184,7 +219,6 @@ async function loadLatest(){
   hideError();
   listLoad.style.display = 'inline-block';
   try{
-    // niente orderBy: leggo tutto e ordino lato client (robusto con tipi misti)
     const snap = await getDocs(collection(db,'users'));
     const arr = [];
     snap.forEach(d=> arr.push({ uid:d.id, ...d.data() }));
@@ -243,6 +277,65 @@ onUser(async (u)=>{
   btnReload.addEventListener('click', loadLatest);
   btnSearch.addEventListener('click', ()=>searchUsers(qInput.value));
   qInput.addEventListener('keydown', (e)=>{ if(e.key==='Enter') searchUsers(qInput.value); });
+
+  // Export CSV
+  btnExportCSV?.addEventListener('click', async ()=>{
+    try{
+      btnExportCSV.disabled = true; btnExportCSV.textContent = 'Esporto…';
+      const n = await exportUsersCSV();
+      btnExportCSV.textContent = `Export (${n}) ✓`;
+    }catch(e){
+      console.error(e); showError('Export fallito (permessi/regole?).');
+      btnExportCSV.textContent = 'Export CSV utenti';
+    }finally{
+      setTimeout(()=>{ btnExportCSV.disabled=false; btnExportCSV.textContent='Export CSV utenti'; },1000);
+    }
+  });
+
+  // Omaggio (dialog semplice)
+  btnGift?.addEventListener('click', async ()=>{
+    const uid = prompt('UID destinatario (users/{uid})');
+    if(!uid) return;
+    const eventId = (eventIdInput?.value || 'event-001').trim();
+    try{
+      await createGiftTicket(uid.trim(), { eventId });
+      alert('Omaggio creato ✓');
+    }catch(e){
+      console.error(e); showError('Non posso creare l\'omaggio (permessi/regole?).');
+    }
+  });
+
+  // Codice sconto per tutti
+  btnDiscAll?.addEventListener('click', async ()=>{
+    const code = prompt('Codice (testo libero, NON sarà salvato in chiaro)');
+    if(!code) return;
+    const label = prompt('Etichetta (es. Promo Opening)') || 'Promo';
+    const type  = prompt('Tipo: "percent" oppure "fixed"', 'percent') || 'percent';
+    const amount= Number(prompt('Valore (es. 10 = 10% oppure 5 = 5€)', '10') || '10');
+    try{
+      await createDiscountCode({ plainCode: code, label, type, amount, appliesTo: 'all' });
+      alert('Codice per tutti creato ✓ (hash salvato in Firestore)');
+    }catch(e){
+      console.error(e); showError('Creazione codice fallita (permessi/regole?).');
+    }
+  });
+
+  // Codice sconto per persona
+  btnDiscUser?.addEventListener('click', async ()=>{
+    const code = prompt('Codice personale (NON salvato in chiaro)');
+    if(!code) return;
+    const userId = prompt('UID assegnatario (users/{uid})');
+    if(!userId) return;
+    const label = prompt('Etichetta', 'Promo Personal') || 'Promo Personal';
+    const type  = prompt('Tipo: "percent" oppure "fixed"', 'percent') || 'percent';
+    const amount= Number(prompt('Valore (es. 10 = 10% oppure 5 = 5€)', '10') || '10');
+    try{
+      await createDiscountCode({ plainCode: code, label, type, amount, appliesTo: 'user', userId: userId.trim() });
+      alert('Codice personale creato ✓');
+    }catch(e){
+      console.error(e); showError('Creazione codice fallita (permessi/regole?).');
+    }
+  });
 });
 </script>
 </body>
