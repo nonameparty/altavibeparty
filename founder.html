@@ -6,7 +6,7 @@
 <title>Founder — TRAPPERREO</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&display=swap" rel="stylesheet" />
 <style>
-:root{--accent:#8b5cf6;--border:rgba(255,255,255,.12);--muted:rgba(255,255,255,.78)}
+:root{--accent:#8b5cf6;--border:rgba(255,255,255,.12);--muted:rgba(255,255,255,.78);--danger:#ef4444}
 *{box-sizing:border-box;margin:0;padding:0}
 body{background:#000;color:#fff;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;line-height:1.5;min-height:100vh}
 .wrap{max-width:1100px;margin:auto;padding:22px}
@@ -23,15 +23,16 @@ input,select{background:#0f0f10;border:1px solid var(--border);border-radius:10p
 .badge{display:inline-block;font-size:12px;border:1px solid var(--border);border-radius:999px;padding:3px 8px}
 .right{display:flex;gap:10px;align-items:center}
 .small{font-size:12px}
-.center{display:flex;justify-content:center;align-items:center}
 .spinner{width:16px;height:16px;border:2px solid rgba(255,255,255,.25);border-top-color:#fff;border-radius:50%;animation:sp 1s linear infinite}
 @keyframes sp{to{transform:rotate(360deg)}}
+.alert{margin-top:12px;background:rgba(239,68,68,.12);border:1px solid rgba(239,68,68,.45);color:#fecaca;padding:10px;border-radius:10px;display:none}
 </style>
 </head>
 <body>
 <main class="wrap">
   <h1>Pannello Founder</h1>
   <div id="who" class="muted">Verifica permessi…</div>
+  <div id="alert" class="alert"></div>
 
   <section class="card">
     <div class="right">
@@ -69,13 +70,15 @@ input,select{background:#0f0f10;border:1px solid var(--border);border-radius:10p
 <script type="module">
 import { app, onUser } from './auth.v2.js?v=3';
 import {
-  getFirestore, doc, getDoc, setDoc, updateDoc,
+  getFirestore, doc, getDoc, setDoc,
   collection, getDocs, query, where, orderBy, limit
 } from 'https://www.gstatic.com/firebasejs/12.5.0/firebase-firestore.js';
 
 const db = getFirestore(app);
 
 const who = document.getElementById('who');
+const alertBox = document.getElementById('alert');
+
 const statActive = document.getElementById('statActive');
 const statTotal  = document.getElementById('statTotal');
 const statLoad   = document.getElementById('statLoad');
@@ -87,17 +90,25 @@ const tbody    = document.querySelector('#tbl tbody');
 const emptyMsg = document.getElementById('empty');
 const listLoad = document.getElementById('listLoad');
 
-function lc(s){ return (s||'').toString().trim().toLowerCase(); }
+const lc = (s)=> (s||'').toString().trim().toLowerCase();
+const showErr = (msg)=>{ alertBox.textContent = msg; alertBox.style.display = 'block'; };
+const clearErr= ()=>{ alertBox.style.display = 'none'; alertBox.textContent=''; };
 
+// ---- permesso founder (case-insensitive, coerente con le regole) ----
 async function isFounder(email){
   try{
     const snap = await getDoc(doc(db,'config','admins'));
     if(!snap.exists()) return false;
     const founders = snap.data()?.founders || {};
     return founders[lc(email)] === true;
-  }catch(_){ return false; }
+  }catch(e){
+    console.error('isFounder error:', e);
+    showErr('Errore lettura config/admins.');
+    return false;
+  }
 }
 
+// ---- render tabella ----
 function renderRows(users){
   tbody.innerHTML = '';
   emptyMsg.style.display = users.length ? 'none' : 'block';
@@ -122,7 +133,7 @@ function renderRows(users){
     tbody.appendChild(tr);
   });
 
-  // Bind salvataggi
+  // salva ruolo/status
   tbody.querySelectorAll('button[data-save]').forEach(btn=>{
     btn.addEventListener('click', async ()=>{
       const uid = btn.getAttribute('data-save');
@@ -134,14 +145,16 @@ function renderRows(users){
         btn.textContent = 'Salvato ✓';
       }catch(e){
         console.error(e);
+        showErr('Salvataggio negato (permessi o regole).');
         btn.textContent = 'Errore';
       }finally{
-        setTimeout(()=>{ btn.textContent='Salva'; btn.disabled=false; }, 1000);
+        setTimeout(()=>{ btn.textContent='Salva'; btn.disabled=false; }, 900);
       }
     });
   });
 }
 
+// ---- stats ----
 async function runStats(){
   statLoad.style.display = 'inline-block';
   try{
@@ -150,21 +163,27 @@ async function runStats(){
     all.forEach(d=>{ if(lc(d.data().status||'active')==='active') active++; });
     statActive.textContent = active;
     statTotal.textContent  = all.size;
-  }catch(e){ console.error(e); }
+  }catch(e){
+    console.error(e);
+    showErr('Lettura statistiche negata (controlla i permessi Founder).');
+  }
   statLoad.style.display = 'none';
 }
 
+// ---- lista ultimi ----
 async function loadLatest(){
+  clearErr();
   listLoad.style.display = 'inline-block';
   try{
     let list = [];
-    // prova a ordinare per createdAt
     try{
+      // Se c’è createdAt
       const q1 = query(collection(db,'users'), orderBy('createdAt','desc'), limit(50));
       const snap1 = await getDocs(q1);
       snap1.forEach(d=>list.push({uid:d.id, ...d.data()}));
+      if(list.length === 0) throw new Error('no-createdAt');
     }catch(_){
-      // fallback: prendi tutto e ordina localmente per name_lc
+      // Fallback: tutti, poi ordina localmente
       const snap2 = await getDocs(collection(db,'users'));
       snap2.forEach(d=>list.push({uid:d.id, ...d.data()}));
       list.sort((a,b)=> lc(a.name_lc||a.name).localeCompare(lc(b.name_lc||b.name)));
@@ -173,29 +192,27 @@ async function loadLatest(){
     renderRows(list);
   }catch(e){
     console.error(e);
+    showErr('Impossibile caricare gli utenti.');
     renderRows([]);
   }
   listLoad.style.display = 'none';
 }
 
+// ---- ricerca ----
 async function searchUsers(qs){
+  clearErr();
   const term = lc(qs);
   if(!term){ renderRows([]); return; }
   listLoad.style.display = 'inline-block';
 
   const out = [];
   try{
-    // 1) by email (exact, case-insensitive: confrontiamo in lowercase)
-    const allForEmail = await getDocs(collection(db,'users'));
-    allForEmail.forEach(d=>{
-      const v=d.data(); if(lc(v.email)===term) out.push({uid:d.id, ...v});
-    });
-
-    // 2) by name prefix
     const snap = await getDocs(collection(db,'users'));
     snap.forEach(d=>{
-      const v=d.data();
-      if(lc(v.name_lc||v.name||'').startsWith(term)) out.push({uid:d.id, ...v});
+      const v = d.data();
+      const emailMatch = lc(v.email) === term;
+      const nameMatch  = lc(v.name_lc||v.name||'').startsWith(term);
+      if(emailMatch || nameMatch) out.push({uid:d.id, ...v});
     });
 
     // dedup
@@ -204,15 +221,16 @@ async function searchUsers(qs){
     renderRows(list);
   }catch(e){
     console.error(e);
+    showErr('Ricerca negata (permessi o regole).');
     renderRows([]);
   }
   listLoad.style.display = 'none';
 }
 
+// ---- bootstrap ----
 onUser(async (u)=>{
   if(!u){ location.href = './login.html?from=./founder.html'; return; }
 
-  // verifica permesso founder
   let allowed = false;
   try{
     const uDoc = await getDoc(doc(db,'users',u.uid));
@@ -221,11 +239,16 @@ onUser(async (u)=>{
     who.textContent = allowed
       ? `Ciao ${data.name || u.email} — hai pieni poteri Founder.`
       : 'Accesso negato (solo Founder).';
-  }catch(_){
+  }catch{
     allowed = await isFounder(u.email||'');
     who.textContent = allowed ? `Ciao ${u.email} — hai pieni poteri Founder.` : 'Accesso negato (solo Founder).';
   }
-  if(!allowed){ setTimeout(()=>location.href='./account-2.html', 1200); return; }
+
+  if(!allowed){
+    showErr('Non hai i permessi Founder. Verrai reindirizzato al tuo account.');
+    setTimeout(()=>location.href='./account-2.html', 1200);
+    return;
+  }
 
   await runStats();
   await loadLatest();
