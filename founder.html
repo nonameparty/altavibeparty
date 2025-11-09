@@ -257,6 +257,9 @@ onUser(async (u)=>{
   btnSearch.addEventListener('click', ()=>searchUsers(qInput.value.trim()));
   qInput.addEventListener('keydown', (e)=>{ if(e.key==='Enter') btnSearch.click(); });
 });
+
+  console.error('users query failed:', e.code, e.message);
+
 </script>
 </body>
 </html>
