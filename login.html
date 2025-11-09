@@ -60,7 +60,7 @@ input{width:100%;margin-top:6px;margin-bottom:14px;padding:12px;border:none;bord
   </div>
 
 <script type="module">
-import { emailSignIn, sendReset } from './auth.v2.js?v=3';
+import { emailSignIn, sendReset, ensureUserDoc } from './auth.v2.js?v=3';
 
 const $ = q => document.querySelector(q);
 const getParam = n => new URLSearchParams(location.search).get(n);
@@ -71,8 +71,13 @@ $('#loginBtn').addEventListener('click', async ()=>{
     const email = $('#email').value.trim();
     const pwd   = $('#password').value;
     if(!email || !pwd) throw Error('Inserisci email e password.');
-    await emailSignIn(email, pwd);
-    const dest = getParam('from') || './account.html';
+
+    const cred = await emailSignIn(email, pwd);
+
+    // GARANTISCE che /users/{uid} esista (e ripara name_lc/createdAt)
+    await ensureUserDoc(cred.user);
+
+    const dest = getParam('from') || './account-2.html';
     location.assign(dest);
   }catch(e){
     const box = $('#err'); box.textContent = e.message || 'Errore imprevisto'; box.style.display='block';
