@@ -181,7 +181,6 @@ import {
   collection, getDocs, query, where, limit
 } from 'https://www.gstatic.com/firebasejs/12.5.0/firebase-firestore.js';
 
-/* usa SEMPRE lo stesso db dell'app già inizializzata in auth.v2.js */
 const db = dbFromAuth;
 
 /* ====== UI refs ====== */
@@ -224,7 +223,6 @@ const nameLine = document.getElementById('nameChangeLine');
   `;
   wrap.insertBefore(blk, wrap.querySelector('.sticky'));
 })();
-
 const discInput  = document.getElementById('discInput');
 const discApply  = document.getElementById('discApply');
 const discRemove = document.getElementById('discRemove');
@@ -245,11 +243,9 @@ onUser((u)=>{
 });
 
 /* ====== Helpers ====== */
-function norm(s){
-  return (s||'').toString().trim().normalize('NFKC').replace(/\s+/g,' ');
-}
-function toUpperNoSpace(s){ return norm(s).toUpperCase(); }
-function toLowerNoSpace(s){ return norm(s).toLowerCase(); }
+const norm = s => (s||'').toString().trim().normalize('NFKC').replace(/\s+/g,' ');
+const up   = s => norm(s).toUpperCase();
+const lo   = s => norm(s).toLowerCase();
 
 const money = n => (n<0?'-':'') + Math.abs(n).toFixed(2).replace('.00','') + '€';
 const qty = ()=>({ EB:+(qEB.value||0), STD:+(qSTD.value||0), FAST:+(qFAST.value||0), VIP:+(qVIP.value||0) });
@@ -277,58 +273,99 @@ function restoreCart(){
 const readApplied = () => { try{ return JSON.parse(localStorage.getItem('trapperreo_discount_applied')||'null'); }catch{ return null; } };
 const writeApplied = (s) => { if(!s) localStorage.removeItem('trapperreo_discount_applied'); else localStorage.setItem('trapperreo_discount_applied', JSON.stringify(s)); };
 
-/* ====== Sconti: cache + fetch (sia /discounts che /discountCodes) ====== */
-let allDiscounts = []; // cache “lista” unificata
+/* ====== Sconti: LISTA unificata e robusta ====== */
+let allDiscounts = [];
 
-function normalize(d){
-  const codeRaw = d.code ?? d.name ?? '';
+function asArray(v){
+  if(v==null) return [];
+  if(Array.isArray(v)) return v;
+  return [v];
+}
+function normalize(doc){
+  const codeRaw = doc.code ?? doc.name ?? '';
+  const labelRaw= doc.label ?? doc.title ?? codeRaw;
+
+  // raccogli email da vari alias
+  const emailFields = [
+    'allowedEmails','emails','forEmails'
+  ];
+  const singleEmailFields = ['email','forEmail'];
+
+  let allowedEmails = emailFields.flatMap(f=>asArray(doc[f])).concat(singleEmailFields.map(f=>doc[f]).filter(Boolean));
+  allowedEmails = allowedEmails.map(e=>lo(e)).filter(Boolean);
+
+  // raccogli uid da vari alias
+  const uidFields = ['allowedUids','allowedUserIds','userIds','uids'];
+  const singleUidFields = ['userId','uid'];
+  let allowedUids = uidFields.flatMap(f=>asArray(doc[f])).concat(singleUidFields.map(f=>doc[f]).filter(Boolean));
+  allowedUids = allowedUids.map(u=>String(u)).filter(Boolean);
+
   const o = {
-    code: toUpperNoSpace(codeRaw),
-    type:(d.type||'').toString().toLowerCase(), // 'percent' | 'fixed'
-    value:Number(d.value ?? d.amount ?? 0),
-    active:(d.active ?? d.enabled ?? true)===true,
-    allowedSkus:Array.isArray(d.allowedSkus)?d.allowedSkus:(Array.isArray(d.skus)?d.skus:[]),
-    allowedEmails:Array.isArray(d.allowedEmails)?d.allowedEmails.map(x=>toLowerNoSpace(x)):[],
-    label:d.label||d.title||toUpperNoSpace(codeRaw)
+    code: up(codeRaw),
+    label: up(labelRaw),
+    type: (doc.type||'').toString().toLowerCase(), // 'percent' | 'fixed'
+    value: Number(doc.value ?? doc.amount ?? 0),
+    active: (doc.active ?? doc.enabled ?? true) === true,
+    allowedSkus: Array.isArray(doc.allowedSkus) ? doc.allowedSkus
+                 : (Array.isArray(doc.skus) ? doc.skus : []),
+    allowedEmails,
+    allowedUids,
+    appliesTo: (doc.appliesTo||'').toString().toLowerCase() // 'all' | 'user' | ''
   };
   if(!o.code || !o.type || !(o.value>0)) return null;
   return o;
 }
 
-async function fetchCollectionInto(colName, arr){
+async function fetchCollectionInto(col, arr){
   try{
-    const snap = await getDocs(collection(db,colName));
+    const snap = await getDocs(collection(db,col));
     snap.forEach(d=>{
       const n = normalize(d.data()||{});
       if(n && n.active) arr.push(n);
     });
-  }catch(e){
-    console.warn('Read failed on', colName, e);
-  }
+  }catch(e){ console.warn('Read failed on', col, e); }
 }
-
 async function fetchDiscountsList(){
   const arr=[];
   await fetchCollectionInto('discounts', arr);
-  await fetchCollectionInto('discountCodes', arr); // fallback legacy
-  // de-duplica per CODE
-  const seen = new Set();
+  await fetchCollectionInto('discountCodes', arr);
+  const seen=new Set();
   allDiscounts = arr.filter(d=>{ const k=d.code; if(seen.has(k)) return false; seen.add(k); return true; });
   console.table(allDiscounts);
-  // hint diagnostico
-  if(allDiscounts.length===0){
-    discHint.textContent = 'Nessuno sconto disponibile al momento.';
-  }
+  if(allDiscounts.length===0) discHint.textContent = 'Nessuno sconto disponibile al momento.';
 }
 
-function eligibleForUser(d){
-  if(!currentUser) return true;
-  if(!d.allowedEmails || d.allowedEmails.length===0) return true;
-  return d.allowedEmails.includes(toLowerNoSpace(currentUser.email||''));
-}
 function allowedSet(d){
   return (d?.allowedSkus && d.allowedSkus.length>0) ? d.allowedSkus : ['EB','STD','FAST','VIP'];
 }
+function eligibleForUser(d){
+  if(!currentUser) return true;
+
+  const meEmail = lo(currentUser.email || '');
+  const meUid   = String(currentUser.uid || '');
+
+  // Se è esplicitamente personale:
+  if(d.appliesTo === 'user'){
+    const hasEmails = d.allowedEmails && d.allowedEmails.length>0;
+    const hasUids   = d.allowedUids && d.allowedUids.length>0;
+    if(!hasEmails && !hasUids) return false; // personale ma senza target -> non valido
+    const okEmail = hasEmails ? d.allowedEmails.includes(meEmail) : false;
+    const okUid   = hasUids   ? d.allowedUids.includes(meUid)   : false;
+    return okEmail || okUid;
+  }
+
+  // Non marcato come personale: se specifica target, devi matchare; se non specifica nulla, vale per tutti
+  if(d.allowedEmails && d.allowedEmails.length>0){
+    if(!meEmail) return false;
+    return d.allowedEmails.includes(meEmail);
+  }
+  if(d.allowedUids && d.allowedUids.length>0){
+    if(!meUid) return false;
+    return d.allowedUids.includes(meUid);
+  }
+  return true;
+}
+
 function computeDiscountAmount(d, parts){
   if(!d) return 0;
   const allow = allowedSet(d);
@@ -338,46 +375,40 @@ function computeDiscountAmount(d, parts){
   if(d.type==='fixed')   return Math.max(0, Math.min(base, d.value));
   return 0;
 }
+
 function findInCache(code){
-  const C_UP = toUpperNoSpace(code);
-  const C_LO = toLowerNoSpace(code);
+  const C_UP = up(code), C_LO = lo(code);
   return allDiscounts.find(d=>{
-    const dc = toUpperNoSpace(d.code||'');
-    const dn = toUpperNoSpace(d.label||d.name||'');
-    return eligibleForUser(d) && (dc===C_UP || dc===C_LO || dn===C_UP || dn===C_LO);
+    const dc = up(d.code||'');
+    const dl = up(d.label||'');
+    return (dc===C_UP || dc===C_LO || dl===C_UP || dl===C_LO) && eligibleForUser(d);
   }) || null;
 }
 
-/* === Fallback query mirata: cerca in entrambe le collezioni === */
+/* Fallback query mirata (entrambe le collezioni, sia code che name) */
 async function fetchSingleByCode(code){
-  const C_UP = toUpperNoSpace(code);
-  const C_LO = toLowerNoSpace(code);
+  const C_UP = up(code), C_LO = lo(code);
 
-  async function tryIn(colName, field, value){
+  async function tryIn(col, field, value){
     try{
-      const qy = query(collection(db,colName), where(field,'==', value), limit(1));
+      const qy = query(collection(db,col), where(field,'==', value), limit(1));
       const snap = await getDocs(qy);
       if(snap.empty) return null;
-      const d = normalize(snap.docs[0].data()||{});
-      return (d && d.active && eligibleForUser(d)) ? d : null;
-    }catch(e){
-      console.warn('query failed', colName, field, value, e);
-      return null;
-    }
+      const n = normalize(snap.docs[0].data()||{});
+      return (n && n.active && eligibleForUser(n)) ? n : null;
+    }catch(e){ console.warn('query failed', col, field, value, e); return null; }
   }
 
-  // code/name in discounts
   let d = await tryIn('discounts','code',C_UP) || await tryIn('discounts','code',C_LO)
         || await tryIn('discounts','name',C_UP) || await tryIn('discounts','name',C_LO);
   if(d) return d;
 
-  // code/name in discountCodes (legacy)
   d = await tryIn('discountCodes','code',C_UP) || await tryIn('discountCodes','code',C_LO)
     || await tryIn('discountCodes','name',C_UP) || await tryIn('discountCodes','name',C_LO);
   return d;
 }
 
-/* ====== Render totale con sconto snapshot ====== */
+/* ====== Totali + sconto ====== */
 function render(){
   const parts = subtotalBySku();
   const gross = parts.EB + parts.STD + parts.FAST + parts.VIP;
@@ -412,8 +443,7 @@ function render(){
     ? (disc>0 ? `Applicato: ${tag}.` : `Codice valido ma non applica sconti ai biglietti scelti.`)
     : `Inserisci un codice valido`;
 
-  // diagnostica utile
-  console.log('[CHECKOUT] parts:', parts, 'gross:', gross, 'snap:', snap, 'disc:', disc, 'total:', total);
+  console.log('[CHECKOUT]', {parts, gross, snap, disc, total});
 }
 
 /* ====== Bind ====== */
@@ -431,35 +461,28 @@ function bindQty(){
 
 /* ====== Applica / rimuovi ====== */
 discApply?.addEventListener('click', async ()=>{
-  const raw = (discInput?.value||'');
-  const code = toUpperNoSpace(raw);
+  const code = up(discInput?.value||'');
   if(!code){ alert('Inserisci un codice'); return; }
 
-  // 1) cache lista (tollerante)
   let found = findInCache(code);
-
-  // 2) fallback query robusta su entrambe le collezioni
-  if(!found){
-    found = await fetchSingleByCode(code);
-  }
+  if(!found) found = await fetchSingleByCode(code);
 
   if(!found){
     alert('Codice sconto non valido');
-    console.warn('[DISCOUNT] Not found for', code, 'allDiscounts:', allDiscounts);
+    console.warn('[DISCOUNT] Not eligible / not found for', code, 'user:', currentUser?.email, currentUser?.uid, 'allDiscounts:', allDiscounts);
     writeApplied(null);
     render();
     return;
   }
 
-  // snapshot condiviso
   writeApplied({
-    code: toUpperNoSpace(found.code || found.label || code),
+    code: up(found.code || found.label || code),
     type: found.type,      // 'percent' | 'fixed'
     value: found.value,
     allowedSkus: (found.allowedSkus && found.allowedSkus.length?found.allowedSkus:['EB','STD','FAST','VIP'])
   });
 
-  discInput.value = toUpperNoSpace(found.code || found.label || code);
+  discInput.value = up(found.code || found.label || code);
   render();
 });
 
@@ -472,7 +495,7 @@ discRemove?.addEventListener('click', ()=>{
 
 /* ====== Init ====== */
 restoreCart();
-await fetchDiscountsList();   // legge sia /discounts che /discountCodes
+await fetchDiscountsList();
 bindQty();
 render();
 
