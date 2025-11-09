@@ -59,6 +59,11 @@ input{width:100%;background:#0f0f10;border:1px solid var(--border);border-radius
     <div class="hr"></div>
     <div class="row total"><div>Totale (IVA inclusa)</div><div id="grand">0€</div></div>
 
+    <div class="small" style="margin-top:10px">
+      Se la persona indicata non è ancora registrata, potrà farlo dopo l’acquisto:
+      invieremo un link per completare la registrazione e i biglietti saranno già visibili nella sua area personale.
+    </div>
+
     <div style="display:flex;gap:10px;margin-top:14px;justify-content:flex-end">
       <button class="btn ghost" id="back">Indietro</button>
       <button class="btn" id="pay">Paga ora</button>
@@ -67,49 +72,35 @@ input{width:100%;background:#0f0f10;border:1px solid var(--border);border-radius
 </main>
 
 <script type="module">
+/* ======= Import utente per autocompilare ======= */
+import { onUser } from './auth.v2.js?v=6';
+
 /* ======= Config prezzi (come checkout) ======= */
 const PRICE = { EB:12, STD:15, FAST:20, VIP:25, NAMECHANGE:1.90 };
 
-/* ======= helpers UI ======= */
+/* ======= helpers ======= */
 const money = n => (n<0?'-':'') + Math.abs(n).toFixed(2).replace('.00','') + '€';
 const $ = s => document.querySelector(s);
 
-/* ======= Lettura carrello + sconto “fotografato” dal checkout ======= */
+/* ======= Letture base ======= */
 function readCart(){
   try{ return JSON.parse(localStorage.getItem('trapperreo_cart')||'null')||{}; }catch{ return {}; }
 }
 function readDiscountSnapshot(){
-  // priorità: applied → discount → snapshot
   const raw = localStorage.getItem('trapperreo_discount_applied')
         || localStorage.getItem('trapperreo_discount')
         || localStorage.getItem('trapperreo_discount_snapshot');
   if(!raw) return null;
   try{ return JSON.parse(raw); }catch{ return null; }
 }
-
-/* Normalizzo struttura sconto attesa:
-  {
-    code:"OPENING10",
-    type:"percent"|"fixed",
-    value:10,
-    active:true,
-    allowedSkus:["EB","STD","FAST","VIP"], // opzionale (assente = tutte)
-    scope:"all"|"user",
-    userEmail:"..." // se scope=user
-  }
-*/
 function normalizeDiscount(d){
   if(!d) return null;
   const out = {
-    code: (d.code||d.Code||d.name||'').toString().trim(),
-    type: (d.type||d.kind||'').toString().toLowerCase(),  // 'percent' | 'fixed'
-    value: Number(d.value ?? d.amount ?? 0),
-    active: (d.active ?? d.enabled ?? true) === true,
-    scope: (d.scope||'all'),
-    userEmail: (d.userEmail||d.email||'')?.toLowerCase?.() || '',
-    allowedSkus: Array.isArray(d.allowedSkus)? d.allowedSkus
-                 : Array.isArray(d.skus)? d.skus
-                 : null
+    code:(d.code||d.name||'').toString().trim(),
+    type:(d.type||'').toString().toLowerCase(),
+    value:Number(d.value ?? d.amount ?? 0),
+    active:(d.active ?? d.enabled ?? true)===true,
+    allowedSkus:Array.isArray(d.allowedSkus)?d.allowedSkus:(Array.isArray(d.skus)?d.skus:null)
   };
   if(!out.code || !out.active || !out.type || !(out.value>0)) return null;
   return out;
@@ -120,7 +111,7 @@ const qs = new URLSearchParams(location.search);
 const qty = {
   EB: +(qs.get('eb')||0) || (readCart().eb|0),
   STD:+(qs.get('std')||0) || (readCart().std|0),
-  FAST:+(qs.get('fast')||0) || (readCart().fast|0),
+  FAST:+(qs.get('fast')||0)|| (readCart().fast|0),
   VIP: +(qs.get('vip')||0) || (readCart().vip|0),
 };
 const nameProt = (+(qs.get('nc')||0) || (readCart().nc|0)) === 1;
@@ -130,51 +121,42 @@ const order = ['EB','STD','FAST','VIP'];
 let sku = order.find(k => (qty[k]||0)>0) || 'STD';
 const base = PRICE[sku];
 
-/* ======= Applicazione sconto ======= */
-function discountEligible(dis, emailLower){
-  if(!dis) return false;
-  if(dis.scope === 'user' && dis.userEmail && dis.userEmail !== (emailLower||'')) return false;
-  return true;
-}
 function computeTotals(){
   const dSnap = normalizeDiscount(readDiscountSnapshot());
   const allowed = dSnap?.allowedSkus || ['EB','STD','FAST','VIP'];
-
-  // prezzo lordo 1 pezzo
   const gross = base;
-
-  // sconto (se cod valido e sku permesso)
   let disc = 0;
   if(dSnap && allowed.includes(sku)){
-    if(dSnap.type === 'percent') disc = Math.max(0, Math.min(gross, gross * (dSnap.value/100)));
-    else if(dSnap.type === 'fixed') disc = Math.max(0, Math.min(gross, dSnap.value));
+    if(dSnap.type==='percent') disc = Math.max(0, Math.min(gross, gross * (dSnap.value/100)));
+    else if(dSnap.type==='fixed') disc = Math.max(0, Math.min(gross, dSnap.value));
   }
   const prot = nameProt ? PRICE.NAMECHANGE : 0;
   const net = Math.max(0, gross - disc) + prot;
-
   return { dSnap, gross, disc, prot, net };
 }
 
-/* ======= Rendering ======= */
+function skuLabel(k){ return {EB:'Early Bird', STD:'Standard', FAST:'Fast Entry', VIP:'VIP Entry'}[k] || 'Biglietto'; }
+
 function render(){
-  const L = $('#lines'); const {dSnap,gross,disc,prot,net} = computeTotals();
-  const rows = [
-    `<div class="row"><div>${skuLabel(sku)} × 1</div><div>${money(gross)}</div></div>`
-  ];
-  if(dSnap && disc>0){
-    rows.push(`<div class="row save"><div>Sconto (${dSnap.code})</div><div>-${money(disc)}</div></div>`);
-  }
-  if(nameProt){
-    rows.push(`<div class="row"><div>Protezione cambio nome</div><div>${money(prot)}</div></div>`);
-  }
+  const {dSnap,gross,disc,prot,net} = computeTotals();
+  const L = $('#lines'); const rows=[];
+  rows.push(`<div class="row"><div>${skuLabel(sku)} × 1</div><div>${money(gross)}</div></div>`);
+  if(dSnap){ rows.push(`<div class="row save"><div>Sconto (${dSnap.code})</div><div>-${money(disc)}</div></div>`); }
+  if(nameProt){ rows.push(`<div class="row"><div>Protezione cambio nome</div><div>${money(prot)}</div></div>`); }
   L.innerHTML = rows.join('');
   $('#grand').textContent = money(net);
 }
-function skuLabel(k){
-  return {EB:'Early Bird', STD:'Standard', FAST:'Fast Entry', VIP:'VIP Entry'}[k] || 'Biglietto';
-}
 
-/* ======= Validazione nominativo ======= */
+/* Prefill con dati utente loggato */
+onUser(u=>{
+  if(!u) return;
+  const parts=(u.displayName||'').trim().split(' ');
+  $('#fn').value = parts[0] || '';
+  $('#ln').value = parts.slice(1).join(' ') || '';
+  $('#em').value = (u.email||'');
+});
+
+/* Validazione */
 function isEmail(v){ return /^\S+@\S+\.\S+$/.test((v||'').trim()); }
 function validateForm(){
   const fn=$('#fn'), ln=$('#ln'), em=$('#em'); let ok=true;
@@ -185,14 +167,10 @@ function validateForm(){
   return ok;
 }
 
-/* ======= Bind ======= */
+/* Bind */
 $('#back').addEventListener('click', ()=>history.back());
-$('#pay').addEventListener('click', ()=>{
-  if(!validateForm()) return;
-  alert('Pagamento avviato (simulazione).');
-});
+$('#pay').addEventListener('click', ()=>{ if(!validateForm()) return; alert('Pagamento avviato (simulazione).'); });
 
-/* init */
 render();
 </script>
 </body>
