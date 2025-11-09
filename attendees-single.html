@@ -22,17 +22,16 @@ nav a:hover{color:var(--accent)}
 h1{font-size:28px;font-weight:900;letter-spacing:-.2px}
 .sub{color:var(--muted);margin-top:6px}
 .card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:18px;margin-top:16px}
-.badge{display:inline-block;background:#0f0f10;border:1px solid var(--border);border-radius:10px;padding:6px 10px;font-size:13px;margin-right:8px}
-.row{display:flex;justify-content:space-between;align-items:center;margin:8px 0}
+.badges{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px}
+.badge{display:inline-block;background:#0f0f10;border:1px solid var(--border);border-radius:10px;padding:6px 10px;font-size:13px}
+.line{display:flex;justify-content:space-between;align-items:center;margin:8px 0}
 .hr{height:1px;background:rgba(255,255,255,.08);margin:14px 0}
 .total{font-size:22px;font-weight:900}
 .muted{color:var(--muted)}
 .pay{display:inline-block;padding:12px 16px;border-radius:10px;text-decoration:none;font-weight:900;background:var(--accent);color:#000;border:none;cursor:pointer}
 .btn-outline{background:transparent;border:1px solid var(--border);color:#fff}
 .actions{display:flex;gap:10px;justify-content:flex-end;margin-top:14px}
-.info{font-size:13px;line-height:1.4;background:rgba(139,92,246,.12);border:1px solid rgba(139,92,246,.3);border-radius:12px;padding:12px;margin-top:12px}
-.link{color:#b49afc;cursor:pointer;text-decoration:underline}
-.checkbox{display:flex;align-items:center;gap:8px;cursor:pointer}
+.checkbox{display:flex;align-items:center;gap:8px;cursor:pointer;margin-top:6px}
 .checkbox input{width:18px;height:18px}
 </style>
 </head>
@@ -46,36 +45,34 @@ h1{font-size:28px;font-weight:900;letter-spacing:-.2px}
 
 <main class="wrap">
   <h1>Ultimo passaggio</h1>
-  <div class="sub" id="hello">Ciao <strong>ospite</strong>, conferma e paga.</div>
+  <div class="sub" id="hello">Stai acquistando: <strong>—</strong></div>
 
   <div class="card">
-    <div class="row">
-      <div id="summaryTitle" style="font-weight:900">Stai acquistando:</div>
-      <div class="badge" id="ticketBadge">—</div>
+    <div class="badges">
+      <span class="badge">Sab 21 Mar 2026</span>
+      <span class="badge">22:30 → 04:30</span>
+      <span class="badge">Via Italia 38, Biella</span>
     </div>
-    <div class="row">
-      <div class="muted">Totale attuale</div>
-      <div class="total" id="totalNow">0€</div>
+
+    <!-- Riepilogo -->
+    <div id="summary">
+      <div class="line"><div id="ticketLine">—</div><div id="ticketPrice">0€</div></div>
+      <div class="line" id="protLine" style="display:none"><div>Protezione cambio nome × 1</div><div id="protPrice">+1,90€</div></div>
     </div>
 
     <div class="hr"></div>
 
+    <!-- Toggle Protezione -->
     <label class="checkbox">
       <input type="checkbox" id="nameProt">
-      <span><strong>Aggiungi Protezione cambio nome</strong> (+<span id="feeLbl">1,90€</span>)</span>
+      <span><strong>Procedi senza Protezione cambio nome</strong> (spuntalo per aggiungere +1,90€)</span>
     </label>
     <div class="muted" style="margin-top:6px">
-      1,90€ / biglietto ti consente di cambiare il nominativo <strong>1 volta</strong> fino a <strong>48h</strong> dall’evento.
-      <span id="ctaReenable" class="link" style="display:none">Torna ad attivarla</span>
-    </div>
-
-    <div class="info" id="idNote">
-      Ricorda: nome e cognome devono coincidere con il <strong>documento d’identità</strong> che verrà richiesto all’ingresso.
-      Se l’ospite deve ancora registrarsi, usa lo stesso nome/cognome in registrazione.
+      1,90€ / biglietto consente di cambiare il nominativo <strong>1 volta</strong> fino a <strong>48h</strong> dall’evento.
     </div>
 
     <div class="hr"></div>
-    <div class="row total">
+    <div class="line total">
       <div>Totale (IVA inclusa)</div>
       <div id="grandTot">0€</div>
     </div>
@@ -96,95 +93,57 @@ const hello = document.getElementById('hello');
 onUser(u=>{
   if(u){
     const name=(u.displayName||u.email||'ospite').split(' ')[0];
-    hello.innerHTML = `Ciao <strong>${name}</strong>, conferma e paga.`;
+    hello.innerHTML = `Stai acquistando: <strong id="skuName">—</strong> • Ciao <strong>${name}</strong>`;
   }
 });
 
 function money(n){ return n.toFixed(2).replace('.00','')+'€'; }
-
-function readCart(){
-  try { return JSON.parse(localStorage.getItem('trapperreo_cart')||'null') || {}; }
-  catch { return {}; }
-}
+function readCart(){ try { return JSON.parse(localStorage.getItem('trapperreo_cart')||'null')||{}; } catch { return {}; } }
 function writeCart(c){ localStorage.setItem('trapperreo_cart', JSON.stringify(c)); }
 
 const cart = readCart();
-// individua quale biglietto è stato scelto (totale 1)
-const map = [
-  ['eb','Early Bird','EB'],
-  ['std','Standard','STD'],
-  ['fast','Fast Entry','FAST'],
-  ['vip','VIP Entry','VIP'],
-];
-let skuKey = null, label = '', price = 0;
-for(const [k,lab,code] of map){
-  if((cart[k]||0) > 0){ skuKey=k; label=lab; price=PRICE[code]; break; }
-}
-if(!skuKey){ // fallback
-  skuKey='std'; label='Standard'; price=PRICE.STD;
-}
 
-const summaryTitle = document.getElementById('summaryTitle');
-const ticketBadge = document.getElementById('ticketBadge');
-const totalNow    = document.getElementById('totalNow');
-const grandTot    = document.getElementById('grandTot');
-const nameProt    = document.getElementById('nameProt');
-const feeLbl      = document.getElementById('feeLbl');
-const backBtn     = document.getElementById('backBtn');
-const payBtn      = document.getElementById('payBtn');
-const ctaReenable = document.getElementById('ctaReenable');
+// individua quale biglietto (totale = 1)
+const map=[['eb','Early Bird','EB'],['std','Standard','STD'],['fast','Fast Entry','FAST'],['vip','VIP Entry','VIP']];
+let skuKey=null, skuLabel='', base=0;
+for(const [k,lab,code] of map){ if((cart[k]||0)>0){ skuKey=k; skuLabel=lab; base=PRICE[code]; break; } }
+if(!skuKey){ skuKey='std'; skuLabel='Standard'; base=PRICE.STD; }
 
-feeLbl.textContent = money(PRICE.NAMECHANGE);
+document.getElementById('skuName').textContent = skuLabel;
+document.getElementById('ticketLine').textContent = `${skuLabel} × 1`;
+document.getElementById('ticketPrice').textContent = money(base);
 
-// stato iniziale: se nel checkout avevi già attivato la protezione, rispettiamo
+const nameProt = document.getElementById('nameProt');
+const protLine = document.getElementById('protLine');
+const protPrice = document.getElementById('protPrice');
+const grandTot = document.getElementById('grandTot');
+const backBtn = document.getElementById('backBtn');
+const payBtn = document.getElementById('payBtn');
+
+// stato iniziale dal checkout
 nameProt.checked = cart.nc === 1;
+protLine.style.display = nameProt.checked ? 'flex':'none';
+protPrice.textContent = `+${money(PRICE.NAMECHANGE)}`;
 
-// UI iniziale
-ticketBadge.textContent = label;
-summaryTitle.innerHTML = `Stai acquistando: <strong>${label}</strong>`;
-totalNow.textContent = money(price);
-
-// mostra link “Torna ad attivarla” solo se non è spuntata
-function toggleReenable(){
-  ctaReenable.style.display = nameProt.checked ? 'none' : 'inline';
-}
-toggleReenable();
-
-function renderTotals(){
+function render(){
   const extra = nameProt.checked ? PRICE.NAMECHANGE : 0;
-  grandTot.textContent = money(price + extra);
+  protLine.style.display = nameProt.checked ? 'flex':'none';
+  grandTot.textContent = money(base + extra);
 }
-renderTotals();
+render();
 
-// handler checkbox
+// toggle protezione salva subito sul carrello
 nameProt.addEventListener('change', ()=>{
-  // scrive subito nel carrello per mantenerlo coerente se torni indietro
   cart.nc = nameProt.checked ? 1 : 0;
   writeCart(cart);
-  toggleReenable();
-  renderTotals();
+  render();
 });
 
-// click "Torna ad attivarla"
-ctaReenable.addEventListener('click', ()=>{
-  nameProt.checked = true;
-  cart.nc = 1; writeCart(cart);
-  toggleReenable();
-  renderTotals();
-});
+// indietro → torna al checkout (stato preservato)
+backBtn.addEventListener('click',(e)=>{ e.preventDefault(); location.href='./checkout.html'; });
 
-// Indietro → torna al checkout (stato preservato)
-backBtn.addEventListener('click', (e)=>{
-  e.preventDefault();
-  // Manteniamo quantità e nc nello storage (già aggiornato dagli handler)
-  location.href = './checkout.html';
-});
-
-// Paga ora (simulazione)
-payBtn.addEventListener('click', ()=>{
-  // qui integrerai il provider di pagamento; per ora simulazione
-  alert('Pagamento avviato (simulazione).');
-});
+// paga ora (simulazione)
+payBtn.addEventListener('click', ()=>{ alert('Pagamento avviato (simulazione).'); });
 </script>
 </body>
 </html>
