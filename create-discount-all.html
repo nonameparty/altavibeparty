@@ -20,7 +20,8 @@ input,select{width:100%;background:#0f0f10;border:1px solid var(--border);border
 .btn.ghost{background:transparent;border:1px solid var(--border);color:#fff}
 .notice{display:none;margin:10px 0;padding:12px;border-radius:10px;background:#2a0e0e;border:1px solid #ff6b6b;color:#ffdede}
 .ok{display:none;margin:10px 0;padding:12px;border-radius:10px;background:#0e2a14;border:1px solid #34d399;color:#c6f6d5}
-.chk{display:flex;align-items:center;gap:8px;margin-top:10px}
+.chkline{display:flex;gap:10px;flex-wrap:wrap}
+.chkline label{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--border);border-radius:10px;padding:8px 10px}
 </style>
 </head>
 <body>
@@ -53,14 +54,23 @@ input,select{width:100%;background:#0f0f10;border:1px solid var(--border);border
       </div>
     </div>
 
-    <label>Etichetta (facoltativa, solo per promemoria interno)</label>
+    <label>Etichetta (facoltativa)</label>
     <input id="label" placeholder="Es. PROMO OPENING" />
 
-    <label class="chk"><input id="active" type="checkbox" checked /> Attivo subito</label>
+    <label style="margin-top:12px">Tipologie su cui si applica</label>
+    <div class="chkline" id="skuBox">
+      <label><input type="checkbox" data-sku="ALL" checked /> Tutte</label>
+      <label><input type="checkbox" data-sku="EB" /> Early Bird</label>
+      <label><input type="checkbox" data-sku="STD" /> Standard</label>
+      <label><input type="checkbox" data-sku="FAST" /> Fast Entry</label>
+      <label><input type="checkbox" data-sku="VIP" /> VIP</label>
+    </div>
+
+    <label style="margin-top:10px"><input id="active" type="checkbox" checked /> Attivo subito</label>
 
     <div style="margin-top:14px;display:flex;gap:10px">
       <button id="save" class="btn" type="button">Crea codice</button>
-      <button id="cancel" class="btn ghost" type="button" onclick="location.href='./founder-discount.html'">Annulla</button>
+      <button class="btn ghost" type="button" onclick="location.href='./founder-discount.html'">Annulla</button>
     </div>
   </section>
 </main>
@@ -72,32 +82,31 @@ import {
 } from 'https://www.gstatic.com/firebasejs/12.5.0/firebase-firestore.js';
 
 const db = getFirestore(app);
-
-const E = (id)=>document.getElementById(id);
-const err = E('err'), ok = E('ok');
-
+const E = id=>document.getElementById(id);
+const err=E('err'), ok=E('ok');
+const norm = s => (s||'').toString().trim().toUpperCase().replace(/\s+/g,'').replace(/[^A-Z0-9_-]/g,'');
 function showErr(m){ err.textContent=m; err.style.display='block'; }
 function hideErr(){ err.style.display='none'; }
 function showOk(m){ ok.textContent=m; ok.style.display='block'; setTimeout(()=> ok.style.display='none', 1600); }
 
-const norm = s => (s||'').toString().trim().toUpperCase().replace(/\s+/g,'').replace(/[^A-Z0-9_-]/g,'');
+function readAllowedSkus(){
+  const all = [...document.querySelectorAll('#skuBox input[type="checkbox"]')];
+  const allTick = all.find(c=>c.dataset.sku==='ALL');
+  if(allTick.checked) return ['EB','STD','FAST','VIP'];
+  const arr = all.filter(c=>c.dataset.sku!=='ALL' && c.checked).map(c=>c.dataset.sku);
+  return arr.length ? arr : ['EB','STD','FAST','VIP'];
+}
 
 async function isFounder(email){
   try{
-    const snap = await getDoc(doc(db,'config','admins'));
-    const founders = snap.exists() ? (snap.data().founders || {}) : {};
-    return !!founders[(email||'').toLowerCase()];
+    const s = await getDoc(doc(db,'config','admins'));
+    return (s.exists() ? (s.data().founders||{})[ (email||'').toLowerCase() ] : false) === true;
   }catch(_){ return false; }
 }
-
 async function codeExists(code){
   const snap = await getDocs(collection(db,'discountCodes'));
-  const lc = code.toLowerCase();
-  let found=false;
-  snap.forEach(d=>{
-    const v = d.data() || {};
-    if((v.code||'').toString().toLowerCase() === lc) found = true;
-  });
+  const l = code.toLowerCase(); let found=false;
+  snap.forEach(d=>{ if((d.data().code||'').toString().toLowerCase()===l) found=true; });
   return found;
 }
 
@@ -111,32 +120,34 @@ onUser(async (u)=>{
     : 'Accesso negato (solo Founder).';
   if(!allowed){ setTimeout(()=>location.href='./account-2.html',1200); return; }
 
+  // logica "Tutte" → spunta/dispunta gli altri
+  const all = document.querySelector('#skuBox input[data-sku="ALL"]');
+  const others = [...document.querySelectorAll('#skuBox input[data-sku]:not([data-sku="ALL"])')];
+  all.addEventListener('change',()=>{ if(all.checked) others.forEach(c=>c.checked=false); });
+  others.forEach(c=>c.addEventListener('change',()=>{ if(others.some(x=>x.checked)) all.checked=false; }));
+
   E('save').addEventListener('click', async ()=>{
     hideErr();
-    let code = norm(E('code').value);
+    const code = norm(E('code').value);
     const type = E('type').value;
     const amount = Number(E('amount').value||0);
     const label = E('label').value.trim();
     const active = E('active').checked;
+    const allowedSkus = readAllowedSkus();
 
     if(!code) return showErr('Inserisci un codice valido.');
     if(amount<=0) return showErr('Inserisci un valore maggiore di zero.');
     if(await codeExists(code)) return showErr('Esiste già un codice con questo nome.');
 
-    const payload = {
-      code, type, amount, label,
-      appliesTo:'all',
-      active: !!active,
-      createdAt: serverTimestamp(),
-      updatedAt: serverTimestamp()
-    };
     try{
-      await addDoc(collection(db,'discountCodes'), payload);
-      showOk('Codice creato!');
-      setTimeout(()=> location.href='./founder-discount.html', 600);
-    }catch(e){
-      console.error(e); showErr('Errore nel salvataggio (controlla le regole Firestore).');
-    }
+      await addDoc(collection(db,'discountCodes'), {
+        code, type, amount, label,
+        appliesTo:'all', allowedSkus,
+        active: !!active,
+        createdAt: serverTimestamp(), updatedAt: serverTimestamp()
+      });
+      showOk('Codice creato!'); setTimeout(()=>location.href='./founder-discount.html',600);
+    }catch(e){ console.error(e); showErr('Errore nel salvataggio (regole?).'); }
   });
 });
 </script>
