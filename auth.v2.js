@@ -6,7 +6,9 @@ import {
   sendPasswordResetEmail, signOut
 } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-auth.js";
 import {
-  getFirestore, doc, getDoc, setDoc, serverTimestamp
+  getFirestore, doc, getDoc, setDoc, serverTimestamp,
+  // === AGGIUNTA ===
+  collection, getDocs, addDoc, updateDoc
 } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -102,5 +104,132 @@ export function requireActiveUser(redirect = "./login.html"){
   }));
 }
 
-// debug visivo: puoi toglierlo
+// === AGGIUNTA: utilità founder lato client (stessa logica regole) ===
+export async function isFounderClient(email, uid){
+  try{
+    const cfg = await getDoc(doc(db,'config','admins'));
+    const founders = cfg.exists() ? (cfg.data().founders || {}) : {};
+    if (founders[(email||'').toLowerCase()] === true) return true;
+  }catch(_){}
+  try{
+    const me = await getDoc(doc(db,'users', uid));
+    return me.exists() && (me.data().role === 'founder');
+  }catch(_){}
+  return false;
+}
+
+// === AGGIUNTA: CSV lato client ===
+export function toCSV(rows){
+  if(!rows?.length) return "";
+  const headers = Array.from(new Set(rows.flatMap(r=>Object.keys(r))));
+  const esc = v => {
+    const s = (v ?? "").toString().replace(/"/g,'""');
+    return /[",\n]/.test(s) ? `"${s}"` : s;
+  };
+  return [headers.map(esc).join(","), ...rows.map(r=>headers.map(h=>esc(r[h])).join(","))].join("\n");
+}
+export function downloadCSV(filename, rows){
+  const blob = new Blob([toCSV(rows)], { type:"text/csv;charset=utf-8;" });
+  const url = URL.createObjectURL(blob);
+  const a = Object.assign(document.createElement("a"), { href:url, download:filename });
+  document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
+}
+
+// === AGGIUNTA: SHA-256 per codici sconto sicuri ===
+export async function sha256Hex(s){
+  const enc = new TextEncoder().encode(s);
+  const buf = await crypto.subtle.digest("SHA-256", enc);
+  return [...new Uint8Array(buf)].map(b => b.toString(16).padStart(2,"0")).join("");
+}
+
+// === AGGIUNTA: crea codice sconto (solo founder) ===
+export async function createDiscountCode({ plainCode, label, type, amount, appliesTo, userId }){
+  const u = auth.currentUser;
+  if(!u) throw new Error("not-signed-in");
+  if(!(await isFounderClient(u.email, u.uid))) throw new Error("forbidden");
+  const hash = await sha256Hex(plainCode);
+  await setDoc(doc(db,"discountCodes",hash), {
+    label,
+    type,           // "percent" | "fixed"
+    amount,         // numero
+    appliesTo,      // "all" | "user"
+    userId: appliesTo==="user" ? (userId || u.uid) : null,
+    maxRedemptions: appliesTo==="user" ? 1 : 999999, // nota: limite globale forte richiede backend
+    redeemedCount: 0,
+    active: true,
+    updatedAt: serverTimestamp(),
+    createdAt: serverTimestamp()
+  }, { merge:true });
+  return hash; // NON salviamo il codice in chiaro
+}
+
+// === AGGIUNTA: crea “omaggio” (ticket gratuito) ===
+export async function createGiftTicket(targetUid, { eventId, note } = {}){
+  const u = auth.currentUser;
+  if(!u) throw new Error("not-signed-in");
+  if(!(await isFounderClient(u.email, u.uid))) throw new Error("forbidden");
+  await addDoc(collection(db, "users", targetUid, "tickets"), {
+    type: "omaggio",
+    status: "active",
+    eventId: eventId || "event-001",
+    note: note || null,
+    createdAt: serverTimestamp(),
+    updatedAt: serverTimestamp()
+  });
+  return true;
+}
+
+// === AGGIUNTA: crea ordine lato client (+ ticket) ===
+// items: [{ sku:"EB|STD|FAST|VIP", qty:number, price:number }]
+export async function createOrder({ items, total, enteredCode, eventId }){
+  const u = auth.currentUser;
+  if(!u) throw new Error("not-signed-in");
+
+  const payload = {
+    items,
+    total,
+    createdAt: serverTimestamp()
+  };
+  if(enteredCode){
+    payload.discountHash = await sha256Hex(enteredCode); // le regole verificheranno il doc /discountCodes/{hash}
+  }
+  // scrivi ordine
+  const orderRef = await addDoc(collection(db,"users",u.uid,"orders"), payload);
+
+  // crea i ticket relativi (uno per quantità) — lato client
+  const mapType = sku => ({
+    EB:"early_bird", STD:"standard", FAST:"fast_entry", VIP:"vip_entry"
+  }[sku] || "standard");
+
+  const ts = serverTimestamp();
+  for(const it of items){
+    const t = mapType(it.sku);
+    for(let i=0;i<Number(it.qty||0);i++){
+      await addDoc(collection(db,"users",u.uid,"tickets"), {
+        type: t,
+        status: "active",
+        eventId: eventId || "event-001",
+        orderId: orderRef.id,
+        createdAt: ts,
+        updatedAt: ts
+      });
+    }
+  }
+  return orderRef.id;
+}
+
+// === AGGIUNTA: export CSV utili (founder)
+export async function exportUsersCSV(){
+  const u = auth.currentUser; if(!u) throw new Error("not-signed-in");
+  if(!(await isFounderClient(u.email,u.uid))) throw new Error("forbidden");
+  const snap = await getDocs(collection(db,"users"));
+  const rows = [];
+  snap.forEach(d=>{
+    const v = d.data()||{};
+    rows.push({ uid:d.id, name:v.name||"", email:v.email||"", role:v.role||"", status:v.status||"" });
+  });
+  downloadCSV("users.csv", rows);
+  return rows.length;
+}
+
 console.log("AUTH LOADED OK");
