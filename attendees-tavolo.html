@@ -56,10 +56,16 @@ h2{font-size:20px;font-weight:900;margin:14px 0 8px}
 .zone[data-area="gold"]{border-color:var(--gold)}
 .zone[data-area="silver"]{border-color:var(--silver)}
 .zone[data-area="classic"]{border-color:var(--classic)}
-.zone.active{box-shadow:0 0 0 3px rgba(255,255,255,.15), 0 0 0 6px rgba(139,92,246,.35)}
-.zone.dim{opacity:.55}
+
+/* stati */
+.zone.current{box-shadow:0 0 0 3px rgba(139,92,246,.35), 0 0 0 6px rgba(139,92,246,.18)}
+.zone.selected{border-color:var(--ok)!important;background:rgba(34,197,94,.12)!important;box-shadow:0 0 0 3px rgba(34,197,94,.25), 0 0 0 6px rgba(34,197,94,.25)}
 .zone.busy{background:#2a0c0c;border-color:#ff8080}
 .zone.busy .pp{color:#ffb3b3}
+.zone.dim{opacity:.55}
+
+/* badge T1/T2… */
+.zone .tag{position:absolute;top:6px;right:6px;font-size:11px;background:#16a34a;color:#000;padding:2px 6px;border-radius:999px;font-weight:900;}
 
 /* pannello tavolo */
 .table-panel{display:grid;gap:10px}
@@ -249,9 +255,7 @@ h2{font-size:20px;font-weight:900;margin:14px 0 8px}
 <script type="module">
 /* ================= Firebase & Auth ================= */
 import { onUser, doSignOut, app } from './auth.v2.js?v=6';
-import {
-  getFirestore, doc, getDoc, setDoc
-} from 'https://www.gstatic.com/firebasejs/12.5.0/firebase-firestore.js';
+import { getFirestore, doc, getDoc, setDoc } from 'https://www.gstatic.com/firebasejs/12.5.0/firebase-firestore.js';
 
 const db = getFirestore(app);
 
@@ -327,18 +331,14 @@ const STATE = {
   user:null,
   activeTable:0,
   totalPax:4,
-  // mapping aree (UI -> chiavi min nel config)
-  areaMap:{ classic:'bronzo', silver:'argento', gold:'vip' },
-  // min fallback (x tavolo)
   areaMin:{ classic:120, silver:140, gold:180 },
-  pricesPerPax:{ classic:30, silver:35, gold:45 }, // “da €/pax” visivo
-  tables:[],        // [{index, area:'classic'|'silver'|'gold', pax:4..7, real, zone, bottles:[{id,qty}], holdId?}]
-  bottleList:[],    // [{id,name,category:'champagne'|'distillati',price,cost,visible,min:{vip,argento,bronzo}, includes?:string}]
-  locks:{},         // zona -> {heldBy, tableIndex, heldAt, status}
-  legalAccepted:false
+  pricesPerPax:{ classic:30, silver:35, gold:45 },
+  tables:[],     // [{index, area, pax, real, zone, bottles:[]}]
+  bottleList:[], // [{id,name,category,price,cost,visible,min:{vip,argento,bronzo},includes}]
+  locks:{}       // zona -> {heldBy, tableIndex, heldAt, status: 'pending'|'booked'|'released'}
 };
 
-/* ================== Minimi area da /config/bottles ================== */
+/* ================== Config bottiglie & minimi ================== */
 async function loadBottleConfigAndMin(){
   try{
     const snap = await getDoc(doc(db,'config','bottles'));
@@ -351,17 +351,12 @@ async function loadBottleConfigAndMin(){
       price: Number(v.price||0),
       cost: Number(v.cost||0),
       visible: v.visible!==false,
-      min: {
-        vip: Number(v.min?.vip||0),
-        argento: Number(v.min?.argento||0),
-        bronzo: Number(v.min?.bronzo||0),
-      },
+      min: { vip:Number(v.min?.vip||0), argento:Number(v.min?.argento||0), bronzo:Number(v.min?.bronzo||0) },
       includes: (v.includes||'').toString()
     })).filter(x=>x.visible);
 
     STATE.bottleList = arr;
 
-    // minimi area = MAX dei min.* visibili (se presenti), fallback ai fissi 120/140/180
     const maxVip = Math.max(0, ...arr.map(x=>x.min.vip||0));
     const maxArg = Math.max(0, ...arr.map(x=>x.min.argento||0));
     const maxBro = Math.max(0, ...arr.map(x=>x.min.bronzo||0));
@@ -370,10 +365,15 @@ async function loadBottleConfigAndMin(){
       silver:  maxArg>0?maxArg:STATE.areaMin.silver,
       classic: maxBro>0?maxBro:STATE.areaMin.classic
     };
-  }catch(e){ /* fallback ok */ }
+  }catch{}
 }
 
-/* ================== Locks Tavoli (soft-lock 3 min) ================== */
+/* ================== Locks (3 minuti) ================== */
+function lockIsActive(l){
+  if (!l) return false;
+  if (l.status === 'booked') return true;
+  return (Date.now() - (l.heldAt||0) < 180000) && l.status !== 'released';
+}
 async function fetchLocks(){
   try{
     const ref = doc(db,'locks','tables');
@@ -381,58 +381,39 @@ async function fetchLocks(){
     STATE.locks = snap.exists()? (snap.data()||{}) : {};
   }catch{ STATE.locks = {}; }
 }
+function isZoneHeldByMe(zoneId){
+  const l = STATE.locks[zoneId]; return lockIsActive(l) && l.heldBy === STATE.user?.uid;
+}
+function isZoneBusyByOther(zoneId){
+  const l = STATE.locks[zoneId]; return lockIsActive(l) && l.heldBy !== STATE.user?.uid;
+}
 async function tryHoldZone(zoneId, tableIndex){
-  // se occupato e non scaduto → fail
-  const now = Date.now();
-  const curr = STATE.locks[zoneId];
-  if (curr && (now - (curr.heldAt||0) < 180000) && curr.heldBy !== STATE.user?.uid){
-    return false;
-  }
-  // registra hold
-  STATE.locks[zoneId] = { heldBy: STATE.user.uid, tableIndex, heldAt: now, status:'pending' };
-  await setDoc(doc(db,'locks','tables'), { [zoneId]: STATE.locks[zoneId] }, { merge:true });
+  const l = STATE.locks[zoneId];
+  if (isZoneBusyByOther(zoneId)) return false;
+  const rec = { heldBy: STATE.user.uid, tableIndex, heldAt: Date.now(), status:'pending' };
+  STATE.locks[zoneId] = rec;
+  await setDoc(doc(db,'locks','tables'), { [zoneId]: rec }, { merge:true });
   return true;
 }
-function isZoneBusy(zoneId){
-  const l = STATE.locks[zoneId];
-  if(!l) return false;
-  // 3 min expiry
-  return (Date.now() - (l.heldAt||0) < 180000) && l.status !== 'released';
-}
 function markZoneReleased(zoneId){
-  if(!STATE.locks[zoneId]) return;
-  STATE.locks[zoneId].status='released';
-  STATE.locks[zoneId].heldAt=Date.now();
-  setDoc(doc(db,'locks','tables'), { [zoneId]: STATE.locks[zoneId] }, { merge:true });
+  const l = STATE.locks[zoneId]; if(!l) return;
+  l.status='released'; l.heldAt=Date.now();
+  setDoc(doc(db,'locks','tables'), { [zoneId]: l }, { merge:true });
 }
 
-/* ================== Split tavoli ================== */
+/* ================== Split/Rebalance tavoli ================== */
 function splitTables(total){
   const res = [];
-  if (total <= 7){
-    const pax = Math.max(4, total); // base costo minimo 4
-    res.push({ pax, real: total });
-    return res;
-  }
+  if (total <= 7){ res.push({ pax:Math.max(4,total), real:total }); return res; }
   let remain = total;
-  while (remain > 7){
-    res.push({ pax:7, real:7 });
-    remain -= 7;
-  }
+  while (remain > 7){ res.push({ pax:7, real:7 }); remain -= 7; }
   if (remain>0){
-    if (remain < 4){
-      if (res.length && res[res.length-1].pax > 4){
-        const need = 4 - remain;
-        const give = Math.min(need, res[res.length-1].pax - 4);
-        res[res.length-1].pax -= give;
-        res[res.length-1].real -= give;
-        res.push({ pax: remain + give, real: remain });
-      } else {
-        res.push({ pax:4, real:remain });
-      }
-    } else {
-      res.push({ pax: remain, real: remain });
-    }
+    if (remain < 4 && res.length && res[res.length-1].pax > 4){
+      const need = 4 - remain;
+      const give = Math.min(need, res[res.length-1].pax - 4);
+      res[res.length-1].pax -= give; res[res.length-1].real -= give;
+      res.push({ pax: remain + give, real: remain });
+    } else res.push({ pax: Math.max(4, remain), real: remain });
   }
   return res.map(x=>({ pax: Math.min(7, Math.max(4,x.pax)), real: x.real }));
 }
@@ -440,22 +421,16 @@ function rebalanceTables(indexChanged, newPax){
   newPax = Math.min(7, Math.max(4, Number(newPax||4)));
   const tot = STATE.totalPax;
   const T = STATE.tables.map(t=>t.pax);
-  const curSum = T.reduce((s,n)=>s+n,0);
-  const delta = newPax - T[indexChanged];
   T[indexChanged] = newPax;
-
   let targetBase = Math.max(STATE.tables.length*4, tot);
   let baseSum = T.reduce((s,n)=>s+n,0);
-
   if (baseSum > targetBase){
-    for (let i=0;i<T.length;i++){
-      if (i===indexChanged) continue;
+    for (let i=0;i<T.length;i++){ if (i===indexChanged) continue;
       while (T[i]>4 && baseSum>targetBase){ T[i]--; baseSum--; }
       if (baseSum<=targetBase) break;
     }
   } else if (baseSum < targetBase){
-    for (let i=0;i<T.length;i++){
-      if (i===indexChanged) continue;
+    for (let i=0;i<T.length;i++){ if (i===indexChanged) continue;
       while (T[i]<7 && baseSum<targetBase){ T[i]++; baseSum++; }
       if (baseSum>=targetBase) break;
     }
@@ -463,7 +438,7 @@ function rebalanceTables(indexChanged, newPax){
   STATE.tables.forEach((t,i)=>{ t.pax=T[i]; });
 }
 
-/* default: se Tavolo 1 sceglie un’area, Tavolo 2 propone il “vicino” */
+/* vicinanze per Tavolo 2 */
 const neighborOrder = {
   'gold-center':['gold-left','gold-right','silver-left1','silver-right1'],
   'gold-left':['gold-center','gold-right','silver-left1','silver-left2'],
@@ -477,42 +452,36 @@ const neighborOrder = {
 };
 function autoSuggestForTable2(){
   if (STATE.tables.length<2) return;
-  const t1 = STATE.tables[0];
-  const t2 = STATE.tables[1];
+  const t1 = STATE.tables[0], t2 = STATE.tables[1];
   if (!t1.zone) return;
-  const areaWanted = t1.area;
+  const wanted = t1.area;
   const order = neighborOrder[t1.zone]||[];
   for (const z of order){
     const el = zones.find(n=>n.getAttribute('data-zone')===z);
     if (!el) continue;
-    const area = el.getAttribute('data-area');
-    if (area!==areaWanted) continue;
-    if (!isZoneBusy(z) && STATE.tables.every(tt=>tt.zone!==z)){
-      t2.area = areaWanted; t2.zone = z; return;
+    if (el.getAttribute('data-area')!==wanted) continue;
+    if (!isZoneBusyByOther(z) && STATE.tables.every(tt=>tt.zone!==z)){
+      t2.area = wanted; t2.zone = z; return;
     }
   }
   const any = zones.find(el=>{
     const z = el.getAttribute('data-zone');
-    return el.getAttribute('data-area')===areaWanted && !isZoneBusy(z) && STATE.tables.every(tt=>tt.zone!==z);
+    return el.getAttribute('data-area')===wanted && !isZoneBusyByOther(z) && STATE.tables.every(tt=>tt.zone!==z);
   });
-  if (any){ t2.area=areaWanted; t2.zone=any.getAttribute('data-zone'); }
+  if (any){ t2.area=wanted; t2.zone=any.getAttribute('data-zone'); }
 }
 
-/* ================== Stato tavoli init ================== */
+/* init tabelle */
 function ensureTables(){
   const parts = splitTables(STATE.totalPax);
   const old = STATE.tables;
   STATE.tables = parts.map((p,i)=>({
-    index:i,
-    area: old[i]?.area || (i===0?'silver':'classic'),
-    zone: old[i]?.zone || null,
-    pax: p.pax,
-    real: p.real,
-    bottles: old[i]?.bottles || []
+    index:i, area: old[i]?.area || (i===0?'silver':'classic'), zone: old[i]?.zone || null,
+    pax:p.pax, real:p.real, bottles: old[i]?.bottles || []
   }));
 }
 
-/* ================== Render STEP 1 ================== */
+/* ================== Render ================== */
 function renderTabs(container, isStep2=false){
   container.innerHTML = '';
   STATE.tables.forEach((t,i)=>{
@@ -535,10 +504,8 @@ function renderTableDetail(){
           <span class="pill">Zona: ${t.zone? t.zone : '—'}</span>
           <span class="pill area" style="border-color:${color}">${t.area.toUpperCase()}</span>
           <span class="pill">Pax (base costo): ${t.pax}</span>
+          <span class="pill">da ${STATE.pricesPerPax[t.area]}€/pax • minimo ${STATE.areaMin[t.area]}€</span>
         </div>
-      </div>
-      <div class="kv">
-        <span class="pill">da ${STATE.pricesPerPax[t.area]}€/pax • minimo ${STATE.areaMin[t.area]}€</span>
       </div>
     </div>
     <div class="small">La somma dei pax tra i tavoli resta sempre ${STATE.totalPax}. Ogni tavolo non scende sotto 4.</div>
@@ -548,50 +515,64 @@ function renderTableDetail(){
 async function handleZoneClick(el){
   const area = el.getAttribute('data-area');
   const zone = el.getAttribute('data-zone');
-  if (isZoneBusy(zone)) return; // già in prenotazione
+
+  if (isZoneBusyByOther(zone)) return; // rosso = occupato dagli altri
+
   const ok = await tryHoldZone(zone, STATE.activeTable);
   if (!ok) return;
 
-  // libera eventuale vecchio hold del tavolo
   const prev = STATE.tables[STATE.activeTable].zone;
   if (prev && prev!==zone) markZoneReleased(prev);
 
   STATE.tables[STATE.activeTable].area = area;
   STATE.tables[STATE.activeTable].zone = zone;
 
-  // se abbiamo 2 tavoli e sto settando il primo, proponi vicino per il secondo
   if (STATE.activeTable===0 && STATE.tables.length>=2){
     autoSuggestForTable2();
+    STATE.activeTable = 1; /* ⬅️ 1 RIGA: dopo T1 passa automaticamente a T2 */
   }
 
   renderMap(); renderStep1();
 }
 
 function renderMap(){
+  // reset
   zones.forEach(z=>{
-    z.classList.remove('active','dim','busy');
-    const zid = z.getAttribute('data-zone');
-    if (isZoneBusy(zid)) z.classList.add('busy');
+    z.classList.remove('selected','current','busy','dim');
+    z.querySelector('.tag')?.remove();
   });
 
+  // rossi = lock di altri o booked
+  zones.forEach(z=>{
+    const zid = z.getAttribute('data-zone');
+    if (isZoneBusyByOther(zid)) z.classList.add('busy');
+  });
+
+  // verdi = selezionati da me (anche dopo reload)
+  STATE.tables.forEach((t,i)=>{
+    if (!t.zone) return;
+    const el = zones.find(z=>z.getAttribute('data-zone')===t.zone);
+    if (!el) return;
+    if (isZoneBusyByOther(t.zone)) return; // non dipingere verde se in realtà è di altri
+    el.classList.add('selected');
+    const tag = document.createElement('span');
+    tag.className='tag'; tag.textContent = 'T'+(i+1);
+    el.appendChild(tag);
+  });
+
+  // evidenzia tavolo corrente
   const act = STATE.tables[STATE.activeTable].zone;
   if (act){
     const el = zones.find(z=>z.getAttribute('data-zone')===act);
-    el?.classList.add('active');
+    el?.classList.add('current');
   }
 
-  zones.forEach(z=>{
-    z.onclick = ()=>handleZoneClick(z);
-  });
+  zones.forEach(z=>{ z.onclick = ()=>handleZoneClick(z); });
 }
 
-function renderStep1(){
-  renderTabs(tabs1, false);
-  renderTableDetail();
-  renderMap();
-}
+function renderStep1(){ renderTabs(tabs1, false); renderTableDetail(); renderMap(); }
 
-/* ================== Listino (STEP 2) ================== */
+/* ================== STEP 2 ================== */
 function ensureBottleSlot(table, id){
   const idx = table.bottles.findIndex(b=>b.id===id);
   if (idx<0) table.bottles.push({id,qty:0});
@@ -626,7 +607,6 @@ function renderListino(){
       `;
     }).join('')}
   `;
-
   listinoBox.innerHTML = sec('Champagne', champagne) + sec('Distillati', distillati);
 
   listinoBox.querySelectorAll('[data-plus]').forEach(btn=>{
@@ -635,8 +615,7 @@ function renderListino(){
       const meta = STATE.bottleList.find(x=>x.id===id); if(!meta) return;
       const slot = ensureBottleSlot(t,id);
       slot.qty = Number(slot.qty||0)+1;
-      const badge = listinoBox.querySelector(`[data-qty="${id}"]`);
-      if (badge) badge.textContent = slot.qty;
+      listinoBox.querySelector(`[data-qty="${id}"]`).textContent = slot.qty;
       renderSummary();
     };
   });
@@ -645,165 +624,124 @@ function renderListino(){
       const id = btn.getAttribute('data-minus');
       const slot = ensureBottleSlot(t,id);
       slot.qty = Math.max(0, Number(slot.qty||0)-1);
-      const badge = listinoBox.querySelector(`[data-qty="${id}"]`);
-      if (badge) badge.textContent = slot.qty;
+      listinoBox.querySelector(`[data-qty="${id}"]`).textContent = slot.qty;
       renderSummary();
     };
   });
 }
 
 function computeTableBreakdown(table){
-  let sumListino = 0;
-  let sumInterni = 0;
+  let sumListino = 0, sumInterni = 0;
   table.bottles.forEach(sel=>{
-    const meta = STATE.bottleList.find(b=>b.id===sel.id);
-    if(!meta) return;
-    const q = Number(sel.qty||0);
-    if(q<=0) return;
-    sumListino += meta.price * q;
-    sumInterni += meta.cost  * q;
+    const meta = STATE.bottleList.find(b=>b.id===sel.id); if(!meta) return;
+    const q = Number(sel.qty||0); if(q<=0) return;
+    sumListino += meta.price * q; sumInterni += meta.cost * q;
   });
-
   const minArea = STATE.areaMin[table.area] || 0;
   const addMinimo = Math.max(0, minArea - sumListino);
   const extra = Math.max(0, table.pax - 4) * 25;
   const total = sumListino + addMinimo + extra;
-
   const capMin = 25 * table.pax;
   const caparra = Math.max(capMin, sumInterni);
-
   const perHead = table.real>0 ? total / table.real : 0;
-
   return { sumListino, addMinimo, extra, total, caparra, perHead };
 }
-
 function computeAll(){
   const items = STATE.tables.map(t=>({ t, b: computeTableBreakdown(t) }));
   const totalAll = items.reduce((s,x)=> s + x.b.total, 0);
   const depositAll = items.reduce((s,x)=> s + x.b.caparra, 0);
   return { items, totalAll: round2(totalAll), depositAll: round2(depositAll) };
 }
-
 function renderSummary(){
   const { items, totalAll, depositAll } = computeAll();
-
   const rows = items.map(({t,b})=>{
     const titleColor = t.area==='gold'?'var(--gold)':t.area==='silver'?'var(--silver)':'var(--classic)';
     return `
       <div class="line" style="font-weight:800;color:${titleColor}">Tavolo ${t.index+1} — ${t.area.toUpperCase()} (${t.pax} pax)</div>
       <div class="line"><span>Bottiglie (listino)</span><span>${money(b.sumListino)}</span></div>
       <div class="line"><span>Aggiunta minimo tavolo</span><span>${money(b.addMinimo)}</span></div>
-      <div class="small em">Aggiungi bottiglie per evitare l’aggiunta. Minimo tavolo: ${money(STATE.areaMin[t.area])}.</div>
+      <div class="small em">Minimo: ${money(STATE.areaMin[t.area])}.</div>
       ${b.extra>0 ? `<div class="line"><span>Persone extra (${t.pax-4})</span><span>${money(b.extra)}</span></div>`:``}
       <div class="line"><span>Totale tavolo</span><strong>${money(b.total)}</strong></div>
       <div class="line small"><span>Totale a persona</span><span>${money(round2(b.perHead))}</span></div>
       <div class="hr"></div>
     `;
   }).join('');
-
   summaryBox.innerHTML = rows;
 
   const mode = document.querySelector('input[name="payMode"]:checked')?.value || 'deposito';
-  if (mode==='full'){
-    totalLabel.textContent = 'Totale (paga ora)';
-    totalValue.textContent = money(totalAll);
-  } else {
-    totalLabel.textContent = 'Caparra (ora)';
-    totalValue.textContent = money(depositAll);
-  }
+  if (mode==='full'){ totalLabel.textContent='Totale (paga ora)'; totalValue.textContent=money(totalAll); }
+  else { totalLabel.textContent='Caparra (ora)'; totalValue.textContent=money(depositAll); }
 
   const hasAny = STATE.tables.some(t=> t.bottles.some(b=>Number(b.qty||0)>0));
   confirmBtn.disabled = !hasAny;
 }
-
 function renderTabs2(){ renderTabs(tabs2, true); }
+function renderStep2(){ renderTabs2(); renderListino(); renderSummary(); }
 
-function renderStep2(){
-  renderTabs2();
-  renderListino();
-  renderSummary();
-}
-
-/* ================== Navigazione step ================== */
+/* ================== Navigazione ================== */
 function goToStep2(){
   const bad = STATE.tables.find(t=>!t.area || !t.zone);
   if (bad){ alert(`Seleziona l'area sulla mappa per ogni tavolo (manca Tavolo ${bad.index+1}).`); return; }
-  s1.style.display='none';
-  s2.style.display='block';
-  stepBadge1.classList.remove('active');
-  stepBadge2.classList.add('active');
+  s1.style.display='none'; s2.style.display='block';
+  stepBadge1.classList.remove('active'); stepBadge2.classList.add('active');
   renderStep2();
 }
 function backToStep1(){
-  s2.style.display='none';
-  s1.style.display='block';
-  stepBadge2.classList.remove('active');
-  stepBadge1.classList.add('active');
+  s2.style.display='none'; s1.style.display='block';
+  stepBadge2.classList.remove('active'); stepBadge1.classList.add('active');
   renderStep1();
 }
 
 /* ================== Bind base ================== */
 paxMinus.onclick = ()=>{ paxInput.value = Math.max(1, Number(paxInput.value||1)-1); onTotalPaxChange(); };
 paxPlus.onclick  = ()=>{ paxInput.value = Math.min(21, Number(paxInput.value||1)+1); onTotalPaxChange(); };
-paxInput.oninput = ()=>{ 
-  const v = Math.max(1, Math.min(21, parseInt(paxInput.value||'1',10)||1));
-  paxInput.value = v; onTotalPaxChange();
-};
+paxInput.oninput = ()=>{ const v = Math.max(1, Math.min(21, parseInt(paxInput.value||'1',10)||1)); paxInput.value = v; onTotalPaxChange(); };
+function onTotalPaxChange(){ STATE.totalPax = Number(paxInput.value||1); ensureTables(); STATE.activeTable = 0; renderStep1(); }
+goStep2.onclick = goToStep2; backStep1.onclick = backToStep1;
+document.querySelectorAll('input[name="payMode"]').forEach(r=>{ r.addEventListener('change', renderSummary); });
 
-function onTotalPaxChange(){
-  STATE.totalPax = Number(paxInput.value||1);
-  ensureTables();
-  STATE.activeTable = 0;
-  renderStep1();
-}
-
-goStep2.onclick = goToStep2;
-backStep1.onclick = backToStep1;
-
-document.querySelectorAll('input[name="payMode"]').forEach(r=>{
-  r.addEventListener('change', renderSummary);
-});
-
-/* Popup legale prima della conferma */
-confirmBtn.onclick = ()=>{
-  legalGate.style.display='flex';
-};
+/* Popup legale */
+confirmBtn.onclick = ()=>{ legalGate.style.display='flex'; };
 legalCancel.onclick = ()=>{ legalGate.style.display='none'; };
 legalChk.onchange = ()=>{ legalOk.disabled = !legalChk.checked; };
-legalOk.onclick = ()=>{
-  // qui potrai salvare la prenotazione (scrivi booking, poi redirect)
-  legalGate.style.display='none';
-  alert('Prenotazione confermata (stub).');
-};
+legalOk.onclick = ()=>{ legalGate.style.display='none'; alert('Prenotazione confermata (stub).'); };
 
-/* ================== Auth boot + Age gate + Locks ================== */
+/* ================== Boot ================== */
 onUser(async (u)=>{
   if(!u){ nav.innerHTML=OUT; location.href='./login.html?from=./attendees-tavolo.html'; return; }
   STATE.user = u;
   nav.innerHTML = IN(u);
   document.getElementById('logoutLink')?.addEventListener('click', async (e)=>{ e.preventDefault(); await doSignOut(); nav.innerHTML=OUT; location.href='./login.html?from=./attendees-tavolo.html'; });
 
-  // DOB da LS/DB
+  // Age gate
   let prof = profFromLS(u.uid);
   let dob = parseDob(prof?.dob);
   if (!dob){
     const d = await profFromDB(u.uid);
     dob = parseDob(d?.dob) || parseDob(d?.profile?.dob);
-    if (dob){
-      try{
-        const merged = { ...(prof||{}), dob: d?.dob ?? d?.profile?.dob };
-        localStorage.setItem('trapperreo_profile_'+u.uid, JSON.stringify(merged));
-      }catch{}
-    }
+    if (dob){ try{ const merged = { ...(prof||{}), dob: d?.dob ?? d?.profile?.dob }; localStorage.setItem('trapperreo_profile_'+u.uid, JSON.stringify(merged)); }catch{} }
   }
-  const isAdult = ageFrom(dob) >= 18;
-  if (!isAdult){ ageGate.style.display='flex'; return; }
+  if (ageFrom(dob) < 18){ ageGate.style.display='flex'; return; }
 
-  // Carica minimi + listino e locks
   await loadBottleConfigAndMin();
   await fetchLocks();
 
   ensureTables();
+
+  /* Riconciliazione post-refresh: assegna ai tavoli le zone che sono lockate da te */
+  const myZones = Object.entries(STATE.locks)
+    .filter(([z,l])=> lockIsActive(l) && l.heldBy===STATE.user.uid)
+    .map(([z])=> z);
+  STATE.tables.forEach((t)=>{
+    if (t.zone) return;
+    const z = myZones.find(mz=> !STATE.tables.some(tt=>tt.zone===mz));
+    if (!z) return;
+    const el = zones.find(n=>n.getAttribute('data-zone')===z);
+    if (!el) return;
+    t.zone = z; t.area = el.getAttribute('data-area');
+  });
+
   renderStep1();
 });
 </script>
