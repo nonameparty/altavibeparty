@@ -3,13 +3,12 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Prenota Tavolo — TRAPPERREO</title>
+<title>Founder — Listino Bottiglie</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&display=swap" rel="stylesheet" />
 <style>
 :root{
   --bg:#000; --text:#fff; --accent:#8b5cf6; --border:rgba(255,255,255,.12);
   --card:rgba(255,255,255,.06); --muted:rgba(255,255,255,.78);
-  --gold:#f5c542; --silver:#9fb7ff; --classic:#d1a56d;
   --danger:#ef4444; --ok:#22c55e;
 }
 *{box-sizing:border-box;margin:0;padding:0}
@@ -33,74 +32,28 @@ h2{font-size:20px;font-weight:900;margin:14px 0 8px}
 .btn.primary{background:var(--accent);color:#000;border:none}
 .btn.ghost{background:transparent}
 .badge{display:inline-block;padding:6px 10px;border-radius:999px;border:1px solid var(--border);font-size:12px}
+.small{font-size:12px}
 
-.counter{display:inline-flex;align-items:center;border:1px solid var(--border);border-radius:12px;overflow:hidden}
-.counter button{width:40px;height:40px;background:#121214;border:none;color:#fff;font-weight:900;cursor:pointer}
-.counter input{width:72px;height:40px;background:#0b0b0b;border:none;color:#fff;text-align:center;font-weight:900;font-size:16px}
+input,select,textarea{background:#0f0f10;border:1px solid var(--border);border-radius:10px;color:#fff;padding:10px;width:100%}
+textarea{min-height:88px;resize:vertical}
+.label{font-size:12px;opacity:.9;margin-bottom:6px}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 
-/* tabs tavoli */
-.tabs{display:flex;gap:8px;flex-wrap:wrap}
-.tab{padding:8px 12px;border:1px solid var(--border);border-radius:10px;cursor:pointer}
-.tab.active{border-color:var(--accent);box-shadow:0 0 0 3px rgba(139,92,246,.25)}
+.notice{display:none;margin:10px 0;padding:12px;border-radius:10px;background:#2a0e0e;border:1px solid #ff6b6b;color:#ffdede}
+.ok{display:none;margin:10px 0;padding:12px;border-radius:10px;background:#0e2a14;border:1px solid #34d399;color:#c6f6d5}
 
-/* mappa */
-.map{position:relative;aspect-ratio: 5/3;background:#0a0a0a;border:1px solid rgba(255,255,255,.1);border-radius:14px;overflow:hidden}
-.deck{position:absolute;top:8px;left:50%;transform:translateX(-50%);padding:6px 10px;border-radius:8px;border:1px dashed rgba(255,255,255,.25);font-size:12px}
-.floor{position:absolute;inset:0;display:grid;place-items:center}
-.floor .dance{width:58%;height:58%;border:1px dashed rgba(255,255,255,.22);border-radius:12px;display:grid;place-items:center;color:#bbb;font-size:12px}
+.filter{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.toggle{display:inline-flex;align-items:center;gap:8px;font-size:13px}
+.toggle input{accent-color:var(--accent)}
 
-.zone{position:absolute;display:grid;place-items:center;border-radius:10px;border:1.5px solid rgba(255,255,255,.18);padding:8px 12px;background:#101010;cursor:pointer;transition:transform .12s, box-shadow .12s, border-color .12s, background .12s}
-.zone:hover{transform:translateY(-1px)}
-.zone .pp{font-weight:900}
-.zone .lbl{font-size:12px;opacity:.9}
-.zone[data-area="gold"]{border-color:var(--gold)}
-.zone[data-area="silver"]{border-color:var(--silver)}
-.zone[data-area="classic"]{border-color:var(--classic)}
-.zone.active{box-shadow:0 0 0 3px rgba(255,255,255,.15), 0 0 0 6px rgba(139,92,246,.35)}
-.zone.dim{opacity:.55}
-.zone.busy{background:#2a0c0c;border-color:#ff8080}
-.zone.busy .pp{color:#ffb3b3}
-
-/* pannello tavolo */
-.table-panel{display:grid;gap:10px}
-.table-row{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:center;background:#0b0b0b;border:1px solid rgba(255,255,255,.1);border-radius:12px;padding:12px}
-.table-row .ttl{font-weight:900}
-.kv{display:flex;gap:10px;flex-wrap:wrap}
-.kv .pill{padding:4px 8px;border:1px solid var(--border);border-radius:8px;font-size:12px}
-.kv .area{font-weight:800}
-
-/* avvisi legali */
-.alert{border:2px solid var(--danger);background:#250a0a;color:#ffdede;border-radius:12px;padding:12px}
-.alert ul{margin-left:18px}
-.alert b{color:#fff}
-
-/* stepper */
-.stepper{display:flex;gap:8px;margin:6px 0 10px}
-.step{padding:6px 10px;border:1px solid var(--border);border-radius:8px;font-size:12px}
-.step.active{border-color:var(--accent);background:rgba(139,92,246,.1)}
-
-/* listino */
-.listino{display:grid;gap:12px}
-.cat{font-size:14px;font-weight:900;margin-top:6px}
-.item{display:grid;grid-template-columns:1fr auto auto;gap:10px;align-items:center;border:1px solid rgba(255,255,255,.1);background:#0b0b0b;border-radius:12px;padding:10px}
-.item h4{font-size:15px}
-.item .inc{font-size:12px;opacity:.9}
-.price{font-weight:900}
-.small{font-size:12px;opacity:.8}
-.em{font-style:italic;opacity:.9}
-.line{display:flex;justify-content:space-between;align-items:center;margin:6px 0}
-.total{font-size:20px;font-weight:900}
-
-/* overlay 18+ */
-.gate{position:fixed;inset:0;background:rgba(0,0,0,.92);display:none;align-items:center;justify-content:center;z-index:60}
-.gate .box{max-width:520px;border:1px solid rgba(255,0,0,.35);background:#1a0b0b;border-radius:16px;padding:20px}
-.gate h3{color:#ff9c9c;font-size:22px;font-weight:900;margin-bottom:8px}
-.gate .btn{margin-top:10px;border-color:#ff9c9c}
-
-/* pay mode */
-.paymodes{display:flex;gap:10px;flex-wrap:wrap}
-.radio{display:flex;align-items:center;gap:8px;padding:8px 12px;border:1px solid var(--border);border-radius:10px;cursor:pointer}
-.radio input{accent-color:var(--accent)}
+.list{display:grid;gap:12px}
+.item{display:grid;grid-template-columns:84px 1fr auto;gap:12px;align-items:center;background:#0b0b0b;border:1px solid rgba(255,255,255,.12);border-radius:12px;padding:10px}
+.item img{width:84px;height:84px;object-fit:cover;border-radius:10px;border:1px solid rgba(255,255,255,.12);background:#111}
+.item h4{font-size:16px;margin-bottom:4px}
+.kv{display:flex;flex-wrap:wrap;gap:8px}
+.kv span{background:#0f0f10;border:1px solid rgba(255,255,255,.12);border-radius:8px;padding:4px 8px;font-size:12px}
+.item .inc{font-size:12px;opacity:.9;margin-top:6px}
+.actions{display:flex;gap:8px;flex-wrap:wrap}
 </style>
 </head>
 <body>
@@ -108,706 +61,356 @@ h2{font-size:20px;font-weight:900;margin:14px 0 8px}
 <header>
   <div class="nav">
     <div class="brand"><div class="brand-badge"></div><div>TRAPPERREO</div></div>
-    <nav id="navArea"><span class="muted">Caricamento…</span></nav>
+    <nav id="navArea"><span class="muted">Verifica permessi…</span></nav>
   </div>
 </header>
 
 <main class="wrap">
-  <h1>Prenota il tuo Tavolo</h1>
-  <div class="stepper">
-    <div class="step active" id="s1">1) Tavoli</div>
-    <div class="step" id="s2">2) Bottiglie</div>
-  </div>
+  <h1>Founder — Listino Bottiglie</h1>
+  <div id="who" class="muted">Caricamento…</div>
 
-  <!-- STEP 1 -->
-  <section class="card" id="step1">
-    <h2>Quante persone sarete?</h2>
-    <div style="display:flex;gap:12px;align-items:center;margin-top:6px">
-      <div class="counter">
-        <button id="paxMinus">−</button>
-        <input id="paxInput" type="number" value="4" min="1" max="21" inputmode="numeric">
-        <button id="paxPlus">+</button>
-      </div>
-      <div class="badge">Il numero per tavolo si adatta da 4 a 7 pax</div>
-    </div>
+  <div id="err" class="notice"></div>
+  <div id="ok"  class="ok"></div>
 
-    <div class="hr"></div>
-
-    <div class="tabs" id="tableTabs"></div>
-
-    <div class="grid grid-2" style="margin-top:10px">
-      <div>
-        <div class="map" id="clubMap">
-          <div class="deck">DJ • Consolle</div>
-          <div class="floor"><div class="dance">PISTA</div></div>
-
-          <!-- GOLD dietro consolle (3) -->
-          <div class="zone" data-area="gold"   data-zone="gold-left"   style="top:54px;left:18%;"><div><div class="pp">GOLD</div><div class="lbl">da 45€/pax</div></div></div>
-          <div class="zone" data-area="gold"   data-zone="gold-center" style="top:54px;left:50%;transform:translateX(-50%);"><div><div class="pp">GOLD</div><div class="lbl">da 45€/pax</div></div></div>
-          <div class="zone" data-area="gold"   data-zone="gold-right"  style="top:54px;right:18%;"><div><div class="pp">GOLD</div><div class="lbl">da 45€/pax</div></div></div>
-
-          <!-- SILVER lato pista (2 sx + 2 dx) -->
-          <div class="zone" data-area="silver" data-zone="silver-left1"  style="top:50%;left:8%;transform:translateY(-50%)"><div><div class="pp">SILVER</div><div class="lbl">da 35€/pax</div></div></div>
-          <div class="zone" data-area="silver" data-zone="silver-left2"  style="top:70%;left:8%;"><div><div class="pp">SILVER</div><div class="lbl">da 35€/pax</div></div></div>
-          <div class="zone" data-area="silver" data-zone="silver-right1" style="top:50%;right:8%;transform:translateY(-50%)"><div><div class="pp">SILVER</div><div class="lbl">da 35€/pax</div></div></div>
-          <div class="zone" data-area="silver" data-zone="silver-right2" style="top:70%;right:8%;"><div><div class="pp">SILVER</div><div class="lbl">da 35€/pax</div></div></div>
-
-          <!-- CLASSIC (2 sx + 2 dx) -->
-          <div class="zone" data-area="classic" data-zone="classic-left1"  style="bottom:16px;left:18%;"><div><div class="pp">CLASSIC</div><div class="lbl">da 30€/pax</div></div></div>
-          <div class="zone" data-area="classic" data-zone="classic-right1" style="bottom:16px;right:18%;"><div><div class="pp">CLASSIC</div><div class="lbl">da 30€/pax</div></div></div>
-        </div>
-      </div>
-
-      <div class="table-panel">
-        <div id="tableDetail"></div>
-
-        <div class="alert">
-          <ul>
-            <li><b>Accesso vietato ai minori</b> ai tavoli: se rilevato all’ingresso, il tavolo viene derubricato a VIP senza rimborso.</li>
-            <li>I nominativi devono corrispondere ai documenti; in caso contrario, <b>nessun rimborso</b> come da termini di vendita.</li>
-            <li>Se sono presenti minorenni non verranno serviti alcolici. Eventuali violazioni restano responsabilità dei maggiorenni al tavolo.</li>
-          </ul>
+  <section class="card">
+    <h2>Nuova / Modifica bottiglia</h2>
+    <div class="grid grid-2">
+      <div class="grid">
+        <div>
+          <div class="label">Nome</div>
+          <input id="fName" placeholder="Es. Moët & Chandon Impérial">
         </div>
 
         <div>
-          <button id="goStep2" class="btn primary" style="margin-top:6px">Vai al listino bottiglie</button>
+          <div class="label">Categoria</div>
+          <select id="fCat">
+            <option value="champagne">Champagne</option>
+            <option value="distillati">Distillati</option>
+          </select>
         </div>
+
+        <div>
+          <div class="label">URL immagine (https://...)</div>
+          <input id="fImg" placeholder="Incolla un URL immagine">
+        </div>
+
+        <div>
+          <div class="label">Cosa include (comparirà sotto al prezzo nel listino)</div>
+          <textarea id="fIncludes" placeholder="Es. 10 soft drink + frutta di stagione + ghiaccio dedicato"></textarea>
+        </div>
+
+        <div class="row">
+          <div>
+            <div class="label">Costo interno (NON visibile)</div>
+            <input id="fCost" type="number" min="0" step="0.01" placeholder="Es. 65">
+          </div>
+          <div>
+            <div class="label">Prezzo listino (visibile)</div>
+            <input id="fPrice" type="number" min="0" step="0.01" placeholder="Es. 105">
+          </div>
+        </div>
+
+        <div class="row">
+          <div>
+            <div class="label">Minimo — Area GOLD (VIP)</div>
+            <input id="fMinVip" type="number" min="0" step="1" placeholder="Es. 180">
+          </div>
+          <div>
+            <div class="label">Minimo — Area SILVER (Argento)</div>
+            <input id="fMinArg" type="number" min="0" step="1" placeholder="Es. 140">
+          </div>
+        </div>
+
+        <div class="row">
+          <div>
+            <div class="label">Minimo — Area CLASSIC (ex Bronze)</div>
+            <input id="fMinBro" type="number" min="0" step="1" placeholder="Es. 120">
+          </div>
+          <div class="toggle" style="margin-top:24px">
+            <input id="fVisible" type="checkbox" checked>
+            <label for="fVisible">Visibile nel listino</label>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <div class="small muted">Suggerimento: per le immagini usa link diretti (CDN/Firebase Storage). La descrizione “Cosa include” è testo libero (es. bundle mixer, frutta, ecc.).</div>
+        <div class="hr"></div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap">
+          <button id="btnSave" class="btn primary">Salva</button>
+          <button id="btnReset" class="btn ghost">Reset form</button>
+        </div>
+        <div class="small muted" style="margin-top:8px">Quando modifichi dalla lista, i campi si caricano qui.</div>
       </div>
     </div>
   </section>
 
-  <!-- STEP 2 -->
-  <section class="card" id="step2" style="display:none">
+  <section class="card">
     <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap">
-      <h2>Scegli le bottiglie</h2>
-      <div class="tabs" id="tableTabs2"></div>
-    </div>
-
-    <div class="grid grid-2" style="margin-top:8px">
-      <div>
-        <div class="small" id="minInfo" style="margin-bottom:6px"></div>
-        <div class="listino" id="listino"></div>
-      </div>
-
-      <div>
-        <div id="summaryBox"></div>
-        <div class="hr"></div>
-
-        <div class="paymodes">
-          <label class="radio"><input type="radio" name="payMode" value="deposito" checked> Caparra</label>
-          <label class="radio"><input type="radio" name="payMode" value="full"> Paga tutto ora</label>
-        </div>
-
-        <div class="hr"></div>
-        <div class="line total">
-          <span id="totalLabel">Caparra (ora)</span>
-          <strong id="totalValue">0€</strong>
-        </div>
-
-        <div class="hr"></div>
-        <div style="display:flex;gap:10px;flex-wrap:wrap">
-          <button id="backStep1" class="btn ghost">Indietro</button>
-          <button id="confirmBtn" class="btn primary" disabled>Procedi</button>
-        </div>
-        <div class="small em" style="margin-top:8px">
-          Il tavolo è gratuito; paghi solo bottiglie/aggiunte. Il saldo in serata appare dopo la scelta del pagamento.
-        </div>
+      <h2>Listino</h2>
+      <div class="filter">
+        <span class="small muted">Filtra per categoria:</span>
+        <select id="fltCat">
+          <option value="">Tutte</option>
+          <option value="champagne">Champagne</option>
+          <option value="distillati">Distillati</option>
+        </select>
+        <label class="toggle"><input type="checkbox" id="fltOnlyVisible"> Solo visibili</label>
       </div>
     </div>
+
+    <div id="list" class="list" style="margin-top:10px"></div>
+    <div id="empty" class="muted small" style="display:none;margin-top:8px">Nessun elemento.</div>
   </section>
 </main>
 
-<!-- GATE 18+ -->
-<div class="gate" id="ageGate">
-  <div class="box">
-    <h3>Accesso vietato ai minorenni</h3>
-    <div class="muted" style="margin-bottom:8px">Questa sezione è riservata ai maggiorenni.</div>
-    <a href="./checkout.html" class="btn">Torna al checkout</a>
-  </div>
-</div>
-
-<!-- POPUP LEGALE -->
-<div class="gate" id="legalGate">
-  <div class="box" style="max-width:640px">
-    <h3>Conferma regole tavoli</h3>
-    <div class="small" style="margin-bottom:10px">
-      <ul style="margin-left:18px">
-        <li><b>Accesso vietato ai minori</b> ai tavoli: in caso di rilevazione all’ingresso, il tavolo viene derubricato a VIP senza rimborso.</li>
-        <li>I nominativi devono corrispondere ai documenti; in caso contrario, <b>nessun rimborso</b>.</li>
-        <li>Minimo tavolo per area: Classic 120€, Silver 140€, Gold 180€.</li>
-        <li>Oltre 4 pax: <b>+25€</b> a persona.</li>
-      </ul>
-    </div>
-    <label style="display:flex;gap:8px;align-items:center"><input id="legalChk" type="checkbox"> Ho letto e accetto</label>
-    <div style="display:flex;gap:10px;margin-top:10px">
-      <button class="btn ghost" id="legalCancel">Annulla</button>
-      <button class="btn primary" id="legalOk" disabled>Procedi</button>
-    </div>
-  </div>
-</div>
-
 <script type="module">
 /* ================= Firebase & Auth ================= */
-import { onUser, doSignOut, app } from './auth.v2.js?v=6';
+import { app, onUser } from './auth.v2.js?v=6';
 import {
-  getFirestore, doc, getDoc, setDoc, serverTimestamp
+  getFirestore, doc, getDoc, setDoc, updateDoc, deleteField
 } from 'https://www.gstatic.com/firebasejs/12.5.0/firebase-firestore.js';
 
 const db = getFirestore(app);
 
 /* ================== UI Refs ================== */
-const nav = document.getElementById('navArea');
-const s1 = document.getElementById('step1');
-const s2 = document.getElementById('step2');
-const stepBadge1 = document.getElementById('s1');
-const stepBadge2 = document.getElementById('s2');
+const nav   = document.getElementById('navArea');
+const who   = document.getElementById('who');
+const ERR   = document.getElementById('err');
+const OK    = document.getElementById('ok');
 
-const paxMinus = document.getElementById('paxMinus');
-const paxPlus  = document.getElementById('paxPlus');
-const paxInput = document.getElementById('paxInput');
+const fName = document.getElementById('fName');
+const fCat  = document.getElementById('fCat');
+const fImg  = document.getElementById('fImg');
+const fIncludes = document.getElementById('fIncludes');
+const fCost = document.getElementById('fCost');
+const fPrice= document.getElementById('fPrice');
+const fMinVip=document.getElementById('fMinVip');
+const fMinArg=document.getElementById('fMinArg');
+const fMinBro=document.getElementById('fMinBro');
+const fVisible=document.getElementById('fVisible');
 
-const tabs1 = document.getElementById('tableTabs');
-const tabs2 = document.getElementById('tableTabs2');
-const tableDetail = document.getElementById('tableDetail');
+const btnSave  = document.getElementById('btnSave');
+const btnReset = document.getElementById('btnReset');
 
-const clubMap = document.getElementById('clubMap');
-const zones = [...clubMap.querySelectorAll('.zone')];
-
-const goStep2 = document.getElementById('goStep2');
-const backStep1 = document.getElementById('backStep1');
-const confirmBtn = document.getElementById('confirmBtn');
-
-const listinoBox = document.getElementById('listino');
-const summaryBox = document.getElementById('summaryBox');
-const totalLabel = document.getElementById('totalLabel');
-const totalValue = document.getElementById('totalValue');
-const minInfo = document.getElementById('minInfo');
-
-const ageGate = document.getElementById('ageGate');
-const legalGate = document.getElementById('legalGate');
-const legalChk = document.getElementById('legalChk');
-const legalOk = document.getElementById('legalOk');
-const legalCancel = document.getElementById('legalCancel');
-
-const OUT = `
-  <a href="./login.html?from=./attendees-tavolo.html">Acquista il tuo biglietto</a>
-  <a href="./login.html">Accedi</a>
-  <a href="./signup.html">Registrati</a>`;
-const IN  = (u)=>`
-  <span>👋 Ciao, <strong>${(u.displayName||u.email||'Utente').split(' ')[0]}</strong></span>
-  <a href="./checkout.html">Vai al checkout</a>
-  <a href="#" id="logoutLink" style="color:#8b5cf6">Logout</a>`;
+const fltCat   = document.getElementById('fltCat');
+const fltOnly  = document.getElementById('fltOnlyVisible');
+const list     = document.getElementById('list');
+const emptyMsg = document.getElementById('empty');
 
 /* ================== Helpers ================== */
 const lc = s => (s||'').toString().trim().toLowerCase();
-const money = n => (Number(n||0)).toFixed(2) + '€';
-const round2 = n => Math.round(n*100)/100;
+function showErr(m){ ERR.textContent=m; ERR.style.display='block'; setTimeout(()=>ERR.style.display='none', 4500); }
+function showOk(m){ OK.textContent=m; OK.style.display='block'; setTimeout(()=>OK.style.display='none', 2500); }
+function id(){ return (crypto?.randomUUID ? crypto.randomUUID() : 'id_'+Date.now()); }
 
-function parseDob(any){
-  if(!any) return null;
-  if (typeof any === 'object' && any.seconds) return new Date(any.seconds*1000);
-  if (typeof any === 'number'){ const d=new Date(any); return isNaN(d)?null:d; }
-  const s=String(any).trim(); if(!s) return null;
-  if (/^\d{4}-\d{2}-\d{2}/.test(s) || /^\d{4}-\d{2}-\d{2}T/.test(s)){ const d=new Date(s); return isNaN(d)?null:d; }
-  if (/^\d{1,2}\/\d{1,2}\/\d{4}$/.test(s)){ const [dd,mm,yy]=s.split('/').map(x=>parseInt(x,10)); const d=new Date(yy,mm-1,dd); return isNaN(d)?null:d; }
-  const d=new Date(s); return isNaN(d)?null:d;
+async function isFounder(email){
+  try{
+    const snap = await getDoc(doc(db,'config','admins'));
+    const founders = snap.exists() ? (snap.data().founders || {}) : {};
+    return !!founders[(email||'').toLowerCase()];
+  }catch(_){ return false; }
 }
-function ageFrom(d){
-  if(!d) return 0; const t=new Date();
-  let a=t.getFullYear()-d.getFullYear();
-  const m=t.getMonth()-d.getMonth();
-  if (m<0 || (m===0 && t.getDate()<d.getDate())) a--;
-  return a;
-}
-function profFromLS(uid){ try{ return JSON.parse(localStorage.getItem('trapperreo_profile_'+uid)||'null'); }catch{return null;} }
-async function profFromDB(uid){ try{ const s=await getDoc(doc(db,'users',uid)); return s.exists()?s.data():null; }catch{return null;} }
 
 /* ================== Stato ================== */
-const STATE = {
-  user:null,
-  activeTable:0,
-  totalPax:4,
-  // aree mappa→chiavi min founder
-  areaMap:{ classic:'bronzo', silver:'argento', gold:'vip' },
-  // min fallback (x tavolo)
-  areaMin:{ classic:120, silver:140, gold:180 },
-  pricesPerPax:{ classic:30, silver:35, gold:45 }, // “da €/pax” visivo
-  tables:[],        // [{index, area:'classic'|'silver'|'gold', pax:4..7, real, zone, bottles:[{id,qty}], holdId?}]
-  bottleList:[],    // [{id,name,category:'champagne'|'distillati',price,cost,visible,min:{vip,argento,bronzo}, includes?:string}]
-  locks:{},         // zona -> {heldBy, tableIndex, heldAt}
-  legalAccepted:false
-};
+const CFG_REF = doc(db,'config','bottles'); // documento unico
+let ITEMS = {};   // mappa id -> payload
+let editingId = null;
 
-/* ================== Minimi area da /config/bottles ================== */
-async function loadBottleConfigAndMin(){
+/* ================== Load ================== */
+async function loadAll(){
   try{
-    const snap = await getDoc(doc(db,'config','bottles'));
-    if(!snap.exists()) return;
-    const data = snap.data()||{};
-    const items = data.items || {};
-    const arr = Object.entries(items).map(([id,v])=>({
-      id, name:v.name||'—',
-      category: lc(v.category||''),
-      price: Number(v.price||0),
-      cost: Number(v.cost||0),
-      visible: v.visible!==false,
-      min: {
-        vip: Number(v.min?.vip||0),
-        argento: Number(v.min?.argento||0),
-        bronzo: Number(v.min?.bronzo||0),
-      },
-      includes: (v.includes||'').toString()
-    })).filter(x=>x.visible);
-
-    STATE.bottleList = arr;
-
-    // minimi area = MAX dei min.* visibili (se presenti), fallback ai fissi 120/140/180
-    const maxVip = Math.max(0, ...arr.map(x=>x.min.vip||0));
-    const maxArg = Math.max(0, ...arr.map(x=>x.min.argento||0));
-    const maxBro = Math.max(0, ...arr.map(x=>x.min.bronzo||0));
-    STATE.areaMin = {
-      gold:    maxVip>0?maxVip:STATE.areaMin.gold,
-      silver:  maxArg>0?maxArg:STATE.areaMin.silver,
-      classic: maxBro>0?maxBro:STATE.areaMin.classic
-    };
-  }catch(e){ /* fallback ok */ }
-}
-
-/* ================== Locks Tavoli (soft-lock 3 min) ================== */
-async function fetchLocks(){
-  try{
-    const ref = doc(db,'locks','tables');
-    const snap = await getDoc(ref);
-    STATE.locks = snap.exists()? (snap.data()||{}) : {};
-  }catch{ STATE.locks = {}; }
-}
-async function tryHoldZone(zoneId, tableIndex){
-  // se occupato e non scaduto → fail
-  const now = Date.now();
-  const curr = STATE.locks[zoneId];
-  if (curr && (now - (curr.heldAt||0) < 180000) && curr.heldBy !== STATE.user?.uid){
-    return false;
-  }
-  // registra hold
-  STATE.locks[zoneId] = { heldBy: STATE.user.uid, tableIndex, heldAt: now, status:'pending' };
-  await setDoc(doc(db,'locks','tables'), { [zoneId]: STATE.locks[zoneId] }, { merge:true });
-  return true;
-}
-function isZoneBusy(zoneId){
-  const l = STATE.locks[zoneId];
-  if(!l) return false;
-  // 3 min expiry
-  return (Date.now() - (l.heldAt||0) < 180000) && l.status !== 'released';
-}
-function markZoneReleased(zoneId){
-  if(!STATE.locks[zoneId]) return;
-  STATE.locks[zoneId].status='released';
-  STATE.locks[zoneId].heldAt=Date.now();
-  setDoc(doc(db,'locks','tables'), { [zoneId]: STATE.locks[zoneId] }, { merge:true });
-}
-
-/* ================== Split tavoli ================== */
-function splitTables(total){
-  const res = [];
-  if (total <= 7){
-    const pax = Math.max(4, total); // base costo minimo 4
-    res.push({ pax, real: total });
-    return res;
-  }
-  let remain = total;
-  while (remain > 7){
-    res.push({ pax:7, real:7 });
-    remain -= 7;
-  }
-  if (remain>0){
-    if (remain < 4){
-      if (res.length && res[res.length-1].pax > 4){
-        const need = 4 - remain;
-        const give = Math.min(need, res[res.length-1].pax - 4);
-        res[res.length-1].pax -= give;
-        res[res.length-1].real -= give;
-        res.push({ pax: remain + give, real: remain });
-      } else {
-        res.push({ pax:4, real:remain });
-      }
-    } else {
-      res.push({ pax: remain, real: remain });
+    const snap = await getDoc(CFG_REF);
+    if(snap.exists()){
+      const data = snap.data() || {};
+      ITEMS = data.items || {};
+    }else{
+      ITEMS = {};
     }
+    renderList();
+  }catch(e){
+    console.error('load bottles error', e);
+    showErr('Impossibile caricare il listino.');
   }
-  return res.map(x=>({ pax: Math.min(7, Math.max(4,x.pax)), real: x.real }));
-}
-function rebalanceTables(indexChanged, newPax){
-  newPax = Math.min(7, Math.max(4, Number(newPax||4)));
-  const tot = STATE.totalPax;
-  const T = STATE.tables.map(t=>t.pax);
-  const curSum = T.reduce((s,n)=>s+n,0);
-  const delta = newPax - T[indexChanged];
-  T[indexChanged] = newPax;
-
-  let targetBase = Math.max(STATE.tables.length*4, tot);
-  let baseSum = T.reduce((s,n)=>s+n,0);
-
-  if (baseSum > targetBase){
-    for (let i=0;i<T.length;i++){
-      if (i===indexChanged) continue;
-      while (T[i]>4 && baseSum>targetBase){ T[i]--; baseSum--; }
-      if (baseSum<=targetBase) break;
-    }
-  } else if (baseSum < targetBase){
-    for (let i=0;i<T.length;i++){
-      if (i===indexChanged) continue;
-      while (T[i]<7 && baseSum<targetBase){ T[i]++; baseSum++; }
-      if (baseSum>=targetBase) break;
-    }
-  }
-  STATE.tables.forEach((t,i)=>{ t.pax=T[i]; });
 }
 
-/* default: se Tavolo 1 sceglie un’area, Tavolo 2 propone il “vicino” */
-const neighborOrder = {
-  'gold-center':['gold-left','gold-right','silver-left1','silver-right1'],
-  'gold-left':['gold-center','gold-right','silver-left1','silver-left2'],
-  'gold-right':['gold-center','gold-left','silver-right1','silver-right2'],
-  'silver-left1':['silver-left2','silver-right1','classic-left1','gold-left'],
-  'silver-left2':['silver-left1','silver-right2','classic-left1','gold-left'],
-  'silver-right1':['silver-right2','silver-left1','classic-right1','gold-right'],
-  'silver-right2':['silver-right1','silver-left2','classic-right1','gold-right'],
-  'classic-left1':['classic-right1','silver-left2','silver-left1'],
-  'classic-right1':['classic-left1','silver-right2','silver-right1']
-};
-function autoSuggestForTable2(){
-  if (STATE.tables.length<2) return;
-  const t1 = STATE.tables[0];
-  const t2 = STATE.tables[1];
-  if (!t1.zone) return;
-  const areaWanted = t1.area;
-  // prova stessa area, vicino
-  const order = neighborOrder[t1.zone]||[];
-  for (const z of order){
-    const el = zones.find(n=>n.getAttribute('data-zone')===z);
-    if (!el) continue;
-    const area = el.getAttribute('data-area');
-    if (area!==areaWanted) continue;
-    if (!isZoneBusy(z) && STATE.tables.every(tt=>tt.zone!==z)){
-      t2.area = areaWanted; t2.zone = z; return;
-    }
-  }
-  // fallback: qualunque della stessa area libero
-  const any = zones.find(el=>{
-    const z = el.getAttribute('data-zone');
-    return el.getAttribute('data-area')===areaWanted && !isZoneBusy(z) && STATE.tables.every(tt=>tt.zone!==z);
+/* ================== Render list ================== */
+function renderList(){
+  list.innerHTML = '';
+  const cat = lc(fltCat.value || '');
+  const onlyVis = !!fltOnly.checked;
+
+  const arr = Object.entries(ITEMS).map(([id, v])=>({id, ...v}));
+  arr.sort((a,b)=> lc(a.category).localeCompare(lc(b.category)) || lc(a.name).localeCompare(lc(b.name)));
+
+  const filtered = arr.filter(x=>{
+    if(cat && lc(x.category)!==cat) return false;
+    if(onlyVis && x.visible!==true) return false;
+    return true;
   });
-  if (any){ t2.area=areaWanted; t2.zone=any.getAttribute('data-zone'); }
-}
 
-/* ================== Stato tavoli init ================== */
-function ensureTables(){
-  const parts = splitTables(STATE.totalPax);
-  const old = STATE.tables;
-  STATE.tables = parts.map((p,i)=>({
-    index:i,
-    area: old[i]?.area || (i===0?'silver':'classic'),
-    zone: old[i]?.zone || null,
-    pax: p.pax,
-    real: p.real,
-    bottles: old[i]?.bottles || []
-  }));
-}
+  emptyMsg.style.display = filtered.length ? 'none':'block';
 
-/* ================== Render STEP 1 ================== */
-function renderTabs(container, isStep2=false){
-  container.innerHTML = '';
-  STATE.tables.forEach((t,i)=>{
+  filtered.forEach(item=>{
     const el = document.createElement('div');
-    el.className = 'tab' + (STATE.activeTable===i?' active':'');
-    el.textContent = `Tavolo ${i+1}`;
-    el.addEventListener('click', ()=>{ STATE.activeTable=i; renderStep1(); if(isStep2) renderStep2(); });
-    container.appendChild(el);
-  });
-}
-
-function renderTableDetail(){
-  const t = STATE.tables[STATE.activeTable];
-  const color = t.area==='gold'?'#f5c542':t.area==='silver'?'#9fb7ff':'#d1a56d';
-  tableDetail.innerHTML = `
-    <div class="table-row">
+    el.className = 'item';
+    el.innerHTML = `
+      <img src="${item.img || ''}" alt="">
       <div>
-        <div class="ttl">Tavolo ${t.index+1}</div>
+        <h4>${item.name || '—'}</h4>
         <div class="kv">
-          <span class="pill">Zona: ${t.zone? t.zone : '—'}</span>
-          <span class="pill area" style="border-color:${color}">${t.area.toUpperCase()}</span>
-          <span class="pill">Pax (base costo): ${t.pax}</span>
+          <span>Categoria: ${item.category||'—'}</span>
+          <span>Listino: €${Number(item.price||0).toFixed(2)}</span>
+          <span>Costo interno: €${Number(item.cost||0).toFixed(2)}</span>
+          <span>Min GOLD: €${Number(item.min?.vip||0).toFixed(0)}</span>
+          <span>Min SILVER: €${Number(item.min?.argento||0).toFixed(0)}</span>
+          <span>Min CLASSIC: €${Number(item.min?.bronzo||0).toFixed(0)}</span>
+          <span>${item.visible===false? 'Nascosto' : 'Visibile'}</span>
         </div>
+        ${item.includes ? `<div class="inc">Cosa include: <span class="small">${(item.includes+'').replace(/\n/g,'<br>')}</span></div>`:''}
       </div>
-      <div class="kv">
-        <span class="pill">da ${STATE.pricesPerPax[t.area]}€/pax • minimo ${STATE.areaMin[t.area]}€</span>
+      <div class="actions">
+        <button class="btn ghost" data-edit="${item.id}">Modifica</button>
+        <button class="btn ghost" data-toggle="${item.id}">${item.visible===false?'Mostra':'Nascondi'}</button>
+        <button class="btn" style="background:#ef4444" data-del="${item.id}">Elimina</button>
       </div>
-    </div>
-    <div class="small">La somma dei pax tra i tavoli resta sempre ${STATE.totalPax}. Ogni tavolo non scende sotto 4.</div>
-  `;
-}
-
-async function handleZoneClick(el){
-  const area = el.getAttribute('data-area');
-  const zone = el.getAttribute('data-zone');
-  if (isZoneBusy(zone)) return; // già in prenotazione
-  const ok = await tryHoldZone(zone, STATE.activeTable);
-  if (!ok) return;
-
-  // libera eventuale vecchio hold del tavolo
-  const prev = STATE.tables[STATE.activeTable].zone;
-  if (prev && prev!==zone) markZoneReleased(prev);
-
-  STATE.tables[STATE.activeTable].area = area;
-  STATE.tables[STATE.activeTable].zone = zone;
-
-  // se abbiamo 2 tavoli e sto settando il primo, proponi vicino per il secondo
-  if (STATE.activeTable===0 && STATE.tables.length>=2){
-    autoSuggestForTable2();
-  }
-
-  renderMap(); renderStep1();
-}
-
-function renderMap(){
-  zones.forEach(z=>{
-    z.classList.remove('active','dim','busy');
-    const zid = z.getAttribute('data-zone');
-    if (isZoneBusy(zid)) z.classList.add('busy');
-  });
-
-  const act = STATE.tables[STATE.activeTable].zone;
-  if (act){
-    const el = zones.find(z=>z.getAttribute('data-zone')===act);
-    el?.classList.add('active');
-  }
-
-  zones.forEach(z=>{
-    z.onclick = ()=>handleZoneClick(z);
-  });
-}
-
-function renderStep1(){
-  renderTabs(tabs1, false);
-  renderTableDetail();
-  renderMap();
-}
-
-/* ================== Listino (STEP 2) ================== */
-function ensureBottleSlot(table, id){
-  const idx = table.bottles.findIndex(b=>b.id===id);
-  if (idx<0) table.bottles.push({id,qty:0});
-  return table.bottles.find(b=>b.id===id);
-}
-
-function renderListino(){
-  const t = STATE.tables[STATE.activeTable];
-  minInfo.textContent = `Minimo tavolo: ${money(STATE.areaMin[t.area])} — se non raggiungi il minimo si applica la differenza.`;
-
-  const champagne = STATE.bottleList.filter(b=>b.category==='champagne');
-  const distillati= STATE.bottleList.filter(b=>b.category==='distillati');
-
-  const sec = (title, arr)=>`
-    <div class="cat">${title}</div>
-    ${arr.map(b=>{
-      const slot = t.bottles.find(x=>x.id===b.id) || {qty:0};
-      return `
-      <div class="item">
-        <div>
-          <h4>${b.name}</h4>
-          ${b.includes ? `<div class="inc small em">${b.includes}</div>`:''}
-        </div>
-        <div class="price">${money(b.price)}</div>
-        <div style="display:flex;gap:8px;align-items:center">
-          <button data-minus="${b.id}" class="btn">−</button>
-          <div class="small" style="min-width:24px;text-align:center" data-qty="${b.id}">${slot.qty||0}</div>
-          <button data-plus="${b.id}" class="btn">+</button>
-        </div>
-      </div>
-      `;
-    }).join('')}
-  `;
-
-  listinoBox.innerHTML = sec('Champagne', champagne) + sec('Distillati', distillati);
-
-  listinoBox.querySelectorAll('[data-plus]').forEach(btn=>{
-    btn.onclick = ()=>{
-      const id = btn.getAttribute('data-plus');
-      const meta = STATE.bottleList.find(x=>x.id===id); if(!meta) return;
-      const slot = ensureBottleSlot(t,id);
-      slot.qty = Number(slot.qty||0)+1;
-      const badge = listinoBox.querySelector(`[data-qty="${id}"]`);
-      if (badge) badge.textContent = slot.qty;
-      renderSummary();
-    };
-  });
-  listinoBox.querySelectorAll('[data-minus]').forEach(btn=>{
-    btn.onclick = ()=>{
-      const id = btn.getAttribute('data-minus');
-      const slot = ensureBottleSlot(t,id);
-      slot.qty = Math.max(0, Number(slot.qty||0)-1);
-      const badge = listinoBox.querySelector(`[data-qty="${id}"]`);
-      if (badge) badge.textContent = slot.qty;
-      renderSummary();
-    };
-  });
-}
-
-function computeTableBreakdown(table){
-  let sumListino = 0;
-  let sumInterni = 0;
-  table.bottles.forEach(sel=>{
-    const meta = STATE.bottleList.find(b=>b.id===sel.id);
-    if(!meta) return;
-    const q = Number(sel.qty||0);
-    if(q<=0) return;
-    sumListino += meta.price * q;
-    sumInterni += meta.cost  * q;
-  });
-
-  const minArea = STATE.areaMin[table.area] || 0;
-  const addMinimo = Math.max(0, minArea - sumListino);
-  const extra = Math.max(0, table.pax - 4) * 25;
-  const total = sumListino + addMinimo + extra;
-
-  // caparra = max(25€*pax, Σ costi interni)
-  const capMin = 25 * table.pax;
-  const caparra = Math.max(capMin, sumInterni);
-
-  const perHead = table.real>0 ? total / table.real : 0;
-
-  return { sumListino, addMinimo, extra, total, caparra, perHead };
-}
-
-function computeAll(){
-  const items = STATE.tables.map(t=>({ t, b: computeTableBreakdown(t) }));
-  const totalAll = items.reduce((s,x)=> s + x.b.total, 0);
-  const depositAll = items.reduce((s,x)=> s + x.b.caparra, 0);
-  return { items, totalAll: round2(totalAll), depositAll: round2(depositAll) };
-}
-
-function renderSummary(){
-  const { items, totalAll, depositAll } = computeAll();
-
-  const rows = items.map(({t,b})=>{
-    const titleColor = t.area==='gold'?'var(--gold)':t.area==='silver'?'var(--silver)':'var(--classic)';
-    return `
-      <div class="line" style="font-weight:800;color:${titleColor}">Tavolo ${t.index+1} — ${t.area.toUpperCase()} (${t.pax} pax)</div>
-      <div class="line"><span>Bottiglie (listino)</span><span>${money(b.sumListino)}</span></div>
-      <div class="line"><span>Aggiunta minimo tavolo</span><span>${money(b.addMinimo)}</span></div>
-      <div class="small em">Aggiungi una bottiglia per evitare l’aggiunta. Minimo tavolo: ${money(STATE.areaMin[t.area])}.</div>
-      ${b.extra>0 ? `<div class="line"><span>Persone extra (${t.pax-4})</span><span>${money(b.extra)}</span></div>`:``}
-      <div class="line"><span>Totale tavolo</span><strong>${money(b.total)}</strong></div>
-      <div class="line small"><span>Totale a persona</span><span>${money(round2(b.perHead))}</span></div>
-      <div class="hr"></div>
     `;
-  }).join('');
+    list.appendChild(el);
+  });
 
-  summaryBox.innerHTML = rows;
+  // Binds
+  list.querySelectorAll('[data-edit]').forEach(b=>{
+    b.addEventListener('click', ()=>{
+      const id = b.getAttribute('data-edit');
+      loadIntoForm(id);
+    });
+  });
+  list.querySelectorAll('[data-toggle]').forEach(b=>{
+    b.addEventListener('click', async ()=>{
+      const id = b.getAttribute('data-toggle');
+      await toggleVisible(id);
+    });
+  });
+  list.querySelectorAll('[data-del]').forEach(b=>{
+    b.addEventListener('click', async ()=>{
+      const id = b.getAttribute('data-del');
+      if(confirm('Eliminare questa bottiglia?')){
+        await deleteItem(id);
+      }
+    });
+  });
+}
 
-  const mode = document.querySelector('input[name="payMode"]:checked')?.value || 'deposito';
-  if (mode==='full'){
-    totalLabel.textContent = 'Totale (paga ora)';
-    totalValue.textContent = money(totalAll);
-  } else {
-    totalLabel.textContent = 'Caparra (ora)';
-    totalValue.textContent = money(depositAll);
+/* ================== Form helpers ================== */
+function resetForm(){
+  editingId = null;
+  fName.value = '';
+  fCat.value = 'champagne';
+  fImg.value = '';
+  fIncludes.value = '';
+  fCost.value = '';
+  fPrice.value = '';
+  fMinVip.value = '';
+  fMinArg.value = '';
+  fMinBro.value = '';
+  fVisible.checked = true;
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function loadIntoForm(id){
+  const v = ITEMS[id];
+  if(!v) return;
+  editingId = id;
+  fName.value = v.name || '';
+  fCat.value  = v.category || 'champagne';
+  fImg.value  = v.img || '';
+  fIncludes.value = v.includes || '';
+  fCost.value = v.cost ?? '';
+  fPrice.value= v.price ?? '';
+  fMinVip.value = v.min?.vip ?? '';
+  fMinArg.value = v.min?.argento ?? '';
+  fMinBro.value = v.min?.bronzo ?? '';
+  fVisible.checked = v.visible !== false;
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+/* ================== CRUD ================== */
+async function saveItem(){
+  const name = fName.value.trim();
+  if(!name){ showErr('Inserisci il nome.'); return; }
+
+  const payload = {
+    name,
+    category: fCat.value,
+    img: fImg.value.trim(),
+    includes: fIncludes.value.trim(),
+    cost: Number(fCost.value || 0),
+    price: Number(fPrice.value || 0),
+    min: {
+      vip: Number(fMinVip.value || 0),
+      argento: Number(fMinArg.value || 0),
+      bronzo: Number(fMinBro.value || 0)
+    },
+    visible: !!fVisible.checked,
+    updatedAt: Date.now()
+  };
+  const idKey = editingId || id();
+  if(!editingId) payload.createdAt = Date.now();
+
+  try{
+    await setDoc(CFG_REF, { items: { [idKey]: payload } }, { merge: true });
+    ITEMS[idKey] = { ...payload };
+    showOk(editingId ? 'Bottiglia aggiornata.' : 'Bottiglia creata.');
+    resetForm(); renderList();
+  }catch(e){
+    console.error('save error', e);
+    showErr('Errore nel salvataggio (permessi?).');
   }
-
-  // abilita procedi solo se almeno una bottiglia su almeno un tavolo
-  const hasAny = STATE.tables.some(t=> t.bottles.some(b=>Number(b.qty||0)>0));
-  confirmBtn.disabled = !hasAny;
 }
 
-function renderTabs2(){ renderTabs(tabs2, true); }
-
-function renderStep2(){
-  renderTabs2();
-  renderListino();
-  renderSummary();
+async function toggleVisible(idKey){
+  if(!ITEMS[idKey]) return;
+  const next = ITEMS[idKey].visible === false ? true : false;
+  try{
+    await setDoc(CFG_REF, { items: { [idKey]: { visible: next, updatedAt: Date.now() } } }, { merge: true });
+    ITEMS[idKey].visible = next;
+    ITEMS[idKey].updatedAt = Date.now();
+    renderList();
+  }catch(e){
+    console.error('toggle error', e);
+    showErr('Errore cambiando la visibilità.');
+  }
 }
 
-/* ================== Navigazione step ================== */
-function goToStep2(){
-  const bad = STATE.tables.find(t=>!t.area || !t.zone);
-  if (bad){ alert(`Seleziona l'area sulla mappa per ogni tavolo (manca Tavolo ${bad.index+1}).`); return; }
-  s1.style.display='none';
-  s2.style.display='block';
-  stepBadge1.classList.remove('active');
-  stepBadge2.classList.add('active');
-  renderStep2();
-}
-function backToStep1(){
-  s2.style.display='none';
-  s1.style.display='block';
-  stepBadge2.classList.remove('active');
-  stepBadge1.classList.add('active');
-  renderStep1();
+async function deleteItem(idKey){
+  try{
+    await updateDoc(CFG_REF, { [`items.${idKey}`]: deleteField() });
+    delete ITEMS[idKey];
+    renderList();
+    showOk('Eliminato.');
+  }catch(e){
+    console.error('delete error', e);
+    showErr('Errore durante la cancellazione.');
+  }
 }
 
-/* ================== Bind base ================== */
-paxMinus.onclick = ()=>{ paxInput.value = Math.max(1, Number(paxInput.value||1)-1); onTotalPaxChange(); };
-paxPlus.onclick  = ()=>{ paxInput.value = Math.min(21, Number(paxInput.value||1)+1); onTotalPaxChange(); };
-paxInput.oninput = ()=>{ 
-  const v = Math.max(1, Math.min(21, parseInt(paxInput.value||'1',10)||1));
-  paxInput.value = v; onTotalPaxChange();
-};
+/* ================== Bind ================== */
+btnSave.addEventListener('click', saveItem);
+btnReset.addEventListener('click', resetForm);
+fltCat.addEventListener('change', renderList);
+fltOnly.addEventListener('change', renderList);
 
-function onTotalPaxChange(){
-  STATE.totalPax = Number(paxInput.value||1);
-  ensureTables();
-  STATE.activeTable = 0;
-  renderStep1();
-}
-
-goStep2.onclick = goToStep2;
-backStep1.onclick = backToStep1;
-
-document.querySelectorAll('input[name="payMode"]').forEach(r=>{
-  r.addEventListener('change', renderSummary);
-});
-
-/* Popup legale prima della conferma */
-confirmBtn.onclick = ()=>{
-  legalGate.style.display='flex';
-};
-legalCancel.onclick = ()=>{ legalGate.style.display='none'; };
-legalChk.onchange = ()=>{ legalOk.disabled = !legalChk.checked; };
-legalOk.onclick = ()=>{
-  // qui potrai salvare la prenotazione (scrivi booking, poi redirect)
-  legalGate.style.display='none';
-  alert('Prenotazione confermata (stub).');
-};
-
-/* ================== Auth boot + Age gate + Locks ================== */
+/* ================== Gate Founder + init ================== */
 onUser(async (u)=>{
-  if(!u){ nav.innerHTML=OUT; location.href='./login.html?from=./attendees-tavolo.html'; return; }
-  STATE.user = u;
-  nav.innerHTML = IN(u);
-  document.getElementById('logoutLink')?.addEventListener('click', async (e)=>{ e.preventDefault(); await doSignOut(); nav.innerHTML=OUT; location.href='./login.html?from=./attendees-tavolo.html'; });
+  if(!u){ nav.innerHTML='<a href="./login.html?from=./founder-bottles.html">Accedi</a>'; location.href='./login.html?from=./founder-bottles.html'; return; }
+  const ok = await isFounder(u.email||'');
+  who.textContent = ok
+    ? `Ciao ${u.displayName || u.email} — permessi Founder attivi.`
+    : 'Accesso negato (solo Founder).';
+  if(!ok){ setTimeout(()=>location.href='./account-2.html', 1200); return; }
 
-  // DOB da LS/DB
-  let prof = profFromLS(u.uid);
-  let dob = parseDob(prof?.dob);
-  if (!dob){
-    const d = await profFromDB(u.uid);
-    dob = parseDob(d?.dob) || parseDob(d?.profile?.dob);
-    if (dob){
-      try{
-        const merged = { ...(prof||{}), dob: d?.dob ?? d?.profile?.dob };
-        localStorage.setItem('trapperreo_profile_'+u.uid, JSON.stringify(merged));
-      }catch{}
-    }
-  }
-  const isAdult = ageFrom(dob) >= 18;
-  if (!isAdult){ ageGate.style.display='flex'; return; }
-
-  // Carica minimi + listino e locks
-  await loadBottleConfigAndMin();
-  await fetchLocks();
-
-  ensureTables();
-  renderStep1();
+  nav.innerHTML = `<span>👑 Founder</span><a href="./attendees-tavolo.html">Anteprima cliente</a>`;
+  await loadAll();
 });
 </script>
 </body>
