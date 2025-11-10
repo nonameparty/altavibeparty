@@ -5,9 +5,10 @@
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>Il tuo account — TRAPPERREO</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&display=swap" rel="stylesheet" />
-<script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
 <style>
-:root{--accent:#8b5cf6;--border:rgba(255,255,255,.12);--muted:rgba(255,255,255,.78);--ok:#22c55e;--danger:#ef4444}
+:root{--accent:#8b5cf6;--border:rgba(255,255,255,.12);--muted:rgba(255,255,255,.78);
+  --ok:#22c55e;--warn:#f59e0b;--pending:#9ca3af}
 *{box-sizing:border-box;margin:0;padding:0}
 body{background:#000;color:#fff;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;line-height:1.5;min-height:100vh;display:grid;grid-template-rows:auto 1fr}
 a{color:inherit;text-decoration:none}
@@ -29,24 +30,31 @@ h1{font-size:34px;font-weight:900;letter-spacing:-.3px;margin-bottom:6px}
 .card h2{font-size:20px;font-weight:900;margin-bottom:10px}
 .muted{color:var(--muted)}
 .ticket-list{display:grid;gap:10px}
-.ticket{background:#0b0b0b;border:1px solid rgba(255,255,255,.1);border-radius:12px;padding:12px}
+.ticket{background:#0b0b0b;border:1px solid rgba(255,255,255,.1);border-radius:12px;padding:12px;display:grid;gap:8px}
 .ticket .line{display:flex;justify-content:space-between;align-items:center}
-.ticket .row{display:flex;gap:12px;align-items:center;margin-top:8px}
+.chip{display:inline-flex;gap:8px;align-items:center;border-radius:999px;padding:4px 10px;border:1px solid #333;font-size:12px}
+.chip.pending{background:#0f1115;color:#fff;border-color:#3b3b3b}
+.chip.confirmed{background:rgba(34,197,94,.15);color:#b7ffcc;border-color:#2b7a3f}
+.chip.flagged{background:rgba(245,158,11,.15);color:#ffe1a4;border-color:#8a6516}
+.qr{display:grid;place-items:center;border-radius:12px;padding:10px;border:1px dashed rgba(255,255,255,.18)}
+.qr.confirmed{background:rgba(34,197,94,.12)}
+.qr.flagged{background:rgba(245,158,11,.12)}
 .empty{display:grid;place-items:center;min-height:160px;border:1px dashed rgba(255,255,255,.25);border-radius:12px}
-.btn{display:inline-block;padding:12px 16px;border-radius:10px;background:var(--accent);color:#000;font-weight:900;border:none;cursor:pointer}
+.btn{display:inline-block;padding:12px 16px;border-radius:10px;background:var(--accent);color:#000;font-weight:900;cursor:pointer;border:none}
 .btn.ghost{background:transparent;border:1px solid var(--border);color:#fff}
-.btn[disabled]{opacity:.5;cursor:not-allowed}
-.small{font-size:12px}
-.modal-bd{display:flex;gap:10px;flex-wrap:wrap;margin-top:8px}
-input{background:#0f0f10;border:1px solid var(--border);border-radius:10px;color:#fff;padding:10px}
-.backdrop{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;align-items:center;justify-content:center;z-index:60}
+.row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px dashed rgba(255,255,255,.12)}
+.row:last-child{border-bottom:none}
+.lab{opacity:.8}
+.val{font-weight:800}
+.actions{display:flex;gap:10px;margin-top:14px}
+.badge-admin{display:inline-block;padding:6px 10px;border:1px solid var(--accent);border-radius:999px;font-size:12px;margin-bottom:10px}
+.backdrop{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;align-items:center;justify-content:center;z-index:50}
 .modal{background:#0f0f10;border:1px solid var(--border);border-radius:14px;padding:18px;width:min(520px,92vw)}
 .modal h3{font-size:18px;font-weight:900;margin-bottom:10px}
+.modal .grid{display:grid;grid-template-columns:1fr;gap:10px}
+input{background:#0f0f10;border:1px solid var(--border);border-radius:10px;color:#fff;padding:10px}
 .modal-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:12px}
-.state{padding:4px 8px;border-radius:999px;font-size:12px;border:1px solid var(--border)}
-.state.ok{border-color:var(--ok);color:var(--ok)}
-.state.bad{border-color:var(--danger);color:var(--danger)}
-.notice{margin-top:6px;font-size:12px;opacity:.85}
+.notice{margin:10px 0;padding:12px;border-radius:10px;background:#2a1e0a;border:1px solid #8a6516;color:#ffdca6}
 </style>
 </head>
 <body>
@@ -67,6 +75,8 @@ input{background:#0f0f10;border:1px solid var(--border);border-radius:10px;color
     <span class="badge">Via Italia 38, Biella</span>
   </div>
 
+  <div id="lockNotice" class="notice hidden"></div>
+
   <div class="grid">
     <section class="card">
       <h2>I tuoi biglietti</h2>
@@ -81,47 +91,37 @@ input{background:#0f0f10;border:1px solid var(--border);border-radius:10px;color
 
     <aside class="card">
       <h2>Profilo</h2>
-      <div class="row" style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px dashed rgba(255,255,255,.12)">
-        <div class="lab" style="opacity:.8">Nome e cognome</div><div class="val" id="vName">—</div>
+      <div class="row"><div class="lab">Nome e cognome</div><div class="val" id="vName">—</div></div>
+      <div class="row"><div class="lab">Data di nascita</div><div class="val" id="vDob">—</div></div>
+      <div class="row"><div class="lab">Email</div><div class="val" id="vEmail">—</div></div>
+      <div class="actions">
+        <button id="btnEdit" class="btn">Modifica dati</button>
       </div>
-      <div class="row" style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px dashed rgba(255,255,255,.12)">
-        <div class="lab" style="opacity:.8">Data di nascita</div><div class="val" id="vDob">—</div>
-      </div>
-      <div class="row" style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px dashed rgba(255,255,255,.12)">
-        <div class="lab" style="opacity:.8">Email</div><div class="val" id="vEmail">—</div>
-      </div>
-      <div class="modal-bd">
-        <button id="btnEdit" class="btn">Modifica profilo</button>
-        <a class="btn ghost" href="./scanner.html">Area scanner (staff)</a>
-      </div>
-      <div class="notice">Il nominativo del biglietto si blocca alla generazione del QR. Puoi sbloccarlo una sola volta (4€) per rigenerare il QR.</div>
     </aside>
   </div>
 
   <aside id="founderBox" class="card hidden" style="margin-top:16px">
-    <span class="state ok">Founder</span>
+    <span class="badge-admin">Founder</span>
     <h2>Pannello Founder</h2>
     <div id="founderHello" class="muted" style="margin-bottom:12px"></div>
-    <div style="display:grid;gap:10px;grid-template-columns:repeat(3, minmax(200px, 1fr))">
-      <a class="btn" href="./founder.html" style="text-align:center">Pannello</a>
-      <a class="btn" href="./founder-gift.html" style="text-align:center">Crea omaggio</a>
-      <a class="btn" href="./scanner.html" style="text-align:center">Scanner</a>
+    <div style="display:grid;gap:10px;grid-template-columns:repeat(2, minmax(200px, 1fr))">
+      <a class="btn" href="./founder.html" style="text-align:center">Apri pannello</a>
+      <a class="btn" href="./checkout.html" style="text-align:center">Nuovo ordine</a>
     </div>
   </aside>
 </main>
 
-<!-- MODAL profilo -->
 <div id="modal" class="backdrop" aria-hidden="true">
   <div class="modal">
     <h3>Modifica profilo</h3>
-    <div class="modal-bd">
-      <label style="flex:1">Nome e cognome
+    <div class="grid">
+      <label>Nome e cognome
         <input id="inpName" placeholder="Es. Mario Rossi" />
       </label>
-      <label style="flex:1">Data di nascita
+      <label>Data di nascita
         <input id="inpDob" type="date" />
       </label>
-      <label style="flex:1">Email (non modificabile)
+      <label>Email (non modificabile)
         <input id="inpEmail" disabled />
       </label>
     </div>
@@ -134,30 +134,35 @@ input{background:#0f0f10;border:1px solid var(--border);border-radius:10px;color
 
 <script type="module">
   import { app, onUser, doSignOut, requireActiveUser } from './auth.v2.js?v=6';
-  import { getFirestore, doc, getDoc, setDoc, collection, getDocs, serverTimestamp } from 'https://www.gstatic.com/firebasejs/12.5.0/firebase-firestore.js';
+  import {
+    getFirestore, doc, getDoc, setDoc, collection, getDocs, onSnapshot, serverTimestamp
+  } from 'https://www.gstatic.com/firebasejs/12.5.0/firebase-firestore.js';
 
   await requireActiveUser('./login.html');
 
+  const db = getFirestore(app);
+
+  // UI
   const nav  = document.getElementById('navArea');
   const OUT  = `
     <a href="./login.html?from=./account-2.html">Acquista il tuo biglietto</a>
     <a href="./login.html">Accedi</a>
-    <a href="./signup.html">Registrati</a>
-  `;
+    <a href="./signup.html">Registrati</a>`;
   const IN = (u)=>`
     <span>👋 Ciao, ${(u.displayName || (u.email?.split('@')[0]) || 'Utente').split(' ')[0]}</span>
     <a href="./checkout.html">Vai al checkout</a>
-    <a href="#" id="logoutLink" style="color:#8b5cf6">Logout</a>
-  `;
+    <a href="#" id="logoutLink" style="color:#8b5cf6">Logout</a>`;
 
+  const hello = document.getElementById('hello');
+  const title = document.getElementById('title');
   const vName = document.getElementById('vName');
   const vDob  = document.getElementById('vDob');
   const vEmail= document.getElementById('vEmail');
   const ticketsWrap = document.getElementById('tickets');
   const ticketsEmpty= document.getElementById('ticketsEmpty');
-
   const founderBox   = document.getElementById('founderBox');
   const founderHello = document.getElementById('founderHello');
+  const lockNotice   = document.getElementById('lockNotice');
 
   const modal   = document.getElementById('modal');
   const btnEdit = document.getElementById('btnEdit');
@@ -167,160 +172,171 @@ input{background:#0f0f10;border:1px solid var(--border);border-radius:10px;color
   const inpDob  = document.getElementById('inpDob');
   const inpEmail= document.getElementById('inpEmail');
 
-  const db = getFirestore(app);
-
   const asDateStr = (dob) => {
-    try { if(!dob) return '—';
+    try {
+      if(!dob) return '—';
       if (/^\d{4}-\d{2}-\d{2}$/.test(dob)) return dob;
-      const d = new Date(dob); if (isNaN(d)) return '—';
+      const d = new Date(dob);
+      if (isNaN(d)) return '—';
       return d.toISOString().slice(0,10);
     } catch { return '—'; }
   };
+
   function openModal(){ modal.style.display='flex'; modal.setAttribute('aria-hidden','false'); }
   function closeModal(){ modal.style.display='none'; modal.setAttribute('aria-hidden','true'); }
-  function lc(s){ return (s||'').toString().trim().toLowerCase(); }
 
-  async function isFounderOrAdmin(email, uid){
+  // QR content builder
+  function qrPayload(uid, t){
+    // JSON con uid/ticketId/name/dob (scanner li usa)
+    return JSON.stringify({
+      uid,
+      ticketId: t.id || t.ticketId || '',
+      name: t.name || '',
+      dob: t.dob || ''
+    });
+  }
+
+  function ticketChip(status){
+    const s = (status||'pending').toLowerCase();
+    const cls = s==='confirmed'?'confirmed': s==='flagged'?'flagged':'pending';
+    const label = s==='confirmed'?'confermato': (s==='flagged'?'segnalato':'pending');
+    return `<span class="chip ${cls}">Stato: <b>${label}</b></span>`;
+  }
+
+  function qrClass(status){
+    const s = (status||'pending').toLowerCase();
+    if (s==='confirmed') return 'qr confirmed';
+    if (s==='flagged')   return 'qr flagged';
+    return 'qr';
+  }
+
+  async function renderTickets(uid){
+    // live
+    const unsub = onSnapshot(collection(db,'users',uid,'tickets'), (snap)=>{
+      const arr = [];
+      snap.forEach(d=>arr.push({ id:d.id, ...d.data() }));
+      ticketsWrap.innerHTML = '';
+      if (!arr.length){
+        ticketsEmpty.classList.remove('hidden');
+        lockNotice.classList.add('hidden');
+        return;
+      }
+      ticketsEmpty.classList.add('hidden');
+
+      // Se esiste almeno un ticket locked, blocca modifiche nominativi
+      const anyLocked = arr.some(t=> t.locked===true);
+      if (anyLocked){
+        const canRelock = arr.some(t=> t.canRelock===true); // una sola volta
+        lockNotice.classList.remove('hidden');
+        lockNotice.innerHTML = canRelock
+          ? 'Hai sbloccato una volta i nominativi. Se confermi ora, non potrai più cambiare senza un nuovo pagamento.'
+          : 'I nominativi sono bloccati perché il QR è stato generato. Puoi sbloccare <b>una sola volta</b> (4€).';
+        btnEdit.disabled = !canRelock; // se non ha ancora pagato sblocco: disabilita (collega alla tua cassa)
+      } else {
+        lockNotice.classList.add('hidden');
+        btnEdit.disabled = false;
+      }
+
+      arr.forEach(t=>{
+        const div = document.createElement('div');
+        div.className = 'ticket';
+        div.innerHTML = `
+          <div class="line"><strong>${t.type || 'Biglietto'}</strong><span>${ticketChip(t.status)}</span></div>
+          <div class="line"><span class="muted">ID</span><span>${t.id}</span></div>
+          <div class="${qrClass(t.status)}"><canvas id="qr_${t.id}" width="180" height="180"></canvas></div>
+          <div class="muted">Nome: <b>${t.name || '—'}</b> • DOB: <b>${asDateStr(t.dob||'')}</b></div>
+        `;
+        ticketsWrap.appendChild(div);
+        // genera QR
+        const c = div.querySelector('#qr_'+t.id);
+        try{
+          window.QRCode.toCanvas(c, qrPayload(uid,t), { errorCorrectionLevel:'M', margin:1 }, (err)=>{ if(err) console.error(err); });
+        }catch(e){ console.error(e); }
+      });
+    });
+    return unsub;
+  }
+
+  async function isFounder(email){
     try{
-      const [admins, me] = await Promise.all([
-        getDoc(doc(db,'config','admins')).catch(()=>null),
-        getDoc(doc(db,'users',uid)).catch(()=>null)
-      ]);
-      const m = admins && admins.exists()? (admins.data()||{}) : {};
-      const founders=m.founders||{}, adminsMap=m.admins||{};
-      const role = me && me.exists()? (me.data().role||'') : '';
-      return !!( founders[lc(email)] || adminsMap[lc(email)] || role==='founder' || role==='admin' );
-    }catch{ return false; }
-  }
-
-  async function loadTickets(uid){
-    const qSnap = await getDocs(collection(db,'users',uid,'tickets'));
-    const count = qSnap.size;
-    ticketsWrap.innerHTML = '';
-    qSnap.forEach(d=>{
-      const t = { id:d.id, ...(d.data()||{}) };
-      const state = (t.status||'pending').toLowerCase();
-      const color = state==='verified' ? '#22c55e' : state==='flagged' ? '#ef4444' : '#ffffff22';
-      const box = document.createElement('div');
-      box.className = 'ticket';
-      box.style.border = `1px solid ${color}`;
-      box.innerHTML = `
-        <div class="line">
-          <strong>${t.type||'Biglietto'}</strong>
-          <span class="state ${state==='verified'?'ok':state==='flagged'?'bad':''}">${state}</span>
-        </div>
-        <div class="row">
-          <div id="qr_${t.id}" style="width:120px;height:120px;border-radius:10px;background:#fff;display:grid;place-items:center"></div>
-          <div class="small muted">
-            <div><b>Nome</b>: ${t.name || '—'}</div>
-            <div><b>Nascita</b>: ${asDateStr(t.dob)}</div>
-            <div><b>ID</b>: ${t.id}</div>
-            <div class="notice">${t.locked ? 'Nominativo bloccato' : 'Nominativo modificabile'}</div>
-            <div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap">
-              ${t.qr ? '' : `<button class="btn" data-gen="${t.id}">Genera QR e blocca</button>`}
-              <button class="btn ghost" data-requnl="${t.id}">Sblocca nominativo (4€)</button>
-              <button class="btn" data-edit="${t.id}">Cambia nominativo</button>
-            </div>
-          </div>
-        </div>
-      `;
-      ticketsWrap.appendChild(box);
-      const payload = t.qr ? t.qr : JSON.stringify({ uid, tid: t.id, v:1 });
-      new QRCode(document.getElementById(`qr_${t.id}`), { text: payload, width:110, height:110 });
-    });
-    // **Fix empty-state**: mostra solo se non c’è nessun ticket
-    ticketsEmpty.classList.toggle('hidden', count !== 0);
-
-    // Bind azioni
-    ticketsWrap.querySelectorAll('[data-gen]').forEach(btn=>{
-      btn.onclick = async ()=>{
-        const tid = btn.getAttribute('data-gen');
-        btn.disabled=true; btn.textContent='Creo…';
-        const qr = JSON.stringify({ uid, tid, v:1 });
-        await setDoc(doc(db,'users',uid,'tickets',tid), { qr, locked:true, updatedAt: serverTimestamp() }, { merge:true });
-        location.reload();
-      };
-    });
-    ticketsWrap.querySelectorAll('[data-requnl]').forEach(btn=>{
-      btn.onclick = async ()=>{
-        const tid = btn.getAttribute('data-requnl');
-        if(!confirm('Confermi lo sblocco del nominativo (4€)?')) return;
-        await setDoc(doc(db,'users',uid,'tickets',tid), { unlockCredits: 1, updatedAt: serverTimestamp() }, { merge:true });
-        alert('Sblocco effettuato. Ora premi "Cambia nominativo".');
-      };
-    });
-    ticketsWrap.querySelectorAll('[data-edit]').forEach(btn=>{
-      btn.onclick = async ()=>{
-        const tid = btn.getAttribute('data-edit');
-        const ref = doc(db,'users',uid,'tickets',tid);
-        const snap = await getDoc(ref); if(!snap.exists()) return;
-        const t = snap.data()||{};
-        if (t.locked && !(t.unlockCredits>0)){ alert('Nominativo bloccato. Sbloccalo prima (4€).'); return; }
-        const name = prompt('Nome e cognome come da documento:', t.name||'')?.trim();
-        if(!name){ alert('Nome non valido'); return; }
-        const dob  = prompt('Data di nascita (YYYY-MM-DD):', (t.dob||'').toString().slice(0,10))?.trim();
-        if(!dob || !/^\d{4}-\d{2}-\d{2}$/.test(dob)){ alert('Data non valida'); return; }
-        if(!confirm('Confermi che i dati corrispondono al documento? Dopo non potrai cambiare senza pagare di nuovo.')) return;
-        const qr = JSON.stringify({ uid, tid, v:1 });
-        await setDoc(ref, {
-          name, dob, qr, locked:true,
-          unlockCredits: Math.max((t.unlockCredits||0)-1,0),
-          updatedAt: serverTimestamp()
-        }, { merge:true });
-        alert('Dati aggiornati e QR rigenerato.'); location.reload();
-      };
-    });
-  }
-
-  async function mountFounder(u){
-    const ok = await isFounderOrAdmin(u.email||'', u.uid);
-    if(!ok){ founderBox.classList.add('hidden'); return; }
-    founderBox.classList.remove('hidden');
-    founderHello.textContent = `Accesso staff abilitato per ${u.email}.`;
+      const snap = await getDoc(doc(db,'config','admins'));
+      const founders = snap.exists() ? (snap.data().founders || {}) : {};
+      return !!founders[(email||'').toLowerCase()];
+    }catch(_){ return false; }
   }
 
   onUser(async (u)=>{
-    if(!u){ nav.innerHTML = OUT; location.href='./login.html?from=./account-2.html'; return; }
+    if(!u){
+      nav.innerHTML = OUT;
+      const back = encodeURIComponent(location.pathname + location.search);
+      location.href = `./login.html?from=${back}`;
+      return;
+    }
     nav.innerHTML = IN(u);
     document.getElementById('logoutLink')?.addEventListener('click', async(e)=>{
-      e.preventDefault(); await doSignOut(); nav.innerHTML = OUT; location.href='./login.html?from=./account-2.html';
+      e.preventDefault(); await doSignOut(); nav.innerHTML = OUT; location.href = './login.html?from=./account-2.html';
     });
 
-    const userRef = doc(db,'users',u.uid);
-    let snap = await getDoc(userRef);
-    if(!snap.exists()){
-      await setDoc(userRef, {
-        uid:u.uid, email:(u.email||'').toLowerCase(), name:(u.displayName||u.email||'').trim(),
-        name_lc:(u.displayName||u.email||'').trim().toLowerCase(),
-        dob:'', role:'customer', status:'active', createdAt: serverTimestamp(), updatedAt: serverTimestamp()
-      }, { merge:true });
-      snap = await getDoc(userRef);
-    }
-    const me = snap.data()||{};
-    document.getElementById('title').textContent = 'Il tuo account';
-    document.getElementById('hello').innerHTML = `Ciao, <strong>${(me.name || u.displayName || u.email || 'Utente').split(' ')[0]}</strong>`;
-    vName.textContent  = me.name || (u.displayName || '—');
-    vDob.textContent   = asDateStr(me.dob || '');
-    vEmail.textContent = me.email || u.email || '—';
-    inpName.value  = me.name  || (u.displayName || '');
-    inpDob.value   = asDateStr(me.dob || '');
-    inpEmail.value = me.email || u.email || '';
+    title.textContent = 'Il tuo account';
+    hello.innerHTML = `Ciao, <strong>${(u.displayName || u.email || 'Utente').split(' ')[0]}</strong>`;
 
-    await loadTickets(u.uid);
-    await mountFounder(u);
+    // /users/{uid}
+    const uref = doc(db,'users',u.uid);
+    let usnap = await getDoc(uref);
+    if(!usnap.exists()){
+      await setDoc(uref, {
+        uid: u.uid,
+        email: (u.email||'').toLowerCase(),
+        name:  (u.displayName || u.email || '').trim(),
+        name_lc: (u.displayName || u.email || '').trim().toLowerCase(),
+        dob:   '',
+        role:  'customer',
+        status:'active',
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp()
+      }, { merge:true });
+      usnap = await getDoc(uref);
+    }
+    const data = usnap.data() || {};
+    vName.textContent  = data.name  || (u.displayName || '—');
+    vDob.textContent   = asDateStr(data.dob || '');
+    vEmail.textContent = data.email || u.email || '—';
+    inpName.value  = data.name  || (u.displayName || '');
+    inpDob.value   = asDateStr(data.dob || '');
+    inpEmail.value = data.email || u.email || '';
+
+    await renderTickets(u.uid);
+
+    const founderOk = (data.role === 'founder') || await isFounder(u.email);
+    if(founderOk){
+      founderBox.classList.remove('hidden');
+      founderHello.textContent = `Ciao ${data.name || (u.displayName || u.email)}, puoi gestire utenti e statistiche.`;
+    }else{
+      founderBox.classList.add('hidden');
+    }
   });
 
-  btnEdit.addEventListener('click', ()=> openModal());
-  mCancel.addEventListener('click', ()=> closeModal());
+  // Modifica profilo (bloccata se locked e non ha pagato sblocco)
+  btnEdit.addEventListener('click', openModal);
+  mCancel.addEventListener('click', closeModal);
   mSave.addEventListener('click', async ()=>{
-    const name = inpName.value.trim();
+    const name = (inpName.value||'').trim();
     const dob  = inpDob.value;
     if(!name){ alert('Inserisci nome e cognome.'); return; }
-    const u = await new Promise(res=>onUser(res));
-    await setDoc(doc(db,'users',u.uid), {
-      name, name_lc:name.toLowerCase(), dob:dob||'', updatedAt: serverTimestamp()
+
+    const user = await new Promise(res=>onUser(res));
+    if(!user) return;
+
+    await setDoc(doc(db, 'users', user.uid), {
+      name,
+      name_lc: name.toLowerCase(),
+      dob: dob || '',
+      updatedAt: serverTimestamp()
     }, { merge:true });
-    vName.textContent = name; vDob.textContent = dob||'—'; closeModal();
+
+    vName.textContent = name;
+    vDob.textContent  = asDateStr(dob);
+    closeModal();
   });
 </script>
 </body>
