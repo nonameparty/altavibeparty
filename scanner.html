@@ -1,61 +1,58 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
 <title>TRAPPERREO — Scanner QR</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet" />
 <style>
-  :root{
-    --bg:#000;--text:#fff;--muted:#bdbdbd;--card:#0f0f10;--b:#1c1c1c;
-    --accent:#8b5cf6;--ok:#22c55e;--warn:#f59e0b;--err:#ef4444;
-  }
-  *{box-sizing:border-box}
-  body{margin:0;background:var(--bg);color:var(--text);font:14px/1.45 Inter,ui-sans-serif,system-ui}
-  header{position:sticky;top:0;z-index:2;background:rgba(0,0,0,.7);backdrop-filter:blur(6px);border-bottom:1px solid #111}
-  .wrap{max-width:980px;margin:0 auto;padding:14px 16px}
-  h1{margin:0 0 8px;font-size:18px}
-  .card{background:var(--card);border:1px solid var(--b);border-radius:16px;padding:14px;margin:12px 0}
-  .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
-  .btn{border:1px solid #333;background:#151515;color:#fff;border-radius:14px;padding:12px 16px;font-weight:900;cursor:pointer}
-  .btn.primary{background:var(--accent);color:#000;border:none}
-  .btn.ok{background:var(--ok);color:#000;border:none}
-  .btn.warn{background:var(--warn);color:#000;border:none}
-  .btn.stop{background:#fff;color:#000;border:none;font-size:18px;padding:14px 18px}
-  .btn:disabled{opacity:.6;cursor:not-allowed}
-  .muted{color:var(--muted)}
-  video{width:100%;max-height:58vh;background:#000;border-radius:12px;border:1px solid #111}
-  .status{display:flex;align-items:center;gap:8px;font-weight:800}
-  .dot{width:10px;height:10px;border-radius:999px;background:#555}
-  .dot.on{background:var(--ok)}
-  .dot.err{background:var(--err)}
-  .panel{display:none}
-  .panel.show{display:block}
-  .kv{display:grid;grid-template-columns:140px 1fr;gap:8px;margin:8px 0}
-  .kv div{padding:8px;border:1px solid #222;border-radius:10px;background:#121212}
-  .payload{white-space:pre-wrap;font-family:ui-monospace,Menlo,Consolas,monospace;background:#0b0b0b;border:1px dashed #222;border-radius:12px;padding:10px;margin-top:8px}
-  .bar{display:flex;justify-content:space-between;align-items:center;gap:10px}
-  .pill{display:inline-flex;align-items:center;gap:8px;border:1px solid #333;border-radius:999px;padding:6px 10px}
-  .big{font-size:18px}
-  .center{display:flex;justify-content:center;align-items:center}
-  .cashBox{font-size:22px;font-weight:900;text-align:center;padding:16px;border:2px dashed #444;border-radius:12px}
+:root{
+  --bg:#000;--text:#fff;--muted:#bdbdbd;--card:#0f0f10;--b:#191919;
+  --accent:#8b5cf6;--ok:#22c55e;--warn:#f59e0b;--err:#ef4444;
+}
+*{box-sizing:border-box} body{margin:0;background:var(--bg);color:var(--text);
+  font:14px/1.5 Inter,ui-sans-serif,system-ui}
+header{position:sticky;top:0;z-index:10;background:rgba(0,0,0,.7);backdrop-filter:blur(6px);
+  border-bottom:1px solid #111}
+.wrap{max-width:980px;margin:0 auto;padding:14px 16px}
+h1{margin:0;font-size:20px}
+.card{background:var(--card);border:1px solid var(--b);border-radius:16px;padding:14px;margin:12px 0}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.btn{border:1px solid #2b2b2b;background:#151515;color:#fff;border-radius:14px;
+  padding:12px 16px;font-weight:900;cursor:pointer}
+.btn.primary{background:var(--accent);color:#000;border:none}
+.btn.ok{background:var(--ok);color:#000;border:none}
+.btn.warn{background:var(--warn);color:#000;border:none}
+.btn.stop{background:#fff;color:#000;border:none;font-size:18px;padding:14px 18px}
+.btn:disabled{opacity:.6;cursor:not-allowed}
+.big{font-size:18px}
+.pill{display:inline-flex;align-items:center;gap:8px;border:1px solid #333;border-radius:999px;padding:6px 10px}
+.muted{color:var(--muted)}
+#reader{width:100%;max-height:62vh;border-radius:12px;overflow:hidden;border:1px solid #111}
+.panel{display:none} .panel.show{display:block}
+.kv{display:grid;grid-template-columns:140px 1fr;gap:8px;margin:8px 0}
+.kv div{padding:8px;border:1px solid #222;border-radius:10px;background:#121212}
+.payload{white-space:pre-wrap;font-family:ui-monospace,Menlo,Consolas,monospace;background:#0b0b0b;border:1px dashed #222;border-radius:12px;padding:10px;margin-top:8px}
+.center{display:flex;justify-content:center;align-items:center}
+.cashBox{font-size:22px;font-weight:900;text-align:center;padding:16px;border:2px dashed #444;border-radius:12px}
 </style>
 </head>
 <body>
 <header><div class="wrap"><h1>TRAPPERREO — Scanner QR</h1></div></header>
 
 <main class="wrap">
-  <!-- Setup: è un gruppo? -->
+  <!-- Setup gruppo -->
   <section class="card" id="setupCard">
-    <div class="bar">
-      <div class="row">
-        <span class="pill">È un gruppo?</span>
-        <button id="gYes" class="btn">Sì</button>
-        <button id="gNo"  class="btn">No</button>
-      </div>
-      <div class="status"><span id="dot" class="dot"></span><span id="state">in attesa…</span></div>
+    <div class="row">
+      <span class="pill">È un gruppo?</span>
+      <button id="gYes" class="btn">Sì</button>
+      <button id="gNo"  class="btn">No</button>
+      <span class="pill">Gruppo: <b id="gMode">no</b> • Scansioni: <b id="gCount">0</b></span>
     </div>
     <div class="muted" style="margin-top:6px">
-      Tip: su iPhone serve toccare “Avvia fotocamera” per sbloccare i permessi. HTTPS obbligatorio.
+      Se la camera non parte su iPhone: assicurati che l’URL sia <b>HTTPS</b> (o localhost),
+      consenti il permesso quando richiesto; se l’hai negato in passato, vai in
+      <b>Impostazioni → Safari → Avanzate → Dati siti web</b> e rimuovi il sito.
     </div>
   </section>
 
@@ -64,18 +61,20 @@
     <div class="row">
       <button id="startBtn" class="btn primary big">🎥 Avvia fotocamera</button>
       <button id="stopBtn"  class="btn stop big" disabled>✋ STOP</button>
-      <span id="groupBadge" class="pill">Gruppo: <b id="gMode">no</b> • Scansioni: <b id="gCount">0</b></span>
+      <input id="imgInput" type="file" accept="image/*" style="display:none">
+      <button id="imgBtn" class="btn">🖼️ Carica immagine</button>
+      <span id="status" class="muted"></span>
     </div>
   </section>
 
-  <!-- Anteprima -->
+  <!-- Area scanner -->
   <section class="card">
-    <video id="video" autoplay playsinline muted></video>
+    <div id="reader"></div>
   </section>
 
-  <!-- Pannello risultato -->
+  <!-- Risultato -->
   <section id="resultPanel" class="card panel">
-    <div class="bar">
+    <div class="row" style="justify-content:space-between">
       <h3 style="margin:0">Risultato scansionato</h3>
       <span class="pill">Camera: posteriore</span>
     </div>
@@ -84,7 +83,7 @@
     <div class="row" style="margin-top:10px">
       <button id="okBtn" class="btn ok big">✅ Conferma</button>
       <button id="flagBtn" class="btn warn big">🚩 Segnala</button>
-      <button id="scanAgainBtn" class="btn">↻ Scansiona ancora</button>
+      <button id="againBtn" class="btn">↻ Scansiona ancora</button>
     </div>
   </section>
 
@@ -99,55 +98,45 @@
   </section>
 </main>
 
-<!-- ZXing (browser build) -->
-<script src="https://unpkg.com/@zxing/browser@0.1.4/umd/index.min.js"></script>
+<!-- Libreria scanner affidabile per iOS -->
+<script src="https://unpkg.com/html5-qrcode@2.3.10/html5-qrcode.min.js"></script>
 <script>
 (function(){
-  const video   = document.getElementById('video');
-  const startBtn= document.getElementById('startBtn');
-  const stopBtn = document.getElementById('stopBtn');
-  const panel   = document.getElementById('resultPanel');
-  const kvBox   = document.getElementById('kvBox');
-  const payloadBox = document.getElementById('payloadBox');
-  const okBtn   = document.getElementById('okBtn');
-  const flagBtn = document.getElementById('flagBtn');
-  const scanAgainBtn = document.getElementById('scanAgainBtn');
-  const dotEl   = document.getElementById('dot');
-  const stateEl = document.getElementById('state');
-
-  const gYes = document.getElementById('gYes');
-  const gNo  = document.getElementById('gNo');
+  // ====== Stato UI Gruppo ======
+  let isGroup = false, groupCount = 0;
   const gModeEl = document.getElementById('gMode');
   const gCountEl= document.getElementById('gCount');
-  const cashPanel = document.getElementById('cashPanel');
-  const cashLabel = document.getElementById('cashLabel');
-  const restartBtn= document.getElementById('restartBtn');
+  document.getElementById('gYes').onclick = ()=>{ isGroup=true;  gModeEl.textContent='sì'; };
+  document.getElementById('gNo').onclick  = ()=>{ isGroup=false; gModeEl.textContent='no'; };
 
-  let isGroup = false;
-  let groupCount = 0;
+  // ====== UI refs ======
+  const statusEl = document.getElementById('status');
+  const startBtn = document.getElementById('startBtn');
+  const stopBtn  = document.getElementById('stopBtn');
+  const imgBtn   = document.getElementById('imgBtn');
+  const imgInput = document.getElementById('imgInput');
+  const panel    = document.getElementById('resultPanel');
+  const kvBox    = document.getElementById('kvBox');
+  const payloadBox = document.getElementById('payloadBox');
+  const okBtn    = document.getElementById('okBtn');
+  const flagBtn  = document.getElementById('flagBtn');
+  const againBtn = document.getElementById('againBtn');
+  const cashPanel= document.getElementById('cashPanel');
+  const cashLabel= document.getElementById('cashLabel');
+  const restartBtn=document.getElementById('restartBtn');
 
-  let codeReader = null;
-  let currentDeviceId = null;
-  let scanning = false;
+  // ====== Scanner ======
+  let html5Qr = null;
+  let cameraId = null;
+  let running = false;
   let lastParsed = null;
 
-  function setState(txt, mode){
-    stateEl.textContent = txt;
-    dotEl.className = 'dot' + (mode==='on' ? ' on' : mode==='err' ? ' err' : '');
-  }
-  function setGroup(mode){
-    isGroup = mode;
-    gModeEl.textContent = mode ? 'sì' : 'no';
-    groupCount = 0; gCountEl.textContent = '0';
-  }
-  gYes.onclick = ()=>setGroup(true);
-  gNo.onclick  = ()=>setGroup(false);
+  function setStatus(t){ statusEl.textContent = t; }
 
   function parsePayload(text){
-    try{ const o=JSON.parse(text); return {type:'json',raw:text,data:o}; }
-    catch(_){ return {type:'text',raw:text,data:{text}}; }
+    try { const o = JSON.parse(text); return {type:'json',raw:text,data:o}; }
+    catch(_) { return {type:'text',raw:text,data:{text}}; }
   }
-
   function showResult(parsed){
     lastParsed = parsed;
     panel.classList.add('show');
@@ -155,108 +144,152 @@
     payloadBox.textContent = parsed.raw;
 
     if(parsed.type==='json'){
-      const d=parsed.data;
+      const d = parsed.data;
       const rows = [
         ['Nome', d.name || '—'],
         ['Nascita', d.dob || '—'],
         ['UID', d.uid || '—'],
-        ['Ticket', d.ticketId || '—']
+        ['Ticket', d.ticketId || '—'],
+        ['Tipo', d.type || '—'],
+        ['Stato', d.status || '—'],
       ];
       rows.forEach(([k,v])=>{
-        const kEl=document.createElement('div');kEl.textContent=k;
-        const vEl=document.createElement('div');vEl.textContent=(v??'—');
-        kvBox.appendChild(kEl);kvBox.appendChild(vEl);
+        const K=document.createElement('div'); K.textContent=k;
+        const V=document.createElement('div'); V.textContent=v;
+        kvBox.appendChild(K); kvBox.appendChild(V);
       });
     }else{
-      kvBox.innerHTML = `<div>Testo</div><div>${parsed.data.text}</div>`;
+      kvBox.innerHTML = '<div>Testo</div><div>'+parsed.data.text+'</div>';
     }
   }
 
-  async function submitScan(result){
-    // Qui collegherai Firestore (check-in / mismatch)
-    console.log('submitScan', result);
-    await new Promise(r=>setTimeout(r,200));
-  }
-
-  async function chooseBackCameraId(){
-    const devices = await window.ZXingBrowser.BrowserCodeReader.listVideoInputDevices();
+  async function ensureBackCamera(){
+    // Sceglie la camera "posteriore" se disponibile
+    const devices = await Html5Qrcode.getCameras().catch(()=>[]);
     if (!devices || !devices.length) return null;
-    // preferisci la posteriore
-    const find = (s)=>devices.find(d=>{
-      const L=(d.label||'').toLowerCase();
-      return L.includes(s);
-    });
-    return (find('back')||find('environment')||find('posteriore')||devices[devices.length-1]).deviceId;
+    const pick = (kw)=>devices.find(d=> (d.label||'').toLowerCase().includes(kw));
+    const dev = pick('back') || pick('rear') || pick('environment') || devices[devices.length-1];
+    return dev.id;
   }
 
-  async function startScan(){
-    if (!location.protocol.startsWith('https')){ setState('Serve HTTPS','err'); return; }
-    codeReader = codeReader || new window.ZXingBrowser.BrowserQRCodeReader();
-    setState('apro camera…');
-    startBtn.disabled = true; stopBtn.disabled = false; panel.classList.remove('show'); cashPanel.classList.remove('show');
+  async function startScanner(){
+    if (running) return;
+    setStatus('inizializzo…');
+    startBtn.disabled = true;
+    stopBtn.disabled  = false;
+    panel.classList.remove('show');
+    cashPanel.classList.remove('show');
 
-    currentDeviceId = await chooseBackCameraId();
+    if (!html5Qr) html5Qr = new Html5Qrcode("reader", { formatsToSupport: [ Html5QrcodeSupportedFormats.QR_CODE ]});
+
+    cameraId = await ensureBackCamera();
+    const config = {
+      fps: 12,
+      qrbox: (viewport)=> {
+        const edge = Math.min(viewport.width, viewport.height) * 0.72;
+        return { width: Math.floor(edge), height: Math.floor(edge) };
+      },
+      aspectRatio: 1.7778,
+      rememberLastUsedCamera: true
+    };
+
     try{
-      scanning = true;
-      await codeReader.decodeFromVideoDevice(currentDeviceId, video, (res,err,controls)=>{
-        if(!scanning) return;
-        if (res && res.getText()){
-          scanning = false; // pausa per mostrare i dati
-          controls.stop();
-          setState('lettura ok','on');
-          showResult(parsePayload(res.getText()));
-        } else if (err && !(err instanceof window.ZXing.NotFoundException)) {
-          console.warn(err);
-          setState('errore lettura','err');
-        } else {
-          setState('scansione…','on');
+      await html5Qr.start(
+        { deviceId: { exact: cameraId ?? undefined }, facingMode: cameraId ? undefined : "environment" },
+        config,
+        (decodedText, decodedResult)=>{
+          if (!running) return;
+          running = false;
+          html5Qr.pause(true);
+          setStatus('lettura ok');
+          showResult(parsePayload(decodedText));
+        },
+        (errMsg)=>{
+          // ignoriamo i “no result”
         }
-      }, { delayBetweenScanAttempts: 150 });
+      );
+      running = true;
+      setStatus('scansione attiva (posteriore)');
     }catch(e){
       console.error(e);
-      setState('errore avvio camera','err');
-      startBtn.disabled = false; stopBtn.disabled = true;
+      setStatus('errore avvio camera');
+      startBtn.disabled = false;
+      stopBtn.disabled  = true;
     }
   }
 
-  async function stopScan(){
-    try{ await codeReader?.stopStreams(); }catch(_){}
-    scanning = false;
-    startBtn.disabled = false; stopBtn.disabled = true;
-    setState('fermato');
+  async function stopScanner(){
+    try{ await html5Qr?.stop(); }catch(_){}
+    try{ await html5Qr?.clear(); }catch(_){}
+    running = false;
+    startBtn.disabled = false;
+    stopBtn.disabled  = true;
+    setStatus('fermato');
   }
 
-  // Bottoni
-  startBtn.onclick = startScan;
+  async function resumeScanner(){
+    if (!html5Qr) return startScanner();
+    try{
+      await html5Qr.resume();
+      running = true;
+      panel.classList.remove('show');
+      setStatus('scansione attiva (posteriore)');
+    }catch(_){
+      startScanner();
+    }
+  }
+
+  // ====== Azioni risultato ======
+  async function submitScan(payload){
+    // TODO: integra con Firestore (check-in / mismatch)
+    console.log('submit', payload);
+    await new Promise(r=>setTimeout(r,150));
+  }
+
+  okBtn.onclick = async ()=>{
+    await submitScan({status:'ok', payload:lastParsed});
+    if (isGroup){ groupCount++; gCountEl.textContent = String(groupCount); }
+    resumeScanner();
+  };
+  flagBtn.onclick = async ()=>{
+    await submitScan({status:'mismatch', payload:lastParsed});
+    resumeScanner();
+  };
+  againBtn.onclick = ()=>{ resumeScanner(); };
+
+  // ====== Comandi top ======
+  startBtn.onclick = startScanner;
   stopBtn.onclick  = async ()=>{
-    await stopScan();
-    // chiudi sessione → assegna cassa random (placeholder)
+    await stopScanner();
+    // Assegna cassa (placeholder casuale)
     const rnd = 1 + Math.floor(Math.random()*3);
     cashLabel.textContent = 'CASSA ' + rnd;
     cashPanel.classList.add('show');
   };
   restartBtn.onclick = ()=>{
-    setGroup(false);
-    cashPanel.classList.remove('show');
-    panel.classList.remove('show');
-    setState('in attesa…');
+    isGroup = false; groupCount = 0; gModeEl.textContent='no'; gCountEl.textContent='0';
+    cashPanel.classList.remove('show'); setStatus('in attesa…');
   };
 
-  okBtn.onclick = async ()=>{
-    await submitScan({status:'ok', payload:lastParsed});
-    groupCount++; gCountEl.textContent = String(groupCount);
-    panel.classList.remove('show');
-    if (isGroup) startScan(); else startScan(); // comunque riparte
+  // ====== Fallback: immagine ======
+  imgBtn.onclick = ()=> imgInput.click();
+  imgInput.onchange = async (e)=>{
+    const f = e.target.files?.[0]; if(!f) return;
+    try{
+      const result = await Html5QrcodeScanner.scanFileV2(f, /*showImage=*/true);
+      // result.decodedText
+      showResult(parsePayload(result.decodedText));
+      setStatus('immagine letta');
+    }catch(err){
+      console.error(err);
+      setStatus('immagine non valida');
+    }finally{
+      imgInput.value = '';
+    }
   };
-  flagBtn.onclick = async ()=>{
-    await submitScan({status:'mismatch', payload:lastParsed});
-    panel.classList.remove('show');
-    if (isGroup) startScan(); else startScan();
-  };
-  scanAgainBtn.onclick = ()=>{ panel.classList.remove('show'); startScan(); };
 
   // Stato iniziale
-  setGroup(false);
+  setStatus('in attesa…');
 })();
 </script>
 </body>
