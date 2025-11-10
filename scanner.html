@@ -6,22 +6,22 @@
 <title>TRAPPERREO — Scanner QR</title>
 <style>
   :root{
-    --bg:#000; --text:#fff; --card:#0f0f10; --b:#242424; --muted:#bdbdbd;
-    --accent:#8b5cf6; --ok:#22c55e; --warn:#f59e0b; --err:#ef4444;
+    --bg:#000;--text:#fff;--muted:#bdbdbd;--card:#0f0f10;--b:#1c1c1c;
+    --accent:#8b5cf6;--ok:#22c55e;--warn:#f59e0b;--err:#ef4444;
   }
   *{box-sizing:border-box}
-  body{margin:0;background:var(--bg);color:var(--text);font:14px/1.45 ui-sans-serif,system-ui,Inter}
-  header{position:sticky;top:0;background:rgba(0,0,0,.7);backdrop-filter:blur(6px);border-bottom:1px solid #111}
+  body{margin:0;background:var(--bg);color:var(--text);font:14px/1.45 Inter,ui-sans-serif,system-ui}
+  header{position:sticky;top:0;z-index:2;background:rgba(0,0,0,.7);backdrop-filter:blur(6px);border-bottom:1px solid #111}
   .wrap{max-width:980px;margin:0 auto;padding:14px 16px}
   h1{margin:0 0 8px;font-size:18px}
+  .card{background:var(--card);border:1px solid var(--b);border-radius:16px;padding:14px;margin:12px 0}
   .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
-  .btn{border:1px solid #333;background:#151515;color:#fff;border-radius:12px;padding:10px 14px;font-weight:800;cursor:pointer}
+  .btn{border:1px solid #333;background:#151515;color:#fff;border-radius:14px;padding:12px 16px;font-weight:900;cursor:pointer}
   .btn.primary{background:var(--accent);color:#000;border:none}
   .btn.ok{background:var(--ok);color:#000;border:none}
   .btn.warn{background:var(--warn);color:#000;border:none}
-  .btn.ghost{background:transparent}
+  .btn.stop{background:#fff;color:#000;border:none;font-size:18px;padding:14px 18px}
   .btn:disabled{opacity:.6;cursor:not-allowed}
-  .card{background:var(--card);border:1px solid var(--b);border-radius:16px;padding:14px;margin:12px 0}
   .muted{color:var(--muted)}
   video{width:100%;max-height:58vh;background:#000;border-radius:12px;border:1px solid #111}
   .status{display:flex;align-items:center;gap:8px;font-weight:800}
@@ -31,329 +31,232 @@
   .panel{display:none}
   .panel.show{display:block}
   .kv{display:grid;grid-template-columns:140px 1fr;gap:8px;margin:8px 0}
-  .kv div{padding:6px 8px;border:1px solid #222;border-radius:10px;background:#121212}
-  .payloadBox{white-space:pre-wrap;font-family:ui-monospace,Menlo,Consolas,monospace;background:#0b0b0b;border:1px dashed #222;border-radius:12px;padding:10px;margin-top:8px}
-  .help{font-size:12px;opacity:.85}
+  .kv div{padding:8px;border:1px solid #222;border-radius:10px;background:#121212}
+  .payload{white-space:pre-wrap;font-family:ui-monospace,Menlo,Consolas,monospace;background:#0b0b0b;border:1px dashed #222;border-radius:12px;padding:10px;margin-top:8px}
+  .bar{display:flex;justify-content:space-between;align-items:center;gap:10px}
+  .pill{display:inline-flex;align-items:center;gap:8px;border:1px solid #333;border-radius:999px;padding:6px 10px}
+  .big{font-size:18px}
+  .center{display:flex;justify-content:center;align-items:center}
+  .cashBox{font-size:22px;font-weight:900;text-align:center;padding:16px;border:2px dashed #444;border-radius:12px}
 </style>
 </head>
 <body>
 <header><div class="wrap"><h1>TRAPPERREO — Scanner QR</h1></div></header>
 
 <main class="wrap">
+  <!-- Setup: è un gruppo? -->
+  <section class="card" id="setupCard">
+    <div class="bar">
+      <div class="row">
+        <span class="pill">È un gruppo?</span>
+        <button id="gYes" class="btn">Sì</button>
+        <button id="gNo"  class="btn">No</button>
+      </div>
+      <div class="status"><span id="dot" class="dot"></span><span id="state">in attesa…</span></div>
+    </div>
+    <div class="muted" style="margin-top:6px">
+      Tip: su iPhone serve toccare “Avvia fotocamera” per sbloccare i permessi. HTTPS obbligatorio.
+    </div>
+  </section>
+
   <!-- Comandi -->
-  <div class="card">
+  <section class="card">
     <div class="row">
-      <button id="startBtn" class="btn primary">🎥 Avvia fotocamera</button>
-      <button id="stopBtn"  class="btn" disabled>✋ Ferma</button>
-      <label class="btn" for="fileInp">📷 Carica immagine</label>
-      <input id="fileInp" type="file" accept="image/*" capture="environment" style="display:none">
-      <div class="status"><span class="dot" id="dot"></span><span id="state">in attesa…</span></div>
+      <button id="startBtn" class="btn primary big">🎥 Avvia fotocamera</button>
+      <button id="stopBtn"  class="btn stop big" disabled>✋ STOP</button>
+      <span id="groupBadge" class="pill">Gruppo: <b id="gMode">no</b> • Scansioni: <b id="gCount">0</b></span>
     </div>
-    <div class="help" style="margin-top:6px">
-      Solo camera posteriore. Se non parte su iPhone: Impostazioni → Safari → Fotocamera = <b>Chiedi/Consenti</b>.  
-      Se il prompt non appare: Impostazioni → Safari → Avanzate → Dati siti web → rimuovi questo sito. Chiudi app che usano la camera.
-    </div>
-  </div>
+  </section>
 
   <!-- Anteprima -->
-  <div class="card">
+  <section class="card">
     <video id="video" autoplay playsinline muted></video>
-    <canvas id="canvas" style="display:none"></canvas>
-  </div>
+  </section>
 
   <!-- Pannello risultato -->
-  <div id="resultPanel" class="card panel">
-    <h3 style="margin:0 0 8px">Risultato scansionato</h3>
-    <div class="kv" id="kvBox"></div>
-    <div class="payloadBox" id="payloadBox"></div>
-    <div class="row" style="margin-top:10px">
-      <button id="okBtn" class="btn ok">✅ Conferma</button>
-      <button id="flagBtn" class="btn warn">🚩 Segnala (non corrisponde)</button>
-      <button id="scanAgainBtn" class="btn ghost">↻ Scansiona ancora</button>
+  <section id="resultPanel" class="card panel">
+    <div class="bar">
+      <h3 style="margin:0">Risultato scansionato</h3>
+      <span class="pill">Camera: posteriore</span>
     </div>
-  </div>
+    <div class="kv" id="kvBox"></div>
+    <div class="payload" id="payloadBox"></div>
+    <div class="row" style="margin-top:10px">
+      <button id="okBtn" class="btn ok big">✅ Conferma</button>
+      <button id="flagBtn" class="btn warn big">🚩 Segnala</button>
+      <button id="scanAgainBtn" class="btn">↻ Scansiona ancora</button>
+    </div>
+  </section>
+
+  <!-- Destinazione cassa -->
+  <section id="cashPanel" class="card panel center">
+    <div>
+      <div class="cashBox">Vai a: <span id="cashLabel">CASSA 1</span></div>
+      <div class="row center" style="margin-top:12px">
+        <button id="restartBtn" class="btn primary big">Nuova sessione</button>
+      </div>
+    </div>
+  </section>
 </main>
 
-<!-- ZXing fallback caricato solo se serve -->
+<!-- ZXing (browser build) -->
+<script src="https://unpkg.com/@zxing/browser@0.1.4/umd/index.min.js"></script>
 <script>
 (function(){
   const video   = document.getElementById('video');
-  const canvas  = document.getElementById('canvas');
-  const ctx     = canvas.getContext('2d');
   const startBtn= document.getElementById('startBtn');
   const stopBtn = document.getElementById('stopBtn');
-  const fileInp = document.getElementById('fileInp');
-  const stateEl = document.getElementById('state');
-  const dotEl   = document.getElementById('dot');
-
   const panel   = document.getElementById('resultPanel');
   const kvBox   = document.getElementById('kvBox');
   const payloadBox = document.getElementById('payloadBox');
   const okBtn   = document.getElementById('okBtn');
   const flagBtn = document.getElementById('flagBtn');
   const scanAgainBtn = document.getElementById('scanAgainBtn');
+  const dotEl   = document.getElementById('dot');
+  const stateEl = document.getElementById('state');
 
-  let stream = null;
-  let rafId  = null;
-  let detector = null;
-  let usingZXing = false;
-  let zxingReader = null;
+  const gYes = document.getElementById('gYes');
+  const gNo  = document.getElementById('gNo');
+  const gModeEl = document.getElementById('gMode');
+  const gCountEl= document.getElementById('gCount');
+  const cashPanel = document.getElementById('cashPanel');
+  const cashLabel = document.getElementById('cashLabel');
+  const restartBtn= document.getElementById('restartBtn');
+
+  let isGroup = false;
+  let groupCount = 0;
+
+  let codeReader = null;
+  let currentDeviceId = null;
   let scanning = false;
-  let lastPayload = null;
+  let lastParsed = null;
 
   function setState(txt, mode){
     stateEl.textContent = txt;
     dotEl.className = 'dot' + (mode==='on' ? ' on' : mode==='err' ? ' err' : '');
   }
-
-  async function ensureDetector(){
-    if ('BarcodeDetector' in window) {
-      try{
-        const supp = await window.BarcodeDetector.getSupportedFormats?.();
-        if (supp && supp.includes('qr_code')) {
-          detector = new window.BarcodeDetector({ formats: ['qr_code'] });
-          return;
-        }
-      }catch(_){}
-    }
-    // Fallback ZXing
-    if (!window.ZXingBrowser){
-      await new Promise((res,rej)=>{
-        const s = document.createElement('script');
-        s.src = "https://unpkg.com/@zxing/browser@0.1.4/umd/index.min.js";
-        s.onload = res; s.onerror = rej; document.head.appendChild(s);
-      });
-    }
-    usingZXing = true;
-    zxingReader = new window.ZXingBrowser.BrowserQRCodeReader();
+  function setGroup(mode){
+    isGroup = mode;
+    gModeEl.textContent = mode ? 'sì' : 'no';
+    groupCount = 0; gCountEl.textContent = '0';
   }
-
-  function stopScanLoop(){
-    if (rafId) cancelAnimationFrame(rafId);
-    rafId = null;
-    scanning = false;
-  }
-  function stopStream(){
-    stopScanLoop();
-    if (stream){ stream.getTracks().forEach(t=>t.stop()); stream=null; }
-    video.srcObject = null;
-    startBtn.disabled = false;
-    stopBtn.disabled  = true;
-    setState('fermato');
-  }
-
-  async function startStream(){
-    setState('richiesta permesso…');
-    // Solo camera posteriore
-    const constraints = {
-      audio:false,
-      video:{
-        facingMode: { ideal:'environment' }, // iOS ok
-        width: { ideal: 1280 }, height: { ideal: 720 }
-      }
-    };
-    // Alcuni iOS gradiscono exact → lo forziamo dopo un primo tentativo fallito
-    try{
-      stream = await navigator.mediaDevices.getUserMedia(constraints);
-    }catch(e){
-      // fallback più “duro”
-      try{
-        stream = await navigator.mediaDevices.getUserMedia({ audio:false, video:{ facingMode:{ exact:'environment' } } });
-      }catch(e2){
-        setState('errore avvio camera: '+ (e2.name||''), 'err');
-        throw e2;
-      }
-    }
-    video.srcObject = stream;
-
-    await new Promise((resolve)=>{
-      let done=false;
-      function ready(){
-        if(done) return; done=true;
-        video.play().then(resolve).catch(()=>resolve());
-      }
-      video.addEventListener('loadedmetadata', ready, {once:true});
-      video.addEventListener('canplay', ready, {once:true});
-      setTimeout(ready,1000);
-    });
-
-    startBtn.disabled = true;
-    stopBtn.disabled  = false;
-    setState('camera attiva ✓','on');
-  }
+  gYes.onclick = ()=>setGroup(true);
+  gNo.onclick  = ()=>setGroup(false);
 
   function parsePayload(text){
-    // Prova JSON, altrimenti restituisce testo grezzo
-    try{
-      const obj = JSON.parse(text);
-      return { type:'json', data:obj, raw:text };
-    }catch(_){
-      return { type:'text', data:{ text }, raw:text };
-    }
+    try{ const o=JSON.parse(text); return {type:'json',raw:text,data:o}; }
+    catch(_){ return {type:'text',raw:text,data:{text}}; }
   }
 
   function showResult(parsed){
-    lastPayload = parsed;
-    // ferma la camera finché l’operatore decide
-    stopStream();
-
+    lastParsed = parsed;
+    panel.classList.add('show');
     kvBox.innerHTML = '';
     payloadBox.textContent = parsed.raw;
 
-    if (parsed.type === 'json'){
-      const map = parsed.data;
+    if(parsed.type==='json'){
+      const d=parsed.data;
       const rows = [
-        ['Nome', map.name || '—'],
-        ['Nascita', map.dob || '—'],
-        ['UID', map.uid || '—'],
-        ['Ticket', map.ticketId || '—'],
-        ['Altro', map.extra || '—']
+        ['Nome', d.name || '—'],
+        ['Nascita', d.dob || '—'],
+        ['UID', d.uid || '—'],
+        ['Ticket', d.ticketId || '—']
       ];
       rows.forEach(([k,v])=>{
-        const kEl = document.createElement('div'); kEl.textContent = k;
-        const vEl = document.createElement('div'); vEl.textContent = (v==null||v==='')?'—':String(v);
-        kvBox.appendChild(kEl); kvBox.appendChild(vEl);
+        const kEl=document.createElement('div');kEl.textContent=k;
+        const vEl=document.createElement('div');vEl.textContent=(v??'—');
+        kvBox.appendChild(kEl);kvBox.appendChild(vEl);
       });
-    } else {
+    }else{
       kvBox.innerHTML = `<div>Testo</div><div>${parsed.data.text}</div>`;
     }
-
-    panel.classList.add('show');
   }
 
-  // Decodifica frame-by-frame con BarcodeDetector
-  function loopDetectBarcode(){
-    if (!stream) return;
-    scanning = true;
-    const w = video.videoWidth||1280;
-    const h = video.videoHeight||720;
-    canvas.width = w; canvas.height = h;
-
-    const tick = async ()=>{
-      if (!scanning || !stream) return;
-      try{
-        ctx.drawImage(video, 0, 0, w, h);
-        const bmp = await createImageBitmap(canvas);
-        const codes = await detector.detect(bmp);
-        bmp.close?.();
-        if (codes && codes.length){
-          const text = codes[0].rawValue || codes[0].rawValueText || '';
-          if (text){
-            stopScanLoop();
-            showResult(parsePayload(text));
-            return;
-          }
-        }
-      }catch(e){ /* ignora frame error */ }
-      rafId = requestAnimationFrame(tick);
-    };
-    tick();
-  }
-
-  // Fallback ZXing continuo
-  async function loopZXing(){
-    scanning = true;
-    const w = video.videoWidth||1280;
-    const h = video.videoHeight||720;
-    canvas.width=w; canvas.height=h;
-    const tick = async ()=>{
-      if (!scanning || !stream) return;
-      try{
-        ctx.drawImage(video, 0, 0, w, h);
-        const dataUrl = canvas.toDataURL('image/png');
-        const result = await window.ZXingBrowser.BrowserQRCodeReader.decodeFromImage(undefined, dataUrl).catch(()=>null);
-        if (result && result.text){
-          stopScanLoop();
-          showResult(parsePayload(result.text));
-          return;
-        }
-      }catch(e){}
-      rafId = requestAnimationFrame(tick);
-    };
-    tick();
-  }
-
-  async function begin(){
-    await ensureDetector();
-    await startStream();
-    panel.classList.remove('show');
-    // avvia loop di decodifica
-    if (detector && !usingZXing) loopDetectBarcode();
-    else loopZXing();
-  }
-
-  // ====== Eventi UI ======
-  startBtn.addEventListener('click', begin);
-  stopBtn.addEventListener('click', stopStream);
-
-  // Carica immagine da file → decode una tantum
-  fileInp.addEventListener('change', async ()=>{
-    const f = fileInp.files?.[0]; if(!f) return;
-    const img = new Image(); img.onload = async ()=>{
-      canvas.width = img.width; canvas.height = img.height;
-      ctx.drawImage(img,0,0);
-      if (detector && !usingZXing){
-        const bmp = await createImageBitmap(canvas);
-        const codes = await detector.detect(bmp).catch(()=>[]);
-        bmp.close?.();
-        const text = (codes[0] && (codes[0].rawValue||codes[0].rawValueText)) || '';
-        if (text) showResult(parsePayload(text)); else alert('Nessun QR trovato');
-      } else {
-        const result = await window.ZXingBrowser.BrowserQRCodeReader.decodeFromImage(undefined, canvas.toDataURL('image/png')).catch(()=>null);
-        if (result && result.text) showResult(parsePayload(result.text)); else alert('Nessun QR trovato');
-      }
-    };
-    img.src = URL.createObjectURL(f);
-  });
-
-  // Azioni sul risultato
-  okBtn.addEventListener('click', async ()=>{
-    try{
-      setState('salvo conferma…');
-      await submitScan({ status:'ok', payload:lastPayload });
-      setState('confermato ✓','on');
-    }catch(e){
-      setState('errore salvataggio','err');
-    }finally{
-      panel.classList.remove('show');
-      begin(); // riparte automaticamente
-    }
-  });
-
-  flagBtn.addEventListener('click', async ()=>{
-    try{
-      setState('segnalazione…');
-      await submitScan({ status:'mismatch', payload:lastPayload });
-      setState('segnalato ✓','on');
-    }catch(e){
-      setState('errore salvataggio','err');
-    }finally{
-      panel.classList.remove('show');
-      begin(); // riparte automaticamente
-    }
-  });
-
-  scanAgainBtn.addEventListener('click', ()=>{
-    panel.classList.remove('show');
-    begin();
-  });
-
-  // ===== Hook per integrare Firestore (adatta qui) =====
   async function submitScan(result){
-    // Qui puoi:
-    //  - aggiornare users/{uid}/tickets/{ticketId}.status = 'checked_in' o 'mismatch'
-    //  - loggare l’operatore (checker), timestamp, ecc.
-    // Per ora facciamo solo un finto delay.
-    console.log('submitScan →', result);
-    await new Promise(r=>setTimeout(r,300)); // simulazione
+    // Qui collegherai Firestore (check-in / mismatch)
+    console.log('submitScan', result);
+    await new Promise(r=>setTimeout(r,200));
   }
 
-  // Avvio automatico se già permessi concessi
-  if (location.protocol === 'https:' && navigator.mediaDevices?.getUserMedia){
-    // Non auto-avvio su iOS senza gesto utente per evitare blocchi; lasciamo al click.
-  } else {
-    setState('serve HTTPS', 'err');
+  async function chooseBackCameraId(){
+    const devices = await window.ZXingBrowser.BrowserCodeReader.listVideoInputDevices();
+    if (!devices || !devices.length) return null;
+    // preferisci la posteriore
+    const find = (s)=>devices.find(d=>{
+      const L=(d.label||'').toLowerCase();
+      return L.includes(s);
+    });
+    return (find('back')||find('environment')||find('posteriore')||devices[devices.length-1]).deviceId;
   }
+
+  async function startScan(){
+    if (!location.protocol.startsWith('https')){ setState('Serve HTTPS','err'); return; }
+    codeReader = codeReader || new window.ZXingBrowser.BrowserQRCodeReader();
+    setState('apro camera…');
+    startBtn.disabled = true; stopBtn.disabled = false; panel.classList.remove('show'); cashPanel.classList.remove('show');
+
+    currentDeviceId = await chooseBackCameraId();
+    try{
+      scanning = true;
+      await codeReader.decodeFromVideoDevice(currentDeviceId, video, (res,err,controls)=>{
+        if(!scanning) return;
+        if (res && res.getText()){
+          scanning = false; // pausa per mostrare i dati
+          controls.stop();
+          setState('lettura ok','on');
+          showResult(parsePayload(res.getText()));
+        } else if (err && !(err instanceof window.ZXing.NotFoundException)) {
+          console.warn(err);
+          setState('errore lettura','err');
+        } else {
+          setState('scansione…','on');
+        }
+      }, { delayBetweenScanAttempts: 150 });
+    }catch(e){
+      console.error(e);
+      setState('errore avvio camera','err');
+      startBtn.disabled = false; stopBtn.disabled = true;
+    }
+  }
+
+  async function stopScan(){
+    try{ await codeReader?.stopStreams(); }catch(_){}
+    scanning = false;
+    startBtn.disabled = false; stopBtn.disabled = true;
+    setState('fermato');
+  }
+
+  // Bottoni
+  startBtn.onclick = startScan;
+  stopBtn.onclick  = async ()=>{
+    await stopScan();
+    // chiudi sessione → assegna cassa random (placeholder)
+    const rnd = 1 + Math.floor(Math.random()*3);
+    cashLabel.textContent = 'CASSA ' + rnd;
+    cashPanel.classList.add('show');
+  };
+  restartBtn.onclick = ()=>{
+    setGroup(false);
+    cashPanel.classList.remove('show');
+    panel.classList.remove('show');
+    setState('in attesa…');
+  };
+
+  okBtn.onclick = async ()=>{
+    await submitScan({status:'ok', payload:lastParsed});
+    groupCount++; gCountEl.textContent = String(groupCount);
+    panel.classList.remove('show');
+    if (isGroup) startScan(); else startScan(); // comunque riparte
+  };
+  flagBtn.onclick = async ()=>{
+    await submitScan({status:'mismatch', payload:lastParsed});
+    panel.classList.remove('show');
+    if (isGroup) startScan(); else startScan();
+  };
+  scanAgainBtn.onclick = ()=>{ panel.classList.remove('show'); startScan(); };
+
+  // Stato iniziale
+  setGroup(false);
 })();
 </script>
 </body>
