@@ -217,7 +217,7 @@ const nameLine= document.getElementById('nameChangeLine');
         <button id="discApply" class="pay" type="button" style="min-width:92px" disabled>Applica</button>
         <button id="discRemove" class="pay" type="button" style="min-width:92px;background:transparent;border:1px solid rgba(255,255,255,.25);color:#fff">Rimuovi</button>
       </div>
-      <div id="discHint" class="small" style="margin-top:6px;opacity:.85"></div>
+      <div id="discHint" class="small" style="margin-top:6px;opacity:.95"></div>
     </div>
   `;
   wrap.insertBefore(blk, wrap.querySelector('.sticky'));
@@ -227,6 +227,15 @@ const discInput  = document.getElementById('discInput');
 const discApply  = document.getElementById('discApply');
 const discRemove = document.getElementById('discRemove');
 const discHint   = document.getElementById('discHint');
+
+/* ====== Helpers UI per i messaggi inline (niente popup) ====== */
+function showHint(message, status){            // status: 'success' | 'error' | ''
+  discHint.textContent = message || '';
+  discHint.dataset.status = status || '';
+  // reset stili
+  discHint.style.color = status==='error' ? '#ef4444' : (status==='success' ? '#22c55e' : 'rgba(255,255,255,.85)');
+  discInput.style.borderColor = status==='error' ? '#ef4444' : 'rgba(255,255,255,.15)';
+}
 
 /* ====== Stato prezzi ====== */
 const PRICE = { EB:12, STD:15, FAST:20, VIP:25, NAMECHANGE:1.90, STD3:40 };
@@ -238,7 +247,7 @@ const authReady = new Promise(r => (authReadyResolve = r));
 onUser((u)=>{
   if(!u){ nav.innerHTML=OUT; location.href='./login.html?from=./checkout.html'; return; }
   currentUser = u;
-  authReadyResolve();               // <— sblocca Applica
+  authReadyResolve();               // sblocca Applica
   discApply.disabled = false;
 
   nav.innerHTML = IN(u);
@@ -423,7 +432,13 @@ function render(){
   grandEl.textContent = money(total);
   payBtn.disabled = tCount<=0;
 
-  discHint.textContent = snap ? `Applicato: ${tag}.` : `Inserisci un codice valido`;
+  // mostra hint solo se non c'è errore persistente
+  const status = discHint.dataset.status || '';
+  if (snap) {
+    showHint(`Applicato: ${tag}.`, 'success');
+  } else if (status !== 'error') {
+    showHint('Inserisci un codice valido', '');
+  }
 }
 
 /* ====== Bind ====== */
@@ -447,38 +462,48 @@ function bindQty(){
 
 /* ====== Applica / rimuovi ====== */
 discApply?.addEventListener('click', async ()=>{
-  await authReady; // ← assicura currentUser pronto
+  await authReady; // assicura currentUser pronto
 
   const code = uc(discInput?.value||'');
-  if(!code){ alert('Inserisci un codice'); return; }
+  if(!code){ showHint('Inserisci un codice', 'error'); return; }
 
-  let found = findInCacheForUser(code, currentUser);   // 1) cache
+  // 1) cache
+  let found = findInCacheForUser(code, currentUser);
+
+  // 2) fallback query mirata su entrambe le collezioni
   if(!found){
-    const one = await fetchSingleByCode(code);         // 2) query mirata su entrambe le collezioni
-    if (one && !one.__reason) found = one;
-    else if (one && one.__reason === 'not-eligible') {
+    const one = await fetchSingleByCode(code);
+    if (one && !one.__reason) {
+      found = one;
+    } else if (one && one.__reason === 'not-eligible') {
       writeApplied(null); render();
-      alert('Codice valido ma non assegnato a questo account/email.');
+      showHint('Codice valido ma non assegnato a questo account/email.', 'error');
       return;
     }
   }
 
   if(!found){
     writeApplied(null); render();
-    alert('Codice sconto non valido');
+    showHint('Codice sconto non valido', 'error');
     return;
   }
 
+  // salva snapshot
   writeApplied({
     code: found.code,
-    type: found.type,           // 'percent' | 'fixed'
+    type: found.type,
     value: found.value,
     allowedSkus: allowedSet(found)
   });
-  render();
+
+  render(); // mostrerà "Applicato: …" in verde
 });
 
-discRemove?.addEventListener('click', ()=>{ writeApplied(null); render(); });
+discRemove?.addEventListener('click', ()=>{
+  writeApplied(null);
+  showHint('Codice rimosso', '');
+  render();
+});
 
 /* ====== Init ====== */
 restoreCart();
@@ -503,6 +528,5 @@ payBtn.addEventListener('click', ()=>{
   else            location.href = `./attendees-single.html?${qs}`;
 });
 </script>
-
 </body>
 </html>
