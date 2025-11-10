@@ -94,7 +94,7 @@ input{background:#0f0f10;border:1px solid var(--border);border-radius:10px;color
         <button id="btnEdit" class="btn">Modifica profilo</button>
         <a class="btn ghost" href="./scanner.html">Area scanner (staff)</a>
       </div>
-      <div class="notice">Il nominativo del biglietto si blocca alla generazione del QR. Puoi sbloccarlo una sola volta (4€) da qui sotto, per rigenerare il QR.</div>
+      <div class="notice">Il nominativo del biglietto si blocca alla generazione del QR. Puoi sbloccarlo una sola volta (4€) per rigenerare il QR.</div>
     </aside>
   </div>
 
@@ -134,13 +134,10 @@ input{background:#0f0f10;border:1px solid var(--border);border-radius:10px;color
 
 <script type="module">
   import { app, onUser, doSignOut, requireActiveUser } from './auth.v2.js?v=6';
-  import {
-    getFirestore, doc, getDoc, setDoc, collection, getDocs, serverTimestamp, updateDoc
-  } from 'https://www.gstatic.com/firebasejs/12.5.0/firebase-firestore.js';
+  import { getFirestore, doc, getDoc, setDoc, collection, getDocs, serverTimestamp } from 'https://www.gstatic.com/firebasejs/12.5.0/firebase-firestore.js';
 
   await requireActiveUser('./login.html');
 
-  // UI
   const nav  = document.getElementById('navArea');
   const OUT  = `
     <a href="./login.html?from=./account-2.html">Acquista il tuo biglietto</a>
@@ -153,7 +150,6 @@ input{background:#0f0f10;border:1px solid var(--border);border-radius:10px;color
     <a href="#" id="logoutLink" style="color:#8b5cf6">Logout</a>
   `;
 
-  const hello = document.getElementById('hello');
   const vName = document.getElementById('vName');
   const vDob  = document.getElementById('vDob');
   const vEmail= document.getElementById('vEmail');
@@ -174,18 +170,14 @@ input{background:#0f0f10;border:1px solid var(--border);border-radius:10px;color
   const db = getFirestore(app);
 
   const asDateStr = (dob) => {
-    try {
-      if(!dob) return '—';
+    try { if(!dob) return '—';
       if (/^\d{4}-\d{2}-\d{2}$/.test(dob)) return dob;
-      const d = new Date(dob);
-      if (isNaN(d)) return '—';
+      const d = new Date(dob); if (isNaN(d)) return '—';
       return d.toISOString().slice(0,10);
     } catch { return '—'; }
   };
-
   function openModal(){ modal.style.display='flex'; modal.setAttribute('aria-hidden','false'); }
   function closeModal(){ modal.style.display='none'; modal.setAttribute('aria-hidden','true'); }
-
   function lc(s){ return (s||'').toString().trim().toLowerCase(); }
 
   async function isFounderOrAdmin(email, uid){
@@ -201,21 +193,14 @@ input{background:#0f0f10;border:1px solid var(--border);border-radius:10px;color
     }catch{ return false; }
   }
 
-  // ---- TICKETS ----
   async function loadTickets(uid){
     const qSnap = await getDocs(collection(db,'users',uid,'tickets'));
-    if (qSnap.empty){ ticketsWrap.innerHTML=''; ticketsEmpty.classList.remove('hidden'); return; }
-    ticketsEmpty.classList.add('hidden');
-
-    ticketsWrap.innerHTML='';
+    const count = qSnap.size;
+    ticketsWrap.innerHTML = '';
     qSnap.forEach(d=>{
       const t = { id:d.id, ...(d.data()||{}) };
       const state = (t.status||'pending').toLowerCase();
-      const color =
-        state==='verified' ? '#22c55e' :
-        state==='flagged'  ? '#ef4444' :
-        '#ffffff22';
-
+      const color = state==='verified' ? '#22c55e' : state==='flagged' ? '#ef4444' : '#ffffff22';
       const box = document.createElement('div');
       box.className = 'ticket';
       box.style.border = `1px solid ${color}`;
@@ -232,11 +217,7 @@ input{background:#0f0f10;border:1px solid var(--border);border-radius:10px;color
             <div><b>ID</b>: ${t.id}</div>
             <div class="notice">${t.locked ? 'Nominativo bloccato' : 'Nominativo modificabile'}</div>
             <div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap">
-              ${
-                t.qr
-                  ? ''
-                  : `<button class="btn" data-gen="${t.id}">Genera QR e blocca</button>`
-              }
+              ${t.qr ? '' : `<button class="btn" data-gen="${t.id}">Genera QR e blocca</button>`}
               <button class="btn ghost" data-requnl="${t.id}">Sblocca nominativo (4€)</button>
               <button class="btn" data-edit="${t.id}">Cambia nominativo</button>
             </div>
@@ -244,69 +225,53 @@ input{background:#0f0f10;border:1px solid var(--border);border-radius:10px;color
         </div>
       `;
       ticketsWrap.appendChild(box);
-
-      // QR render se presente
       const payload = t.qr ? t.qr : JSON.stringify({ uid, tid: t.id, v:1 });
       new QRCode(document.getElementById(`qr_${t.id}`), { text: payload, width:110, height:110 });
     });
+    // **Fix empty-state**: mostra solo se non c’è nessun ticket
+    ticketsEmpty.classList.toggle('hidden', count !== 0);
 
-    // bind: genera QR (prima volta)
+    // Bind azioni
     ticketsWrap.querySelectorAll('[data-gen]').forEach(btn=>{
       btn.onclick = async ()=>{
         const tid = btn.getAttribute('data-gen');
-        btn.disabled = true; btn.textContent='Creo…';
+        btn.disabled=true; btn.textContent='Creo…';
         const qr = JSON.stringify({ uid, tid, v:1 });
-        await setDoc(doc(db,'users',uid,'tickets',tid), {
-          qr, locked:true, updatedAt: serverTimestamp()
-        }, { merge:true });
+        await setDoc(doc(db,'users',uid,'tickets',tid), { qr, locked:true, updatedAt: serverTimestamp() }, { merge:true });
         location.reload();
       };
     });
-
-    // bind: richiesta sblocco (simulazione pagamento 4€ -> unlockCredits=1)
     ticketsWrap.querySelectorAll('[data-requnl]').forEach(btn=>{
       btn.onclick = async ()=>{
         const tid = btn.getAttribute('data-requnl');
-        if(!confirm('Confermi lo sblocco del nominativo (4€)? Dopo la modifica verrà rigenerato il QR e non potrai cambiare ancora senza pagare di nuovo.')) return;
-        // QUI integra il tuo pagamento reale; se ok:
-        await setDoc(doc(db,'users',uid,'tickets',tid), {
-          unlockCredits: 1, updatedAt: serverTimestamp()
-        }, { merge:true });
+        if(!confirm('Confermi lo sblocco del nominativo (4€)?')) return;
+        await setDoc(doc(db,'users',uid,'tickets',tid), { unlockCredits: 1, updatedAt: serverTimestamp() }, { merge:true });
         alert('Sblocco effettuato. Ora premi "Cambia nominativo".');
       };
     });
-
-    // bind: cambio nominativo (consuma 1 credito e rilocka)
     ticketsWrap.querySelectorAll('[data-edit]').forEach(btn=>{
       btn.onclick = async ()=>{
         const tid = btn.getAttribute('data-edit');
         const ref = doc(db,'users',uid,'tickets',tid);
-        const snap = await getDoc(ref);
-        if(!snap.exists()){ alert('Ticket non trovato.'); return; }
+        const snap = await getDoc(ref); if(!snap.exists()) return;
         const t = snap.data()||{};
-        if (t.locked && !(t.unlockCredits>0)){
-          alert('Nominativo bloccato. Sbloccalo prima (4€).'); return;
-        }
-        const name = prompt('Inserisci nome e cognome (come da documento):', t.name||'')?.trim();
+        if (t.locked && !(t.unlockCredits>0)){ alert('Nominativo bloccato. Sbloccalo prima (4€).'); return; }
+        const name = prompt('Nome e cognome come da documento:', t.name||'')?.trim();
         if(!name){ alert('Nome non valido'); return; }
-        const dob  = prompt('Inserisci data di nascita (YYYY-MM-DD):', (t.dob && t.dob.slice(0,10)) || '')?.trim();
+        const dob  = prompt('Data di nascita (YYYY-MM-DD):', (t.dob||'').toString().slice(0,10))?.trim();
         if(!dob || !/^\d{4}-\d{2}-\d{2}$/.test(dob)){ alert('Data non valida'); return; }
-        if(!confirm('Confermi che i dati corrispondono al documento? Dopo questa operazione il nominativo verrà bloccato.')) return;
-
-        const qr = JSON.stringify({ uid, tid, v:1 }); // generiamo sempre QR nuovo
-        // Consumo credito di sblocco (regole lo richiedono): unlockCredits -> unlockCredits-1, locked true.
+        if(!confirm('Confermi che i dati corrispondono al documento? Dopo non potrai cambiare senza pagare di nuovo.')) return;
+        const qr = JSON.stringify({ uid, tid, v:1 });
         await setDoc(ref, {
           name, dob, qr, locked:true,
-          unlockCredits: Math.max( (t.unlockCredits||0) - 1, 0 ),
+          unlockCredits: Math.max((t.unlockCredits||0)-1,0),
           updatedAt: serverTimestamp()
         }, { merge:true });
-        alert('Dati aggiornati e QR rigenerato.');
-        location.reload();
+        alert('Dati aggiornati e QR rigenerato.'); location.reload();
       };
     });
   }
 
-  // Founder/admin?
   async function mountFounder(u){
     const ok = await isFounderOrAdmin(u.email||'', u.uid);
     if(!ok){ founderBox.classList.add('hidden'); return; }
@@ -314,16 +279,11 @@ input{background:#0f0f10;border:1px solid var(--border);border-radius:10px;color
     founderHello.textContent = `Accesso staff abilitato per ${u.email}.`;
   }
 
-  // --- BOOT ---
   onUser(async (u)=>{
-    if(!u){
-      nav.innerHTML = OUT;
-      location.href = './login.html?from=./account-2.html';
-      return;
-    }
+    if(!u){ nav.innerHTML = OUT; location.href='./login.html?from=./account-2.html'; return; }
     nav.innerHTML = IN(u);
     document.getElementById('logoutLink')?.addEventListener('click', async(e)=>{
-      e.preventDefault(); await doSignOut(); nav.innerHTML = OUT; location.href = './login.html?from=./account-2.html';
+      e.preventDefault(); await doSignOut(); nav.innerHTML = OUT; location.href='./login.html?from=./account-2.html';
     });
 
     const userRef = doc(db,'users',u.uid);
@@ -350,9 +310,8 @@ input{background:#0f0f10;border:1px solid var(--border);border-radius:10px;color
     await mountFounder(u);
   });
 
-  // Modale profilo (non incide sui ticket già bloccati)
-  btnEdit.addEventListener('click', ()=>{ openModal(); });
-  mCancel.addEventListener('click', ()=>{ closeModal(); });
+  btnEdit.addEventListener('click', ()=> openModal());
+  mCancel.addEventListener('click', ()=> closeModal());
   mSave.addEventListener('click', async ()=>{
     const name = inpName.value.trim();
     const dob  = inpDob.value;
@@ -361,8 +320,7 @@ input{background:#0f0f10;border:1px solid var(--border);border-radius:10px;color
     await setDoc(doc(db,'users',u.uid), {
       name, name_lc:name.toLowerCase(), dob:dob||'', updatedAt: serverTimestamp()
     }, { merge:true });
-    vName.textContent = name; vDob.textContent = dob||'—';
-    closeModal();
+    vName.textContent = name; vDob.textContent = dob||'—'; closeModal();
   });
 </script>
 </body>
