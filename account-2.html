@@ -5,8 +5,9 @@
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>Il tuo account — TRAPPERREO</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&display=swap" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
 <style>
-:root{--accent:#8b5cf6;--border:rgba(255,255,255,.12);--muted:rgba(255,255,255,.78)}
+:root{--accent:#8b5cf6;--border:rgba(255,255,255,.12);--muted:rgba(255,255,255,.78);--ok:#22c55e;--danger:#ef4444}
 *{box-sizing:border-box;margin:0;padding:0}
 body{background:#000;color:#fff;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;line-height:1.5;min-height:100vh;display:grid;grid-template-rows:auto 1fr}
 a{color:inherit;text-decoration:none}
@@ -29,26 +30,26 @@ h1{font-size:34px;font-weight:900;letter-spacing:-.3px;margin-bottom:6px}
 .muted{color:var(--muted)}
 .ticket-list{display:grid;gap:10px}
 .ticket{background:#0b0b0b;border:1px solid rgba(255,255,255,.1);border-radius:12px;padding:12px}
-.ticket .line{display:flex;justify-content:space-between}
+.ticket .line{display:flex;justify-content:space-between;align-items:center}
+.ticket .row{display:flex;gap:12px;align-items:center;margin-top:8px}
 .empty{display:grid;place-items:center;min-height:160px;border:1px dashed rgba(255,255,255,.25);border-radius:12px}
-.btn{display:inline-block;padding:12px 16px;border-radius:10px;background:var(--accent);color:#000;font-weight:900}
-.row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px dashed rgba(255,255,255,.12)}
-.row:last-child{border-bottom:none}
-.lab{opacity:.8}
-.val{font-weight:800}
-.actions{display:flex;gap:10px;margin-top:14px}
-.badge-admin{display:inline-block;padding:6px 10px;border:1px solid var(--accent);border-radius:999px;font-size:12px;margin-bottom:10px}
-.backdrop{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;align-items:center;justify-content:center}
+.btn{display:inline-block;padding:12px 16px;border-radius:10px;background:var(--accent);color:#000;font-weight:900;border:none;cursor:pointer}
+.btn.ghost{background:transparent;border:1px solid var(--border);color:#fff}
+.btn[disabled]{opacity:.5;cursor:not-allowed}
+.small{font-size:12px}
+.modal-bd{display:flex;gap:10px;flex-wrap:wrap;margin-top:8px}
+input{background:#0f0f10;border:1px solid var(--border);border-radius:10px;color:#fff;padding:10px}
+.backdrop{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;align-items:center;justify-content:center;z-index:60}
 .modal{background:#0f0f10;border:1px solid var(--border);border-radius:14px;padding:18px;width:min(520px,92vw)}
 .modal h3{font-size:18px;font-weight:900;margin-bottom:10px}
-.modal .grid{display:grid;grid-template-columns:1fr;gap:10px}
-input{background:#0f0f10;border:1px solid var(--border);border-radius:10px;color:#fff;padding:10px}
 .modal-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:12px}
-.btn.ghost{background:transparent;border:1px solid var(--border);color:#fff}
+.state{padding:4px 8px;border-radius:999px;font-size:12px;border:1px solid var(--border)}
+.state.ok{border-color:var(--ok);color:var(--ok)}
+.state.bad{border-color:var(--danger);color:var(--danger)}
+.notice{margin-top:6px;font-size:12px;opacity:.85}
 </style>
 </head>
 <body>
-
 <header>
   <div class="nav">
     <div class="brand"><div class="brand-badge"></div><div>TRAPPERREO</div></div>
@@ -80,37 +81,47 @@ input{background:#0f0f10;border:1px solid var(--border);border-radius:10px;color
 
     <aside class="card">
       <h2>Profilo</h2>
-      <div class="row"><div class="lab">Nome e cognome</div><div class="val" id="vName">—</div></div>
-      <div class="row"><div class="lab">Data di nascita</div><div class="val" id="vDob">—</div></div>
-      <div class="row"><div class="lab">Email</div><div class="val" id="vEmail">—</div></div>
-      <div class="actions">
-        <button id="btnEdit" class="btn">Modifica dati</button>
+      <div class="row" style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px dashed rgba(255,255,255,.12)">
+        <div class="lab" style="opacity:.8">Nome e cognome</div><div class="val" id="vName">—</div>
       </div>
+      <div class="row" style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px dashed rgba(255,255,255,.12)">
+        <div class="lab" style="opacity:.8">Data di nascita</div><div class="val" id="vDob">—</div>
+      </div>
+      <div class="row" style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px dashed rgba(255,255,255,.12)">
+        <div class="lab" style="opacity:.8">Email</div><div class="val" id="vEmail">—</div>
+      </div>
+      <div class="modal-bd">
+        <button id="btnEdit" class="btn">Modifica profilo</button>
+        <a class="btn ghost" href="./scanner.html">Area scanner (staff)</a>
+      </div>
+      <div class="notice">Il nominativo del biglietto si blocca alla generazione del QR. Puoi sbloccarlo una sola volta (4€) da qui sotto, per rigenerare il QR.</div>
     </aside>
   </div>
 
   <aside id="founderBox" class="card hidden" style="margin-top:16px">
-    <span class="badge-admin">Founder</span>
+    <span class="state ok">Founder</span>
     <h2>Pannello Founder</h2>
     <div id="founderHello" class="muted" style="margin-bottom:12px"></div>
-    <div style="display:grid;gap:10px;grid-template-columns:repeat(2, minmax(200px, 1fr))">
-      <a class="btn" href="./founder.html" style="text-align:center">Apri pannello</a>
-      <a class="btn" href="./checkout.html" style="text-align:center">Nuovo ordine</a>
+    <div style="display:grid;gap:10px;grid-template-columns:repeat(3, minmax(200px, 1fr))">
+      <a class="btn" href="./founder.html" style="text-align:center">Pannello</a>
+      <a class="btn" href="./founder-gift.html" style="text-align:center">Crea omaggio</a>
+      <a class="btn" href="./scanner.html" style="text-align:center">Scanner</a>
     </div>
   </aside>
 </main>
 
+<!-- MODAL profilo -->
 <div id="modal" class="backdrop" aria-hidden="true">
   <div class="modal">
     <h3>Modifica profilo</h3>
-    <div class="grid">
-      <label>Nome e cognome
+    <div class="modal-bd">
+      <label style="flex:1">Nome e cognome
         <input id="inpName" placeholder="Es. Mario Rossi" />
       </label>
-      <label>Data di nascita
+      <label style="flex:1">Data di nascita
         <input id="inpDob" type="date" />
       </label>
-      <label>Email (non modificabile)
+      <label style="flex:1">Email (non modificabile)
         <input id="inpEmail" disabled />
       </label>
     </div>
@@ -124,13 +135,12 @@ input{background:#0f0f10;border:1px solid var(--border);border-radius:10px;color
 <script type="module">
   import { app, onUser, doSignOut, requireActiveUser } from './auth.v2.js?v=6';
   import {
-    getFirestore, doc, getDoc, setDoc, collection, getDocs, serverTimestamp
+    getFirestore, doc, getDoc, setDoc, collection, getDocs, serverTimestamp, updateDoc
   } from 'https://www.gstatic.com/firebasejs/12.5.0/firebase-firestore.js';
 
-  // 1) Blocca subito chi non è loggato/attivo
   await requireActiveUser('./login.html');
 
-  // UI refs
+  // UI
   const nav  = document.getElementById('navArea');
   const OUT  = `
     <a href="./login.html?from=./account-2.html">Acquista il tuo biglietto</a>
@@ -144,12 +154,12 @@ input{background:#0f0f10;border:1px solid var(--border);border-radius:10px;color
   `;
 
   const hello = document.getElementById('hello');
-  const title = document.getElementById('title');
   const vName = document.getElementById('vName');
   const vDob  = document.getElementById('vDob');
   const vEmail= document.getElementById('vEmail');
   const ticketsWrap = document.getElementById('tickets');
   const ticketsEmpty= document.getElementById('ticketsEmpty');
+
   const founderBox   = document.getElementById('founderBox');
   const founderHello = document.getElementById('founderHello');
 
@@ -176,46 +186,139 @@ input{background:#0f0f10;border:1px solid var(--border);border-radius:10px;color
   function openModal(){ modal.style.display='flex'; modal.setAttribute('aria-hidden','false'); }
   function closeModal(){ modal.style.display='none'; modal.setAttribute('aria-hidden','true'); }
 
+  function lc(s){ return (s||'').toString().trim().toLowerCase(); }
+
+  async function isFounderOrAdmin(email, uid){
+    try{
+      const [admins, me] = await Promise.all([
+        getDoc(doc(db,'config','admins')).catch(()=>null),
+        getDoc(doc(db,'users',uid)).catch(()=>null)
+      ]);
+      const m = admins && admins.exists()? (admins.data()||{}) : {};
+      const founders=m.founders||{}, adminsMap=m.admins||{};
+      const role = me && me.exists()? (me.data().role||'') : '';
+      return !!( founders[lc(email)] || adminsMap[lc(email)] || role==='founder' || role==='admin' );
+    }catch{ return false; }
+  }
+
+  // ---- TICKETS ----
   async function loadTickets(uid){
-    try{
-      const qSnap = await getDocs(collection(db, 'users', uid, 'tickets'));
-      if(qSnap.empty){
-        ticketsWrap.innerHTML = '';
-        ticketsEmpty.classList.remove('hidden');
-        return;
-      }
-      ticketsEmpty.classList.add('hidden');
-      const frags = [];
-      qSnap.forEach(docu=>{
-        const t = docu.data();
-        frags.push(`
-          <div class="ticket">
-            <div class="line"><strong>${t.type || 'Biglietto'}</strong><span>${t.status || 'attivo'}</span></div>
-            <div class="muted" style="margin-top:6px">QR: ${t.qr || '(da generare)'}</div>
+    const qSnap = await getDocs(collection(db,'users',uid,'tickets'));
+    if (qSnap.empty){ ticketsWrap.innerHTML=''; ticketsEmpty.classList.remove('hidden'); return; }
+    ticketsEmpty.classList.add('hidden');
+
+    ticketsWrap.innerHTML='';
+    qSnap.forEach(d=>{
+      const t = { id:d.id, ...(d.data()||{}) };
+      const state = (t.status||'pending').toLowerCase();
+      const color =
+        state==='verified' ? '#22c55e' :
+        state==='flagged'  ? '#ef4444' :
+        '#ffffff22';
+
+      const box = document.createElement('div');
+      box.className = 'ticket';
+      box.style.border = `1px solid ${color}`;
+      box.innerHTML = `
+        <div class="line">
+          <strong>${t.type||'Biglietto'}</strong>
+          <span class="state ${state==='verified'?'ok':state==='flagged'?'bad':''}">${state}</span>
+        </div>
+        <div class="row">
+          <div id="qr_${t.id}" style="width:120px;height:120px;border-radius:10px;background:#fff;display:grid;place-items:center"></div>
+          <div class="small muted">
+            <div><b>Nome</b>: ${t.name || '—'}</div>
+            <div><b>Nascita</b>: ${asDateStr(t.dob)}</div>
+            <div><b>ID</b>: ${t.id}</div>
+            <div class="notice">${t.locked ? 'Nominativo bloccato' : 'Nominativo modificabile'}</div>
+            <div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap">
+              ${
+                t.qr
+                  ? ''
+                  : `<button class="btn" data-gen="${t.id}">Genera QR e blocca</button>`
+              }
+              <button class="btn ghost" data-requnl="${t.id}">Sblocca nominativo (4€)</button>
+              <button class="btn" data-edit="${t.id}">Cambia nominativo</button>
+            </div>
           </div>
-        `);
-      });
-      ticketsWrap.innerHTML = frags.join('');
-    }catch(e){
-      ticketsWrap.innerHTML = '';
-      ticketsEmpty.classList.remove('hidden');
-    }
+        </div>
+      `;
+      ticketsWrap.appendChild(box);
+
+      // QR render se presente
+      const payload = t.qr ? t.qr : JSON.stringify({ uid, tid: t.id, v:1 });
+      new QRCode(document.getElementById(`qr_${t.id}`), { text: payload, width:110, height:110 });
+    });
+
+    // bind: genera QR (prima volta)
+    ticketsWrap.querySelectorAll('[data-gen]').forEach(btn=>{
+      btn.onclick = async ()=>{
+        const tid = btn.getAttribute('data-gen');
+        btn.disabled = true; btn.textContent='Creo…';
+        const qr = JSON.stringify({ uid, tid, v:1 });
+        await setDoc(doc(db,'users',uid,'tickets',tid), {
+          qr, locked:true, updatedAt: serverTimestamp()
+        }, { merge:true });
+        location.reload();
+      };
+    });
+
+    // bind: richiesta sblocco (simulazione pagamento 4€ -> unlockCredits=1)
+    ticketsWrap.querySelectorAll('[data-requnl]').forEach(btn=>{
+      btn.onclick = async ()=>{
+        const tid = btn.getAttribute('data-requnl');
+        if(!confirm('Confermi lo sblocco del nominativo (4€)? Dopo la modifica verrà rigenerato il QR e non potrai cambiare ancora senza pagare di nuovo.')) return;
+        // QUI integra il tuo pagamento reale; se ok:
+        await setDoc(doc(db,'users',uid,'tickets',tid), {
+          unlockCredits: 1, updatedAt: serverTimestamp()
+        }, { merge:true });
+        alert('Sblocco effettuato. Ora premi "Cambia nominativo".');
+      };
+    });
+
+    // bind: cambio nominativo (consuma 1 credito e rilocka)
+    ticketsWrap.querySelectorAll('[data-edit]').forEach(btn=>{
+      btn.onclick = async ()=>{
+        const tid = btn.getAttribute('data-edit');
+        const ref = doc(db,'users',uid,'tickets',tid);
+        const snap = await getDoc(ref);
+        if(!snap.exists()){ alert('Ticket non trovato.'); return; }
+        const t = snap.data()||{};
+        if (t.locked && !(t.unlockCredits>0)){
+          alert('Nominativo bloccato. Sbloccalo prima (4€).'); return;
+        }
+        const name = prompt('Inserisci nome e cognome (come da documento):', t.name||'')?.trim();
+        if(!name){ alert('Nome non valido'); return; }
+        const dob  = prompt('Inserisci data di nascita (YYYY-MM-DD):', (t.dob && t.dob.slice(0,10)) || '')?.trim();
+        if(!dob || !/^\d{4}-\d{2}-\d{2}$/.test(dob)){ alert('Data non valida'); return; }
+        if(!confirm('Confermi che i dati corrispondono al documento? Dopo questa operazione il nominativo verrà bloccato.')) return;
+
+        const qr = JSON.stringify({ uid, tid, v:1 }); // generiamo sempre QR nuovo
+        // Consumo credito di sblocco (regole lo richiedono): unlockCredits -> unlockCredits-1, locked true.
+        await setDoc(ref, {
+          name, dob, qr, locked:true,
+          unlockCredits: Math.max( (t.unlockCredits||0) - 1, 0 ),
+          updatedAt: serverTimestamp()
+        }, { merge:true });
+        alert('Dati aggiornati e QR rigenerato.');
+        location.reload();
+      };
+    });
   }
 
-  async function isFounder(email){
-    try{
-      const snap = await getDoc(doc(db,'config','admins'));
-      const founders = snap.exists() ? (snap.data().founders || {}) : {};
-      return !!founders[(email||'').toLowerCase()];
-    }catch(_){ return false; }
+  // Founder/admin?
+  async function mountFounder(u){
+    const ok = await isFounderOrAdmin(u.email||'', u.uid);
+    if(!ok){ founderBox.classList.add('hidden'); return; }
+    founderBox.classList.remove('hidden');
+    founderHello.textContent = `Accesso staff abilitato per ${u.email}.`;
   }
 
-  // 2) Popola UI
+  // --- BOOT ---
   onUser(async (u)=>{
     if(!u){
       nav.innerHTML = OUT;
-      const back = encodeURIComponent(location.pathname + location.search);
-      location.href = `./login.html?from=${back}`;
+      location.href = './login.html?from=./account-2.html';
       return;
     }
     nav.innerHTML = IN(u);
@@ -223,66 +326,42 @@ input{background:#0f0f10;border:1px solid var(--border);border-radius:10px;color
       e.preventDefault(); await doSignOut(); nav.innerHTML = OUT; location.href = './login.html?from=./account-2.html';
     });
 
-    title.textContent = 'Il tuo account';
-    hello.innerHTML = `Ciao, <strong>${(u.displayName || u.email || 'Utente').split(' ')[0]}</strong>`;
-
-    // /users/{uid}
-    const ref = doc(db,'users',u.uid);
-    let snap = await getDoc(ref);
+    const userRef = doc(db,'users',u.uid);
+    let snap = await getDoc(userRef);
     if(!snap.exists()){
-      await setDoc(ref, {
-        uid: u.uid,
-        email: (u.email||'').toLowerCase(),
-        name:  (u.displayName || u.email || '').trim(),
-        name_lc: (u.displayName || u.email || '').trim().toLowerCase(),
-        dob:   '',
-        role:  'customer',
-        status:'active',
-        createdAt: serverTimestamp(),
-        updatedAt: serverTimestamp()
+      await setDoc(userRef, {
+        uid:u.uid, email:(u.email||'').toLowerCase(), name:(u.displayName||u.email||'').trim(),
+        name_lc:(u.displayName||u.email||'').trim().toLowerCase(),
+        dob:'', role:'customer', status:'active', createdAt: serverTimestamp(), updatedAt: serverTimestamp()
       }, { merge:true });
-      snap = await getDoc(ref);
+      snap = await getDoc(userRef);
     }
-    const data = snap.data() || {};
-
-    vName.textContent  = data.name  || (u.displayName || '—');
-    vDob.textContent   = asDateStr(data.dob || '');
-    vEmail.textContent = data.email || u.email || '—';
-    inpName.value  = data.name  || (u.displayName || '');
-    inpDob.value   = asDateStr(data.dob || '');
-    inpEmail.value = data.email || u.email || '';
+    const me = snap.data()||{};
+    document.getElementById('title').textContent = 'Il tuo account';
+    document.getElementById('hello').innerHTML = `Ciao, <strong>${(me.name || u.displayName || u.email || 'Utente').split(' ')[0]}</strong>`;
+    vName.textContent  = me.name || (u.displayName || '—');
+    vDob.textContent   = asDateStr(me.dob || '');
+    vEmail.textContent = me.email || u.email || '—';
+    inpName.value  = me.name  || (u.displayName || '');
+    inpDob.value   = asDateStr(me.dob || '');
+    inpEmail.value = me.email || u.email || '';
 
     await loadTickets(u.uid);
-
-    const founderOk = (data.role === 'founder') || await isFounder(u.email);
-    if(founderOk){
-      founderBox.classList.remove('hidden');
-      founderHello.textContent = `Ciao ${data.name || (u.displayName || u.email)}, puoi gestire utenti e statistiche.`;
-    }else{
-      founderBox.classList.add('hidden');
-    }
+    await mountFounder(u);
   });
 
-  // 3) Salvataggio profilo
-  btnEdit.addEventListener('click', openModal);
-  mCancel.addEventListener('click', closeModal);
+  // Modale profilo (non incide sui ticket già bloccati)
+  btnEdit.addEventListener('click', ()=>{ openModal(); });
+  mCancel.addEventListener('click', ()=>{ closeModal(); });
   mSave.addEventListener('click', async ()=>{
     const name = inpName.value.trim();
     const dob  = inpDob.value;
     if(!name){ alert('Inserisci nome e cognome.'); return; }
-
-    const user = await new Promise(res=>onUser(res));
-    if(!user) return;
-
-    await setDoc(doc(db, 'users', user.uid), {
-      name,
-      name_lc: name.toLowerCase(),
-      dob: dob || '',
-      updatedAt: serverTimestamp()
+    const u = await new Promise(res=>onUser(res));
+    await setDoc(doc(db,'users',u.uid), {
+      name, name_lc:name.toLowerCase(), dob:dob||'', updatedAt: serverTimestamp()
     }, { merge:true });
-
-    vName.textContent = name;
-    vDob.textContent  = asDateStr(dob);
+    vName.textContent = name; vDob.textContent = dob||'—';
     closeModal();
   });
 </script>
