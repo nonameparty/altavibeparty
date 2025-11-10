@@ -182,7 +182,7 @@ import {
 
 const db = getFirestore();
 
-/* ====== Riferimenti UI ====== */
+/* ====== UI ====== */
 const nav = document.getElementById('navArea');
 const hello = document.getElementById('hello');
 const OUT = `<a href="./login.html?from=./checkout.html">Acquista il tuo biglietto</a><a href="./login.html">Accedi</a><a href="./signup.html">Registrati</a>`;
@@ -200,7 +200,7 @@ const payBtn  = document.getElementById('payBtn');
 const optName = document.getElementById('optNameChange');
 const nameLine= document.getElementById('nameChangeLine');
 
-/* ====== Box Codice Sconto (se manca, lo inserisco) ====== */
+/* ====== Se manca il box sconto, lo inietto ====== */
 (function ensureDiscountUI(){
   const wrap = document.querySelector('aside.card');
   if(!wrap) return;
@@ -214,7 +214,7 @@ const nameLine= document.getElementById('nameChangeLine');
       </div>
       <div style="display:flex;gap:8px;margin-top:6px">
         <input id="discInput" placeholder="Es. OPENING10" style="flex:1;background:#0f0f10;border:1px solid rgba(255,255,255,.15);border-radius:10px;color:#fff;padding:10px">
-        <button id="discApply" class="pay" type="button" style="min-width:92px">Applica</button>
+        <button id="discApply" class="pay" type="button" style="min-width:92px" disabled>Applica</button>
         <button id="discRemove" class="pay" type="button" style="min-width:92px;background:transparent;border:1px solid rgba(255,255,255,.25);color:#fff">Rimuovi</button>
       </div>
       <div id="discHint" class="small" style="margin-top:6px;opacity:.85"></div>
@@ -228,13 +228,19 @@ const discApply  = document.getElementById('discApply');
 const discRemove = document.getElementById('discRemove');
 const discHint   = document.getElementById('discHint');
 
-/* ====== Prezzi & stato ====== */
+/* ====== Stato prezzi ====== */
 const PRICE = { EB:12, STD:15, FAST:20, VIP:25, NAMECHANGE:1.90, STD3:40 };
+
 let currentUser = null;
+let authReadyResolve;
+const authReady = new Promise(r => (authReadyResolve = r));
 
 onUser((u)=>{
   if(!u){ nav.innerHTML=OUT; location.href='./login.html?from=./checkout.html'; return; }
   currentUser = u;
+  authReadyResolve();               // <— sblocca Applica
+  discApply.disabled = false;
+
   nav.innerHTML = IN(u);
   document.getElementById('logoutLink')?.addEventListener('click', async (e)=>{
     e.preventDefault(); await doSignOut(); nav.innerHTML=OUT; location.href='./login.html?from=./checkout.html';
@@ -244,6 +250,7 @@ onUser((u)=>{
 
 /* ====== Helpers ====== */
 const lc    = s => (s||'').toString().trim().toLowerCase();
+const uc    = s => (s||'').toString().trim().toUpperCase();
 const money = n => (n<0?'-':'') + Math.abs(n).toFixed(2).replace('.00','') + '€';
 const qty   = ()=>({ EB:+(qEB.value||0), STD:+(qSTD.value||0), FAST:+(qFAST.value||0), VIP:+(qVIP.value||0) });
 
@@ -272,19 +279,19 @@ function restoreCart(){
 const readApplied  = () => { try{ return JSON.parse(localStorage.getItem('trapperreo_discount_applied')||'null'); }catch{ return null; } };
 const writeApplied = (s) => { if(!s) localStorage.removeItem('trapperreo_discount_applied'); else localStorage.setItem('trapperreo_discount_applied', JSON.stringify(s)); };
 
-/* ====== Sconti: normalizzazione & fetch ====== */
+/* ====== Sconti: normalizza, fetch da entrambe le collezioni ====== */
 let allDiscounts = []; // cache
 
 function normalize(raw){
-  const code   = (raw.code || raw.name || '').toString().trim().toUpperCase();
-  const type   = (raw.type || 'percent').toString().toLowerCase();         // 'percent' | 'fixed'
+  const code   = uc(raw.code || raw.name || '');
+  const type   = (raw.type || 'percent').toString().toLowerCase(); // 'percent' | 'fixed'
   const value  = Number(raw.value ?? raw.amount ?? 0);
   const active = (raw.active ?? raw.enabled ?? true) === true;
 
-  // scope/applicabilità
+  // scope
   const applies = (raw.appliesTo || raw.scope || (raw.userEmail ? 'user' : 'all')).toString().toLowerCase();
 
-  // target email (può essere array 'allowedEmails' o singolo 'userEmail')
+  // target email
   let allowedEmails = Array.isArray(raw.allowedEmails) ? raw.allowedEmails.map(lc) : [];
   if (applies === 'user' && raw.userEmail) {
     const ue = lc(raw.userEmail);
@@ -302,17 +309,25 @@ function normalize(raw){
   return { code, type, value, active, applies, allowedEmails, allowedSkus, label };
 }
 
-async function fetchDiscountsList(){
-  // Semplice: leggo tutta la collezione e filtro lato client (evita problemi di indici)
+async function fetchCol(colName){
   try{
-    const snap = await getDocs(collection(db,'discounts'));
+    const snap = await getDocs(collection(db,colName));
     const arr=[];
     snap.forEach(d=>{ const n=normalize(d.data()||{}); if(n && n.active) arr.push(n); });
-    allDiscounts = arr;
+    return arr;
   }catch(e){
-    console.warn('[discounts] fetch list error', e);
-    allDiscounts = [];
+    console.warn(`[discounts] fetch ${colName} error`, e);
+    return [];
   }
+}
+
+async function fetchDiscountsList(){
+  const a = await fetchCol('discounts');
+  const b = await fetchCol('discountCodes'); // fallback legacy
+  // merge by code (favorisce la collezione moderna "discounts")
+  const map = new Map();
+  [...b,...a].forEach(d=>map.set(d.code, d));
+  allDiscounts = Array.from(map.values());
 }
 
 function eligibleForUser(d, user){
@@ -320,11 +335,9 @@ function eligibleForUser(d, user){
   if (d.applies === 'all') return true;
   const email = lc(user?.email || '');
   if (!email) return false;
-  // se c'è una whitelist di email, deve contenere l'utente loggato
   if (Array.isArray(d.allowedEmails) && d.allowedEmails.length > 0) {
     return d.allowedEmails.includes(email);
   }
-  // se applies=='user' ma non c'è lista => non eleggibile
   return false;
 }
 
@@ -333,7 +346,7 @@ function allowedSet(d){
 }
 
 function computeDiscountAmount(d, parts){
-  const allow = allowedSet(d);
+  const allow = d.allowedSkus && d.allowedSkus.length ? d.allowedSkus : ['EB','STD','FAST','VIP'];
   const base = (allow.includes('EB')?parts.EB:0)
              + (allow.includes('STD')?parts.STD:0)
              + (allow.includes('FAST')?parts.FAST:0)
@@ -344,26 +357,32 @@ function computeDiscountAmount(d, parts){
 }
 
 function findInCacheForUser(code, user){
-  const C = (code||'').toString().trim().toUpperCase();
+  const C = uc(code);
   return allDiscounts.find(d => d.code===C && eligibleForUser(d, user)) || null;
 }
 
-async function fetchSingleByCode(code){
+async function fetchSingleFrom(colName, code){
   try{
-    const C  = (code||'').toString().trim().toUpperCase();
-    const qy = query(collection(db,'discounts'), where('code','==',C), limit(1));
+    const qy = query(collection(db,colName), where('code','==',uc(code)), limit(1));
     const snap = await getDocs(qy);
     if (snap.empty) return null;
     const d = normalize(snap.docs[0].data()||{});
     if (!d || !d.active) return null;
-    return eligibleForUser(d, currentUser) ? d : null;
+    return eligibleForUser(d, currentUser) ? d : { __reason:'not-eligible' };
   }catch(e){
-    console.warn('[discounts] single query error', e);
+    console.warn(`[discounts] single query error ${colName}`, e);
     return null;
   }
 }
 
-/* ====== Render totale con sconto ====== */
+async function fetchSingleByCode(code){
+  // prova su 'discounts', poi su 'discountCodes'
+  const fromA = await fetchSingleFrom('discounts', code);
+  if (fromA) return fromA;
+  return await fetchSingleFrom('discountCodes', code);
+}
+
+/* ====== Render ====== */
 function render(){
   const parts = subtotalBySku();
   const gross = parts.EB + parts.STD + parts.FAST + parts.VIP;
@@ -372,7 +391,6 @@ function render(){
   let disc = 0; let tag=null;
 
   if (snap) {
-    // ricostruisco un oggetto-parziale (lo sconto è già stato validato su apply)
     const d = {
       code: snap.code,
       type: snap.type,
@@ -405,9 +423,7 @@ function render(){
   grandEl.textContent = money(total);
   payBtn.disabled = tCount<=0;
 
-  discHint.textContent = snap
-    ? `Applicato: ${tag}.`
-    : `Inserisci un codice valido`;
+  discHint.textContent = snap ? `Applicato: ${tag}.` : `Inserisci un codice valido`;
 }
 
 /* ====== Bind ====== */
@@ -431,26 +447,31 @@ function bindQty(){
 
 /* ====== Applica / rimuovi ====== */
 discApply?.addEventListener('click', async ()=>{
-  const code = (discInput?.value||'').trim().toUpperCase();
+  await authReady; // ← assicura currentUser pronto
+
+  const code = uc(discInput?.value||'');
   if(!code){ alert('Inserisci un codice'); return; }
 
-  // 1) cache lista
-  let found = findInCacheForUser(code, currentUser);
-
-  // 2) fallback query mirata
-  if(!found) found = await fetchSingleByCode(code);
+  let found = findInCacheForUser(code, currentUser);   // 1) cache
+  if(!found){
+    const one = await fetchSingleByCode(code);         // 2) query mirata su entrambe le collezioni
+    if (one && !one.__reason) found = one;
+    else if (one && one.__reason === 'not-eligible') {
+      writeApplied(null); render();
+      alert('Codice valido ma non assegnato a questo account/email.');
+      return;
+    }
+  }
 
   if(!found){
-    writeApplied(null);
-    render();
+    writeApplied(null); render();
     alert('Codice sconto non valido');
     return;
   }
 
-  // salva snapshot minimale condiviso tra pagine
   writeApplied({
     code: found.code,
-    type: found.type,             // 'percent' | 'fixed'
+    type: found.type,           // 'percent' | 'fixed'
     value: found.value,
     allowedSkus: allowedSet(found)
   });
@@ -461,7 +482,7 @@ discRemove?.addEventListener('click', ()=>{ writeApplied(null); render(); });
 
 /* ====== Init ====== */
 restoreCart();
-await fetchDiscountsList();
+await fetchDiscountsList();  // legge entrambe le collezioni
 bindQty();
 render();
 
@@ -482,5 +503,6 @@ payBtn.addEventListener('click', ()=>{
   else            location.href = `./attendees-single.html?${qs}`;
 });
 </script>
+
 </body>
 </html>
