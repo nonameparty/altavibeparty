@@ -173,15 +173,14 @@ h1{font-size:26px;font-weight:900;letter-spacing:-.2px}
     </aside>
   </div>
 </main>
-
 <script type="module">
-/* ====== Auth & Firebase ====== */
-import { onUser, doSignOut, db as dbFromAuth } from './auth.v2.js?v=6';
+/* ====== Auth ====== */
+import { onUser, doSignOut } from './auth.v2.js?v=11';
 import {
-  collection, getDocs, query, where, limit
-} from 'https://www.gstatic.com/firebasejs/12.5.0/firebase-firestore.js';
+  getFirestore, collection, getDocs, query, where, limit
+} from "https://www.gstatic.com/firebasejs/12.5.0/firebase-firestore.js";
 
-const db = dbFromAuth;
+const db = getFirestore();
 
 /* ====== UI refs ====== */
 const nav = document.getElementById('navArea');
@@ -201,11 +200,10 @@ const payBtn  = document.getElementById('payBtn');
 const optName  = document.getElementById('optNameChange');
 const nameLine = document.getElementById('nameChangeLine');
 
-/* ====== Box Codice Sconto (garantito) ====== */
+/* ====== Discount UI (sempre presente, ma puoi nasconderla se vuoi) ====== */
 (function ensureDiscountUI(){
   const wrap = document.querySelector('aside.card');
-  if(!wrap) return;
-  if(document.getElementById('discBlock')) return;
+  if(!wrap || document.getElementById('discBlock')) return;
   const blk = document.createElement('div');
   blk.innerHTML = `
     <div class="hr"></div>
@@ -216,7 +214,7 @@ const nameLine = document.getElementById('nameChangeLine');
       <div style="display:flex;gap:8px;margin-top:6px">
         <input id="discInput" placeholder="Es. OPENING10" style="flex:1;background:#0f0f10;border:1px solid rgba(255,255,255,.15);border-radius:10px;color:#fff;padding:10px">
         <button id="discApply" class="pay" type="button" style="min-width:92px">Applica</button>
-        <button id="discRemove" class="pay" type="button" style="min-width:92px;background:transparent;border:1px solid rgba(255,255,255,.25);color:#fff">Rimuovi</button>
+        <button id="discRemove" class="pay" type="button" style="min-width:92px;background:transparent;border:1px solid rgba(255,255,255,.25);color:#fff">Togli</button>
       </div>
       <div id="discHint" class="small" style="margin-top:6px;opacity:.85"></div>
     </div>
@@ -231,26 +229,24 @@ const discHint   = document.getElementById('discHint');
 /* ====== Prezzi & stato ====== */
 const PRICE = { EB:12, STD:15, FAST:20, VIP:25, NAMECHANGE:1.90, STD3:40 };
 let currentUser = null;
-let readyUserResolver;
-const readyUser = new Promise(res=>{ readyUserResolver = res; });
 
-onUser((u)=>{
-  if(!u){ nav.innerHTML=OUT; location.href='./login.html?from=./checkout.html'; return; }
-  currentUser = u;
-  nav.innerHTML = IN(u);
-  document.getElementById('logoutLink')?.addEventListener('click', async (e)=>{
-    e.preventDefault(); await doSignOut(); nav.innerHTML=OUT; location.href='./login.html?from=./checkout.html';
+// aspetta l'utente loggato
+function waitUser(){
+  return new Promise(res=>{
+    onUser((u)=>{
+      if(!u){ nav.innerHTML=OUT; location.href='./login.html?from=./checkout.html'; return; }
+      currentUser = u;
+      nav.innerHTML = IN(u);
+      document.getElementById('logoutLink')?.addEventListener('click', async (e)=>{
+        e.preventDefault(); await doSignOut(); nav.innerHTML=OUT; location.href='./login.html?from=./checkout.html';
+      });
+      hello.innerHTML = `Ciao, <strong>${(u.displayName||u.email||'Utente').split(' ')[0]}</strong>`;
+      res(u);
+    });
   });
-  hello.innerHTML = `Ciao, <strong>${(u.displayName||u.email||'Utente').split(' ')[0]}</strong>`;
-  readyUserResolver?.();
-  render();
-});
+}
 
 /* ====== Helpers ====== */
-const norm = s => (s||'').toString().trim().normalize('NFKC').replace(/\s+/g,' ');
-const up   = s => norm(s).toUpperCase();
-const lo   = s => norm(s).toLowerCase();
-
 const money = n => (n<0?'-':'') + Math.abs(n).toFixed(2).replace('.00','') + '€';
 const qty = ()=>({ EB:+(qEB.value||0), STD:+(qSTD.value||0), FAST:+(qFAST.value||0), VIP:+(qVIP.value||0) });
 function stdTotal(q){ const b=Math.floor(q/3), r=q%3; return b*PRICE.STD3 + r*PRICE.STD; }
@@ -260,16 +256,12 @@ function subtotalBySku(){
 }
 function ticketsCount(){ const q=qty(); return q.EB+q.STD+q.FAST+q.VIP; }
 
-/* ====== Cart & Discount storage per-utente ====== */
-function cartKey(){ return currentUser ? `trapperreo_cart_${currentUser.uid}` : 'trapperreo_cart_anon'; }
-function discKey(){ return currentUser ? `trapperreo_discount_${currentUser.uid}` : 'trapperreo_discount_anon'; }
-
 function saveCart(){
-  const q=qty(); localStorage.setItem(cartKey(), JSON.stringify({ eb:q.EB,std:q.STD,fast:q.FAST,vip:q.VIP, nc: optName.checked?1:0 }));
+  const q=qty(); localStorage.setItem('trapperreo_cart', JSON.stringify({ eb:q.EB,std:q.STD,fast:q.FAST,vip:q.VIP, nc: optName.checked?1:0 }));
 }
 function restoreCart(){
   try{
-    const saved = JSON.parse(localStorage.getItem(cartKey())||'null');
+    const saved = JSON.parse(localStorage.getItem('trapperreo_cart')||'null');
     if(!saved) return;
     qEB.value   = saved.eb   ?? 0;
     qSTD.value  = saved.std  ?? 0;
@@ -278,93 +270,41 @@ function restoreCart(){
     optName.checked = (saved.nc===1);
   }catch{}
 }
-const readApplied = () => { try{ return JSON.parse(localStorage.getItem(discKey())||'null'); }catch{ return null; } };
-const writeApplied = (s) => {
-  const k = discKey();
-  if(!s) localStorage.removeItem(k);
-  else localStorage.setItem(k, JSON.stringify(s));
-};
+const readApplied = () => { try{ return JSON.parse(localStorage.getItem('trapperreo_discount_applied')||'null'); }catch{ return null; } };
+const writeApplied = (s) => { if(!s) localStorage.removeItem('trapperreo_discount_applied'); else localStorage.setItem('trapperreo_discount_applied', JSON.stringify(s)); };
 
-/* ====== Normalizzazione doc sconto ====== */
-function asArray(v){ if(v==null) return []; return Array.isArray(v)?v:[v]; }
-function normalize(doc){
-  const codeRaw = doc.code ?? doc.name ?? '';
-  const labelRaw= doc.label ?? doc.title ?? codeRaw;
-
-  const emailFields = ['allowedEmails','emails','forEmails'];
-  const singleEmail = ['email','forEmail'];
-  let allowedEmails = emailFields.flatMap(f=>asArray(doc[f])).concat(singleEmail.map(f=>doc[f]).filter(Boolean));
-  allowedEmails = allowedEmails.map(e=>lo(e)).filter(Boolean);
-
-  const uidFields = ['allowedUids','allowedUserIds','userIds','uids'];
-  const singleUid = ['userId','uid'];
-  let allowedUids = uidFields.flatMap(f=>asArray(doc[f])).concat(singleUid.map(f=>doc[f]).filter(Boolean));
-  allowedUids = allowedUids.map(u=>String(u)).filter(Boolean);
-
+/* ====== Sconti ====== */
+let allDiscounts = []; // cache lista
+function normalize(d){
   const o = {
-    code: up(codeRaw),
-    label: up(labelRaw),
-    type: (doc.type||'').toString().toLowerCase(), // 'percent' | 'fixed'
-    value: Number(doc.value ?? doc.amount ?? 0),
-    active: (doc.active ?? doc.enabled ?? true) === true,
-    allowedSkus: Array.isArray(doc.allowedSkus) ? doc.allowedSkus
-               : (Array.isArray(doc.skus) ? doc.skus : []),
-    allowedEmails,
-    allowedUids,
-    appliesTo: (doc.appliesTo||'').toString().toLowerCase() // 'all' | 'user' | ''
+    code:(d.code||d.name||'').toString().trim().toUpperCase(),
+    type:(d.type||'').toString().toLowerCase(), // percent|fixed
+    value:Number(d.value ?? d.amount ?? 0),
+    active:(d.active ?? d.enabled ?? true)===true,
+    allowedSkus:Array.isArray(d.allowedSkus)?d.allowedSkus:(Array.isArray(d.skus)?d.skus:[]),
+    allowedEmails:Array.isArray(d.allowedEmails)?d.allowedEmails.map(x=>String(x).toLowerCase()):[],
   };
   if(!o.code || !o.type || !(o.value>0)) return null;
   return o;
 }
-
-/* ====== Eligibility ====== */
+async function fetchDiscountsList(){
+  try{
+    const snap = await getDocs(collection(db,'discounts'));
+    const arr=[]; snap.forEach(d=>{ const n=normalize(d.data()||{}); if(n && n.active) arr.push(n); });
+    allDiscounts = arr;
+  }catch(e){
+    console.error('discounts read error', e);
+    allDiscounts = [];
+  }
+}
+function eligibleForUser(d){
+  if(!currentUser) return false; // siamo sempre loggati qui
+  if(!d.allowedEmails || d.allowedEmails.length===0) return true;
+  return d.allowedEmails.includes((currentUser.email||'').toLowerCase());
+}
 function allowedSet(d){
   return (d?.allowedSkus && d.allowedSkus.length>0) ? d.allowedSkus : ['EB','STD','FAST','VIP'];
 }
-function eligibleForUser(d){
-  if(!currentUser) return true;
-  const meEmail = lo(currentUser.email || '');
-  const meUid   = String(currentUser.uid || '');
-
-  // Personale esplicito
-  if(d.appliesTo === 'user'){
-    const hasEmails = d.allowedEmails?.length>0;
-    const hasUids   = d.allowedUids?.length>0;
-    if(!hasEmails && !hasUids) return false; // personale senza target = non valido
-    const okEmail = hasEmails ? d.allowedEmails.includes(meEmail) : false;
-    const okUid   = hasUids   ? d.allowedUids.includes(meUid)   : false;
-    return okEmail || okUid;
-  }
-  // Target specifici anche senza appliesTo:user
-  if(d.allowedEmails?.length>0) return !!meEmail && d.allowedEmails.includes(meEmail);
-  if(d.allowedUids?.length>0)   return !!meUid   && d.allowedUids.includes(meUid);
-  // nessun target: per tutti
-  return true;
-}
-
-/* ====== Query mirata del codice (no-cache) ====== */
-async function resolveDiscountByCode(raw){
-  const C_UP = up(raw), C_LO = lo(raw);
-
-  async function tryIn(col, field, value){
-    const qy = query(collection(db,col), where(field,'==', value), limit(1));
-    const snap = await getDocs(qy);
-    if(snap.empty) return null;
-    const n = normalize(snap.docs[0].data()||{});
-    return (n && n.active) ? n : null;
-  }
-
-  // prova code e name in entrambe le collezioni, case-insensitive
-  let d = await tryIn('discounts','code',C_UP) || await tryIn('discounts','code',C_LO)
-        || await tryIn('discounts','name',C_UP) || await tryIn('discounts','name',C_LO);
-  if(d) return d;
-
-  d = await tryIn('discountCodes','code',C_UP) || await tryIn('discountCodes','code',C_LO)
-    || await tryIn('discountCodes','name',C_UP) || await tryIn('discountCodes','name',C_LO);
-  return d;
-}
-
-/* ====== Calcolo sconto ====== */
 function computeDiscountAmount(d, parts){
   if(!d) return 0;
   const allow = allowedSet(d);
@@ -374,44 +314,55 @@ function computeDiscountAmount(d, parts){
   if(d.type==='fixed')   return Math.max(0, Math.min(base, d.value));
   return 0;
 }
+function findInCache(code){
+  const C = (code||'').toString().trim().toUpperCase();
+  return allDiscounts.find(d=>d.code===C && eligibleForUser(d)) || null;
+}
+async function fetchSingleByCode(code){
+  try{
+    const C = code.toString().trim().toUpperCase();
+    const qy = query(collection(db,'discounts'), where('code','==',C), limit(1));
+    const snap = await getDocs(qy);
+    if(snap.empty) return null;
+    const d = normalize(snap.docs[0].data()||{});
+    if(!d || !d.active) return null;
+    return eligibleForUser(d) ? d : null;
+  }catch(e){
+    console.error('fetchSingleByCode error', e);
+    return null;
+  }
+}
 
-/* ====== Totali + sconto ====== */
+/* ====== Render ====== */
 function render(){
   const parts = subtotalBySku();
   const gross = parts.EB + parts.STD + parts.FAST + parts.VIP;
 
-  const snap = readApplied(); // { code }
-  let applied = null;
-
-  if(snap?.code){
-    // Non blocchiamo con fetch; validiamo solo con lo snapshot già risolto in precedenza
-    // e lo scartiamo se non idoneo / non impatta. La conferma reale avviene su apply.
-    applied = snap._resolved && snap._resolved.active ? snap._resolved : null;
-    if(applied && !eligibleForUser(applied)) {
-      writeApplied(null);
-      applied = null;
-    }
-  }
-
+  const snap = readApplied(); // {code,type,value,allowedSkus?}
   let disc = 0; let tag=null;
-  if(applied){
-    disc = computeDiscountAmount(applied, parts);
-    tag  = `${applied.code} — ${applied.type==='percent' ? (applied.value+'%') : ('−'+money(applied.value))}`;
+  if(snap){
+    const d = {
+      code:snap.code,
+      type:snap.type,
+      value:snap.value,
+      active:true,
+      allowedSkus:(Array.isArray(snap.allowedSkus)&&snap.allowedSkus.length?snap.allowedSkus:['EB','STD','FAST','VIP'])
+    };
+    disc = computeDiscountAmount(d, parts);
+    tag  = (d.type==='percent') ? `${d.code} — ${d.value}%` : `${d.code} — −${money(d.value)}`;
   }
 
   const tCount = ticketsCount();
   const prot   = optName.checked ? tCount * PRICE.NAMECHANGE : 0;
   const total  = Math.max(0, gross - disc) + prot;
 
-  const L=[]; const label = k=>({EB:'Early Bird',STD:'Standard',FAST:'Fast Entry',VIP:'VIP Entry'})[k];
   const q = qty();
+  const L=[]; const label = k=>({EB:'Early Bird',STD:'Standard',FAST:'Fast Entry',VIP:'VIP Entry'})[k];
   if(q.EB>0)   L.push(`<div class="line"><span>${label('EB')} × ${q.EB}</span><span>${money(parts.EB)}</span></div>`);
   if(q.STD>0)  L.push(`<div class="line"><span>${label('STD')} × ${q.STD}</span><span>${money(parts.STD)}</span></div>`);
   if(q.FAST>0) L.push(`<div class="line"><span>${label('FAST')} × ${q.FAST}</span><span>${money(parts.FAST)}</span></div>`);
   if(q.VIP>0)  L.push(`<div class="line"><span>${label('VIP')} × ${q.VIP}</span><span>${money(parts.VIP)}</span></div>`);
-  if(applied){
-    L.push(`<div class="line" style="color:#22c55e;font-weight:800"><span>Sconto (${tag})</span><span>- ${money(disc)}</span></div>`);
-  }
+  if(tag && disc>0) L.push(`<div class="line" style="color:#22c55e;font-weight:800"><span>Sconto (${tag})</span><span>- ${money(disc)}</span></div>`);
   if(optName.checked && tCount>0){
     L.push(`<div class="line"><span>Protezione cambio nome × ${tCount}</span><span>${money(prot)}</span></div>`);
   }
@@ -419,12 +370,12 @@ function render(){
   grandEl.textContent = money(total);
   payBtn.disabled = tCount<=0;
 
-  discHint.textContent = applied
-    ? (disc>0 ? `Applicato: ${tag}.` : `Codice valido, ma non applica sconti ai biglietti selezionati.`)
+  discHint.textContent = snap
+    ? (disc>0 ? `Applicato: ${tag}.` : `Il codice è valido ma non si applica ai biglietti selezionati.`)
     : `Inserisci un codice valido`;
 }
 
-/* ====== Bind qty ====== */
+/* ====== Bind ====== */
 function bindQty(){
   document.querySelectorAll('[data-plus]').forEach(b=>{
     b.addEventListener('click',()=>{ const t=document.querySelector(b.getAttribute('data-plus')); t.value=(parseInt(t.value||0)+1); saveCart(); render(); });
@@ -437,45 +388,41 @@ function bindQty(){
   });
 }
 
-/* ====== Applica / rimuovi (risoluzione certa) ====== */
+/* ====== Applica / rimuovi ====== */
 discApply?.addEventListener('click', async ()=>{
-  const raw = discInput?.value || '';
-  const code = up(raw);
+  const code = (discInput?.value||'').trim().toUpperCase();
   if(!code){ alert('Inserisci un codice'); return; }
-  await readyUser;
 
-  try{
-    const d = await resolveDiscountByCode(code);
-    if(!d || !eligibleForUser(d)){
-      alert('Codice sconto non valido');
-      writeApplied(null);
-      render();
-      return;
-    }
-    // memorizziamo codice + doc risolto (per evitare secondo fetch a ogni render)
-    writeApplied({ code: d.code, _resolved: d });
-    discInput.value = d.code;
+  // 1) prova cache (lista)
+  let found = findInCache(code);
+
+  // 2) fallback query mirata
+  if(!found){ found = await fetchSingleByCode(code); }
+
+  if(!found){
+    alert('Codice sconto non valido');
+    writeApplied(null);
     render();
-  }catch(e){
-    console.error('apply discount error', e);
-    alert('Impossibile verificare il codice in questo momento.');
+    return;
   }
-});
 
-discRemove?.addEventListener('click', ()=>{
-  writeApplied(null);
-  if(discInput) discInput.value = '';
-  discHint.textContent = 'Inserisci un codice valido';
+  writeApplied({
+    code: found.code,
+    type: found.type,          // 'percent' | 'fixed'
+    value: found.value,
+    allowedSkus: allowedSet(found)
+  });
   render();
 });
 
+discRemove?.addEventListener('click', ()=>{ writeApplied(null); render(); });
+
 /* ====== Init ====== */
+await waitUser();     // <<— fondamentale per allowedEmails
 restoreCart();
+await fetchDiscountsList();
 bindQty();
 render();
-
-/* CTA tavolo VIP placeholder */
-document.getElementById('vipMore')?.addEventListener('click', (e)=>{ e.preventDefault(); alert('Tavolo VIP (18+): ti contattiamo per i dettagli — placeholder'); });
 
 /* Procedi */
 payBtn.addEventListener('click', ()=>{
@@ -487,5 +434,6 @@ payBtn.addEventListener('click', ()=>{
   else            location.href = `./attendees-single.html?${qs}`;
 });
 </script>
+
 </body>
 </html>
