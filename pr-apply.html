@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Candidatura PR — TRAPPERREO</title>
+<style>
+  :root{--accent:#8b5cf6;--border:rgba(255,255,255,.12);--muted:rgba(255,255,255,.78)}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:#000;color:#fff;font-family:system-ui,Inter,Segoe UI,Roboto,Arial,sans-serif;line-height:1.5;min-height:100vh}
+  .wrap{max-width:680px;margin:0 auto;padding:22px}
+  h1{font-size:32px;font-weight:900;margin-bottom:12px}
+  .card{background:rgba(255,255,255,.06);border:1px solid var(--border);border-radius:16px;padding:18px;margin-top:14px}
+  label{display:block;margin:8px 0;font-weight:700}
+  input,textarea,select{width:100%;background:#0f0f10;border:1px solid var(--border);border-radius:10px;color:#fff;padding:10px}
+  .row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .btn{display:inline-block;padding:12px 16px;border-radius:10px;background:var(--accent);color:#000;font-weight:900;border:none;cursor:pointer;text-decoration:none}
+  .btn.ghost{background:transparent;border:1px solid var(--border);color:#fff}
+  small{color:var(--muted)}
+  .notice{margin:10px 0;padding:10px;border-radius:10px;border:1px dashed var(--border)}
+  .ok{border-color:#22c55e;color:#98f59a;background:#0f1a0f}
+  .warn{border-color:#f59e0b;color:#ffd59a;background:#2a1f0a}
+  .err{border-color:#ef4444;color:#ffdede;background:#250a0a}
+</style>
+</head>
+<body>
+<main class="wrap">
+  <h1>Candidatura PR</h1>
+  <div class="card">
+    <p class="notice">I <b>primi 50</b> vengono approvati subito. Dopo il cinquantesimo: “Siamo spiacenti…”.</p>
+
+    <form id="prForm" autocomplete="off">
+      <label>Nome e cognome
+        <input id="name" required placeholder="Es. Mario Rossi" />
+      </label>
+      <label>WhatsApp
+        <input id="wa" required placeholder="+39 3xx xxxxxx" />
+      </label>
+      <div class="row">
+        <label>Instagram
+          <input id="ig" placeholder="@username" />
+        </label>
+        <label>Città
+          <input id="city" placeholder="Es. Milano" />
+        </label>
+      </div>
+      <label>Perché vuoi fare il PR?
+        <textarea id="why" rows="4" placeholder="Scrivi qui..."></textarea>
+      </label>
+      <label>Consenso dati (GDPR)
+        <select id="gdpr" required>
+          <option value="">— seleziona —</option>
+          <option value="yes">Acconsento</option>
+          <option value="no">Non acconsento</option>
+        </select>
+      </label>
+
+      <div class="notice ok" id="result" style="display:none"></div>
+      <div class="notice err" id="error" style="display:none"></div>
+
+      <div style="display:flex;gap:10px;margin-top:10px">
+        <button class="btn" type="submit" id="btnSubmit">Invia candidatura</button>
+        <button class="btn ghost" type="button" id="btnCounter">Vedi disponibilità</button>
+      </div>
+    </form>
+  </div>
+</main>
+
+<!-- Firebase via CDN -->
+<script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-firestore-compat.js"></script>
+
+<script>
+/* ========= CONFIG ========= */
+const FIREBASE_CONFIG = {
+  apiKey: "YOUR_API_KEY",
+  authDomain: "YOUR_PROJECT.firebaseapp.com",
+  projectId: "YOUR_PROJECT_ID",
+  storageBucket: "YOUR_PROJECT.appspot.com",
+  messagingSenderId: "YOUR_SENDER_ID",
+  appId: "YOUR_APP_ID",
+};
+const MAX_APPROVED = 50;
+const FOUNDER_IPS = ["1.2.3.4"]; // <-- metti il TUO IP (puoi aggiungere altri)
+
+/* ========= BOOT ========= */
+firebase.initializeApp(FIREBASE_CONFIG);
+const db = firebase.firestore();
+
+/* ========= UI refs ========= */
+const f = document.getElementById('prForm');
+const $ = (id)=>document.getElementById(id);
+const resBox = $('result');
+const errBox = $('error');
+const btnCounter = $('btnCounter');
+const btnSubmit = $('btnSubmit');
+
+/* ========= helpers ========= */
+async function getPublicIP(){
+  try{
+    const r = await fetch('https://api.ipify.org?format=json'); // solo lettura, resta tutto nel tuo sito
+    const j = await r.json();
+    return j.ip || '';
+  }catch{ return ''; }
+}
+function showOK(msg){ resBox.className='notice ok'; resBox.textContent=msg; resBox.style.display='block'; }
+function showWARN(msg){ resBox.className='notice warn'; resBox.textContent=msg; resBox.style.display='block'; }
+function showERR(msg){ errBox.textContent=msg; errBox.style.display='block'; }
+function hideMsgs(){ resBox.style.display='none'; errBox.style.display='none'; }
+
+/* ========= counter (lettura live) ========= */
+async function getApprovedCount(){
+  // conta i "approved" (semplice; ok per volumi piccoli)
+  const snap = await db.collection('pr_applications').where('status','==','approved').get();
+  return snap.size || 0;
+}
+async function hasIpAlready(ip){
+  if(!ip) return false;
+  const docRef = db.collection('pr_ips').doc(ip);
+  const d = await docRef.get();
+  return d.exists;
+}
+
+/* ========= submit ========= */
+f.addEventListener('submit', async (e)=>{
+  e.preventDefault(); hideMsgs();
+  btnSubmit.disabled = true;
+
+  try{
+    const name = $('name').value.trim();
+    const wa   = $('wa').value.trim();
+    const ig   = $('ig').value.trim();
+    const city = $('city').value.trim();
+    const why  = $('why').value.trim();
+    const gdpr = $('gdpr').value;
+
+    if (!name || !wa || gdpr !== 'yes'){
+      showERR('Compila i campi obbligatori e accetta GDPR.');
+      return;
+    }
+
+    const ip = await getPublicIP();
+
+    // blocco per IP (salvo founder IP)
+    if (!FOUNDER_IPS.includes(ip)){
+      if (await hasIpAlready(ip)){
+        showERR('Hai già inviato una candidatura da questo IP.');
+        return;
+      }
+    }
+
+    // approvo i primi 50
+    const approvedSoFar = await getApprovedCount();
+    const status = (approvedSoFar < MAX_APPROVED) ? 'approved' : 'waitlist';
+
+    const batch = db.batch();
+    const appRef = db.collection('pr_applications').doc();
+    batch.set(appRef, {
+      createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+      name, wa, ig, city, why, gdpr: gdpr==='yes',
+      ip, status
+    });
+
+    // segnala IP usato (salta se founder)
+    if (!FOUNDER_IPS.includes(ip) && ip){
+      const ipRef = db.collection('pr_ips').doc(ip);
+      batch.set(ipRef, {
+        firstAppId: appRef.id,
+        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+      });
+    }
+
+    await batch.commit();
+
+    if (status === 'approved'){
+      showOK('Candidatura approvata! Ti contatteremo su WhatsApp.');
+    } else {
+      showWARN('Siamo spiacenti, abbiamo raggiunto il massimo. Se si libera un posto ti contatteremo su WhatsApp.');
+    }
+    f.reset();
+  }catch(err){
+    console.error(err);
+    showERR('Errore durante l’invio. Riprova tra poco.');
+  }finally{
+    btnSubmit.disabled = false;
+  }
+});
+
+/* ========= bottone disponibilità ========= */
+btnCounter.addEventListener('click', async ()=>{
+  hideMsgs();
+  try{
+    const approved = await getApprovedCount();
+    const left = Math.max(0, MAX_APPROVED - approved);
+    const txt = left>0
+      ? `Posti auto-approvati rimanenti: ${left} / ${MAX_APPROVED}`
+      : `Limite raggiunto (${MAX_APPROVED}). Le prossime candidature andranno in lista d’attesa.`;
+    if(left>0) showOK(txt); else showWARN(txt);
+  }catch{
+    showERR('Impossibile recuperare la disponibilità.');
+  }
+});
+</script>
+</body>
+</html>
