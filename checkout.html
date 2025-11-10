@@ -203,12 +203,15 @@ h1{font-size:26px;font-weight:900;letter-spacing:-.2px}
   </div>
 </main>
 <script type="module">
+/** ================= Auth & Firebase ================= */
 import { onUser, doSignOut, app } from './auth.v2.js?v=6';
-import { getFirestore, doc, getDoc } from 'https://www.gstatic.com/firebasejs/12.5.0/firebase-firestore.js';
+import {
+  getFirestore, doc, getDoc, collection, getDocs, query, where, limit
+} from 'https://www.gstatic.com/firebasejs/12.5.0/firebase-firestore.js';
 
 const db = getFirestore(app);
 
-/* ---------- UI refs ---------- */
+/** ================= UI base ================= */
 const nav   = document.getElementById('navArea');
 const hello = document.getElementById('hello');
 
@@ -224,15 +227,21 @@ const payBtn  = document.getElementById('payBtn');
 const optName = document.getElementById('optNameChange');
 const nameLine= document.getElementById('nameChangeLine');
 
-/* ---------- Tutto ciò che è 18+ parte nascosto HARD ---------- */
+/** ====== Box Codice Sconto (già presente nell’HTML) ====== */
+const discBlock  = document.getElementById('discBlock');
+const discInput  = document.getElementById('discInput');
+const discApply  = document.getElementById('discApply');
+const discRemove = document.getElementById('discRemove');
+const discHint   = document.getElementById('discHint');
+
+/** ====== VIP/tavolo (NON CAMBIO LA LOGICA 18+) ====== */
 const adultBlocks = Array.from(document.querySelectorAll('.adult-only, #vipTableBlock'));
 adultBlocks.forEach(el => { if(!el) return; el.hidden = true; el.style.display = 'none'; });
 
-const vipBlock = document.getElementById('vipTableBlock');
-const vipBtn   = document.getElementById('vipReserve');
 const vipNote  = document.getElementById('vipNote');
+const vipBtn   = document.getElementById('vipReserve');
 
-/* ---------- Helpers ---------- */
+/** ================= Helpers comuni ================= */
 const OUT = `
   <a href="./login.html?from=./checkout.html">Acquista il tuo biglietto</a>
   <a href="./login.html">Accedi</a>
@@ -256,6 +265,10 @@ function subtotalBySku(){
 function ticketsCount(){ const q=qty(); return q.EB+q.STD+q.FAST+q.VIP; }
 function drinkLabels(){ return document.querySelectorAll('.drink-label'); }
 
+const lc=s=>(s||'').toString().trim().toLowerCase();
+const uc=s=>(s||'').toString().trim().toUpperCase();
+
+/** ================= Età (mantengo la tua logica) ================= */
 function parseDob(any){
   if (!any) return null;
   if (typeof any === 'object' && any.seconds != null) return new Date(any.seconds*1000);
@@ -275,7 +288,6 @@ function ageFrom(d){
   if (m<0 || (m===0 && t.getDate()<d.getDate())) a--;
   return a;
 }
-
 function profLSKey(uid){ return `trapperreo_profile_${uid}`; }
 function readProfileLS(uid){
   try{ return JSON.parse(localStorage.getItem(profLSKey(uid))||'null'); }catch{ return null; }
@@ -283,59 +295,43 @@ function readProfileLS(uid){
 function writeProfileLS(uid, profile){
   try{ localStorage.setItem(profLSKey(uid), JSON.stringify(profile)); }catch{}
 }
-
-/* ========== LEGGO SEMPRE FIRESTORE PRIMA ==========
-   Restituisce {dobDate, source:'db'|'ls'|'none', rawLS, rawDB} */
 async function readDobFreshFirst(uid){
   let rawDB=null, rawLS=null, dobDate=null, source='none';
-
-  // 1) leggi DB
   try{
     const snap = await getDoc(doc(db,'users',uid));
     if (snap.exists()){
       const data = snap.data() || {};
       rawDB = (data.dob ?? data.profile?.dob ?? null);
-      const parsedDB = parseDob(rawDB);
-      if (parsedDB){ dobDate = parsedDB; source='db'; }
+      const parsed = parseDob(rawDB);
+      if (parsed){ dobDate=parsed; source='db'; }
     }
-  }catch(e){ /* ignore, vedo LS dopo */ }
-
-  // 2) se DB ok, sincronizza la cache e ritorna
+  }catch{}
   if (dobDate){
     const currLS = readProfileLS(uid) || {};
     if (currLS.dob !== rawDB) writeProfileLS(uid, { ...currLS, dob: rawDB });
-    return { dobDate, source, rawLS: currLS?.dob ?? null, rawDB };
+    return { dobDate, source, rawLS: (currLS?.dob ?? null), rawDB };
   }
-
-  // 3) fallback LS
   const profLS = readProfileLS(uid);
   rawLS = profLS?.dob ?? null;
   const parsedLS = parseDob(rawLS);
   if (parsedLS){ dobDate = parsedLS; source='ls'; }
-
   return { dobDate, source, rawLS, rawDB };
 }
 
-/* ---------- Gating 18+ ---------- */
 function setAdultUI(isAdult){
-  // drink labels
   drinkLabels().forEach(el=>{
     el.textContent = isAdult ? '1 drink (alcolico/analcolico)' : '1 drink analcolico';
   });
-  // vip note se presente
   if (vipNote){
     vipNote.innerHTML = isAdult
       ? 'Accesso area VIP • <span class="drink-label">1 drink (alcolico/analcolico)</span> + <strong>guardaroba incluso</strong>.'
       : 'Accesso area VIP • <strong>2 drink analcolici</strong> + <strong>guardaroba incluso</strong>.';
   }
-  // mostra/nascondi tutto ciò che è 18+
   adultBlocks.forEach(el=>{
     if (!el) return;
     if (isAdult){ el.hidden = false; el.style.display = ''; }
     else        { el.hidden = true;  el.style.display = 'none'; }
   });
-
-  // azione bottone tavolo
   if (vipBtn){
     vipBtn.onclick = (e)=>{
       if (!isAdult){ e.preventDefault(); return; }
@@ -344,30 +340,156 @@ function setAdultUI(isAdult){
   }
 }
 
-/* ---------- Riepilogo ---------- */
+/** ================= SCONTI ================= */
+/* Cache sconti */
+let ALL_DISCOUNTS = [];
+let CURRENT_USER = null;
+
+/* snapshot applicato condiviso tra pagine */
+const readApplied  = () => { try{ return JSON.parse(localStorage.getItem('trapperreo_discount_applied')||'null'); }catch{ return null; } };
+const writeApplied = (s) => { if(!s) localStorage.removeItem('trapperreo_discount_applied'); else localStorage.setItem('trapperreo_discount_applied', JSON.stringify(s)); };
+
+/* normalizzazione compatibile con entrambe le collezioni */
+function normalize(raw){
+  const code   = uc(raw.code || raw.name || '');
+  const type   = (raw.type || 'percent').toString().toLowerCase(); // 'percent' | 'fixed'
+  const value  = Number(raw.value ?? raw.amount ?? 0);
+  const active = (raw.active ?? raw.enabled ?? true) === true;
+
+  const applies = (raw.appliesTo || raw.scope || (raw.userEmail ? 'user' : 'all')).toString().toLowerCase();
+  let allowedEmails = Array.isArray(raw.allowedEmails) ? raw.allowedEmails.map(lc) : [];
+  if (applies === 'user' && raw.userEmail) {
+    const ue = lc(raw.userEmail);
+    if (!allowedEmails.includes(ue)) allowedEmails.push(ue);
+  }
+  const allowedSkus = Array.isArray(raw.allowedSkus) ? raw.allowedSkus
+                     : (Array.isArray(raw.skus) ? raw.skus : []);
+  const label = raw.label || raw.title || '';
+
+  if (!code || !(value>0) || !['percent','fixed'].includes(type)) return null;
+  return { code, type, value, active, applies, allowedEmails, allowedSkus, label };
+}
+
+async function fetchCol(col){
+  try{
+    const snap = await getDocs(collection(db,col));
+    const arr=[]; snap.forEach(d=>{ const n=normalize(d.data()||{}); if(n && n.active) arr.push(n); });
+    return arr;
+  }catch{ return []; }
+}
+async function loadDiscounts(){
+  const a = await fetchCol('discounts');
+  const b = await fetchCol('discountCodes');
+  const map = new Map(); // preferisce 'discounts'
+  [...b, ...a].forEach(d=> map.set(d.code, d));
+  ALL_DISCOUNTS = Array.from(map.values());
+}
+
+function eligibleForUser(d, user){
+  if (!d) return false;
+  if (d.applies === 'all') return true;
+  const email = lc(user?.email || '');
+  if (!email) return false;
+  if (Array.isArray(d.allowedEmails) && d.allowedEmails.length > 0) {
+    return d.allowedEmails.includes(email);
+  }
+  return false;
+}
+function allowedSet(d){
+  return (d.allowedSkus && d.allowedSkus.length>0) ? d.allowedSkus : ['EB','STD','FAST','VIP'];
+}
+function computeDiscountAmount(d, parts){
+  const allow = allowedSet(d);
+  const base = (allow.includes('EB')?parts.EB:0)
+             + (allow.includes('STD')?parts.STD:0)
+             + (allow.includes('FAST')?parts.FAST:0)
+             + (allow.includes('VIP')?parts.VIP:0);
+  if (d.type === 'percent') return Math.max(0, +(base * (d.value/100)).toFixed(2));
+  if (d.type === 'fixed')   return Math.max(0, Math.min(base, d.value));
+  return 0;
+}
+function findInCacheForUser(code, user){
+  const C = uc(code);
+  return ALL_DISCOUNTS.find(d => d.code===C && eligibleForUser(d, user)) || null;
+}
+async function fetchSingleFrom(colName, code){
+  try{
+    const qy = query(collection(db,colName), where('code','==',uc(code)), limit(1));
+    const snap = await getDocs(qy);
+    if (snap.empty) return null;
+    const d = normalize(snap.docs[0].data()||{});
+    if (!d || !d.active) return null;
+    return eligibleForUser(d, CURRENT_USER) ? d : { __reason:'not-eligible' };
+  }catch{ return null; }
+}
+async function fetchSingle(code){
+  const a = await fetchSingleFrom('discounts', code);
+  if (a) return a;
+  return await fetchSingleFrom('discountCodes', code);
+}
+
+/* mostra/nascondi box in base alla presenza di sconti rilevanti */
+function shouldShowDiscountBox(user){
+  if (!Array.isArray(ALL_DISCOUNTS) || ALL_DISCOUNTS.length===0) return false;
+  return ALL_DISCOUNTS.some(d => eligibleForUser(d, user));
+}
+function showDiscountUI(yes){
+  if (!discBlock) return;
+  discBlock.style.display = yes ? '' : 'none';
+  discBlock.hidden = !yes;
+}
+
+/** ================== Render riepilogo con sconto ================== */
 function render(){
   if (!qEB || !qSTD || !qFAST || !qVIP) return;
   const parts = subtotalBySku();
   const gross = parts.EB + parts.STD + parts.FAST + parts.VIP;
 
+  const snap = readApplied(); // {code,type,value,allowedSkus}
+  let discAmt = 0, tag=null;
+  if (snap){
+    const d = {
+      code: snap.code,
+      type: snap.type,
+      value: snap.value,
+      allowedSkus: (snap.allowedSkus && snap.allowedSkus.length ? snap.allowedSkus : ['EB','STD','FAST','VIP'])
+    };
+    discAmt = computeDiscountAmount(d, parts);
+    tag = `${snap.code} — ${snap.type==='percent' ? '%'+snap.value : '−'+money(snap.value)}`;
+  }
+
   const tCount = ticketsCount();
   const prot   = optName?.checked ? tCount * PRICE.NAMECHANGE : 0;
   if (nameLine) nameLine.textContent = prot ? money(prot) : '0€';
 
-  const total  = Math.max(0, gross) + prot;
+  const total  = Math.max(0, gross - discAmt) + prot;
 
-  const label = k=>({EB:'Early Bird',STD:'Standard',FAST:'Fast Entry',VIP:'VIP Entry'})[k];
+  const L=[]; const label = k=>({EB:'Early Bird',STD:'Standard',FAST:'Fast Entry',VIP:'VIP Entry'})[k];
   const q = qty();
-  const L=[];
   if(q.EB>0)   L.push(`<div class="line"><span>${label('EB')} × ${q.EB}</span><span>${money(parts.EB)}</span></div>`);
   if(q.STD>0)  L.push(`<div class="line"><span>${label('STD')} × ${q.STD}</span><span>${money(parts.STD)}</span></div>`);
   if(q.FAST>0) L.push(`<div class="line"><span>${label('FAST')} × ${q.FAST}</span><span>${money(parts.FAST)}</span></div>`);
   if(q.VIP>0)  L.push(`<div class="line"><span>${label('VIP')} × ${q.VIP}</span><span>${money(parts.VIP)}</span></div>`);
+  if(tag)      L.push(`<div class="line" style="color:#22c55e;font-weight:800"><span>Sconto (${tag})</span><span>- ${money(discAmt)}</span></div>`);
+  if(optName?.checked && tCount>0){
+    L.push(`<div class="line"><span>Protezione cambio nome × ${tCount}</span><span>${money(prot)}</span></div>`);
+  }
 
   if (lines)   lines.innerHTML   = L.join('');
   if (grandEl) grandEl.textContent = money(total);
   if (payBtn)  payBtn.disabled = tCount<=0;
+
+  if (discHint){
+    if (snap){
+      discHint.textContent = `Applicato: ${tag}.`;
+      discHint.classList.remove('hint-err'); discHint.classList.add('hint-ok');
+    }else{
+      discHint.textContent = `Inserisci un codice valido`;
+      discHint.classList.remove('hint-ok'); discHint.classList.add('hint-err');
+    }
+  }
 }
+
 function bindQty(){
   document.querySelectorAll('[data-plus]').forEach(b=>{
     b.addEventListener('click', ()=>{
@@ -389,8 +511,51 @@ function bindQty(){
   });
 }
 
-/* ---------- Auth Boot ---------- */
+/** ======= Applica / rimuovi sconto (inline, NO popup) ======= */
+async function handleApply(){
+  const code = uc(discInput?.value||'');
+  if(!code){
+    if (discHint){ discHint.textContent='Inserisci un codice'; discHint.classList.add('hint-err'); }
+    return;
+  }
+
+  // 1) cache
+  let found = findInCacheForUser(code, CURRENT_USER);
+  // 2) query singola
+  if(!found){
+    const one = await fetchSingle(code);
+    if (one && !one.__reason) found = one;
+    else if (one && one.__reason === 'not-eligible'){
+      writeApplied(null); render();
+      if (discHint){ discHint.textContent='Codice valido ma non assegnato al tuo account.'; discHint.classList.add('hint-err'); }
+      return;
+    }
+  }
+  if(!found){
+    writeApplied(null); render();
+    if (discHint){ discHint.textContent='Codice sconto non valido'; discHint.classList.add('hint-err'); }
+    return;
+  }
+
+  writeApplied({
+    code: found.code,
+    type: found.type,
+    value: found.value,
+    allowedSkus: allowedSet(found)
+  });
+  if (discHint){ discHint.textContent='Codice applicato ✔︎'; discHint.classList.remove('hint-err'); discHint.classList.add('hint-ok'); }
+  render();
+}
+function handleRemove(){
+  writeApplied(null);
+  if (discHint){ discHint.textContent='Codice rimosso'; discHint.classList.remove('hint-err'); discHint.classList.add('hint-ok'); }
+  render();
+}
+
+/** ================= Auth Boot ================= */
 hello.textContent = 'Caricamento…';
+bindQty();            // subito: +/− funzionano a prescindere
+render();             // primo render "vuoto"
 
 onUser(async (u)=>{
   try{
@@ -399,6 +564,8 @@ onUser(async (u)=>{
       location.href='./login.html?from=./checkout.html';
       return;
     }
+    CURRENT_USER = u;
+
     // Nav
     nav.innerHTML = IN(u);
     document.getElementById('logoutLink')?.addEventListener('click', async (e)=>{
@@ -406,30 +573,38 @@ onUser(async (u)=>{
     });
     hello.innerHTML = `Ciao, <strong>${(u.displayName||u.email||'Utente').split(' ')[0]}</strong>`;
 
-    // DOB: DB prima, poi LS
+    // Età (DB -> LS), NON CAMBIO LA TUA LOGICA
     const { dobDate, source, rawLS, rawDB } = await readDobFreshFirst(u.uid);
     const age = ageFrom(dobDate);
     const isAdult = age >= 18;
-
-    console.log('[CHECKOUT DOB]', { fromLS: rawLS ?? null, parsedFromLS: parseDob(rawLS), fromDB: parseDob(rawDB), age, isAdult, source });
-
-    // Se DOB mancante o invalido → tratto come minorenne (blocchi restano nascosti)
-    if (!dobDate) console.warn('DOB mancante/illeggibile → minorenne di default.');
-
     setAdultUI(isAdult);
+
+    // Sconti: carico lista, decido visibilità box
+    await loadDiscounts();
+    showDiscountUI( shouldShowDiscountBox(CURRENT_USER) );
+    if (discApply) discApply.disabled = false;
+
+    // Bind bottoni sconto
+    discApply?.addEventListener('click', handleApply);
+    discRemove?.addEventListener('click', handleRemove);
+
+    // Se c'è già uno sconto salvato, prova a riapplicarlo (solo se esiste e sei idoneo)
+    const snap = readApplied();
+    if (snap){
+      const exists = findInCacheForUser(snap.code, CURRENT_USER) || await fetchSingle(snap.code);
+      if (!exists || exists.__reason === 'not-eligible'){ writeApplied(null); }
+    }
+
     render();
   }catch(err){
     console.error('onUser fatal:', err);
-    // fallback: nascondi tutto ciò che è 18+
+    // fallback: niente tavoli e nascondi box sconto
     adultBlocks.forEach(el => { if(!el) return; el.hidden = true; el.style.display = 'none'; });
+    showDiscountUI(false);
   }
 });
 
-/* ---------- Init ---------- */
-bindQty();
-render();
-
-/* ---------- Procedi ---------- */
+/** ================= Procedi ================= */
 payBtn?.addEventListener('click', ()=>{
   const q = qty();
   const tickets = q.EB + q.STD + q.FAST + q.VIP;
@@ -440,5 +615,6 @@ payBtn?.addEventListener('click', ()=>{
   else            location.href = `./attendees-single.html?${qs}`;
 });
 </script>
+
 </body>
 </html>
