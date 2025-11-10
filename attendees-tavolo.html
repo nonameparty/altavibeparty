@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Prenota Tavolo — TRAPPERREO</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#000; --text:#fff; --accent:#8b5cf6; --border:rgba(255,255,255,.12);
+  --card:rgba(255,255,255,.06); --muted:rgba(255,255,255,.78); --ok:#22c55e; --danger:#ef4444;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;line-height:1.5;min-height:100vh;display:grid;grid-template-rows:auto 1fr}
+header{position:sticky;top:0;z-index:10;background:rgba(0,0,0,.6);backdrop-filter:blur(6px);border-bottom:1px solid rgba(255,255,255,.08)}
+.nav{max-width:1200px;margin:auto;padding:14px 20px;display:flex;align-items:center;justify-content:space-between}
+.brand{display:flex;align-items:center;gap:10px;font-weight:900}
+.brand-badge{width:22px;height:22px;background:var(--accent);transform:skew(-6deg);border-radius:3px}
+.wrap{max-width:1100px;margin:auto;padding:20px}
+.grid{display:grid;grid-template-columns:1fr;gap:16px}
+@media(min-width:1024px){.grid{grid-template-columns:2fr 1fr}}
+.card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:18px}
+h1{font-size:26px;font-weight:900;letter-spacing:-.2px}
+h2{font-size:18px;font-weight:900;margin-bottom:8px}
+
+/* mappa */
+.map{background:#0a0a0a;border:1px solid var(--border);border-radius:14px;padding:14px}
+.stage{background:#111;border:1px solid var(--border);border-radius:10px;padding:10px;text-align:center;margin-bottom:12px;font-weight:800}
+.mapgrid{display:grid;gap:10px;grid-template-columns:repeat(6,1fr)}
+.table{background:#101010;border:1px solid rgba(255,255,255,.18);border-radius:12px;padding:10px;text-align:center;cursor:pointer;transition:.2s}
+.table:hover{box-shadow:0 0 0 2px rgba(139,92,246,.25)}
+.table.selected{outline:2px solid var(--accent)}
+.badge{display:inline-block;font-size:12px;border:1px solid rgba(255,255,255,.18);padding:2px 6px;border-radius:999px;margin-top:6px}
+.vip{border-color:#f59e0b}
+.gold{border-color:#60a5fa}
+.silver{border-color:#34d399}
+
+/* riepilogo */
+.line{display:flex;justify-content:space-between;margin:6px 0}
+.hr{height:1px;background:rgba(255,255,255,.1);margin:12px 0}
+.pay{display:inline-block;padding:12px 16px;border-radius:10px;text-decoration:none;font-weight:900;background:var(--accent);color:#000;border:none;cursor:pointer}
+small.muted{color:var(--muted)}
+input,select{background:#0f0f10;border:1px solid rgba(255,255,255,.15);border-radius:10px;color:#fff;padding:10px}
+.alert{background:#170a0a;border:1px solid rgba(255,80,80,.4);color:#ffb4b4;padding:10px;border-radius:10px;margin-top:10px}
+.ok{color:var(--ok);font-weight:800}
+</style>
+</head>
+<body>
+<header>
+  <div class="nav">
+    <div class="brand"><div class="brand-badge"></div><div>TRAPPERREO</div></div>
+    <nav id="navArea"><span class="muted">Caricamento…</span></nav>
+  </div>
+</header>
+
+<main class="wrap">
+  <h1>Prenota il tuo tavolo</h1>
+  <div class="grid">
+    <section class="card">
+      <h2>Mappa (seleziona un tavolo)</h2>
+      <div class="map">
+        <div class="stage">Console / Stage</div>
+        <div class="mapgrid" id="mapGrid"><!-- tavoli qui --></div>
+      </div>
+
+      <div class="card" style="margin-top:12px">
+        <h2>Dettagli prenotazione</h2>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">
+          <div>Area:</div>
+          <strong id="selArea">—</strong>
+          <div class="badge vip" id="areaBadge" style="display:none"></div>
+        </div>
+
+        <div class="line" style="align-items:center;gap:10px;margin-top:8px">
+          <label for="pax">Quante persone sarete?</label>
+          <input id="pax" type="number" min="1" value="4" style="width:120px">
+          <small class="muted">Base inclusi: 4 pax · Extra oltre 4: +25€ a persona</small>
+        </div>
+
+        <div class="hr"></div>
+        <div class="line"><span>Pagamento</span>
+          <select id="payMode">
+            <option value="deposit">Caparra (consigliato)</option>
+            <option value="full">Paga tutto ora</option>
+          </select>
+        </div>
+        <small class="muted" id="depositNote"></small>
+
+        <div id="discWrap" style="display:none;margin-top:12px">
+          <div class="hr"></div>
+          <div class="line" style="align-items:center;gap:8px">
+            <label class="small">Codice sconto tavoli</label>
+          </div>
+          <div style="display:flex;gap:8px;margin-top:6px">
+            <input id="discInput" placeholder="Es. VIPTABLE35">
+            <button id="discApply" class="pay" type="button" style="min-width:92px">Applica</button>
+            <button id="discRemove" class="pay" type="button" style="min-width:92px;background:transparent;border:1px solid rgba(255,255,255,.25);color:#fff">Rimuovi</button>
+          </div>
+          <div id="discHint" class="small" style="margin-top:6px;opacity:.9"></div>
+        </div>
+
+        <div class="alert" id="legalBox" style="display:none"></div>
+        <div style="margin-top:10px;display:flex;gap:8px;align-items:center">
+          <input type="checkbox" id="acceptLegal">
+          <label for="acceptLegal" class="small">Confermo di aver letto e accettato gli avvisi sopra.</label>
+        </div>
+      </div>
+    </section>
+
+    <aside class="card">
+      <h2>Riepilogo</h2>
+      <div id="sumLines"></div>
+      <div class="hr"></div>
+      <div class="line"><span class="ok" id="depositLabel">Caparra stimata</span><strong id="depositVal">0€</strong></div>
+      <div class="line"><span>Totale</span><strong id="totalVal">0€</strong></div>
+      <small class="muted" id="balanceNote"></small>
+
+      <div class="hr"></div>
+      <div style="display:flex;gap:8px">
+        <button id="backBtn" class="pay" style="background:transparent;border:1px solid rgba(255,255,255,.25);color:#fff">Indietro</button>
+        <button id="goBtn" class="pay" disabled>Prenota</button>
+      </div>
+    </aside>
+  </div>
+</main>
+
+<script type="module">
+import { onUser } from './auth.v2.js?v=6';
+import {
+  getFirestore, doc, getDoc, collection, getDocs, query, where, limit
+} from 'https://www.gstatic.com/firebasejs/12.5.0/firebase-firestore.js';
+
+const db = getFirestore();
+
+/* ---------- Auth & 18+ gate ---------- */
+const nav = document.getElementById('navArea');
+const OUT = `<a href="./login.html?from=./attendees-tavolo.html">Accedi</a>`;
+const IN  = (u)=>`<span>👋 Ciao, <strong>${(u.displayName||u.email||'Utente').split(' ')[0]}</strong></span>`;
+
+let user=null, isAdult=false;
+onUser(async(u)=>{
+  if(!u){ nav.innerHTML=OUT; location.href='./login.html?from=./attendees-tavolo.html'; return; }
+  user=u; nav.innerHTML=IN(u);
+  isAdult = await computeAdult(u);
+  if(!isAdult){ showMinorPopup(); return; }
+  await init();
+});
+
+function parseDob(x){
+  if(!x) return null; const s=x.toString().trim();
+  let m=s.match(/^(\d{4})[-\/](\d{1,2})[-\/](\d{1,2})$/); if(m) return new Date(+m[1],+m[2]-1,+m[3]);
+  m=s.match(/^(\d{1,2})[\/-](\d{1,2})[\/-](\d{4})$/); if(m) return new Date(+m[3],+m[2]-1,+m[1]);
+  const d=new Date(s); return isNaN(d.getTime())?null:d;
+}
+function ageFrom(d){ if(!d) return 0; const t=new Date(); let a=t.getFullYear()-d.getFullYear(); const m=t.getMonth()-d.getMonth(); if(m<0||(m===0&&t.getDate()<d.getDate())) a--; return a; }
+function lsProfile(uid){ try{ return JSON.parse(localStorage.getItem('trapperreo_profile_'+uid)||'null'); }catch{return null;} }
+async function computeAdult(u){
+  let dobStr=lsProfile(u.uid)?.dob;
+  if(!dobStr){ const snap=await getDoc(doc(db,'users',u.uid)); if(snap.exists()){const d=snap.data(); dobStr=d?.dob||d?.birthdate||d?.dateOfBirth||null;} }
+  const dob=parseDob(dobStr); return ageFrom(dob)>=18;
+}
+function showMinorPopup(){
+  const box=document.createElement('div');
+  box.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.75);display:grid;place-items:center;z-index:9999';
+  box.innerHTML=`<div style="background:#0c0c0c;border:1px solid rgba(255,255,255,.15);border-radius:16px;padding:20px;max-width:520px">
+    <h2 style="font-size:20px;font-weight:900;margin-bottom:8px">Accesso vietato ai minorenni</h2>
+    <p style="color:#ccc">La prenotazione tavoli è riservata ai maggiorenni. Torna al checkout per acquistare i biglietti standard.</p>
+    <div style="margin-top:12px"><a href="./checkout.html" class="pay">Torna al checkout</a></div>
+  </div>`;
+  document.body.appendChild(box);
+}
+
+/* ---------- Config tavoli ---------- */
+const AREAS = {
+  VIP:   { label:'VIP Crown',   pricePerPax:45,  color:'#f59e0b',   minBottleCostForArea:0, slots: ['V1','V2','V3'] },
+  GOLD:  { label:'Gold Deck',   pricePerPax:35,  color:'#60a5fa',   minBottleCostForArea:0, slots: ['G1','G2','G3','G4'] },
+  SILVER:{ label:'Silver Lounge',pricePerPax:30, color:'#34d399',   minBottleCostForArea:0, slots: ['S1','S2','S3','S4'] }
+};
+const BASE_INCLUDED = 4;         // pax inclusi
+const EXTRA_PAX_FEE = 25;        // per pax oltre i 4
+
+/* ---------- Sconti tavolo ---------- */
+function uc(s){return (s||'').toString().trim().toUpperCase()}
+function lc(s){return (s||'').toString().trim().toLowerCase()}
+function money(n){return (n<0?'-':'')+Math.abs(n).toFixed(2).replace('.00','')+'€'}
+let tableDiscounts=[];
+
+function normalize(raw){
+  const code=uc(raw.code||raw.name||''), type=(raw.type||'percent').toString().toLowerCase();
+  const value=Number(raw.value??raw.amount??0), active=(raw.active??raw.enabled??true)===true;
+  const applies=(raw.appliesTo||raw.scope||(raw.userEmail?'user':'all')).toString().toLowerCase();
+  let allowedEmails=Array.isArray(raw.allowedEmails)?raw.allowedEmails.map(lc):[];
+  if(applies==='user' && raw.userEmail){const e=lc(raw.userEmail); if(!allowedEmails.includes(e)) allowedEmails.push(e);}
+  const allowedSkus = Array.isArray(raw.allowedSkus)?raw.allowedSkus:(Array.isArray(raw.skus)?raw.skus:[]);
+  if(!code || !(value>0) || !['percent','fixed'].includes(type)) return null;
+  return {code,type,value,active,applies,allowedEmails,allowedSkus};
+}
+async function fetchTableDiscounts(){
+  // preferisci 'tableDiscounts'; altrimenti 'discounts' con allowedSkus che include TABLE|TAVOLO
+  const res=[];
+  try{
+    const a=await getDocs(collection(db,'tableDiscounts'));
+    a.forEach(d=>{const n=normalize(d.data()||{}); if(n&&n.active) res.push(n);});
+  }catch{}
+  try{
+    const b=await getDocs(collection(db,'discounts'));
+    b.forEach(d=>{
+      const n=normalize(d.data()||{});
+      if(n&&n.active && Array.isArray(n.allowedSkus) && n.allowedSkus.some(x=>['TABLE','TAVOLO','TAVOLI'].includes(uc(x)))) res.push(n);
+    });
+  }catch{}
+  tableDiscounts = res;
+  document.getElementById('discWrap').style.display = tableDiscounts.length>0 ? 'block' : 'none';
+}
+function eligible(d){ if(d.applies==='all') return true; const em=lc(user?.email||''); return em && d.allowedEmails.includes(em); }
+function computeDisc(d, base){ if(d.type==='percent') return Math.max(0, +(base*(d.value/100)).toFixed(2)); if(d.type==='fixed') return Math.max(0, Math.min(base,d.value)); return 0; }
+
+/* ---------- Stato selezione ---------- */
+let selected = null; // {area:'VIP'|'GOLD'|'SILVER', id:'V1'...}
+const grid = document.getElementById('mapGrid');
+const selArea = document.getElementById('selArea');
+const areaBadge = document.getElementById('areaBadge');
+const paxInput = document.getElementById('pax');
+const payMode = document.getElementById('payMode');
+const depositNote = document.getElementById('depositNote');
+const sumLines = document.getElementById('sumLines');
+const depositVal = document.getElementById('depositVal');
+const totalVal = document.getElementById('totalVal');
+const balanceNote = document.getElementById('balanceNote');
+const legalBox = document.getElementById('legalBox');
+const acceptLegal = document.getElementById('acceptLegal');
+const goBtn = document.getElementById('goBtn');
+const backBtn = document.getElementById('backBtn');
+
+const discInput  = document.getElementById('discInput');
+const discApply  = document.getElementById('discApply');
+const discRemove = document.getElementById('discRemove');
+const discHint   = document.getElementById('discHint');
+let appliedDisc = null;
+
+/* ---------- UI build ---------- */
+function buildMap(){
+  grid.innerHTML='';
+  // riga 1: 3 VIP (colonne centrali)
+  AREAS.VIP.slots.forEach((id,i)=>{
+    const div=document.createElement('div');
+    div.className='table';
+    div.innerHTML=`<div><strong>${AREAS.VIP.label}</strong><br> ${id}</div><div class="badge vip">45€/pax</div>`;
+    div.style.gridColumn = `${2+i}/${3+i}`; // centralizzati su 6 colonne
+    div.onclick=()=>selectTable('VIP',id);
+    grid.appendChild(div);
+  });
+  // riga 2: 4 GOLD (laterali)
+  AREAS.GOLD.slots.forEach((id,i)=>{
+    const div=document.createElement('div');
+    div.className='table';
+    div.innerHTML=`<div><strong>${AREAS.GOLD.label}</strong><br> ${id}</div><div class="badge gold">35€/pax</div>`;
+    div.onclick=()=>selectTable('GOLD',id);
+    grid.appendChild(div);
+  });
+  // riga 3: 4 SILVER (esterni)
+  AREAS.SILVER.slots.forEach((id,i)=>{
+    const div=document.createElement('div');
+    div.className='table';
+    div.innerHTML=`<div><strong>${AREAS.SILVER.label}</strong><br> ${id}</div><div class="badge silver">30€/pax</div>`;
+    div.onclick=()=>selectTable('SILVER',id);
+    grid.appendChild(div);
+  });
+}
+function selectTable(area,id){
+  selected = {area,id};
+  [...grid.children].forEach(c=>c.classList.remove('selected'));
+  event?.currentTarget?.classList?.add('selected');
+  selArea.textContent = `${AREAS[area].label} — Tavolo ${id}`;
+  areaBadge.style.display='inline-block'; areaBadge.textContent=AREAS[area].label;
+  areaBadge.style.borderColor = AREAS[area].color;
+  render();
+}
+
+/* ---------- Calcoli ---------- */
+function roundTo5pct(n){ return Math.round(n/5)*5; } // arrotonda al 5% più vicino
+function render(){
+  const pax = Math.max(1, parseInt(paxInput.value||'4'));
+  const area = selected?.area || 'VIP';
+  const ppp  = AREAS[area].pricePerPax;
+  const extra = Math.max(0, pax - BASE_INCLUDED);
+  const extraFee = extra * 25;
+
+  let base = pax * ppp + extraFee;               // totale base tavolo
+  // sconto tavoli applicato (se impostato)
+  let discAmt = 0;
+  if(appliedDisc){
+    discAmt = computeDisc(appliedDisc, base);
+  }
+  const total = Math.max(0, base - discAmt);
+
+  // deposito:
+  // minimo: 25€ * pax; ma se minBottleCostForArea > 0 ed è maggiore, usa quello
+  const minBottle = AREAS[area].minBottleCostForArea || 0;
+  const minDeposit = Math.max(25*pax, minBottle>0 ? minBottle : 0);
+  let deposit = minDeposit;
+  // “percentuale vicina” per label
+  const pct = total>0 ? roundTo5pct((deposit/total)*100) : 0;
+
+  const useDeposit = (payMode.value==='deposit');
+  depositNote.textContent = useDeposit
+    ? `Caparra minima suggerita ≈ ${pct}% — ${money(deposit)}. Il saldo rimanente verrà saldato in serata.`
+    : `Paghi ora l'intero importo.`;
+
+  sumLines.innerHTML = `
+    <div class="line"><span>Area</span><strong>${AREAS[area].label} — Tavolo ${selected?.id||'—'}</strong></div>
+    <div class="line"><span>Pax</span><strong>${pax}</strong></div>
+    ${extra>0 ? `<div class="line"><span>Extra pax</span><strong>+ ${money(extraFee)}</strong></div>`:''}
+    ${appliedDisc?`<div class="line" style="color:#22c55e"><span>Sconto (${appliedDisc.code})</span><strong>- ${money(discAmt)}</strong></div>`:''}
+  `;
+  totalVal.textContent = money(total);
+  const payNow = useDeposit ? deposit : total;
+  depositVal.textContent = money(payNow);
+  balanceNote.textContent = useDeposit ? `Saldo in serata: ${money(Math.max(0,total-deposit))}` : ' ';
+  validate();
+}
+function validate(){
+  const ok = !!selected && acceptLegal.checked;
+  document.getElementById('goBtn').disabled = !ok;
+}
+
+/* ---------- Legal notice ---------- */
+function showLegal(){
+  legalBox.style.display='block';
+  legalBox.innerHTML = `
+    <strong>Avvisi importanti</strong>
+    <ul style="margin:8px 0 0 14px;color:#ddd">
+      <li>Se i documenti non corrispondono ai dati inseriti, il tavolo verrà derubricato a ingressi VIP senza rimborso (come da termini).</li>
+      <li>Se chi prenota è minorenne o ha falsificato la data di nascita, l'intero tavolo verrà derubricato a VIP senza rimborso.</li>
+      <li>Eventuali minorenni al tavolo non potranno consumare alcolici. Ogni violazione ricade sui maggiorenni presenti (divieto di somministrazione ai minori).</li>
+    </ul>
+  `;
+}
+
+/* ---------- Sconti UI ---------- */
+discApply?.addEventListener('click', ()=>{
+  const code = uc(discInput.value||'');
+  if(!code){ discHint.textContent='Inserisci un codice'; discHint.style.color='#ef4444'; return; }
+  const found = tableDiscounts.find(d=>{
+    const okSku = !d.allowedSkus?.length || d.allowedSkus.some(x=>['TABLE','TAVOLO','TAVOLI'].includes(uc(x)));
+    return d.code===code && okSku && (d.applies==='all' || (user?.email && d.allowedEmails.includes(lc(user.email))));
+  });
+  if(!found){ appliedDisc=null; discHint.textContent='Codice non valido'; discHint.style.color='#ef4444'; render(); return; }
+  appliedDisc = found;
+  discHint.textContent = `Applicato: ${found.code} — ${found.type==='percent'?('%'+found.value):('−'+money(found.value))}`;
+  discHint.style.color='#a1a1aa';
+  render();
+});
+discRemove?.addEventListener('click', ()=>{ appliedDisc=null; discHint.textContent=''; render(); });
+
+/* ---------- Actions ---------- */
+acceptLegal.addEventListener('change', validate);
+paxInput.addEventListener('input', render);
+payMode.addEventListener('change', render);
+backBtn.addEventListener('click', ()=>{ location.href='./checkout.html'; });
+goBtn.addEventListener('click', ()=>{
+  // qui salverai la prenotazione o andrai all’inserimento nominativi tavolo
+  alert('Perfetto! Passo successivo: inserimento nominativi del tavolo.');
+  // location.href = './attendees-tavolo-nominativi.html?...'
+});
+
+/* ---------- Boot ---------- */
+async function init(){
+  buildMap();
+  showLegal();
+  await fetchTableDiscounts();
+  // selezione default (VIP primo)
+  selectTable('VIP', AREAS.VIP.slots[0]);
+  render();
+}
+</script>
+</body>
+</html>
