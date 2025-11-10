@@ -201,15 +201,14 @@ h1{font-size:26px;font-weight:900;letter-spacing:-.2px}
   </div>
 </main>
 <script type="module">
-/* ===================== Firebase/Auth ===================== */
 import { onUser, doSignOut, app } from './auth.v2.js?v=6';
 import {
-  getFirestore, doc, getDoc, collection, getDocs, query, where, limit
+  getFirestore, doc, getDoc
 } from 'https://www.gstatic.com/firebasejs/12.5.0/firebase-firestore.js';
 
 const db = getFirestore(app);
 
-/* ===================== Riferimenti UI ===================== */
+/* ---------- UI refs ---------- */
 const nav   = document.getElementById('navArea');
 const hello = document.getElementById('hello');
 
@@ -225,17 +224,11 @@ const payBtn  = document.getElementById('payBtn');
 const optName = document.getElementById('optNameChange');
 const nameLine= document.getElementById('nameChangeLine');
 
-const vipBlock = document.getElementById('vipTableBlock');   // intero blocco CTA tavolo
-const vipBtn   = document.getElementById('vipReserve');      // <a id="vipReserve">
+const vipBlock = document.getElementById('vipTableBlock');   // deve esistere e partire con hidden
+const vipBtn   = document.getElementById('vipReserve');      // link “Prenota il tuo tavolo”
 const vipNote  = document.getElementById('vipNote');         // descrizione VIP
 
-// Sconto (box è già nell'HTML)
-const discInput  = document.getElementById('discInput');
-const discApply  = document.getElementById('discApply');
-const discRemove = document.getElementById('discRemove');
-const discHint   = document.getElementById('discHint');
-
-/* ===================== Costanti & Helpers ===================== */
+/* ---------- Helper di utilità ---------- */
 const OUT = `
   <a href="./login.html?from=./checkout.html">Acquista il tuo biglietto</a>
   <a href="./login.html">Accedi</a>
@@ -245,18 +238,27 @@ const IN  = (u)=>`
   <a href="./checkout.html">Vai al checkout</a>
   <a href="#" id="logoutLink" style="color:#8b5cf6">Logout</a>`;
 
-const PRICE = { EB:12, STD:15, FAST:20, VIP:25, NAMECHANGE:1.90, STD3:40 }; // 3 Standard = 40€
-
-const lc = s => (s||'').toString().trim().toLowerCase();
-const uc = s => (s||'').toString().trim().toUpperCase();
+const PRICE = { EB:12, STD:15, FAST:20, VIP:25, NAMECHANGE:1.90, STD3:40 };
 const money = n => (n<0?'-':'') + Math.abs(n).toFixed(2).replace('.00','') + '€';
+
+function qty(){ return {
+  EB:+(qEB?.value||0), STD:+(qSTD?.value||0), FAST:+(qFAST?.value||0), VIP:+(qVIP?.value||0)
+};}
+function stdTotal(q){ const b=Math.floor(q/3), r=q%3; return b*PRICE.STD3 + r*PRICE.STD; }
+function subtotalBySku(){
+  const q = qty();
+  return { EB:q.EB*PRICE.EB, STD:stdTotal(q.STD), FAST:q.FAST*PRICE.FAST, VIP:q.VIP*PRICE.VIP };
+}
+function ticketsCount(){ const q=qty(); return q.EB+q.STD+q.FAST+q.VIP; }
+
+function drinkLabels(){ return document.querySelectorAll('.drink-label'); }
 
 function parseDob(any){
   if (!any) return null;
-  if (typeof any === 'object' && any.seconds) return new Date(any.seconds*1000);        // Firestore TS
-  if (typeof any === 'number') { const d=new Date(any); return isNaN(d)?null:d; }       // ms
-  const s = String(any).trim(); if(!s) return null;
-  if (/^\d{4}$/.test(s)) { const d=new Date(Number(s),0,1); return isNaN(d)?null:d; }   // solo anno
+  if (typeof any === 'object' && any.seconds) return new Date(any.seconds*1000); // Firestore TS
+  if (typeof any === 'number') { const d=new Date(any); return isNaN(d)?null:d; } // ms
+  const s=String(any).trim(); if(!s) return null;
+  if (/^\d{4}$/.test(s)) { const d=new Date(Number(s),0,1); return isNaN(d)?null:d; } // solo anno
   if (/^\d{4}-\d{2}-\d{2}/.test(s) || /^\d{4}-\d{2}-\d{2}T/.test(s)) { const d=new Date(s); return isNaN(d)?null:d; }
   if (/^\d{1,2}\/\d{1,2}\/\d{4}$/.test(s)) { const [dd,mm,yy]=s.split('/').map(n=>parseInt(n,10)); const d=new Date(yy,mm-1,dd); return isNaN(d)?null:d; }
   const d=new Date(s); return isNaN(d)?null:d;
@@ -276,177 +278,32 @@ async function profFromDB(uid){
   try{ const snap=await getDoc(doc(db,'users',uid)); return snap.exists()?snap.data():null; }catch{ return null; }
 }
 
-const qty = ()=>({ EB:+(qEB.value||0), STD:+(qSTD.value||0), FAST:+(qFAST.value||0), VIP:+(qVIP.value||0) });
-function stdTotal(q){ const b=Math.floor(q/3), r=q%3; return b*PRICE.STD3 + r*PRICE.STD; }
-function subtotalBySku(){
-  const q = qty();
-  return {
-    EB:q.EB*PRICE.EB,
-    STD:stdTotal(q.STD),
-    FAST:q.FAST*PRICE.FAST,
-    VIP:q.VIP*PRICE.VIP
-  };
-}
-function ticketsCount(){ const q=qty(); return q.EB+q.STD+q.FAST+q.VIP; }
-
-function saveCart(){
-  const q=qty(); localStorage.setItem('trapperreo_cart', JSON.stringify({ eb:q.EB,std:q.STD,fast:q.FAST,vip:q.VIP, nc: optName.checked?1:0 }));
-}
-function restoreCart(){
-  try{
-    const saved = JSON.parse(localStorage.getItem('trapperreo_cart')||'null');
-    if(!saved) return;
-    qEB.value   = saved.eb   ?? 0;
-    qSTD.value  = saved.std  ?? 0;
-    qFAST.value = saved.fast ?? 0;
-    qVIP.value  = saved.vip  ?? 0;
-    optName.checked = (saved.nc===1);
-  }catch{}
-}
-
-/* ===================== Settimane & stock demo ===================== */
-const weekBtns = document.querySelectorAll('.weeks button');
-let week = 4;
-const STOCK = {
-  4:{ EB:150, STD:300, FAST:200, VIP:100 },
-  3:{ EB:0,   STD:350, FAST:200, VIP:100 },
-  2:{ EB:0,   STD:300, FAST:180, VIP:100 },
-  1:{ EB:0,   STD:250, FAST:120, VIP:80  },
-};
-function setWeek(w){
-  week = w;
-  weekBtns.forEach(b=>b.classList.toggle('active', Number(b.dataset.week)===w));
-  highlightByWeek(); applyStock(); render();
-}
-function highlightByWeek(){
-  const map=[['rowEB',4],['rowSTD',3],['rowFAST',2],['rowVIP',1]];
-  map.forEach(([id,w])=>{
-    const el=document.getElementById(id);
-    el.style.boxShadow = (week===w) ? '0 0 0 2px rgba(139,92,246,.18)' : 'none';
-  });
-}
-function currentStock(){ return {...STOCK[week]}; }
-function leftText(left){ if(left<=0) return 'Esaurito'; if(left<=50) return `Mancano ${left} prevendite`; return `Disponibili ${left}`; }
-function applyStock(){
-  const st=currentStock();
-  const ebLeft = st.EB - parseInt(qEB.value||0);
-  document.getElementById('ebLeft').textContent = st.EB>0 ? leftText(ebLeft) : 'Esaurito';
-  [['EB',qEB,'rowEB'],['STD',qSTD,'rowSTD'],['FAST',qFAST,'rowFAST'],['VIP',qVIP,'rowVIP']].forEach(([sku,input,rowId])=>{
-    const has=(st[sku]??0)>0; input.disabled=!has; document.getElementById(rowId).classList.toggle('sold',!has);
-  });
-}
-
-/* ===================== SCONTI ===================== */
-// cache lista sconti
-let allDiscounts = [];
-const readApplied  = () => { try{ return JSON.parse(localStorage.getItem('trapperreo_discount_applied')||'null'); }catch{ return null; } };
-const writeApplied = (s) => { if(!s) localStorage.removeItem('trapperreo_discount_applied'); else localStorage.setItem('trapperreo_discount_applied', JSON.stringify(s)); };
-
-function normalize(raw){
-  const code   = uc(raw.code || raw.name || '');
-  const type   = (raw.type || 'percent').toString().toLowerCase(); // percent | fixed
-  const value  = Number(raw.value ?? raw.amount ?? 0);
-  const active = (raw.active ?? raw.enabled ?? true) === true;
-
-  // scope
-  const applies = (raw.appliesTo || raw.scope || (raw.userEmail ? 'user' : 'all')).toString().toLowerCase();
-
-  // target email
-  let allowedEmails = Array.isArray(raw.allowedEmails) ? raw.allowedEmails.map(lc) : [];
-  if (applies === 'user' && raw.userEmail) {
-    const ue = lc(raw.userEmail);
-    if (!allowedEmails.includes(ue)) allowedEmails.push(ue);
-  }
-
-  // skus consentiti
-  const allowedSkus = Array.isArray(raw.allowedSkus) ? raw.allowedSkus
-                     : (Array.isArray(raw.skus) ? raw.skus : []);
-
-  const label = raw.label || raw.title || '';
-
-  if (!code || !(value>0) || !['percent','fixed'].includes(type)) return null;
-  return { code, type, value, active, applies, allowedEmails, allowedSkus, label };
-}
-
-async function fetchCol(colName){
-  try{
-    const snap = await getDocs(collection(db,colName));
-    const arr=[]; snap.forEach(d=>{ const n=normalize(d.data()||{}); if(n && n.active) arr.push(n); });
-    return arr;
-  }catch(e){ console.warn(`[discounts] fetch ${colName} error`, e); return []; }
-}
-async function fetchDiscountsList(){
-  const a = await fetchCol('discounts');
-  const b = await fetchCol('discountCodes'); // legacy
-  const map = new Map();
-  [...b,...a].forEach(d=>map.set(d.code, d));
-  allDiscounts = Array.from(map.values());
-}
-function eligibleForUser(d, user){
-  if (!d) return false;
-  if (d.applies === 'all') return true;
-  const email = lc(user?.email || '');
-  if (!email) return false;
-  if (Array.isArray(d.allowedEmails) && d.allowedEmails.length > 0) {
-    return d.allowedEmails.includes(email);
-  }
-  return false;
-}
-function allowedSet(d){
-  return (d.allowedSkus && d.allowedSkus.length>0) ? d.allowedSkus : ['EB','STD','FAST','VIP'];
-}
-function computeDiscountAmount(d, parts){
-  const allow = allowedSet(d);
-  const base = (allow.includes('EB')?parts.EB:0)
-             + (allow.includes('STD')?parts.STD:0)
-             + (allow.includes('FAST')?parts.FAST:0)
-             + (allow.includes('VIP')?parts.VIP:0);
-  if (d.type === 'percent') return Math.max(0, +(base * (d.value/100)).toFixed(2));
-  if (d.type === 'fixed')   return Math.max(0, Math.min(base, d.value));
-  return 0;
-}
-function findInCacheForUser(code, user){
-  const C = uc(code);
-  return allDiscounts.find(d => d.code===C && eligibleForUser(d, user)) || null;
-}
-async function fetchSingleFrom(colName, code, user){
-  try{
-    const qy = query(collection(db,colName), where('code','==',uc(code)), limit(1));
-    const snap = await getDocs(qy);
-    if (snap.empty) return null;
-    const d = normalize(snap.docs[0].data()||{});
-    if (!d || !d.active) return null;
-    return eligibleForUser(d, user) ? d : { __reason:'not-eligible' };
-  }catch(e){ console.warn(`[discounts] single query error ${colName}`, e); return null; }
-}
-async function fetchSingleByCode(code, user){
-  const fromA = await fetchSingleFrom('discounts', code, user);
-  if (fromA) return fromA;
-  return await fetchSingleFrom('discountCodes', code, user);
-}
-
-/* ===================== Render & Bind ===================== */
-let currentUser = null;
-let authReadyResolve;
-const authReady = new Promise(r=>authReadyResolve=r);
-
-function drinkNodes(){ return document.querySelectorAll('.drink-label'); }
+/* ---------- Gating 18+ sicuro ---------- */
 function setAdultUI(isAdult){
-  // drink label
-  drinkNodes().forEach(el=>{
+  // Aggiorna etichette drink
+  drinkLabels().forEach(el=>{
     el.textContent = isAdult ? '1 drink (alcolico/analcolico)' : '1 drink analcolico';
   });
-  // descrizione VIP
+
+  // Descrizione VIP
   if (vipNote){
     vipNote.innerHTML = isAdult
       ? 'Accesso area VIP • <span class="drink-label">1 drink (alcolico/analcolico)</span> + <strong>guardaroba incluso</strong>.'
       : 'Accesso area VIP • <strong>2 drink analcolici</strong> + <strong>guardaroba incluso</strong>.';
   }
-  // CTA tavoli: SOLO 18+
+
+  // Blocco tavoli: per sicurezza parte hidden nell’HTML.
   if (vipBlock){
-    if (isAdult){ vipBlock.hidden=false; vipBlock.style.display='flex'; }
-    else        { vipBlock.hidden=true; }
+    if (isAdult){
+      vipBlock.hidden = false;
+      vipBlock.style.display = 'flex';
+    } else {
+      vipBlock.hidden = true;
+      vipBlock.style.display = 'none';
+    }
   }
+
+  // Azione bottone
   if (vipBtn){
     vipBtn.onclick = (e)=>{
       if (!isAdult){ e.preventDefault(); return; }
@@ -455,149 +312,119 @@ function setAdultUI(isAdult){
   }
 }
 
+/* ---------- Render riepilogo (minimo) ---------- */
 function render(){
+  if (!qEB || !qSTD || !qFAST || !qVIP) return; // se mancano input, esci silenziosamente
   const parts = subtotalBySku();
   const gross = parts.EB + parts.STD + parts.FAST + parts.VIP;
 
-  const snap = readApplied(); // {code,type,value,allowedSkus}
-  let disc = 0; let tag=null;
-  if (snap) {
-    const d = { code:snap.code, type:snap.type, value:snap.value, allowedSkus:(snap.allowedSkus?.length?snap.allowedSkus:['EB','STD','FAST','VIP']) };
-    disc = computeDiscountAmount(d, parts);
-    tag  = `${snap.code} — ${snap.type==='percent' ? '%'+snap.value : '−'+money(snap.value)}`;
-  }
-
   const tCount = ticketsCount();
-  const prot   = optName.checked ? tCount * PRICE.NAMECHANGE : 0;
-  const total  = Math.max(0, gross - disc) + prot;
+  const prot   = optName?.checked ? tCount * PRICE.NAMECHANGE : 0;
+  if (nameLine) nameLine.textContent = prot ? money(prot) : '0€';
 
-  const L=[]; const label = k=>({EB:'Early Bird',STD:'Standard',FAST:'Fast Entry',VIP:'VIP Entry'})[k];
+  const total  = Math.max(0, gross) + prot;
+
+  const label = k=>({EB:'Early Bird',STD:'Standard',FAST:'Fast Entry',VIP:'VIP Entry'})[k];
   const q = qty();
+  const L=[];
   if(q.EB>0)   L.push(`<div class="line"><span>${label('EB')} × ${q.EB}</span><span>${money(parts.EB)}</span></div>`);
   if(q.STD>0)  L.push(`<div class="line"><span>${label('STD')} × ${q.STD}</span><span>${money(parts.STD)}</span></div>`);
   if(q.FAST>0) L.push(`<div class="line"><span>${label('FAST')} × ${q.FAST}</span><span>${money(parts.FAST)}</span></div>`);
   if(q.VIP>0)  L.push(`<div class="line"><span>${label('VIP')} × ${q.VIP}</span><span>${money(parts.VIP)}</span></div>`);
-  if(tag)      L.push(`<div class="line" style="color:#22c55e;font-weight:800"><span>Sconto (${tag})</span><span>- ${money(disc)}</span></div>`);
-  if(optName.checked && tCount>0){
-    nameLine.textContent = money(prot);
-    L.push(`<div class="line"><span>Protezione cambio nome × ${tCount}</span><span>${money(prot)}</span></div>`);
-  } else {
-    nameLine.textContent = '0€';
-  }
 
-  lines.innerHTML = L.join('');
-  grandEl.textContent = money(total);
-  payBtn.disabled = tCount<=0;
-
-  discHint.textContent = snap ? `Applicato: ${tag}.` : ``;
-  discHint.className = 'small ' + (snap ? 'hint-ok' : '');
+  if (lines)   lines.innerHTML   = L.join('');
+  if (grandEl) grandEl.textContent = money(total);
+  if (payBtn)  payBtn.disabled = tCount<=0;
 }
 
 function bindQty(){
+  // Proteggi sempre le query
   document.querySelectorAll('[data-plus]').forEach(b=>{
-    b.addEventListener('click',()=>{
-      const t=document.querySelector(b.getAttribute('data-plus'));
-      t.value=(parseInt(t.value||0)+1); saveCart(); applyStock(); render();
+    b.addEventListener('click', ()=>{
+      const sel=b.getAttribute('data-plus'); if(!sel) return;
+      const t=document.querySelector(sel); if(!t) return;
+      t.value=(parseInt(t.value||0)+1);
+      render();
     });
   });
   document.querySelectorAll('[data-minus]').forEach(b=>{
-    b.addEventListener('click',()=>{
-      const t=document.querySelector(b.getAttribute('data-minus'));
-      t.value=Math.max(0,parseInt(t.value||0)-1); saveCart(); applyStock(); render();
+    b.addEventListener('click', ()=>{
+      const sel=b.getAttribute('data-minus'); if(!sel) return;
+      const t=document.querySelector(sel); if(!t) return;
+      t.value=Math.max(0,parseInt(t.value||0)-1);
+      render();
     });
   });
+
   [qEB,qSTD,qFAST,qVIP,optName].forEach(el=>{
-    el.addEventListener(el.type==='checkbox'?'change':'input', ()=>{ saveCart(); render(); });
+    if(!el) return;
+    el.addEventListener(el.type==='checkbox'?'change':'input', render);
   });
 }
 
-/* ====== Applica / rimuovi sconto (senza popup) ====== */
-discApply?.addEventListener('click', async ()=>{
-  await authReady;
-  const code = uc(discInput?.value||'');
-  if(!code){ discHint.textContent='Inserisci un codice'; discHint.className='small hint-err'; return; }
+/* ---------- Auth Boot ---------- */
+hello.textContent = 'Caricamento…';
 
-  let found = findInCacheForUser(code, currentUser);        // 1) cache
-  if(!found){
-    const one = await fetchSingleByCode(code, currentUser); // 2) query mirata
-    if (one && !one.__reason) found = one;
-    else if (one && one.__reason === 'not-eligible') {
-      writeApplied(null); render();
-      discHint.textContent='Codice valido ma non assegnato a questa email.';
-      discHint.className='small hint-err';
+onUser(async (u)=>{
+  try{
+    if(!u){
+      nav.innerHTML=OUT;
+      location.href='./login.html?from=./checkout.html';
       return;
     }
-  }
+    // Nav
+    nav.innerHTML = IN(u);
+    document.getElementById('logoutLink')?.addEventListener('click', async (e)=>{
+      e.preventDefault(); await doSignOut(); nav.innerHTML=OUT; location.href='./login.html?from=./checkout.html';
+    });
+    hello.innerHTML = `Ciao, <strong>${(u.displayName||u.email||'Utente').split(' ')[0]}</strong>`;
 
-  if(!found){
-    writeApplied(null); render();
-    discHint.textContent='Codice sconto non valido';
-    discHint.className='small hint-err';
-    return;
-  }
+    // 1) LocalStorage
+    let prof = profFromLS(u.uid);
+    let dob  = parseDob(prof?.dob);
 
-  writeApplied({
-    code: found.code,
-    type: found.type,           // 'percent' | 'fixed'
-    value: found.value,
-    allowedSkus: allowedSet(found)
-  });
-  discHint.textContent = `Applicato: ${found.code}`;
-  discHint.className = 'small hint-ok';
-  render();
-});
-
-discRemove?.addEventListener('click', ()=>{
-  writeApplied(null);
-  discHint.textContent = '';
-  discHint.className = 'small';
-  render();
-});
-
-/* ===================== Boot Auth ===================== */
-hello.textContent = 'Caricamento…';
-onUser(async (u)=>{
-  if(!u){ nav.innerHTML=OUT; location.href='./login.html?from=./checkout.html'; return; }
-  currentUser = u; authReadyResolve?.(); discApply.disabled = false;
-
-  nav.innerHTML = IN(u);
-  document.getElementById('logoutLink')?.addEventListener('click', async (e)=>{
-    e.preventDefault(); await doSignOut(); nav.innerHTML=OUT; location.href='./login.html?from=./checkout.html';
-  });
-  hello.innerHTML = `Ciao, <strong>${(u.displayName||u.email||'Utente').split(' ')[0]}</strong>`;
-
-  // profilo → età
-  let prof = profFromLS(u.uid);
-  let dob  = parseDob(prof?.dob);
-  if (!dob){
-    const dbProf = await profFromDB(u.uid);
-    dob = parseDob(dbProf?.dob);
-    if (dob){
-      const merged = { ...(prof||{}), dob: dbProf.dob };
-      try{ localStorage.setItem('trapperreo_profile_'+u.uid, JSON.stringify(merged)); }catch{}
+    // 2) Firestore /users/{uid}.dob
+    if (!dob){
+      const doc1 = await profFromDB(u.uid);
+      dob = parseDob(doc1?.dob);
+      // 3) Firestore /users/{uid}.profile.dob
+      if (!dob) dob = parseDob(doc1?.profile?.dob);
+      // sync su LS se trovato
+      if (dob){
+        try{
+          const merged = { ...(prof||{}), dob: doc1?.dob ?? doc1?.profile?.dob };
+          localStorage.setItem('trapperreo_profile_'+u.uid, JSON.stringify(merged));
+        }catch{}
+      }
     }
+
+    const age = ageFrom(dob);
+    const isAdult = age >= 18;
+
+    // Log di verifica (puoi toglierli dopo il test)
+    console.log('[DOB]', { rawLS: prof?.dob, parsedFromLS: parseDob(prof?.dob),
+                           fetched: dob, age, isAdult });
+
+    setAdultUI(isAdult);
+    render();
+  }catch(err){
+    console.error('onUser fatal:', err);
+    // se per qualunque motivo crascia, *mantieni nascosto* il blocco tavoli
+    if (vipBlock){ vipBlock.hidden = true; vipBlock.style.display='none'; }
   }
-  const isAdult = ageFrom(dob) >= 18; // se dob mancante → minorenne
-  setAdultUI(isAdult);
 });
 
-/* ===================== Init pagina ===================== */
-weekBtns.forEach(b=>b.addEventListener('click', ()=>setWeek(Number(b.dataset.week))));
-setWeek(4);
-restoreCart();
-await fetchDiscountsList();
+/* ---------- Init bind ---------- */
 bindQty();
-applyStock();
 render();
 
-/* ===================== Procedi ===================== */
-payBtn.addEventListener('click', ()=>{
+/* ---------- Procedi ---------- */
+payBtn?.addEventListener('click', ()=>{
   const q = qty();
   const tickets = q.EB + q.STD + q.FAST + q.VIP;
   const qs = new URLSearchParams({
-    std:q.STD||0, fast:q.FAST||0, vip:q.VIP||0, eb:q.EB||0, nc: optName.checked?1:0
+    std:q.STD||0, fast:q.FAST||0, vip:q.VIP||0, eb:q.EB||0, nc: optName?.checked?1:0
   }).toString();
-  saveCart();
   if(tickets > 1) location.href = `./attendees.html?${qs}`;
   else            location.href = `./attendees-single.html?${qs}`;
 });
