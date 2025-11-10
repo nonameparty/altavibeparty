@@ -19,13 +19,14 @@ input,select{background:#0f0f10;border:1px solid var(--border);border-radius:10p
 .btn.ghost{background:transparent;border:1px solid var(--border);color:#fff}
 .grid2{display:grid;grid-template-columns:1fr auto;gap:10px}
 .table{width:100%;border-collapse:collapse;margin-top:12px;font-size:14px}
-.table th,.table td{padding:10px;border-bottom:1px solid rgba(255,255,255,.08)}
+.table th,.table td{padding:10px;border-bottom:1px solid rgba(255,255,255,.08);vertical-align:top}
 .badge{display:inline-block;font-size:12px;border:1px solid var(--border);border-radius:999px;padding:3px 8px}
 .small{font-size:12px}
 .right{display:flex;gap:10px;align-items:center}
 .notice{display:none;margin:10px 0;padding:12px;border-radius:10px;background:#2a0e0e;border:1px solid #ff6b6b;color:#ffdede}
-.spinner{width:16px;height:16px;border:2px solid rgba(255,255,255,.25);border-top-color:#fff;border-radius:50%;animation:sp 1s linear infinite}
-@keyframes sp{to{transform:rotate(360deg)}}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;align-items:center;justify-content:center;z-index:60}
+.modal .box{background:#0f0f10;border:1px solid var(--border);border-radius:14px;padding:16px;width:min(560px,92vw)}
+.row{display:flex;gap:8px;margin-top:8px}
 </style>
 </head>
 <body>
@@ -33,43 +34,25 @@ input,select{background:#0f0f10;border:1px solid var(--border);border-radius:10p
   <h1>Pannello Founder</h1>
   <div id="who" class="muted">Verifica permessi…</div>
 
-  <!-- Banner errori -->
   <div id="errBanner" class="notice"></div>
 
-  <!-- Azioni rapide (ora link verso pagine dedicate) -->
   <div class="card" style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
-    <a href="./founder-gift.html" class="btn ghost">Crea omaggio</a>
-    <a href="./founder-discount.html" class="btn ghost">Codice sconto</a>
-    <a href="./founder-tables.html" class="btn">🍾 Gestione tavoli & bottiglie</a>
-    <button id="btnExportCSV" class="btn">Export CSV utenti</button>
+    <a href="./founder-gift.html" class="btn">Crea omaggio</a>
+    <a href="./scanner.html" class="btn ghost">Scanner</a>
+    <a href="./checkout.html" class="btn ghost">Nuovo ordine</a>
   </div>
-
-  <section class="card">
-    <div class="right">
-      <h2>Statistiche rapide</h2>
-      <div id="statLoad" class="spinner" aria-hidden="true" style="display:none"></div>
-    </div>
-    <div style="display:flex;gap:16px;flex-wrap:wrap;margin-top:8px">
-      <div class="badge">Utenti attivi: <span id="statActive">—</span></div>
-      <div class="badge">Utenti totali: <span id="statTotal">—</span></div>
-    </div>
-  </section>
 
   <section class="card">
     <div class="right" style="justify-content:space-between;">
       <h2>Gestione utenti</h2>
       <div class="right">
-        <button id="btnReload" class="btn ghost small">Carica ultimi</button>
-        <div id="listLoad" class="spinner" aria-hidden="true" style="display:none"></div>
+        <input id="q" placeholder="Cerca email o nome…" />
+        <button id="btnSearch" class="btn">Cerca</button>
       </div>
-    </div>
-    <div class="grid2" style="margin-top:10px">
-      <input id="q" placeholder="Cerca per email o nome…" />
-      <button id="btnSearch" class="btn">Cerca</button>
     </div>
     <table class="table" id="tbl">
       <thead>
-        <tr><th>Nome</th><th>Email</th><th>Ruolo</th><th>Status</th><th>Azioni</th></tr>
+        <tr><th>Utente</th><th>Biglietti</th><th>Cronologia</th></tr>
       </thead>
       <tbody></tbody>
     </table>
@@ -77,189 +60,152 @@ input,select{background:#0f0f10;border:1px solid var(--border);border-radius:10p
   </section>
 </main>
 
+<!-- Modale edit ticket -->
+<div id="modal" class="modal" aria-hidden="true">
+  <div class="box">
+    <h3 style="font-weight:900">Modifica nominativo (gratis staff)</h3>
+    <div class="row"><input id="mName" placeholder="Nome e cognome" style="flex:1"></div>
+    <div class="row"><input id="mDob"  type="date" style="flex:1"></div>
+    <div class="row" style="justify-content:flex-end">
+      <button id="mCancel" class="btn ghost">Annulla</button>
+      <button id="mSave" class="btn">Salva & rigenera QR</button>
+    </div>
+  </div>
+</div>
+
 <script type="module">
-import { app, onUser, exportUsersCSV } from './auth.v2.js?v=6';
-import { getFirestore, doc, getDoc, setDoc, collection, getDocs } from 'https://www.gstatic.com/firebasejs/12.5.0/firebase-firestore.js';
+import { app, onUser } from './auth.v2.js?v=6';
+import { getFirestore, doc, getDoc, getDocs, collection, setDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/12.5.0/firebase-firestore.js';
 
 const db = getFirestore(app);
+const who = document.getElementById('who');
+const tbody = document.querySelector('#tbl tbody');
+const empty = document.getElementById('empty');
+const qInput= document.getElementById('q');
+const btnSearch=document.getElementById('btnSearch');
+const modal = document.getElementById('modal');
+const mName = document.getElementById('mName');
+const mDob  = document.getElementById('mDob');
+const mCancel = document.getElementById('mCancel');
+const mSave   = document.getElementById('mSave');
 
-// UI refs
-const who       = document.getElementById('who');
-const errBanner = document.getElementById('errBanner');
-const statActive= document.getElementById('statActive');
-const statTotal = document.getElementById('statTotal');
-const statLoad  = document.getElementById('statLoad');
-const qInput    = document.getElementById('q');
-const btnSearch = document.getElementById('btnSearch');
-const btnReload = document.getElementById('btnReload');
-const tbody     = document.querySelector('#tbl tbody');
-const emptyMsg  = document.getElementById('empty');
-const listLoad  = document.getElementById('listLoad');
-const btnExportCSV = document.getElementById('btnExportCSV');
+let EDIT = null; // {uid, tid}
 
-const lc = s => (s||'').toString().trim().toLowerCase();
-
-async function isFounder(email){
+function lc(s){ return (s||'').toString().trim().toLowerCase(); }
+async function isFounder(email, uid){
   try{
-    const snap = await getDoc(doc(db,'config','admins'));
-    if(!snap.exists()) return false;
-    const founders = snap.data()?.founders || {};
-    return founders[lc(email)] === true;
-  }catch(_){ return false; }
+    const cfg = await getDoc(doc(db,'config','admins'));
+    const role = await getDoc(doc(db,'users',uid));
+    const r = role.exists()? (role.data().role||'') : '';
+    const f = cfg.exists()? (cfg.data().founders||{}) : {};
+    const a = cfg.exists()? (cfg.data().admins||{})   : {};
+    return !!(f[lc(email)] || r==='founder' || a[lc(email)]);
+  }catch{ return false; }
 }
 
-function showError(msg){ errBanner.textContent = msg; errBanner.style.display = 'block'; }
-function hideError(){ errBanner.style.display='none'; }
+function openModal(){ modal.style.display='flex'; modal.setAttribute('aria-hidden','false'); }
+function closeModal(){ modal.style.display='none'; modal.setAttribute('aria-hidden','true'); }
 
-function safeName(v){ return (v?.name || v?.name_lc || v?.email || '').toString(); }
-function safeUpdatedAt(v){
-  const u = v?.updatedAt || v?.createdAt;
-  if (!u) return 0;
-  if (typeof u === 'number') return u;
-  if (u?.seconds) return u.seconds * 1000 + Math.floor((u.nanoseconds||0)/1e6);
-  try { return new Date(u).getTime() || 0; } catch { return 0; }
+function rowTicket(uid, t){
+  const state = (t.status||'pending').toLowerCase();
+  const color = state==='verified'?'#22c55e':state==='flagged'?'#ef4444':'#ffffff55';
+  const editBtn = `<button class="btn ghost small" data-edit="${uid}:${t.id}">Modifica</button>`;
+  return `
+    <div style="border:1px solid ${color};border-radius:10px;padding:8px;margin-bottom:8px">
+      <div style="display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap">
+        <div><b>${t.type||'Ticket'}</b> — <span style="opacity:.85">${t.name||'—'} • ${(t.dob||'').toString().slice(0,10)||'—'}</span></div>
+        <div style="display:flex;gap:6px;align-items:center">
+          <span class="badge">${state}</span>
+          ${editBtn}
+        </div>
+      </div>
+    </div>
+  `;
 }
 
-function renderRows(users){
-  tbody.innerHTML = '';
-  emptyMsg.style.display = users.length ? 'none' : 'block';
+function renderUsers(list){
+  tbody.innerHTML='';
+  empty.style.display = list.length? 'none':'block';
+  list.forEach(async u=>{
+    // tickets
+    const ts = await getDocs(collection(db,'users',u.uid,'tickets'));
+    const tickets = [];
+    ts.forEach(d=> tickets.push({ id:d.id, ...(d.data()||{}) }) );
+    // cronologia (ordini)
+    const os = await getDocs(collection(db,'users',u.uid,'orders')).catch(()=>({empty:true, forEach:()=>{}}));
+    const orders=[];
+    os.forEach(o=> orders.push({ id:o.id, ...(o.data()||{}) }) );
 
-  users.forEach(u=>{
     const tr = document.createElement('tr');
     tr.innerHTML = `
-      <td>${u.name || '—'}</td>
-      <td>${u.email || '—'}</td>
-      <td>
-        <select data-uid="${u.uid}" class="roleSel">
-          ${['customer','pr','admin','founder'].map(r=>`<option value="${r}" ${u.role===r?'selected':''}>${r}</option>`).join('')}
-        </select>
+      <td style="min-width:220px">
+        <div><b>${u.name||'—'}</b></div>
+        <div class="small" style="opacity:.8">${u.email||'—'}</div>
       </td>
-      <td>
-        <select data-uid="${u.uid}" class="statusSel">
-          ${['active','suspended','deleted'].map(s=>`<option value="${s}" ${u.status===s?'selected':''}>${s}</option>`).join('')}
-        </select>
+      <td>${ tickets.length? tickets.map(t=>rowTicket(u.uid,t)).join('') : '<span class="small muted">Nessun ticket</span>' }</td>
+      <td style="min-width:240px">
+        ${
+          orders.length
+          ? orders.map(o=>`<div class="small" style="border-bottom:1px dashed rgba(255,255,255,.12);padding:6px 0">
+              <div><b>${o.title||'Ordine'}</b> — ${o.total? (o.total.toFixed?o.total.toFixed(2):o.total) +'€':''}</div>
+              <div style="opacity:.8">${o.createdAt? (new Date(o.createdAt.seconds*1000)).toLocaleString() : ''}</div>
+            </div>`).join('')
+          : '<span class="small muted">Nessun ordine</span>'
+        }
       </td>
-      <td><button class="btn ghost small" data-save="${u.uid}">Salva</button></td>
     `;
     tbody.appendChild(tr);
   });
 
-  tbody.querySelectorAll('button[data-save]').forEach(btn=>{
-    btn.addEventListener('click', async ()=>{
-      const uid = btn.getAttribute('data-save');
-      const role = tbody.querySelector(`select.roleSel[data-uid="${uid}"]`).value;
-      const status = tbody.querySelector(`select.statusSel[data-uid="${uid}"]`).value;
-      btn.disabled = true; btn.textContent = 'Salvo…';
-      try{
-        await setDoc(doc(db,'users',uid), { role, status, updatedAt: Date.now() }, { merge:true });
-        btn.textContent = 'Salvato ✓';
-      }catch(e){
-        console.error('save user error', e);
-        btn.textContent = 'Errore';
-        showError('Errore durante il salvataggio. Controlla le regole o i permessi.');
-      }finally{
-        setTimeout(()=>{ btn.textContent='Salva'; btn.disabled=false; }, 900);
-      }
-    });
+  // bind edit
+  tbody.querySelectorAll('[data-edit]').forEach(btn=>{
+    btn.onclick = async ()=>{
+      const [uid, tid] = btn.getAttribute('data-edit').split(':');
+      const snap = await getDoc(doc(db,'users',uid,'tickets',tid));
+      if(!snap.exists()) return;
+      const t = snap.data()||{};
+      EDIT = { uid, tid };
+      mName.value = t.name || '';
+      mDob.value  = (t.dob||'').toString().slice(0,10) || '';
+      openModal();
+    };
   });
 }
 
-async function runStats(){
-  statLoad.style.display = 'inline-block';
-  try{
-    const snap = await getDocs(collection(db,'users'));
-    let active=0;
-    snap.forEach(d=>{
-      const v = d.data() || {};
-      if ((v.status || 'active').toString().toLowerCase() === 'active') active++;
-    });
-    statActive.textContent = active;
-    statTotal.textContent  = snap.size;
-  }catch(e){
-    console.error('stats error', e);
-    showError('Impossibile leggere le statistiche.');
-  }finally{
-    statLoad.style.display = 'none';
-  }
-}
-
-async function loadLatest(){
-  hideError();
-  listLoad.style.display = 'inline-block';
-  try{
-    const snap = await getDocs(collection(db,'users'));
-    const arr = [];
-    snap.forEach(d=> arr.push({ uid:d.id, ...d.data() }));
-    arr.sort((a,b)=>{
-      const byTime = safeUpdatedAt(b) - safeUpdatedAt(a);
-      return byTime !== 0 ? byTime : safeName(a).localeCompare(safeName(b));
-    });
-    renderRows(arr);
-  }catch(e){
-    console.error('load users error', e);
-    showError('Non riesco a caricare la lista utenti (permessi?).');
-    renderRows([]);
-  }finally{
-    listLoad.style.display = 'none';
-  }
-}
-
-async function searchUsers(qs){
-  hideError();
-  const term = lc(qs);
-  if(!term){ renderRows([]); return; }
-  listLoad.style.display = 'inline-block';
-  try{
-    const snap = await getDocs(collection(db,'users'));
-    const out = [];
-    snap.forEach(d=>{
-      const v = d.data() || {};
-      const email = lc(v.email);
-      const name  = lc(v.name_lc || v.name);
-      if (email === term || (term && name.startsWith(term))) out.push({ uid:d.id, ...v });
-    });
-    out.sort((a,b)=> safeName(a).localeCompare(safeName(b)));
-    renderRows(out);
-  }catch(e){
-    console.error('search error', e);
-    showError('Errore nella ricerca utenti.');
-    renderRows([]);
-  }finally{
-    listLoad.style.display = 'none';
-  }
+async function searchUsers(term){
+  const snap = await getDocs(collection(db,'users'));
+  const arr=[]; snap.forEach(d=> arr.push({ uid:d.id, ...(d.data()||{}) }) );
+  const q = lc(term);
+  const out = q
+    ? arr.filter(u=> lc(u.email)==q || lc(u.name_lc||u.name||'').startsWith(q))
+    : arr.slice(0,50);
+  renderUsers(out);
 }
 
 onUser(async (u)=>{
-  if(!u){ location.href = './login.html?from=./founder.html'; return; }
-  const my = await getDoc(doc(db,'users',u.uid)).catch(()=>null);
-  const myData = my && my.exists() ? my.data() : {};
-  const allowed = (myData.role === 'founder') || await isFounder(u.email||'');
-  who.textContent = allowed
-    ? `Ciao ${myData.name || u.email} — permessi Founder attivi.`
-    : 'Accesso negato (solo Founder).';
-  if(!allowed){ setTimeout(()=>location.href='./account-2.html', 1200); return; }
-
-  await runStats();
-  await loadLatest();
-
-  btnReload.addEventListener('click', loadLatest);
-  btnSearch.addEventListener('click', ()=>searchUsers(qInput.value));
-  qInput.addEventListener('keydown', (e)=>{ if(e.key==='Enter') searchUsers(qInput.value); });
-
-  // Export CSV
-  btnExportCSV?.addEventListener('click', async ()=>{
-    try{
-      btnExportCSV.disabled = true; btnExportCSV.textContent = 'Esporto…';
-      const n = await exportUsersCSV();
-      btnExportCSV.textContent = `Export (${n}) ✓`;
-    }catch(e){
-      console.error(e); showError('Export fallito (permessi/regole?).');
-      btnExportCSV.textContent = 'Export CSV utenti';
-    }finally{
-      setTimeout(()=>{ btnExportCSV.disabled=false; btnExportCSV.textContent='Export CSV utenti'; },1000);
-    }
-  });
+  if(!u){ location.href='./login.html?from=./founder.html'; return; }
+  const ok = await isFounder(u.email||'', u.uid);
+  who.textContent = ok ? `Ciao ${u.email} — permessi Founder/Admin attivi.` : 'Accesso negato.';
+  if(!ok){ setTimeout(()=>location.href='./account-2.html', 1200); return; }
+  await searchUsers(''); // primi N
 });
+
+btnSearch.onclick = ()=> searchUsers(qInput.value);
+
+mCancel.onclick = ()=> closeModal();
+mSave.onclick = async ()=>{
+  if(!EDIT) return;
+  const { uid, tid } = EDIT;
+  const name = mName.value.trim();
+  const dob  = mDob.value;
+  if(!name || !/^\d{4}-\d{2}-\d{2}$/.test(dob)){ alert('Compila correttamente.'); return; }
+  const qr = JSON.stringify({ uid, tid, v:1 });
+  await setDoc(doc(db,'users',uid,'tickets',tid), {
+    name, dob, qr, locked:true, updatedAt: serverTimestamp()
+  }, { merge:true });
+  alert('Aggiornato.');
+  closeModal(); location.reload();
+};
 </script>
 </body>
 </html>
