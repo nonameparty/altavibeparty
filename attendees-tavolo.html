@@ -32,53 +32,46 @@ h2{font-size:20px;font-weight:900;margin:14px 0 8px}
 .btn{display:inline-block;padding:12px 16px;border-radius:12px;font-weight:900;border:1px solid var(--border);background:#121214;color:#fff;cursor:pointer}
 .btn.primary{background:var(--accent);color:#000;border:none}
 .btn.ghost{background:transparent}
-.badge{display:inline-block;padding:6px 10px;border-radius:999px;border:1px solid var(--border);font-size:12px}
-
-.counter{display:inline-flex;align-items:center;border:1px solid var(--border);border-radius:12px;overflow:hidden}
-.counter button{width:40px;height:40px;background:#121214;border:none;color:#fff;font-weight:900;cursor:pointer}
-.counter input{width:72px;height:40px;background:#0b0b0b;border:none;color:#fff;text-align:center;font-weight:900;font-size:16px}
+.btn[disabled]{opacity:.5;cursor:not-allowed}
+.badge{display:inline-flex;gap:6px;align-items:center;padding:6px 10px;border-radius:999px;border:1px solid var(--border);font-size:12px}
 
 /* tabs tavoli */
 .tabs{display:flex;gap:8px;flex-wrap:wrap}
 .tab{padding:8px 12px;border:1px solid var(--border);border-radius:10px;cursor:pointer}
 .tab.active{border-color:var(--accent);box-shadow:0 0 0 3px rgba(139,92,246,.25)}
 
+/* legenda */
+.legend{display:flex;gap:10px;flex-wrap:wrap;margin-top:8px}
+.legend .row{display:flex;gap:10px;flex-wrap:wrap}
+.legend .chip{display:inline-flex;gap:6px;align-items:center;padding:6px 10px;border-radius:10px;border:1px solid var(--border)}
+.legend .dot{width:10px;height:10px;border-radius:999px}
+
 /* mappa */
 .map{position:relative;aspect-ratio: 5/3;background:#0a0a0a;border:1px solid rgba(255,255,255,.1);border-radius:14px;overflow:hidden}
-.deck{position:absolute;top:8px;left:50%;transform:translateX(-50%);padding:6px 10px;border-radius:8px;border:1px dashed rgba(255,255,255,.25);font-size:12px}
-.floor{position:absolute;inset:0;display:grid;place-items:center}
+.map .deck,.map .floor{pointer-events:none}
+.deck{position:absolute;top:8px;left:50%;transform:translateX(-50%);padding:6px 10px;border-radius:8px;border:1px dashed rgba(255,255,255,.25);font-size:12px;z-index:1}
+.floor{position:absolute;inset:0;display:grid;place-items:center;z-index:1}
 .floor .dance{width:58%;height:58%;border:1px dashed rgba(255,255,255,.22);border-radius:12px;display:grid;place-items:center;color:#bbb;font-size:12px}
 
-.zone{position:absolute;display:grid;place-items:center;border-radius:10px;border:1.5px solid rgba(255,255,255,.18);padding:8px 12px;background:#101010;cursor:pointer;transition:transform .12s, box-shadow .12s, border-color .12s, background .12s}
+/* zone cliccabili */
+.zone{position:absolute;display:grid;place-items:center;border-radius:10px;border:1.5px solid rgba(255,255,255,.18);padding:8px 12px;background:#101010;cursor:pointer;transition:transform .12s, box-shadow .12s, border-color .12s, background .12s; z-index:2; pointer-events:auto}
 .zone:hover{transform:translateY(-1px)}
 .zone .pp{font-weight:900}
 .zone .lbl{font-size:12px;opacity:.9}
 .zone[data-area="gold"]{border-color:var(--gold)}
 .zone[data-area="silver"]{border-color:var(--silver)}
 .zone[data-area="classic"]{border-color:var(--classic)}
-
-/* stati */
-.zone.current{box-shadow:0 0 0 3px rgba(139,92,246,.35), 0 0 0 6px rgba(139,92,246,.18)}
-.zone.selected{border-color:var(--ok)!important;background:rgba(34,197,94,.12)!important;box-shadow:0 0 0 3px rgba(34,197,94,.25), 0 0 0 6px rgba(34,197,94,.25)}
+.zone.active{outline:2px solid rgba(34,197,94,.8); box-shadow:0 0 0 4px rgba(34,197,94,.25)}
 .zone.busy{background:#2a0c0c;border-color:#ff8080}
 .zone.busy .pp{color:#ffb3b3}
-.zone.dim{opacity:.55}
-
-/* badge T1/T2… */
-.zone .tag{position:absolute;top:6px;right:6px;font-size:11px;background:#16a34a;color:#000;padding:2px 6px;border-radius:999px;font-weight:900;}
+.zone .tag{position:absolute;top:-9px;right:-9px;background:var(--ok);color:#000;font-weight:900;font-size:10px;border-radius:12px;padding:2px 6px;border:1px solid #0a0}
 
 /* pannello tavolo */
 .table-panel{display:grid;gap:10px}
-.table-row{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:center;background:#0b0b0b;border:1px solid rgba(255,255,255,.1);border-radius:12px;padding:12px}
+.table-row{display:grid;grid-template-columns:1fr;gap:10px;align-items:center;background:#0b0b0b;border:1px solid rgba(255,255,255,.1);border-radius:12px;padding:12px}
 .table-row .ttl{font-weight:900}
 .kv{display:flex;gap:10px;flex-wrap:wrap}
 .kv .pill{padding:4px 8px;border:1px solid var(--border);border-radius:8px;font-size:12px}
-.kv .area{font-weight:800}
-
-/* avvisi legali */
-.alert{border:2px solid var(--danger);background:#250a0a;color:#ffdede;border-radius:12px;padding:12px}
-.alert ul{margin-left:18px}
-.alert b{color:#fff}
 
 /* stepper */
 .stepper{display:flex;gap:8px;margin:6px 0 10px}
@@ -99,14 +92,11 @@ h2{font-size:20px;font-weight:900;margin:14px 0 8px}
 
 /* overlay 18+ e legale */
 .gate{position:fixed;inset:0;background:rgba(0,0,0,.92);display:none;align-items:center;justify-content:center;z-index:60}
-.gate .box{max-width:520px;border:1px solid rgba(255,0,0,.35);background:#1a0b0b;border-radius:16px;padding:20px}
+.gate .box{max-width:640px;border:1px solid rgba(255,0,0,.35);background:#1a0b0b;border-radius:16px;padding:20px}
 .gate h3{color:#ff9c9c;font-size:22px;font-weight:900;margin-bottom:8px}
 .gate .btn{margin-top:10px;border-color:#ff9c9c}
-
-/* pay mode */
-.paymodes{display:flex;gap:10px;flex-wrap:wrap}
-.radio{display:flex;align-items:center;gap:8px;padding:8px 12px;border:1px solid var(--border);border-radius:10px;cursor:pointer}
-.radio input{accent-color:var(--accent)}
+.notice{margin-left:10px;padding:6px 10px;border-radius:10px;border:1px dashed rgba(255,255,255,.25);font-size:12px}
+.notice.warn{border-color:#f59e0b;color:#ffd29a;background:#2a1f0a}
 </style>
 </head>
 <body>
@@ -119,7 +109,22 @@ h2{font-size:20px;font-weight:900;margin:14px 0 8px}
 </header>
 
 <main class="wrap">
-  <h1>Prenota il tuo Tavolo</h1>
+  <h1 style="display:flex;align-items:center;gap:10px">
+    Prenota il tuo Tavolo
+    <span id="paxWarn" class="notice" style="display:none"></span>
+  </h1>
+
+  <!-- LEGENDA -->
+  <div class="legend">
+    <div class="row">
+      <div class="chip"><span class="dot" style="background:var(--gold)"></span><b>Gold</b> da 45€/pax • minimo 180€</div>
+      <div class="chip"><span class="dot" style="background:var(--silver)"></span><b>Silver</b> da 40€/pax • minimo 140€</div>
+    </div>
+    <div class="row" style="margin-top:6px">
+      <div class="chip"><span class="dot" style="background:var(--classic)"></span><b>Classic</b> da 30€/pax • minimo 120€</div>
+    </div>
+  </div>
+
   <div class="stepper">
     <div class="step active" id="s1">1) Tavoli</div>
     <div class="step" id="s2">2) Bottiglie</div>
@@ -127,14 +132,16 @@ h2{font-size:20px;font-weight:900;margin:14px 0 8px}
 
   <!-- STEP 1 -->
   <section class="card" id="step1">
-    <h2>Quante persone sarete?</h2>
+    <h2 style="display:flex;align-items:center;gap:10px">
+      Quante persone sarete?
+      <span id="paxInlineWarn" class="notice warn" style="display:none"></span>
+    </h2>
     <div style="display:flex;gap:12px;align-items:center;margin-top:6px">
-      <div class="counter">
-        <button id="paxMinus">−</button>
-        <input id="paxInput" type="number" value="4" min="1" max="21" inputmode="numeric">
-        <button id="paxPlus">+</button>
+      <div class="badge" style="padding:0;border:none">
+        <button id="paxMinus" class="btn" style="border-top-right-radius:0;border-bottom-right-radius:0">−</button>
+        <input id="paxInput" type="number" value="4" min="1" max="21" inputmode="numeric" style="width:72px;height:44px;background:#0b0b0b;border:1px solid var(--border);text-align:center;font-weight:900;font-size:16px">
+        <button id="paxPlus" class="btn" style="border-top-left-radius:0;border-bottom-left-radius:0">+</button>
       </div>
-      <div class="badge">Il numero per tavolo si adatta da 4 a 7 pax</div>
     </div>
 
     <div class="hr"></div>
@@ -165,16 +172,7 @@ h2{font-size:20px;font-weight:900;margin:14px 0 8px}
       </div>
 
       <div class="table-panel">
-        <div id="tableDetail"></div>
-
-        <div class="alert">
-          <ul>
-            <li><b>Accesso vietato ai minori</b> ai tavoli: se rilevato all’ingresso, il tavolo viene derubricato a VIP senza rimborso.</li>
-            <li>I nominativi devono corrispondere ai documenti; in caso contrario, <b>nessun rimborso</b> come da termini di vendita.</li>
-            <li>Se sono presenti minorenni non verranno serviti alcolici. Eventuali violazioni restano responsabilità dei maggiorenni al tavolo.</li>
-          </ul>
-        </div>
-
+        <div id="tableDetail" class="table-row"></div>
         <div>
           <button id="goStep2" class="btn primary" style="margin-top:6px">Vai al listino bottiglie</button>
         </div>
@@ -200,8 +198,8 @@ h2{font-size:20px;font-weight:900;margin:14px 0 8px}
         <div class="hr"></div>
 
         <div class="paymodes">
-          <label class="radio"><input type="radio" name="payMode" value="deposito" checked> Caparra</label>
-          <label class="radio"><input type="radio" name="payMode" value="full"> Paga tutto ora</label>
+          <label class="badge"><input type="radio" name="payMode" value="deposito" checked> Caparra</label>
+          <label class="badge"><input type="radio" name="payMode" value="full"> Paga tutto ora</label>
         </div>
 
         <div class="hr"></div>
@@ -216,7 +214,10 @@ h2{font-size:20px;font-weight:900;margin:14px 0 8px}
           <button id="confirmBtn" class="btn primary" disabled>Procedi</button>
         </div>
         <div class="small em" style="margin-top:8px">
-          Il tavolo è gratuito; paghi solo bottiglie/aggiunte. Il saldo in serata appare dopo la scelta del pagamento.
+          Gli extra 25€ per persone oltre la 4ª scattano solo se non raggiungi la soglia €/pax.
+          Tavolo Classic: minimo per persona 30€
+          Tavolo Silver: minimo per persona 35€
+          Tavolo Gold: minimo per persone 45€
         </div>
       </div>
     </div>
@@ -234,14 +235,13 @@ h2{font-size:20px;font-weight:900;margin:14px 0 8px}
 
 <!-- POPUP LEGALE -->
 <div class="gate" id="legalGate">
-  <div class="box" style="max-width:640px">
+  <div class="box">
     <h3>Conferma regole tavoli</h3>
     <div class="small" style="margin-bottom:10px">
       <ul style="margin-left:18px">
-        <li><b>Accesso vietato ai minori</b> ai tavoli: in caso di rilevazione all’ingresso, il tavolo viene derubricato a VIP senza rimborso.</li>
-        <li>I nominativi devono corrispondere ai documenti; in caso contrario, <b>nessun rimborso</b>.</li>
         <li>Minimo tavolo per area: Classic 120€, Silver 140€, Gold 180€.</li>
-        <li>Oltre 4 pax: <b>+25€</b> a persona.</li>
+        <li>Oltre 4 pax: +25€/persona <b>solo</b> se non raggiungi la soglia €/pax dell’area.</li>
+        <li>I nominativi devono corrispondere ai documenti.</li>
       </ul>
     </div>
     <label style="display:flex;gap:8px;align-items:center"><input id="legalChk" type="checkbox"> Ho letto e accetto</label>
@@ -255,7 +255,9 @@ h2{font-size:20px;font-weight:900;margin:14px 0 8px}
 <script type="module">
 /* ================= Firebase & Auth ================= */
 import { onUser, doSignOut, app } from './auth.v2.js?v=6';
-import { getFirestore, doc, getDoc, setDoc } from 'https://www.gstatic.com/firebasejs/12.5.0/firebase-firestore.js';
+import {
+  getFirestore, doc, getDoc, setDoc
+} from 'https://www.gstatic.com/firebasejs/12.5.0/firebase-firestore.js';
 
 const db = getFirestore(app);
 
@@ -269,6 +271,9 @@ const stepBadge2 = document.getElementById('s2');
 const paxMinus = document.getElementById('paxMinus');
 const paxPlus  = document.getElementById('paxPlus');
 const paxInput = document.getElementById('paxInput');
+
+const paxWarn = document.getElementById('paxWarn');
+const paxInlineWarn = document.getElementById('paxInlineWarn');
 
 const tabs1 = document.getElementById('tableTabs');
 const tabs2 = document.getElementById('tableTabs2');
@@ -331,15 +336,15 @@ const STATE = {
   user:null,
   activeTable:0,
   totalPax:4,
-  areaMin:{ classic:120, silver:140, gold:180 },
-  pricesPerPax:{ classic:30, silver:35, gold:45 },
-  tables:[],     // [{index, area, pax, real, zone, bottles:[]}]
-  bottleList:[], // [{id,name,category,price,cost,visible,min:{vip,argento,bronzo},includes}]
-  locks:{}       // zona -> {heldBy, tableIndex, heldAt, status: 'pending'|'booked'|'released'}
+  pricesPerPax:{ classic:30, silver:35, gold:45 }, // soglia €/pax
+  areaMin:{ classic:120, silver:140, gold:180 },   // minimo tavolo
+  tables:[],        // [{index, area:'classic'|'silver'|'gold', pax:4..7, real, zone, bottles:[{id,qty}]}]
+  bottleList:[],    // [{id,name,category:'champagne'|'distillati',price,cost,visible,includes?}]
+  locks:{}          // zona -> {heldBy, tableIndex, heldAt, status}
 };
 
-/* ================== Config bottiglie & minimi ================== */
-async function loadBottleConfigAndMin(){
+/* ================== Carica listino (opzionale da Firestore) ================== */
+async function loadBottleConfig(){
   try{
     const snap = await getDoc(doc(db,'config','bottles'));
     if(!snap.exists()) return;
@@ -351,29 +356,13 @@ async function loadBottleConfigAndMin(){
       price: Number(v.price||0),
       cost: Number(v.cost||0),
       visible: v.visible!==false,
-      min: { vip:Number(v.min?.vip||0), argento:Number(v.min?.argento||0), bronzo:Number(v.min?.bronzo||0) },
       includes: (v.includes||'').toString()
     })).filter(x=>x.visible);
-
     STATE.bottleList = arr;
-
-    const maxVip = Math.max(0, ...arr.map(x=>x.min.vip||0));
-    const maxArg = Math.max(0, ...arr.map(x=>x.min.argento||0));
-    const maxBro = Math.max(0, ...arr.map(x=>x.min.bronzo||0));
-    STATE.areaMin = {
-      gold:    maxVip>0?maxVip:STATE.areaMin.gold,
-      silver:  maxArg>0?maxArg:STATE.areaMin.silver,
-      classic: maxBro>0?maxBro:STATE.areaMin.classic
-    };
-  }catch{}
+  }catch(e){}
 }
 
-/* ================== Locks (3 minuti) ================== */
-function lockIsActive(l){
-  if (!l) return false;
-  if (l.status === 'booked') return true;
-  return (Date.now() - (l.heldAt||0) < 180000) && l.status !== 'released';
-}
+/* ================== Locks Tavoli (soft-lock 3 min) ================== */
 async function fetchLocks(){
   try{
     const ref = doc(db,'locks','tables');
@@ -381,64 +370,67 @@ async function fetchLocks(){
     STATE.locks = snap.exists()? (snap.data()||{}) : {};
   }catch{ STATE.locks = {}; }
 }
-function isZoneHeldByMe(zoneId){
-  const l = STATE.locks[zoneId]; return lockIsActive(l) && l.heldBy === STATE.user?.uid;
-}
-function isZoneBusyByOther(zoneId){
-  const l = STATE.locks[zoneId]; return lockIsActive(l) && l.heldBy !== STATE.user?.uid;
-}
 async function tryHoldZone(zoneId, tableIndex){
-  const l = STATE.locks[zoneId];
-  if (isZoneBusyByOther(zoneId)) return false;
-  const rec = { heldBy: STATE.user.uid, tableIndex, heldAt: Date.now(), status:'pending' };
-  STATE.locks[zoneId] = rec;
-  await setDoc(doc(db,'locks','tables'), { [zoneId]: rec }, { merge:true });
+  const now = Date.now();
+  const curr = STATE.locks[zoneId];
+  if (curr && (now - (curr.heldAt||0) < 180000) && curr.heldBy !== STATE.user?.uid){
+    return false;
+  }
+  STATE.locks[zoneId] = { heldBy: STATE.user.uid, tableIndex, heldAt: now, status:'pending' };
+  await setDoc(doc(db,'locks','tables'), { [zoneId]: STATE.locks[zoneId] }, { merge:true });
   return true;
 }
+function isZoneBusy(zoneId){
+  const l = STATE.locks[zoneId];
+  if(!l) return false;
+  return (Date.now() - (l.heldAt||0) < 180000) && l.status !== 'released';
+}
 function markZoneReleased(zoneId){
-  const l = STATE.locks[zoneId]; if(!l) return;
-  l.status='released'; l.heldAt=Date.now();
-  setDoc(doc(db,'locks','tables'), { [zoneId]: l }, { merge:true });
+  if(!STATE.locks[zoneId]) return;
+  STATE.locks[zoneId].status='released';
+  STATE.locks[zoneId].heldAt=Date.now();
+  setDoc(doc(db,'locks','tables'), { [zoneId]: STATE.locks[zoneId] }, { merge:true });
 }
 
-/* ================== Split/Rebalance tavoli ================== */
+/* ================== Split / Rebalance ================== */
 function splitTables(total){
   const res = [];
-  if (total <= 7){ res.push({ pax:Math.max(4,total), real:total }); return res; }
-  let remain = total;
-  while (remain > 7){ res.push({ pax:7, real:7 }); remain -= 7; }
+  if (total <= 7){ res.push({ pax: Math.max(4,total), real: total }); return res; }
+  let remain=total;
+  while(remain>7){ res.push({pax:7,real:7}); remain-=7; }
   if (remain>0){
-    if (remain < 4 && res.length && res[res.length-1].pax > 4){
-      const need = 4 - remain;
-      const give = Math.min(need, res[res.length-1].pax - 4);
-      res[res.length-1].pax -= give; res[res.length-1].real -= give;
-      res.push({ pax: remain + give, real: remain });
-    } else res.push({ pax: Math.max(4, remain), real: remain });
+    if (remain<4 && res.length && res[res.length-1].pax>4){
+      const need=4-remain, give=Math.min(need,res[res.length-1].pax-4);
+      res[res.length-1].pax-=give; res[res.length-1].real-=give;
+      res.push({pax:remain+give, real:remain});
+    } else res.push({pax:Math.max(4,remain), real:remain});
   }
-  return res.map(x=>({ pax: Math.min(7, Math.max(4,x.pax)), real: x.real }));
+  return res.map(x=>({pax:Math.min(7,Math.max(4,x.pax)), real:x.real}));
 }
 function rebalanceTables(indexChanged, newPax){
   newPax = Math.min(7, Math.max(4, Number(newPax||4)));
   const tot = STATE.totalPax;
   const T = STATE.tables.map(t=>t.pax);
-  T[indexChanged] = newPax;
-  let targetBase = Math.max(STATE.tables.length*4, tot);
-  let baseSum = T.reduce((s,n)=>s+n,0);
-  if (baseSum > targetBase){
-    for (let i=0;i<T.length;i++){ if (i===indexChanged) continue;
-      while (T[i]>4 && baseSum>targetBase){ T[i]--; baseSum--; }
-      if (baseSum<=targetBase) break;
+  T[indexChanged]=newPax;
+  let target = Math.max(STATE.tables.length*4, tot);
+  let sum = T.reduce((s,n)=>s+n,0);
+  if (sum>target){
+    for(let i=0;i<T.length;i++){
+      if(i===indexChanged) continue;
+      while(T[i]>4 && sum>target){ T[i]--; sum--; }
+      if(sum<=target) break;
     }
-  } else if (baseSum < targetBase){
-    for (let i=0;i<T.length;i++){ if (i===indexChanged) continue;
-      while (T[i]<7 && baseSum<targetBase){ T[i]++; baseSum++; }
-      if (baseSum>=targetBase) break;
+  }else if(sum<target){
+    for(let i=0;i<T.length;i++){
+      if(i===indexChanged) continue;
+      while(T[i]<7 && sum<target){ T[i]++; sum++; }
+      if(sum>=target) break;
     }
   }
   STATE.tables.forEach((t,i)=>{ t.pax=T[i]; });
 }
 
-/* vicinanze per Tavolo 2 */
+/* Vicinanza per T2 */
 const neighborOrder = {
   'gold-center':['gold-left','gold-right','silver-left1','silver-right1'],
   'gold-left':['gold-center','gold-right','silver-left1','silver-left2'],
@@ -454,34 +446,85 @@ function autoSuggestForTable2(){
   if (STATE.tables.length<2) return;
   const t1 = STATE.tables[0], t2 = STATE.tables[1];
   if (!t1.zone) return;
-  const wanted = t1.area;
+  const areaWanted = t1.area;
   const order = neighborOrder[t1.zone]||[];
   for (const z of order){
     const el = zones.find(n=>n.getAttribute('data-zone')===z);
     if (!el) continue;
-    if (el.getAttribute('data-area')!==wanted) continue;
-    if (!isZoneBusyByOther(z) && STATE.tables.every(tt=>tt.zone!==z)){
-      t2.area = wanted; t2.zone = z; return;
+    const area = el.getAttribute('data-area');
+    if (area!==areaWanted) continue;
+    if (!isZoneBusy(z) && STATE.tables.every(tt=>tt.zone!==z)){
+      t2.area = areaWanted; t2.zone = z;
+      return;
     }
   }
-  const any = zones.find(el=>{
-    const z = el.getAttribute('data-zone');
-    return el.getAttribute('data-area')===wanted && !isZoneBusyByOther(z) && STATE.tables.every(tt=>tt.zone!==z);
-  });
-  if (any){ t2.area=wanted; t2.zone=any.getAttribute('data-zone'); }
 }
 
-/* init tabelle */
+/* ================== Init tabelle ================== */
 function ensureTables(){
   const parts = splitTables(STATE.totalPax);
   const old = STATE.tables;
   STATE.tables = parts.map((p,i)=>({
-    index:i, area: old[i]?.area || (i===0?'silver':'classic'), zone: old[i]?.zone || null,
-    pax:p.pax, real:p.real, bottles: old[i]?.bottles || []
+    index:i,
+    area: old[i]?.area || (i===0?'silver':'classic'),
+    zone: old[i]?.zone || null,
+    pax: p.pax,
+    real: p.real,
+    bottles: old[i]?.bottles || []
   }));
 }
 
-/* ================== Render ================== */
+/* ========== Calcoli con nuova logica €/pax + extra condizionale ========== */
+function ensureBottleSlot(table, id){
+  const idx = table.bottles.findIndex(b=>b.id===id);
+  if (idx<0) table.bottles.push({id,qty:0});
+  return table.bottles.find(b=>b.id===id);
+}
+
+function computeTableBreakdown(table){
+  let sumListino = 0;
+  let sumInterni = 0;
+  table.bottles.forEach(sel=>{
+    const meta = STATE.bottleList.find(b=>b.id===sel.id);
+    if(!meta) return;
+    const q = Number(sel.qty||0);
+    if(q<=0) return;
+    sumListino += meta.price * q;
+    sumInterni += meta.cost  * q;
+  });
+
+  const minArea = STATE.areaMin[table.area] || 0;
+  const spentBeforeMin = sumListino;
+  const addMinimo = Math.max(0, minArea - spentBeforeMin);
+  const spentAfterMin = sumListino + addMinimo;
+
+  // soglia €/pax per QUESTO tavolo = prezzo/pax area * persone REALI al tavolo
+  const perPax = STATE.pricesPerPax[table.area] || 0;
+  const expected = perPax * (table.real || 0);
+
+  // EXTRA 25€ solo se non raggiungi la soglia expected
+  const needsExtra = spentAfterMin < expected;
+  const extra = needsExtra ? Math.max(0, (table.real || 0) - 4) * 25 : 0;
+
+  const total = spentAfterMin + extra;
+
+  // caparra = max(25€*pax base costo, Σ costi interni)
+  const capMin = 25 * table.pax;
+  const caparra = Math.max(capMin, sumInterni);
+
+  const perHead = table.real>0 ? total / table.real : 0;
+
+  return { sumListino, addMinimo, expected, spentAfterMin, needsExtra, extra, total, caparra, perHead };
+}
+
+function computeAll(){
+  const items = STATE.tables.map(t=>({ t, b: computeTableBreakdown(t) }));
+  const totalAll = round2(items.reduce((s,x)=> s + x.b.total, 0));
+  const depositAll = round2(items.reduce((s,x)=> s + x.b.caparra, 0));
+  return { items, totalAll, depositAll };
+}
+
+/* ================== Render & UI ================== */
 function renderTabs(container, isStep2=false){
   container.innerHTML = '';
   STATE.tables.forEach((t,i)=>{
@@ -495,29 +538,21 @@ function renderTabs(container, isStep2=false){
 
 function renderTableDetail(){
   const t = STATE.tables[STATE.activeTable];
-  const color = t.area==='gold'?'#f5c542':t.area==='silver'?'#9fb7ff':'#d1a56d';
+  const zoneTxt = t.zone ? t.zone : '—';
+  const color = t.area==='gold'?'var(--gold)':t.area==='silver'?'var(--silver)':'var(--classic)';
   tableDetail.innerHTML = `
-    <div class="table-row">
-      <div>
-        <div class="ttl">Tavolo ${t.index+1}</div>
-        <div class="kv">
-          <span class="pill">Zona: ${t.zone? t.zone : '—'}</span>
-          <span class="pill area" style="border-color:${color}">${t.area.toUpperCase()}</span>
-          <span class="pill">Pax (base costo): ${t.pax}</span>
-          <span class="pill">da ${STATE.pricesPerPax[t.area]}€/pax • minimo ${STATE.areaMin[t.area]}€</span>
-        </div>
-      </div>
+    <div class="ttl" style="font-size:16px">Tavolo ${t.index+1}</div>
+    <div class="kv">
+      <span class="pill" id="zonePill">Zona: <b style="color:${color}">${zoneTxt}</b></span>
+      <span class="pill">Area: <b style="color:${color}">${t.area.toUpperCase()}</b></span>
     </div>
-    <div class="small">La somma dei pax tra i tavoli resta sempre ${STATE.totalPax}. Ogni tavolo non scende sotto 4.</div>
   `;
 }
 
 async function handleZoneClick(el){
   const area = el.getAttribute('data-area');
   const zone = el.getAttribute('data-zone');
-
-  if (isZoneBusyByOther(zone)) return; // rosso = occupato dagli altri
-
+  if (isZoneBusy(zone)) return;
   const ok = await tryHoldZone(zone, STATE.activeTable);
   if (!ok) return;
 
@@ -527,62 +562,52 @@ async function handleZoneClick(el){
   STATE.tables[STATE.activeTable].area = area;
   STATE.tables[STATE.activeTable].zone = zone;
 
+  // tag T1/T2 visivo
+  zones.forEach(z=>z.querySelector('.tag')?.remove());
+  STATE.tables.forEach(t=>{
+    if(!t.zone) return;
+    const n = zones.find(z=>z.getAttribute('data-zone')===t.zone);
+    if(n){
+      const tag=document.createElement('div');
+      tag.className='tag';
+      tag.textContent='T'+(t.index+1);
+      n.appendChild(tag);
+    }
+  });
+
+  // auto-passaggio al Tavolo 2
   if (STATE.activeTable===0 && STATE.tables.length>=2){
     autoSuggestForTable2();
-    STATE.activeTable = 1; /* ⬅️ 1 RIGA: dopo T1 passa automaticamente a T2 */
+    STATE.activeTable = 1;
   }
 
-  renderMap(); renderStep1();
+  renderMap(); renderStep1(); renderPaxWarnings();
 }
 
 function renderMap(){
-  // reset
   zones.forEach(z=>{
-    z.classList.remove('selected','current','busy','dim');
-    z.querySelector('.tag')?.remove();
-  });
-
-  // rossi = lock di altri o booked
-  zones.forEach(z=>{
+    z.classList.remove('active','busy');
     const zid = z.getAttribute('data-zone');
-    if (isZoneBusyByOther(zid)) z.classList.add('busy');
+    if (isZoneBusy(zid)) z.classList.add('busy');
   });
-
-  // verdi = selezionati da me (anche dopo reload)
-  STATE.tables.forEach((t,i)=>{
-    if (!t.zone) return;
-    const el = zones.find(z=>z.getAttribute('data-zone')===t.zone);
-    if (!el) return;
-    if (isZoneBusyByOther(t.zone)) return; // non dipingere verde se in realtà è di altri
-    el.classList.add('selected');
-    const tag = document.createElement('span');
-    tag.className='tag'; tag.textContent = 'T'+(i+1);
-    el.appendChild(tag);
-  });
-
-  // evidenzia tavolo corrente
+  // evidenzia zona del tavolo attivo
   const act = STATE.tables[STATE.activeTable].zone;
   if (act){
     const el = zones.find(z=>z.getAttribute('data-zone')===act);
-    el?.classList.add('current');
+    el?.classList.add('active');
   }
-
   zones.forEach(z=>{ z.onclick = ()=>handleZoneClick(z); });
 }
 
-function renderStep1(){ renderTabs(tabs1, false); renderTableDetail(); renderMap(); }
-
-/* ================== STEP 2 ================== */
-function ensureBottleSlot(table, id){
-  const idx = table.bottles.findIndex(b=>b.id===id);
-  if (idx<0) table.bottles.push({id,qty:0});
-  return table.bottles.find(b=>b.id===id);
+function renderStep1(){
+  renderTabs(tabs1, false);
+  renderTableDetail();
+  renderMap();
 }
 
 function renderListino(){
   const t = STATE.tables[STATE.activeTable];
-  minInfo.textContent = `Minimo tavolo: ${money(STATE.areaMin[t.area])} — se non raggiungi il minimo si applica la differenza.`;
-
+  minInfo.textContent = `Minimo tavolo: ${money(STATE.areaMin[t.area])}. Soglia persone: ${t.real}×${STATE.pricesPerPax[t.area]}€ = ${money(STATE.pricesPerPax[t.area]*t.real)}.`;
   const champagne = STATE.bottleList.filter(b=>b.category==='champagne');
   const distillati= STATE.bottleList.filter(b=>b.category==='distillati');
 
@@ -603,8 +628,7 @@ function renderListino(){
           <div class="small" style="min-width:24px;text-align:center" data-qty="${b.id}">${slot.qty||0}</div>
           <button data-plus="${b.id}" class="btn">+</button>
         </div>
-      </div>
-      `;
+      </div>`;
     }).join('')}
   `;
   listinoBox.innerHTML = sec('Champagne', champagne) + sec('Distillati', distillati);
@@ -616,7 +640,7 @@ function renderListino(){
       const slot = ensureBottleSlot(t,id);
       slot.qty = Number(slot.qty||0)+1;
       listinoBox.querySelector(`[data-qty="${id}"]`).textContent = slot.qty;
-      renderSummary();
+      renderSummary(); renderPaxWarnings();
     };
   });
   listinoBox.querySelectorAll('[data-minus]').forEach(btn=>{
@@ -625,124 +649,153 @@ function renderListino(){
       const slot = ensureBottleSlot(t,id);
       slot.qty = Math.max(0, Number(slot.qty||0)-1);
       listinoBox.querySelector(`[data-qty="${id}"]`).textContent = slot.qty;
-      renderSummary();
+      renderSummary(); renderPaxWarnings();
     };
   });
 }
 
-function computeTableBreakdown(table){
-  let sumListino = 0, sumInterni = 0;
-  table.bottles.forEach(sel=>{
-    const meta = STATE.bottleList.find(b=>b.id===sel.id); if(!meta) return;
-    const q = Number(sel.qty||0); if(q<=0) return;
-    sumListino += meta.price * q; sumInterni += meta.cost * q;
-  });
-  const minArea = STATE.areaMin[table.area] || 0;
-  const addMinimo = Math.max(0, minArea - sumListino);
-  const extra = Math.max(0, table.pax - 4) * 25;
-  const total = sumListino + addMinimo + extra;
-  const capMin = 25 * table.pax;
-  const caparra = Math.max(capMin, sumInterni);
-  const perHead = table.real>0 ? total / table.real : 0;
-  return { sumListino, addMinimo, extra, total, caparra, perHead };
-}
-function computeAll(){
-  const items = STATE.tables.map(t=>({ t, b: computeTableBreakdown(t) }));
-  const totalAll = items.reduce((s,x)=> s + x.b.total, 0);
-  const depositAll = items.reduce((s,x)=> s + x.b.caparra, 0);
-  return { items, totalAll: round2(totalAll), depositAll: round2(depositAll) };
-}
 function renderSummary(){
   const { items, totalAll, depositAll } = computeAll();
+
   const rows = items.map(({t,b})=>{
-    const titleColor = t.area==='gold'?'var(--gold)':t.area==='silver'?'var(--silver)':'var(--classic)';
+    const color = t.area==='gold'?'var(--gold)':t.area==='silver'?'var(--silver)':'var(--classic)';
+    const need = Math.max(0, b.expected - b.spentAfterMin);
     return `
-      <div class="line" style="font-weight:800;color:${titleColor}">Tavolo ${t.index+1} — ${t.area.toUpperCase()} (${t.pax} pax)</div>
+      <div class="line" style="font-weight:800;color:${color}">Tavolo ${t.index+1} — ${t.area.toUpperCase()} (${t.real} pax)</div>
       <div class="line"><span>Bottiglie (listino)</span><span>${money(b.sumListino)}</span></div>
       <div class="line"><span>Aggiunta minimo tavolo</span><span>${money(b.addMinimo)}</span></div>
-      <div class="small em">Minimo: ${money(STATE.areaMin[t.area])}.</div>
-      ${b.extra>0 ? `<div class="line"><span>Persone extra (${t.pax-4})</span><span>${money(b.extra)}</span></div>`:``}
+      <div class="small em">Soglia persone: ${t.real}×${STATE.pricesPerPax[t.area]}€ = ${money(b.expected)} ${b.needsExtra ? `(mancano ${money(need)})` : '(raggiunta)'}</div>
+      ${b.needsExtra && t.real>4 ? `<div class="line"><span>Persone extra (${t.real-4})</span><span>${money(b.extra)}</span></div>`:''}
       <div class="line"><span>Totale tavolo</span><strong>${money(b.total)}</strong></div>
       <div class="line small"><span>Totale a persona</span><span>${money(round2(b.perHead))}</span></div>
       <div class="hr"></div>
     `;
   }).join('');
+
   summaryBox.innerHTML = rows;
 
   const mode = document.querySelector('input[name="payMode"]:checked')?.value || 'deposito';
-  if (mode==='full'){ totalLabel.textContent='Totale (paga ora)'; totalValue.textContent=money(totalAll); }
-  else { totalLabel.textContent='Caparra (ora)'; totalValue.textContent=money(depositAll); }
+  if (mode==='full'){
+    totalLabel.textContent = 'Totale (paga ora)';
+    totalValue.textContent = money(totalAll);
+  } else {
+    totalLabel.textContent = 'Caparra (ora)';
+    totalValue.textContent = money(depositAll);
+  }
 
+  // almeno 1 bottiglia selezionata
   const hasAny = STATE.tables.some(t=> t.bottles.some(b=>Number(b.qty||0)>0));
-  confirmBtn.disabled = !hasAny;
+  confirmBtn.disabled = !hasAny || !legalChk.checked;
 }
-function renderTabs2(){ renderTabs(tabs2, true); }
-function renderStep2(){ renderTabs2(); renderListino(); renderSummary(); }
 
-/* ================== Navigazione ================== */
+function renderTabs2(){ renderTabs(tabs2, true); }
+
+function renderStep2(){
+  renderTabs2();
+  renderListino();
+  renderSummary();
+}
+
+/* ===== Avvisi dinamici vicino “Indica il numero delle persone. Se siete più di 7 verrete divisi in 2 tavoli differenti.?” e nel titolo ===== */
+function renderPaxWarnings(){
+  const { items } = computeAll();
+  // Cerca problemi SOLO per tavoli con più di 4 persone e zona selezionata
+  const probs = items.filter(({t,b})=> t.zone && t.real>4 && b.needsExtra);
+  if (probs.length===0){
+    paxInlineWarn.style.display='none';
+    paxWarn.style.display='none';
+    return;
+  }
+  // mostro dettaglio primo problema (inline) e sintesi in header
+  const p = probs[0];
+  const missing = Math.max(0, p.b.expected - p.b.spentAfterMin);
+  paxInlineWarn.textContent = `Tavolo ${p.t.index+1}: soglia ${p.t.real}×${STATE.pricesPerPax[p.t.area]}€ = ${money(p.b.expected)} (mancano ${money(missing)}). In mancanza si applicano ${(p.t.real-4)}×25€ = ${money((p.t.real-4)*25)}.`;
+  paxInlineWarn.style.display='inline-block';
+
+  paxWarn.textContent = `Attenzione: per i tavoli con >4 pax si applicano extra 25€ a testa SOLO se non raggiungete la soglia €/pax dell’area.`;
+  paxWarn.style.display='inline-flex';
+}
+
+/* ================== Navigazione step ================== */
 function goToStep2(){
   const bad = STATE.tables.find(t=>!t.area || !t.zone);
   if (bad){ alert(`Seleziona l'area sulla mappa per ogni tavolo (manca Tavolo ${bad.index+1}).`); return; }
-  s1.style.display='none'; s2.style.display='block';
-  stepBadge1.classList.remove('active'); stepBadge2.classList.add('active');
-  renderStep2();
+  // mostra popup legale
+  legalGate.style.display='flex';
 }
 function backToStep1(){
-  s2.style.display='none'; s1.style.display='block';
-  stepBadge2.classList.remove('active'); stepBadge1.classList.add('active');
+  s2.style.display='none';
+  s1.style.display='block';
+  stepBadge2.classList.remove('active');
+  stepBadge1.classList.add('active');
   renderStep1();
 }
 
 /* ================== Bind base ================== */
 paxMinus.onclick = ()=>{ paxInput.value = Math.max(1, Number(paxInput.value||1)-1); onTotalPaxChange(); };
 paxPlus.onclick  = ()=>{ paxInput.value = Math.min(21, Number(paxInput.value||1)+1); onTotalPaxChange(); };
-paxInput.oninput = ()=>{ const v = Math.max(1, Math.min(21, parseInt(paxInput.value||'1',10)||1)); paxInput.value = v; onTotalPaxChange(); };
-function onTotalPaxChange(){ STATE.totalPax = Number(paxInput.value||1); ensureTables(); STATE.activeTable = 0; renderStep1(); }
-goStep2.onclick = goToStep2; backStep1.onclick = backToStep1;
-document.querySelectorAll('input[name="payMode"]').forEach(r=>{ r.addEventListener('change', renderSummary); });
+paxInput.oninput = ()=>{ 
+  const v = Math.max(1, Math.min(21, parseInt(paxInput.value||'1',10)||1));
+  paxInput.value = v; onTotalPaxChange();
+};
+function onTotalPaxChange(){
+  STATE.totalPax = Number(paxInput.value||1);
+  ensureTables();
+  STATE.activeTable = 0;
+  renderStep1();
+  renderPaxWarnings();
+}
+
+goStep2.onclick = goToStep2;
+backStep1.onclick = backToStep1;
+document.querySelectorAll('input[name="payMode"]').forEach(r=>{
+  r.addEventListener('change', ()=>{ renderSummary(); });
+});
 
 /* Popup legale */
-confirmBtn.onclick = ()=>{ legalGate.style.display='flex'; };
 legalCancel.onclick = ()=>{ legalGate.style.display='none'; };
-legalChk.onchange = ()=>{ legalOk.disabled = !legalChk.checked; };
-legalOk.onclick = ()=>{ legalGate.style.display='none'; alert('Prenotazione confermata (stub).'); };
+legalChk.onchange = ()=>{ 
+  legalOk.disabled = !legalChk.checked; 
+  renderSummary(); // abilita/disabilita Procedi coerentemente
+};
+legalOk.onclick = ()=>{
+  legalGate.style.display='none';
+  s1.style.display='none';
+  s2.style.display='block';
+  stepBadge1.classList.remove('active');
+  stepBadge2.classList.add('active');
+  renderStep2();
+};
 
-/* ================== Boot ================== */
+/* ================== Auth boot + Age gate + Locks ================== */
 onUser(async (u)=>{
   if(!u){ nav.innerHTML=OUT; location.href='./login.html?from=./attendees-tavolo.html'; return; }
   STATE.user = u;
   nav.innerHTML = IN(u);
   document.getElementById('logoutLink')?.addEventListener('click', async (e)=>{ e.preventDefault(); await doSignOut(); nav.innerHTML=OUT; location.href='./login.html?from=./attendees-tavolo.html'; });
 
-  // Age gate
+  // DOB
   let prof = profFromLS(u.uid);
   let dob = parseDob(prof?.dob);
   if (!dob){
     const d = await profFromDB(u.uid);
     dob = parseDob(d?.dob) || parseDob(d?.profile?.dob);
-    if (dob){ try{ const merged = { ...(prof||{}), dob: d?.dob ?? d?.profile?.dob }; localStorage.setItem('trapperreo_profile_'+u.uid, JSON.stringify(merged)); }catch{} }
+    if (dob){
+      try{
+        const merged = { ...(prof||{}), dob: d?.dob ?? d?.profile?.dob };
+        localStorage.setItem('trapperreo_profile_'+u.uid, JSON.stringify(merged));
+      }catch{}
+    }
   }
-  if (ageFrom(dob) < 18){ ageGate.style.display='flex'; return; }
+  const isAdult = ageFrom(dob) >= 18;
+  if (!isAdult){ ageGate.style.display='flex'; return; }
 
-  await loadBottleConfigAndMin();
+  await loadBottleConfig();
   await fetchLocks();
 
   ensureTables();
-
-  /* Riconciliazione post-refresh: assegna ai tavoli le zone che sono lockate da te */
-  const myZones = Object.entries(STATE.locks)
-    .filter(([z,l])=> lockIsActive(l) && l.heldBy===STATE.user.uid)
-    .map(([z])=> z);
-  STATE.tables.forEach((t)=>{
-    if (t.zone) return;
-    const z = myZones.find(mz=> !STATE.tables.some(tt=>tt.zone===mz));
-    if (!z) return;
-    const el = zones.find(n=>n.getAttribute('data-zone')===z);
-    if (!el) return;
-    t.zone = z; t.area = el.getAttribute('data-area');
-  });
-
   renderStep1();
+  renderPaxWarnings();
 });
 </script>
 </body>
