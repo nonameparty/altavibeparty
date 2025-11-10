@@ -1,169 +1,214 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Scanner — TRAPPERREO</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&display=swap" rel="stylesheet">
-<script src="https://unpkg.com/html5-qrcode@2.3.10/minified/html5-qrcode.min.js"></script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Scanner QR — TRAPPERREO</title>
+<link rel="preconnect" href="https://unpkg.com">
 <style>
-:root{--accent:#8b5cf6;--border:rgba(255,255,255,.12);--ok:#22c55e;--danger:#ef4444;--muted:rgba(255,255,255,.78)}
-*{box-sizing:border-box;margin:0;padding:0}
-body{background:#000;color:#fff;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;line-height:1.5;min-height:100vh}
-.wrap{max-width:900px;margin:auto;padding:20px}
-h1{font-size:28px;font-weight:900;margin-bottom:10px}
-.card{background:rgba(255,255,255,.06);border:1px solid var(--border);border-radius:16px;padding:16px;margin-top:12px}
-.btn{display:inline-block;padding:10px 14px;border-radius:10px;background:var(--accent);color:#000;font-weight:900;border:none;cursor:pointer}
-.btn.ghost{background:transparent;border:1px solid var(--border);color:#fff}
-.grid{display:grid;grid-template-columns:1fr;gap:12px}
-.row{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px dashed rgba(255,255,255,.12)}
-.row:last-child{border-bottom:none}
-.state{padding:4px 8px;border-radius:999px;font-size:12px;border:1px solid var(--border)}
-.state.ok{border-color:var(--ok);color:var(--ok)}
-.state.bad{border-color:var(--danger);color:var(--danger)}
-.notice{color:var(--muted);font-size:13px}
-.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px}
-#reader{width:100%;max-width:420px;margin:auto;border-radius:10px;overflow:hidden}
+  :root{--bg:#000;--card:#0f0f10;--b:#2a2a2a;--text:#fff;--muted:#bdbdbd;--accent:#8b5cf6;--ok:#22c55e;--err:#ef4444}
+  *{box-sizing:border-box} body{margin:0;background:var(--bg);color:var(--text);font:14px/1.4 ui-sans-serif,system-ui,Inter,Segoe UI,Roboto,Arial}
+  header{position:sticky;top:0;z-index:10;background:rgba(0,0,0,.7);backdrop-filter:blur(6px);border-bottom:1px solid #111}
+  .nav{max-width:960px;margin:auto;padding:12px 16px;display:flex;justify-content:space-between;align-items:center}
+  .brand{display:flex;align-items:center;gap:10px;font-weight:900}
+  .badge{width:18px;height:18px;background:var(--accent);transform:skew(-8deg);border-radius:3px}
+  main{max-width:960px;margin:0 auto;padding:16px;display:grid;gap:12px}
+  .card{background:var(--card);border:1px solid var(--b);border-radius:14px;padding:14px}
+  .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+  .btn{border:1px solid #333;background:#151515;color:#fff;border-radius:10px;padding:10px 14px;font-weight:800;cursor:pointer}
+  .btn.primary{background:var(--accent);color:#000;border-color:transparent}
+  .btn:disabled{opacity:.6;cursor:not-allowed}
+  select,input[type=file]{background:#0b0b0b;border:1px solid #333;color:#fff;border-radius:10px;padding:8px}
+  video{width:100%;max-height:58vh;background:#000;border-radius:12px;border:1px solid #111}
+  canvas{display:none}
+  .status{padding:10px;border-radius:10px;border:1px dashed #333;background:#0b0b0b}
+  .status.ok{border-color:#14532d;background:#062c16}
+  .status.err{border-color:#7f1d1d;background:#2a0e0e}
+  .mono{font:600 13px ui-monospace,Menlo,Consolas,monospace; word-break:break-all}
+  .hint{color:var(--muted);font-size:12px}
 </style>
 </head>
 <body>
-<main class="wrap">
-  <h1>Area Scanner (staff)</h1>
-  <div class="notice">Devi aprire questa pagina su HTTPS (o localhost). Clicca “Avvia fotocamera”. In alternativa, carica una foto del QR.</div>
+<header>
+  <div class="nav">
+    <div class="brand"><div class="badge"></div> <div>TRAPPERREO — Scanner QR</div></div>
+    <div class="hint" id="secureHint"></div>
+  </div>
+</header>
 
-  <section class="card" style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:center">
-    <button id="start" class="btn">Avvia fotocamera</button>
-    <button id="switch" class="btn ghost" disabled>Cambia camera</button>
-    <input id="file" type="file" accept="image/*" class="btn ghost" style="padding:8px" />
+<main>
+  <section class="card">
+    <div class="row">
+      <button id="btnStart" class="btn primary">🎥 Avvia fotocamera</button>
+      <button id="btnStop"  class="btn" disabled>✋ Ferma</button>
+      <select id="selDevice" title="Seleziona fotocamera" disabled></select>
+      <label class="btn" for="fileInp">📷 Carica immagine</label>
+      <input id="fileInp" type="file" accept="image/*" capture="environment" style="display:none">
+    </div>
+    <div class="hint" style="margin-top:6px">
+      Se la camera non parte: assicurati che l'URL sia <b>HTTPS</b> (o localhost), consenti il permesso, chiudi altre app che usano la camera. Su iOS serve toccare “Avvia fotocamera”.
+    </div>
   </section>
 
-  <section class="card"><div id="reader"></div></section>
+  <section class="card">
+    <video id="video" playsinline muted></video>
+    <canvas id="canvas"></canvas>
+  </section>
 
-  <section id="resultBox" class="card" style="display:none">
-    <h2 style="font-size:20px;font-weight:900;margin-bottom:8px">Dettagli biglietto</h2>
-    <div class="grid" id="details"></div>
-    <div class="actions">
-      <button id="btnOk" class="btn">Conferma ingresso</button>
-      <button id="btnNo" class="btn ghost">Segnala — NON corrisponde</button>
-    </div>
+  <section class="card status" id="statusBox">
+    <div><b>Stato:</b> <span id="state">in attesa…</span></div>
+    <div class="mono" id="last"></div>
   </section>
 </main>
 
-<script type="module">
-import { app, onUser, requireActiveUser } from './auth.v2.js?v=6';
-import { getFirestore, doc, getDoc, setDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/12.5.0/firebase-firestore.js';
+<!-- ZXing reader (browser build) -->
+<script src="https://unpkg.com/@zxing/browser@0.1.5/umd/index.min.js"></script>
+<script>
+(function(){
+  const isSecure = window.isSecureContext || location.hostname==='localhost';
+  document.getElementById('secureHint').textContent = isSecure ? 'HTTPS ok' : '⚠️ Usa HTTPS o localhost';
 
-await requireActiveUser('./login.html?from=./scanner.html');
+  const { BrowserMultiFormatReader, NotFoundException } = window.ZXingBrowser;
+  const codeReader = new BrowserMultiFormatReader();
 
-const db = getFirestore(app);
-let CURRENT = null;
-let CAMS = [];
-let CURRENT_CAM = null;
-let QR = null;
+  const video = document.getElementById('video');
+  const canvas = document.getElementById('canvas');
+  const ctx = canvas.getContext('2d');
+  const sel = document.getElementById('selDevice');
+  const startBtn = document.getElementById('btnStart');
+  const stopBtn  = document.getElementById('btnStop');
+  const fileInp  = document.getElementById('fileInp');
+  const stateEl  = document.getElementById('state');
+  const lastEl   = document.getElementById('last');
+  const statusBox= document.getElementById('statusBox');
 
-function showDetails(ticket, uid, tid){
-  CURRENT = { uid, tid, data: ticket };
-  const d = document.getElementById('details');
-  const state = (ticket.status||'pending').toLowerCase();
-  d.innerHTML = `
-    <div class="row"><div>ID</div><div>${tid}</div></div>
-    <div class="row"><div>Nome</div><div><b>${ticket.name||'—'}</b></div></div>
-    <div class="row"><div>Nascita</div><div>${(ticket.dob||'').toString().slice(0,10)||'—'}</div></div>
-    <div class="row"><div>Tipo</div><div>${ticket.type||'Biglietto'}</div></div>
-    <div class="row"><div>Stato</div>
-      <div class="state ${state==='verified'?'ok':state==='flagged'?'bad':''}">${state}</div>
-    </div>
-  `;
-  document.getElementById('resultBox').style.display='block';
-}
+  let currentDeviceId = null;
+  let running = false;
+  let lastValue = '';
+  let beep;
 
-async function loadTicket(uid, tid){
-  const snap = await getDoc(doc(db,'users',uid,'tickets',tid));
-  if(!snap.exists()){ alert('Ticket non trovato.'); return; }
-  showDetails(snap.data()||{}, uid, tid);
-}
-
-function parsePayload(text){ try{ return JSON.parse(text); }catch{return null;} }
-
-async function startCamera(camId){
-  if(QR){ await QR.stop(); }
-  QR = new Html5Qrcode("reader");
-  await QR.start(
-    camId ? { deviceId: { exact: camId } } : { facingMode: "environment" },
-    { fps: 10, qrbox: 280 },
-    (decoded)=>{
-      const p = parsePayload(decoded);
-      if(!p || !p.uid || !p.tid) return;
-      QR.pause(true);
-      loadTicket(p.uid, p.tid);
-    },
-    (_)=>{}
-  );
-}
-
-document.getElementById('start').onclick = async ()=>{
-  try{
-    CAMS = await Html5Qrcode.getCameras();
-    if(CAMS.length){ CURRENT_CAM = CAMS.find(c=>/back|rear|environment/i.test(c.label))?.id || CAMS[0].id; }
-    await startCamera(CURRENT_CAM);
-    document.getElementById('switch').disabled = CAMS.length < 2;
-  }catch(e){
-    alert('Impossibile aprire la fotocamera. Assicurati HTTPS e consenti i permessi.');
+  function setState(text, ok=false, err=false){
+    stateEl.textContent = text;
+    statusBox.classList.remove('ok','err');
+    if(ok) statusBox.classList.add('ok');
+    if(err) statusBox.classList.add('err');
   }
-};
 
-document.getElementById('switch').onclick = async ()=>{
-  if(!CAMS.length) return;
-  const idx = CAMS.findIndex(c=>c.id===CURRENT_CAM);
-  const next = CAMS[(idx+1)%CAMS.length].id;
-  CURRENT_CAM = next;
-  await startCamera(CURRENT_CAM);
-};
-
-// Fallback: upload immagine con QR
-document.getElementById('file').onchange = async (e)=>{
-  const file = e.target.files?.[0]; if(!file) return;
-  const reader = new FileReader();
-  reader.onload = async ()=>{
-    // html5-qrcode ha un helper per immagini statiche:
-    const tmp = new Html5Qrcode("reader");
+  async function ensureDevices(){
     try{
-      const result = await tmp.scanFileV2(file, true);
-      const p = parsePayload(result.decodedText);
-      if(!p || !p.uid || !p.tid){ alert('QR non valido.'); return; }
-      showDetails(await (await getDoc(doc(db,'users',p.uid,'tickets',p.tid))).data(), p.uid, p.tid);
-    }catch{ alert('Impossibile leggere il QR dall’immagine.'); }
-  };
-  reader.readAsDataURL(file);
-};
+      const list = await navigator.mediaDevices.enumerateDevices();
+      const cams = list.filter(d=>d.kind==='videoinput');
+      sel.innerHTML = cams.map(d=>`<option value="${d.deviceId}">${d.label || 'Fotocamera'}</option>`).join('');
+      sel.disabled = cams.length===0;
+      // preferisci quella “environment” se presente nel label
+      const env = cams.find(d=>(d.label||'').toLowerCase().includes('back') || (d.label||'').toLowerCase().includes('environment'));
+      currentDeviceId = env?.deviceId || cams[0]?.deviceId || null;
+      if (currentDeviceId) sel.value = currentDeviceId;
+      return cams.length>0;
+    }catch(e){ return false; }
+  }
 
-document.getElementById('btnOk').onclick = async ()=>{
-  if(!CURRENT) return;
-  const user = await new Promise(res=>onUser(res));
-  const { uid, tid } = CURRENT;
-  await setDoc(doc(db,'users',uid,'tickets',tid), {
-    status:'verified', verifiedAt: serverTimestamp(),
-    verifiedBy: user.uid, verifiedByEmail: user.email
-  }, { merge:true });
-  await setDoc(doc(db,'scans', `${uid}_${tid}_${Date.now()}`), {
-    uid, tid, action:'verified', by:user.uid, email:user.email, at: serverTimestamp()
-  });
-  alert('Ingresso confermato ✓'); location.reload();
-};
+  async function start(){
+    if(!isSecure){ setState('Serve HTTPS o localhost', false, true); return; }
+    startBtn.disabled = true; setState('Avvio fotocamera…');
+    try{
+      // prima chiamata senza deviceId per farsi sbloccare i label
+      const tmp = await navigator.mediaDevices.getUserMedia({video:{facingMode:'environment'}, audio:false});
+      tmp.getTracks().forEach(t=>t.stop());
+      await ensureDevices();
+      if(!currentDeviceId){ setState('Nessuna fotocamera rilevata', false, true); startBtn.disabled=false; return; }
 
-document.getElementById('btnNo').onclick = async ()=>{
-  if(!CURRENT) return;
-  const user = await new Promise(res=>onUser(res));
-  const { uid, tid } = CURRENT;
-  await setDoc(doc(db,'users',uid,'tickets',tid), {
-    status:'flagged', flaggedAt: serverTimestamp(),
-    flaggedBy: user.uid, flaggedByEmail: user.email
-  }, { merge:true });
-  await setDoc(doc(db,'scans', `${uid}_${tid}_${Date.now()}`), {
-    uid, tid, action:'flagged', by:user.uid, email:user.email, at: serverTimestamp()
+      const stream = await navigator.mediaDevices.getUserMedia({ video:{ deviceId:{ exact: currentDeviceId } }, audio:false });
+      video.srcObject = stream;
+      await video.play();
+
+      // prepara beep
+      try{
+        const ac = new (window.AudioContext||window.webkitAudioContext)();
+        beep = ()=>{ const o=ac.createOscillator(); const g=ac.createGain(); o.connect(g); g.connect(ac.destination); o.frequency.value=880; g.gain.value=0.1; o.start(); setTimeout(()=>{o.stop();},120); };
+      }catch{ beep = ()=>{} }
+
+      running = true; stopBtn.disabled=false; sel.disabled=false;
+      loop();
+      setState('Scanner attivo ✓', true, false);
+    }catch(e){
+      console.error(e);
+      setState('Permesso negato o dispositivo occupato', false, true);
+      startBtn.disabled=false;
+    }
+  }
+
+  function stop(){
+    running=false;
+    stopBtn.disabled=true; sel.disabled=true;
+    startBtn.disabled=false;
+    const s = video.srcObject;
+    if (s) s.getTracks().forEach(t=>t.stop());
+    video.srcObject=null;
+    setState('Fermato');
+  }
+
+  async function loop(){
+    if(!running) return;
+    try{
+      const res = await codeReader.decodeOnceFromVideoElement(video);
+      if(res && res.getText){
+        const value = res.getText();
+        if(value !== lastValue){
+          lastValue = value;
+          lastEl.textContent = value;
+          setState('QR letto ✓', true, false);
+          beep && beep();
+          if('vibrate' in navigator){ navigator.vibrate(60); }
+          // attendo 800ms poi ricomincio
+          setTimeout(()=>{ if(running){ setState('Scanner attivo ✓', true); loop(); } }, 800);
+          return;
+        }
+      }
+    }catch(err){
+      if(!(err instanceof NotFoundException)){
+        console.debug('decode error', err);
+      }
+    }
+    // nessun codice in questo frame → continua
+    requestAnimationFrame(loop);
+  }
+
+  // cambio camera
+  sel.addEventListener('change', async ()=>{
+    currentDeviceId = sel.value;
+    if(running){ stop(); start(); }
   });
-  alert('Segnalato.'); location.reload();
-};
+
+  startBtn.addEventListener('click', start);
+  stopBtn.addEventListener('click', stop);
+
+  // fallback: immagine da file
+  fileInp.addEventListener('change', async ()=>{
+    const f = fileInp.files?.[0]; if(!f) return;
+    const img = new Image();
+    img.onload = async ()=>{
+      canvas.width = img.naturalWidth; canvas.height = img.naturalHeight;
+      ctx.drawImage(img, 0, 0);
+      try{
+        const res = await window.ZXingBrowser.BrowserMultiFormatReader.decodeFromCanvas(canvas);
+        const v = res?.text || res?.getText?.();
+        if(v){
+          lastValue = v; lastEl.textContent = v; setState('QR letto da immagine ✓', true, false); beep && beep();
+        }else{
+          setState('Nessun QR nell\'immagine', false, true);
+        }
+      }catch(e){
+        setState('Impossibile leggere il QR', false, true);
+      }
+      fileInp.value = '';
+    };
+    img.src = URL.createObjectURL(f);
+  });
+
+  // tenta di popolare subito la lista device (non parte la camera)
+  if(navigator.mediaDevices?.enumerateDevices){ ensureDevices(); }
+})();
 </script>
 </body>
 </html>
