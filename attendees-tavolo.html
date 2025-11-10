@@ -7,7 +7,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&display=swap" rel="stylesheet" />
 <style>
 :root{
-  --bg:#000; --text:#fff; --accent:#8b5cf6; --border:rgba(255,255,255,.12);
+  --bg:#0a0a0a; --text:#fff; --accent:#8b5cf6; --border:rgba(255,255,255,.12);
   --card:rgba(255,255,255,.06); --muted:rgba(255,255,255,.78);
   --gold:#f5c542; --silver:#9fb7ff; --classic:#d1a56d;
   --danger:#ef4444; --ok:#22c55e;
@@ -18,85 +18,95 @@ header{position:sticky;top:0;z-index:30;background:rgba(0,0,0,.7);backdrop-filte
 .nav{max-width:1200px;margin:auto;padding:14px 20px;display:flex;align-items:center;justify-content:space-between}
 .brand{display:flex;align-items:center;gap:10px;font-weight:900;letter-spacing:-.3px}
 .brand-badge{width:22px;height:22px;background:var(--accent);transform:skew(-6deg);border-radius:3px}
-nav a, nav span{color:#fff;text-decoration:none;margin-left:18px;font-size:14px;opacity:.95}
+nav a{color:#fff;text-decoration:none;margin-left:18px;font-size:14px;opacity:.95}
 nav a:hover{color:var(--accent)}
 
 .wrap{max-width:1200px;margin:auto;padding:20px}
 h1{font-size:28px;font-weight:900;letter-spacing:-.2px}
 h2{font-size:20px;font-weight:900;margin:14px 0 8px}
-.muted{color:var(--muted)}
 .card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:18px;margin-top:14px}
 .grid{display:grid;gap:16px}
-@media(min-width:1020px){.grid-2{grid-template-columns:1.2fr 1fr}}
+@media(min-width:1020px){.grid-2{grid-template-columns:1.1fr 1fr}}
 .hr{height:1px;background:rgba(255,255,255,.08);margin:14px 0}
-.btn{display:inline-block;padding:12px 16px;border-radius:12px;font-weight:900;border:1px solid var(--border);background:#121214;color:#fff;cursor:pointer}
+.btn{display:inline-block;padding:12px 16px;border-radius:12px;font-weight:900;border:1px solid var(--border);background:#161616;color:#fff;cursor:pointer}
 .btn.primary{background:var(--accent);color:#000;border:none}
 .btn.ghost{background:transparent}
-.btn[disabled]{opacity:.5;cursor:not-allowed}
-.badge{display:inline-flex;gap:6px;align-items:center;padding:6px 10px;border-radius:999px;border:1px solid var(--border);font-size:12px}
+.btn[disabled]{opacity:.45;cursor:not-allowed}
+.badge{display:inline-flex;gap:8px;align-items:center;padding:6px 10px;border-radius:12px;border:1px solid var(--border);font-size:12px}
 
 /* tabs tavoli */
 .tabs{display:flex;gap:8px;flex-wrap:wrap}
 .tab{padding:8px 12px;border:1px solid var(--border);border-radius:10px;cursor:pointer}
 .tab.active{border-color:var(--accent);box-shadow:0 0 0 3px rgba(139,92,246,.25)}
 
-/* legenda */
-.legend{display:flex;gap:10px;flex-wrap:wrap;margin-top:8px}
-.legend .row{display:flex;gap:10px;flex-wrap:wrap}
+/* legenda compatta */
+.legend{display:flex;gap:10px;flex-wrap:wrap;margin:8px 0 4px}
 .legend .chip{display:inline-flex;gap:6px;align-items:center;padding:6px 10px;border-radius:10px;border:1px solid var(--border)}
 .legend .dot{width:10px;height:10px;border-radius:999px}
 
-/* mappa */
-.map{position:relative;aspect-ratio: 5/3;background:#0a0a0a;border:1px solid rgba(255,255,255,.1);border-radius:14px;overflow:hidden}
-.map .deck,.map .floor{pointer-events:none}
-.deck{position:absolute;top:8px;left:50%;transform:translateX(-50%);padding:6px 10px;border-radius:8px;border:1px dashed rgba(255,255,255,.25);font-size:12px;z-index:1}
-.floor{position:absolute;inset:0;display:grid;place-items:center;z-index:1}
-.floor .dance{width:58%;height:58%;border:1px dashed rgba(255,255,255,.22);border-radius:12px;display:grid;place-items:center;color:#bbb;font-size:12px}
+/* contatore persone grande */
+.counter{display:inline-flex;border:1px solid var(--border);border-radius:14px;overflow:hidden}
+.counter button{width:52px;height:52px;background:#161616;border:none;color:#fff;font-weight:900;font-size:20px;cursor:pointer}
+.counter input{width:86px;height:52px;background:#0e0e0e;border:none;border-left:1px solid var(--border);border-right:1px solid var(--border);color:#fff;text-align:center;font-weight:900;font-size:20px}
 
-/* zone cliccabili */
-.zone{position:absolute;display:grid;place-items:center;border-radius:10px;border:1.5px solid rgba(255,255,255,.18);padding:8px 12px;background:#101010;cursor:pointer;transition:transform .12s, box-shadow .12s, border-color .12s, background .12s; z-index:5; pointer-events:auto}
-.zone:hover{transform:translateY(-1px)}
-.zone .pp{font-weight:900}
-.zone .lbl{font-size:12px;opacity:.9}
+/* mappa pulita */
+.map{position:relative;aspect-ratio: 5/3;background:#0b0b0b;border:1px solid rgba(255,255,255,.1);border-radius:14px;overflow:hidden;padding:16px}
+.deck{position:absolute;top:12px;left:50%;transform:translateX(-50%);padding:6px 10px;border-radius:8px;border:1px dashed rgba(255,255,255,.25);font-size:12px}
+.floor{position:absolute;inset:0;display:grid;place-items:center}
+.floor .dance{width:56%;height:52%;border:1px dashed rgba(255,255,255,.18);border-radius:12px;display:grid;place-items:center;color:#bdbdbd;font-size:12px}
+
+/* tavoli */
+.zone{position:absolute;min-width:140px;max-width:170px;display:grid;place-items:center;border-radius:14px;border:2px solid rgba(255,255,255,.15);padding:10px 12px;background:#111;cursor:pointer;transition:transform .1s, outline .1s, box-shadow .1s}
+.zone .pp{font-weight:900;letter-spacing:.3px}
+.zone .lbl{font-size:12px;opacity:.9;margin-top:2px}
 .zone[data-area="gold"]{border-color:var(--gold)}
 .zone[data-area="silver"]{border-color:var(--silver)}
 .zone[data-area="classic"]{border-color:var(--classic)}
-.zone.active{outline:2px solid rgba(34,197,94,.85); box-shadow:0 0 0 4px rgba(34,197,94,.28)}
-.zone.busy{background:#2a0c0c;border-color:#ff8080}
-.zone.busy .pp{color:#ffb3b3}
-.zone .tag{position:absolute;top:-9px;right:-9px;background:var(--ok);color:#000;font-weight:900;font-size:10px;border-radius:12px;padding:2px 6px;border:1px solid #0a0}
+.zone.active{outline:3px solid rgba(34,197,94,.9); box-shadow:0 0 0 6px rgba(34,197,94,.22)}
+.zone.busy{background:#2a0c0c;border-color:#ff9a9a}
+.zone.busy .pp{color:#ffd1d1}
+.zone .tag{position:absolute;top:-10px;right:-10px;background:var(--ok);color:#001b07;font-weight:900;font-size:10px;border-radius:14px;padding:2px 6px;border:1px solid #0a0}
 
-/* pannello tavolo */
-.table-panel{display:grid;gap:10px}
-.table-row{display:grid;grid-template-columns:1fr;gap:10px;align-items:center;background:#0b0b0b;border:1px solid rgba(255,255,255,.1);border-radius:12px;padding:12px}
+/* posizioni ordinate (no overlap) */
+.zone.gold-left{top:76px;left:14%}
+.zone.gold-center{top:76px;left:50%;transform:translate(-50%,0)}
+.zone.gold-right{top:76px;right:14%}
+
+.zone.silver-left1{top:44%;left:8%}
+.zone.silver-left2{top:72%;left:10%}
+.zone.silver-right1{top:44%;right:8%}
+.zone.silver-right2{top:72%;right:10%}
+
+.zone.classic-left1{bottom:28px;left:26%}
+.zone.classic-right1{bottom:28px;right:26%}
+
+/* colonna destra */
+.table-panel{display:grid;gap:12px}
+.table-row{display:grid;gap:10px;background:#0e0e0e;border:1px solid rgba(255,255,255,.1);border-radius:14px;padding:14px}
 .table-row .ttl{font-weight:900}
 .kv{display:flex;gap:10px;flex-wrap:wrap}
-.kv .pill{padding:4px 8px;border:1px solid var(--border);border-radius:8px;font-size:12px}
+.kv .pill{padding:6px 10px;border:1px solid var(--border);border-radius:10px;font-size:12px}
 
 /* stepper */
-.stepper{display:flex;gap:8px;margin:6px 0 10px}
+.stepper{display:flex;gap:8px;margin:8px 0}
 .step{padding:6px 10px;border:1px solid var(--border);border-radius:8px;font-size:12px}
 .step.active{border-color:var(--accent);background:rgba(139,92,246,.1)}
 
 /* listino */
 .listino{display:grid;gap:12px}
 .cat{font-size:14px;font-weight:900;margin-top:6px}
-.item{display:grid;grid-template-columns:1fr auto auto;gap:10px;align-items:center;border:1px solid rgba(255,255,255,.1);background:#0b0b0b;border-radius:12px;padding:10px}
+.item{display:grid;grid-template-columns:1fr auto auto;gap:10px;align-items:center;border:1px solid rgba(255,255,255,.1);background:#0e0e0e;border-radius:12px;padding:10px}
 .item h4{font-size:15px}
 .item .inc{font-size:12px;opacity:.85;margin-top:4px}
 .price{font-weight:900}
-.small{font-size:12px;opacity:.8}
-.em{font-style:italic;opacity:.9}
 .line{display:flex;justify-content:space-between;align-items:center;margin:6px 0}
 .total{font-size:20px;font-weight:900}
+.small{font-size:12px;opacity:.8}
 
 /* overlay 18+ e legale */
 .gate{position:fixed;inset:0;background:rgba(0,0,0,.92);display:none;align-items:center;justify-content:center;z-index:60}
 .gate .box{max-width:640px;border:1px solid rgba(255,0,0,.35);background:#1a0b0b;border-radius:16px;padding:20px}
 .gate h3{color:#ff9c9c;font-size:22px;font-weight:900;margin-bottom:8px}
-.gate .btn{margin-top:10px;border-color:#ff9c9c}
-.notice{margin-left:10px;padding:6px 10px;border-radius:10px;border:1px dashed rgba(255,255,255,.25);font-size:12px}
-.notice.warn{border-color:#f59e0b;color:#ffd29a;background:#2a1f0a}
 </style>
 </head>
 <body>
@@ -104,25 +114,18 @@ h2{font-size:20px;font-weight:900;margin:14px 0 8px}
 <header>
   <div class="nav">
     <div class="brand"><div class="brand-badge"></div><div>TRAPPERREO</div></div>
-    <nav id="navArea"><span class="muted">Caricamento…</span></nav>
+    <nav id="navArea"><a href="#" class="muted">Caricamento…</a></nav>
   </div>
 </header>
 
 <main class="wrap">
-  <h1 style="display:flex;align-items:center;gap:10px">
-    Prenota il tuo Tavolo
-    <span id="paxWarn" class="notice" style="display:none"></span>
-  </h1>
+  <h1>Prenota il tuo Tavolo</h1>
 
   <!-- LEGENDA -->
   <div class="legend">
-    <div class="row">
-      <div class="chip"><span class="dot" style="background:var(--gold)"></span><b>Gold</b> da 45€/pax • minimo 180€</div>
-      <div class="chip"><span class="dot" style="background:var(--silver)"></span><b>Silver</b> da 35€/pax • minimo 140€</div>
-    </div>
-    <div class="row" style="margin-top:6px">
-      <div class="chip"><span class="dot" style="background:var(--classic)"></span><b>Classic</b> da 30€/pax • minimo 120€</div>
-    </div>
+    <div class="chip"><span class="dot" style="background:var(--gold)"></span><b>Gold</b> da 45€/pax • min 180€</div>
+    <div class="chip"><span class="dot" style="background:var(--silver)"></span><b>Silver</b> da 35€/pax • min 140€</div>
+    <div class="chip"><span class="dot" style="background:var(--classic)"></span><b>Classic</b> da 30€/pax • min 120€</div>
   </div>
 
   <div class="stepper">
@@ -132,15 +135,12 @@ h2{font-size:20px;font-weight:900;margin:14px 0 8px}
 
   <!-- STEP 1 -->
   <section class="card" id="step1">
-    <h2 style="display:flex;align-items:center;gap:10px">
-      Quante persone sarete?
-      <span id="paxInlineWarn" class="notice warn" style="display:none"></span>
-    </h2>
+    <h2>Quante persone sarete?</h2>
     <div style="display:flex;gap:12px;align-items:center;margin-top:6px">
-      <div class="badge" style="padding:0;border:none">
-        <button id="paxMinus" class="btn" style="border-top-right-radius:0;border-bottom-right-radius:0">−</button>
-        <input id="paxInput" type="number" value="4" min="1" max="21" inputmode="numeric" style="width:72px;height:44px;background:#0b0b0b;border:1px solid var(--border);text-align:center;font-weight:900;font-size:16px">
-        <button id="paxPlus" class="btn" style="border-top-left-radius:0;border-bottom-left-radius:0">+</button>
+      <div class="counter">
+        <button id="paxMinus">−</button>
+        <input id="paxInput" type="number" value="4" min="1" max="21" inputmode="numeric">
+        <button id="paxPlus">+</button>
       </div>
     </div>
 
@@ -155,26 +155,26 @@ h2{font-size:20px;font-weight:900;margin:14px 0 8px}
           <div class="floor"><div class="dance">PISTA</div></div>
 
           <!-- GOLD -->
-          <div class="zone" data-area="gold"   data-zone="gold-left"   style="top:54px;left:18%;"><div><div class="pp">GOLD</div><div class="lbl">da 45€/pax</div></div></div>
-          <div class="zone" data-area="gold"   data-zone="gold-center" style="top:54px;left:50%;transform:translateX(-50%);"><div><div class="pp">GOLD</div><div class="lbl">da 45€/pax</div></div></div>
-          <div class="zone" data-area="gold"   data-zone="gold-right"  style="top:54px;right:18%;"><div><div class="pp">GOLD</div><div class="lbl">da 45€/pax</div></div></div>
+          <div class="zone gold-left"   data-area="gold"   data-zone="gold-left"><div><div class="pp">GOLD</div><div class="lbl">da 45€/pax</div></div></div>
+          <div class="zone gold-center" data-area="gold"   data-zone="gold-center"><div><div class="pp">GOLD</div><div class="lbl">da 45€/pax</div></div></div>
+          <div class="zone gold-right"  data-area="gold"   data-zone="gold-right"><div><div class="pp">GOLD</div><div class="lbl">da 45€/pax</div></div></div>
 
           <!-- SILVER -->
-          <div class="zone" data-area="silver" data-zone="silver-left1"  style="top:50%;left:8%;transform:translateY(-50%)"><div><div class="pp">SILVER</div><div class="lbl">da 35€/pax</div></div></div>
-          <div class="zone" data-area="silver" data-zone="silver-left2"  style="top:70%;left:8%;"><div><div class="pp">SILVER</div><div class="lbl">da 35€/pax</div></div></div>
-          <div class="zone" data-area="silver" data-zone="silver-right1" style="top:50%;right:8%;transform:translateY(-50%)"><div><div class="pp">SILVER</div><div class="lbl">da 35€/pax</div></div></div>
-          <div class="zone" data-area="silver" data-zone="silver-right2" style="top:70%;right:8%;"><div><div class="pp">SILVER</div><div class="lbl">da 35€/pax</div></div></div>
+          <div class="zone silver-left1"  data-area="silver" data-zone="silver-left1"><div><div class="pp">SILVER</div><div class="lbl">da 35€/pax</div></div></div>
+          <div class="zone silver-left2"  data-area="silver" data-zone="silver-left2"><div><div class="pp">SILVER</div><div class="lbl">da 35€/pax</div></div></div>
+          <div class="zone silver-right1" data-area="silver" data-zone="silver-right1"><div><div class="pp">SILVER</div><div class="lbl">da 35€/pax</div></div></div>
+          <div class="zone silver-right2" data-area="silver" data-zone="silver-right2"><div><div class="pp">SILVER</div><div class="lbl">da 35€/pax</div></div></div>
 
           <!-- CLASSIC -->
-          <div class="zone" data-area="classic" data-zone="classic-left1"  style="bottom:16px;left:18%;"><div><div class="pp">CLASSIC</div><div class="lbl">da 30€/pax</div></div></div>
-          <div class="zone" data-area="classic" data-zone="classic-right1" style="bottom:16px;right:18%;"><div><div class="pp">CLASSIC</div><div class="lbl">da 30€/pax</div></div></div>
+          <div class="zone classic-left1"  data-area="classic" data-zone="classic-left1"><div><div class="pp">CLASSIC</div><div class="lbl">da 30€/pax</div></div></div>
+          <div class="zone classic-right1" data-area="classic" data-zone="classic-right1"><div><div class="pp">CLASSIC</div><div class="lbl">da 30€/pax</div></div></div>
         </div>
       </div>
 
       <div class="table-panel">
         <div id="tableDetail" class="table-row"></div>
         <div>
-          <button id="goStep2" class="btn primary" style="margin-top:6px">Vai al listino bottiglie</button>
+          <button id="goStep2" class="btn primary">Vai al listino bottiglie</button>
         </div>
       </div>
     </div>
@@ -189,7 +189,6 @@ h2{font-size:20px;font-weight:900;margin:14px 0 8px}
 
     <div class="grid grid-2" style="margin-top:8px">
       <div>
-        <div class="small" id="minInfo" style="margin-bottom:6px"></div>
         <div class="listino" id="listino"></div>
       </div>
 
@@ -197,39 +196,25 @@ h2{font-size:20px;font-weight:900;margin:14px 0 8px}
         <div id="summaryBox"></div>
         <div class="hr"></div>
 
-        <div class="paymodes">
-          <label class="badge"><input type="radio" name="payMode" value="deposito" checked> Caparra</label>
-          <label class="badge"><input type="radio" name="payMode" value="full"> Paga tutto ora</label>
-        </div>
+        <div class="badge"><label><input type="radio" name="payMode" value="deposito" checked> Caparra</label></div>
+        <div class="badge"><label><input type="radio" name="payMode" value="full"> Paga tutto ora</label></div>
 
         <div class="hr"></div>
         <div class="line total">
           <span id="totalLabel">Caparra (ora)</span>
           <strong id="totalValue">0€</strong>
         </div>
+        <div class="small" id="saldoInfo" style="margin-top:4px">Saldo in serata</div>
 
         <div class="hr"></div>
         <div style="display:flex;gap:10px;flex-wrap:wrap">
           <button id="backStep1" class="btn ghost">Indietro</button>
           <button id="confirmBtn" class="btn primary" disabled>Procedi</button>
         </div>
-        <div class="small em" style="margin-top:8px">
-          Gli extra 25€ per persone oltre la 4ª scattano solo se non raggiungi la soglia €/pax.
-          Tavolo Classic: minimo per persona 30€ • Silver: 35€ • Gold: 45€.
-        </div>
       </div>
     </div>
   </section>
 </main>
-
-<!-- GATE 18+ -->
-<div class="gate" id="ageGate">
-  <div class="box">
-    <h3>Accesso vietato ai minorenni</h3>
-    <div class="muted" style="margin-bottom:8px">Questa sezione è riservata ai maggiorenni.</div>
-    <a href="./checkout.html" class="btn">Torna al checkout</a>
-  </div>
-</div>
 
 <!-- POPUP LEGALE -->
 <div class="gate" id="legalGate">
@@ -237,8 +222,8 @@ h2{font-size:20px;font-weight:900;margin:14px 0 8px}
     <h3>Conferma regole tavoli</h3>
     <div class="small" style="margin-bottom:10px">
       <ul style="margin-left:18px">
-        <li>Minimo tavolo per area: Classic 120€, Silver 140€, Gold 180€.</li>
-        <li>Oltre 4 pax: +25€/persona <b>solo</b> se non raggiungi la soglia €/pax dell’area.</li>
+        <li>Minimo per area: Classic 120€ • Silver 140€ • Gold 180€.</li>
+        <li>Oltre 4 pax: +25€/persona.</li>
         <li>I nominativi devono corrispondere ai documenti.</li>
       </ul>
     </div>
@@ -251,12 +236,9 @@ h2{font-size:20px;font-weight:900;margin:14px 0 8px}
 </div>
 
 <script type="module">
-/* ================= Firebase & Auth ================= */
+/* ================= Firebase & Auth (stub compatibile) ================= */
 import { onUser, doSignOut, app } from './auth.v2.js?v=7';
-import {
-  getFirestore, doc, getDoc, setDoc
-} from 'https://www.gstatic.com/firebasejs/12.5.0/firebase-firestore.js';
-
+import { getFirestore, doc, getDoc, setDoc } from 'https://www.gstatic.com/firebasejs/12.5.0/firebase-firestore.js';
 const db = getFirestore(app);
 
 /* ================== UI Refs ================== */
@@ -269,9 +251,6 @@ const stepBadge2 = document.getElementById('s2');
 const paxMinus = document.getElementById('paxMinus');
 const paxPlus  = document.getElementById('paxPlus');
 const paxInput = document.getElementById('paxInput');
-
-const paxWarn = document.getElementById('paxWarn');
-const paxInlineWarn = document.getElementById('paxInlineWarn');
 
 const tabs1 = document.getElementById('tableTabs');
 const tabs2 = document.getElementById('tableTabs2');
@@ -288,77 +267,48 @@ const listinoBox = document.getElementById('listino');
 const summaryBox = document.getElementById('summaryBox');
 const totalLabel = document.getElementById('totalLabel');
 const totalValue = document.getElementById('totalValue');
-const minInfo = document.getElementById('minInfo');
+const saldoInfo = document.getElementById('saldoInfo');
 
-const ageGate = document.getElementById('ageGate');
 const legalGate = document.getElementById('legalGate');
 const legalChk = document.getElementById('legalChk');
 const legalOk = document.getElementById('legalOk');
 const legalCancel = document.getElementById('legalCancel');
-
-const OUT = `
-  <a href="./login.html?from=./attendees-tavolo.html">Acquista il tuo biglietto</a>
-  <a href="./login.html">Accedi</a>
-  <a href="./signup.html">Registrati</a>`;
-const IN  = (u)=>`
-  <span>👋 Ciao, <strong>${(u.displayName||u.email||'Utente').split(' ')[0]}</strong></span>
-  <a href="./checkout.html">Vai al checkout</a>
-  <a href="#" id="logoutLink" style="color:#8b5cf6">Logout</a>`;
-
-/* ================== Helpers ================== */
-const lc = s => (s||'').toString().trim().toLowerCase();
-const money = n => (Number(n||0)).toFixed(2) + '€';
-const round2 = n => Math.round(n*100)/100;
-
-function parseDob(any){
-  if(!any) return null;
-  if (typeof any === 'object' && any.seconds) return new Date(any.seconds*1000);
-  if (typeof any === 'number'){ const d=new Date(any); return isNaN(d)?null:d; }
-  const s=String(any).trim(); if(!s) return null;
-  if (/^\d{4}-\d{2}-\d{2}/.test(s) || /^\d{4}-\d{2}-\d{2}T/.test(s)){ const d=new Date(s); return isNaN(d)?null:d; }
-  if (/^\d{1,2}\/\d{1,2}\/\d{4}$/.test(s)){ const [dd,mm,yy]=s.split('/').map(x=>parseInt(x,10)); const d=new Date(yy,mm-1,dd); return isNaN(d)?null:d; }
-  const d=new Date(s); return isNaN(d)?null:d;
-}
-function ageFrom(d){
-  if(!d) return 0; const t=new Date();
-  let a=t.getFullYear()-d.getFullYear();
-  const m=t.getMonth()-d.getMonth();
-  if (m<0 || (m===0 && t.getDate()<d.getDate())) a--;
-  return a;
-}
-function profFromLS(uid){ try{ return JSON.parse(localStorage.getItem('trapperreo_profile_'+uid)||'null'); }catch{return null;} }
-async function profFromDB(uid){ try{ const s=await getDoc(doc(db,'users',uid)); return s.exists()?s.data():null; }catch{return null;} }
 
 /* ================== Stato ================== */
 const STATE = {
   user:null,
   activeTable:0,
   totalPax:4,
-  pricesPerPax:{ classic:30, silver:35, gold:45 }, // soglia €/pax
-  areaMin:{ classic:120, silver:140, gold:180 },   // minimo tavolo
-  tables:[],        // [{index, area, pax, real, zone, bottles:[{id,qty}]}]
-  bottleList:[],    // [{id,name,category,price,cost,visible,includes?}]
-  locks:{}          // zona -> {heldBy, tableIndex, heldAt, status}
+  pricesPerPax:{ classic:30, silver:35, gold:45 },
+  areaMin:{ classic:120, silver:140, gold:180 },
+  tables:[],      // {index, area, zone, pax, real, bottles:[{id,qty}]}
+  bottleList:[],  // {id,name,category,price,cost,visible,includes?}
+  locks:{}        // zone -> {heldBy, tableIndex, heldAt, status}
 };
 
-/* ================== Carica listino ================== */
+/* ========== Data ========== */
 async function loadBottleConfig(){
   try{
     const snap = await getDoc(doc(db,'config','bottles'));
-    if(!snap.exists()) return;
-    const items = snap.data()?.items || {};
+    const items = snap.exists() ? (snap.data()?.items||{}) : {};
     STATE.bottleList = Object.entries(items).map(([id,v])=>({
       id, name:v.name||'—',
-      category: lc(v.category||''),
-      price: Number(v.price||0),
-      cost: Number(v.cost||0),
-      visible: v.visible!==false,
-      includes: (v.includes||'').toString()
+      category:String(v.category||'').toLowerCase(),
+      price:Number(v.price||0),
+      cost:Number(v.cost||0),
+      visible:v.visible!==false,
+      includes:(v.includes||'')+''
     })).filter(x=>x.visible);
-  }catch(e){}
+  }catch{
+    // fallback demo
+    STATE.bottleList = [
+      {id:'cava',name:'Cuvée Brut',category:'champagne',price:60,cost:35,visible:true},
+      {id:'belvedere',name:'Belvedere 0.7',category:'distillati',price:180,cost:100,visible:true},
+    ];
+  }
 }
 
-/* ================== Locks (soft 3m) ================== */
+/* ========== Locks soft 3m (best-effort) ========== */
 async function fetchLocks(){
   try{
     const ref = doc(db,'locks','tables');
@@ -370,24 +320,17 @@ async function tryHoldZone(zoneId, tableIndex){
   try{
     const now = Date.now();
     const curr = STATE.locks[zoneId];
-    if (curr && (now - (curr.heldAt||0) < 180000) && curr.heldBy !== STATE.user?.uid){
-      return false;
-    }
-    // prova a scrivere, ma non bloccare la selezione se fallisce
+    if (curr && (now - (curr.heldAt||0) < 180000) && curr.heldBy !== STATE.user?.uid) return false;
     STATE.locks[zoneId] = { heldBy: STATE.user?.uid||'local', tableIndex, heldAt: now, status:'pending' };
     await setDoc(doc(db,'locks','tables'), { [zoneId]: STATE.locks[zoneId] }, { merge:true });
     return true;
-  }catch(e){
-    // BEST-EFFORT: se non riesco a scrivere, lascio comunque selezionare
-    return true;
-  }
+  }catch{ return true; } // best-effort
 }
 function isZoneBusy(zoneId){
   const l = STATE.locks[zoneId];
-  if(!l) return false;
-  return (Date.now() - (l.heldAt||0) < 180000) && l.status !== 'released';
+  return !!(l && (Date.now() - (l.heldAt||0) < 180000) && l.status!=='released');
 }
-function markZoneReleased(zoneId){
+function releaseZone(zoneId){
   try{
     if(!STATE.locks[zoneId]) return;
     STATE.locks[zoneId].status='released';
@@ -396,75 +339,14 @@ function markZoneReleased(zoneId){
   }catch{}
 }
 
-/* ================== Split / Rebalance ================== */
+/* ========== Tavoli ========== */
 function splitTables(total){
-  const res = [];
-  if (total <= 7){ res.push({ pax: Math.max(4,total), real: total }); return res; }
-  let remain=total;
-  while(remain>7){ res.push({pax:7,real:7}); remain-=7; }
-  if (remain>0){
-    if (remain<4 && res.length && res[res.length-1].pax>4){
-      const need=4-remain, give=Math.min(need,res[res.length-1].pax-4);
-      res[res.length-1].pax-=give; res[res.length-1].real-=give;
-      res.push({pax:remain+give, real:remain});
-    } else res.push({pax:Math.max(4,remain), real:remain});
-  }
-  return res.map(x=>({pax:Math.min(7,Math.max(4,x.pax)), real:x.real}));
+  const res=[];
+  if (total<=7){ res.push({pax:Math.max(4,total), real:total}); return res; }
+  let r=total; while(r>7){ res.push({pax:7,real:7}); r-=7; }
+  res.push({pax:Math.max(4,r), real:r});
+  return res;
 }
-function rebalanceTables(indexChanged, newPax){
-  newPax = Math.min(7, Math.max(4, Number(newPax||4)));
-  const tot = STATE.totalPax;
-  const T = STATE.tables.map(t=>t.pax);
-  T[indexChanged]=newPax;
-  let target = Math.max(STATE.tables.length*4, tot);
-  let sum = T.reduce((s,n)=>s+n,0);
-  if (sum>target){
-    for(let i=0;i<T.length;i++){
-      if(i===indexChanged) continue;
-      while(T[i]>4 && sum>target){ T[i]--; sum--; }
-      if(sum<=target) break;
-    }
-  }else if(sum<target){
-    for(let i=0;i<T.length;i++){
-      if(i===indexChanged) continue;
-      while(T[i]<7 && sum<target){ T[i]++; sum++; }
-      if(sum>=target) break;
-    }
-  }
-  STATE.tables.forEach((t,i)=>{ t.pax=T[i]; });
-}
-
-/* Vicinanza per T2 */
-const neighborOrder = {
-  'gold-center':['gold-left','gold-right','silver-left1','silver-right1'],
-  'gold-left':['gold-center','gold-right','silver-left1','silver-left2'],
-  'gold-right':['gold-center','gold-left','silver-right1','silver-right2'],
-  'silver-left1':['silver-left2','silver-right1','classic-left1','gold-left'],
-  'silver-left2':['silver-left1','silver-right2','classic-left1','gold-left'],
-  'silver-right1':['silver-right2','silver-left1','classic-right1','gold-right'],
-  'silver-right2':['silver-right1','silver-left2','classic-right1','gold-right'],
-  'classic-left1':['classic-right1','silver-left2','silver-left1'],
-  'classic-right1':['classic-left1','silver-right2','silver-right1']
-};
-function autoSuggestForTable2(){
-  if (STATE.tables.length<2) return;
-  const t1 = STATE.tables[0], t2 = STATE.tables[1];
-  if (!t1.zone) return;
-  const areaWanted = t1.area;
-  const order = neighborOrder[t1.zone]||[];
-  for (const z of order){
-    const el = zones.find(n=>n.getAttribute('data-zone')===z);
-    if (!el) continue;
-    const area = el.getAttribute('data-area');
-    if (area!==areaWanted) continue;
-    if (!isZoneBusy(z) && STATE.tables.every(tt=>tt.zone!==z)){
-      t2.area = areaWanted; t2.zone = z;
-      return;
-    }
-  }
-}
-
-/* ================== Init tabelle ================== */
 function ensureTables(){
   const parts = splitTables(STATE.totalPax);
   const old = STATE.tables;
@@ -472,322 +354,215 @@ function ensureTables(){
     index:i,
     area: old[i]?.area || (i===0?'silver':'classic'),
     zone: old[i]?.zone || null,
-    pax: p.pax,
+    pax:  p.pax,
     real: p.real,
     bottles: old[i]?.bottles || []
   }));
 }
 
-/* ========== Calcoli €/pax + extra condizionale ========== */
-function ensureBottleSlot(table, id){
-  const idx = table.bottles.findIndex(b=>b.id===id);
-  if (idx<0) table.bottles.push({id,qty:0});
-  return table.bottles.find(b=>b.id===id);
-}
-
-function computeTableBreakdown(table){
-  let sumListino = 0;
-  let sumInterni = 0;
-  table.bottles.forEach(sel=>{
-    const meta = STATE.bottleList.find(b=>b.id===sel.id);
-    if(!meta) return;
-    const q = Number(sel.qty||0);
-    if(q<=0) return;
-    sumListino += meta.price * q;
-    sumInterni += meta.cost  * q;
-  });
-
-  const minArea = STATE.areaMin[table.area] || 0;
-  const addMinimo = Math.max(0, minArea - sumListino);
-  const spentAfterMin = sumListino + addMinimo;
-
-  const perPax = STATE.pricesPerPax[table.area] || 0;
-  const expected = perPax * (table.real || 0);
-
-  const needsExtra = spentAfterMin < expected;
-  const extra = needsExtra ? Math.max(0, (table.real || 0) - 4) * 25 : 0;
-
-  const total = spentAfterMin + extra;
-
-  const capMin = 25 * table.pax;
-  const caparra = Math.max(capMin, sumInterni);
-
-  const perHead = table.real>0 ? total / table.real : 0;
-
-  return { sumListino, addMinimo, expected, spentAfterMin, needsExtra, extra, total, caparra, perHead };
-}
-
-function computeAll(){
-  const items = STATE.tables.map(t=>({ t, b: computeTableBreakdown(t) }));
-  const totalAll = round2(items.reduce((s,x)=> s + x.b.total, 0));
-  const depositAll = round2(items.reduce((s,x)=> s + x.b.caparra, 0));
-  return { items, totalAll, depositAll };
-}
-
-/* ================== Render & UI ================== */
-function renderTabs(container, isStep2=false){
-  container.innerHTML = '';
+/* ========== Render ========== */
+function renderTabs(container,isStep2=false){
+  container.innerHTML='';
   STATE.tables.forEach((t,i)=>{
-    const el = document.createElement('div');
-    el.className = 'tab' + (STATE.activeTable===i?' active':'');
-    el.textContent = `Tavolo ${i+1}`;
-    el.addEventListener('click', ()=>{ STATE.activeTable=i; renderStep1(); if(isStep2) renderStep2(); });
+    const el=document.createElement('div');
+    el.className='tab'+(STATE.activeTable===i?' active':'');
+    el.textContent='Tavolo '+(i+1);
+    el.onclick=()=>{ STATE.activeTable=i; renderStep1(); if(isStep2) renderStep2(); };
     container.appendChild(el);
   });
 }
-
 function renderTableDetail(){
   const t = STATE.tables[STATE.activeTable];
-  const zoneTxt = t.zone ? t.zone : '—';
-  const color = t.area==='gold'?'var(--gold)':t.area==='silver'?'var(--silver)':'var(--classic)';
+  const areaColor = t.area==='gold'?'var(--gold)':t.area==='silver'?'var(--silver)':'var(--classic)';
+  const min = STATE.areaMin[t.area]||0;
   tableDetail.innerHTML = `
     <div class="ttl" style="font-size:16px">Tavolo ${t.index+1}</div>
     <div class="kv">
-      <span class="pill" id="zonePill">Zona: <b style="color:${color}">${zoneTxt}</b></span>
-      <span class="pill">Area: <b style="color:${color}">${t.area.toUpperCase()}</b></span>
-    </div>
-  `;
+      <span class="pill">Zona: <b style="color:${areaColor}">${t.zone||'—'}</b></span>
+      <span class="pill">Area: <b style="color:${areaColor}">${t.area.toUpperCase()}</b></span>
+      <span class="pill">min ${min}€</span>
+    </div>`;
 }
-
+function markTagsOnMap(){
+  zones.forEach(z=>z.querySelector('.tag')?.remove());
+  STATE.tables.forEach(t=>{
+    if(!t.zone) return;
+    const el = zones.find(n=>n.getAttribute('data-zone')===t.zone);
+    if(el){ const tag=document.createElement('div'); tag.className='tag'; tag.textContent='T'+(t.index+1); el.appendChild(tag); }
+  });
+}
 async function handleZoneClick(el){
   const area = el.getAttribute('data-area');
   const zone = el.getAttribute('data-zone');
 
-  // se appare busy → non selezionare
+  // toggle: se clicchi la stessa zona del tavolo attivo → deseleziona e rilascia
+  const cur = STATE.tables[STATE.activeTable].zone;
+  if (cur === zone){
+    STATE.tables[STATE.activeTable].zone = null;
+    releaseZone(zone);
+    renderMap(); renderTableDetail();
+    return;
+  }
+
   if (isZoneBusy(zone)) return;
-
-  // prova a fare hold ma NON bloccare in caso di errore/permessi
   const ok = await tryHoldZone(zone, STATE.activeTable);
-  if (!ok) return; // occupato da altri (lock valido)
+  if (!ok) return;
 
-  const prev = STATE.tables[STATE.activeTable].zone;
-  if (prev && prev!==zone) markZoneReleased(prev);
+  if (cur && cur!==zone) releaseZone(cur);
 
   STATE.tables[STATE.activeTable].area = area;
   STATE.tables[STATE.activeTable].zone = zone;
 
-  // tag T1/T2
-  zones.forEach(z=>z.querySelector('.tag')?.remove());
-  STATE.tables.forEach(t=>{
-    if(!t.zone) return;
-    const n = zones.find(z=>z.getAttribute('data-zone')===t.zone);
-    if(n){
-      const tag=document.createElement('div');
-      tag.className='tag'; tag.textContent='T'+(t.index+1);
-      n.appendChild(tag);
-    }
-  });
-
-  // auto-passaggio al Tavolo 2
+  // auto-pass a Tavolo 2
   if (STATE.activeTable===0 && STATE.tables.length>=2){
-    autoSuggestForTable2();
     STATE.activeTable = 1;
   }
 
-  renderMap(); renderStep1(); renderPaxWarnings();
+  renderMap(); renderTableDetail();
 }
-
 function renderMap(){
   zones.forEach(z=>{
     z.classList.remove('active','busy');
-    const zid = z.getAttribute('data-zone');
-    if (isZoneBusy(zid)) z.classList.add('busy');
+    const id=z.getAttribute('data-zone');
+    if (isZoneBusy(id)) z.classList.add('busy');
   });
   const act = STATE.tables[STATE.activeTable].zone;
   if (act){
     const el = zones.find(z=>z.getAttribute('data-zone')===act);
     el?.classList.add('active');
   }
-  zones.forEach(z=>{ z.onclick = ()=>handleZoneClick(z); });
+  zones.forEach(z=> z.onclick=()=>handleZoneClick(z));
+  markTagsOnMap();
 }
-
 function renderStep1(){
-  renderTabs(tabs1, false);
+  renderTabs(tabs1,false);
   renderTableDetail();
   renderMap();
 }
 
-function ensureBottleSlotUI(t,id){
-  const slot = ensureBottleSlot(t,id);
-  return slot;
+/* ===== Bottiglie & calcoli ===== */
+function ensureBottleSlot(table,id){
+  const i = table.bottles.findIndex(b=>b.id===id);
+  if (i<0) table.bottles.push({id,qty:0});
+  return table.bottles.find(b=>b.id===id);
+}
+function computeTable(t){
+  let sum=0, cost=0;
+  t.bottles.forEach(sel=>{
+    const meta=STATE.bottleList.find(b=>b.id===sel.id); if(!meta) return;
+    const q=Number(sel.qty||0); if(q<=0) return;
+    sum += meta.price*q; cost += meta.cost*q;
+  });
+  const extra = Math.max(0,(t.real||0)-4)*25; // sempre e solo oltre la 4ª
+  const total = sum + extra;
+  const caparra = Math.max(25 * t.pax, cost);
+  return {sum, extra, total, caparra, perHead: t.real? total/t.real : 0};
+}
+function computeAll(){
+  const items = STATE.tables.map(t=>({t, b:computeTable(t)}));
+  const totalAll = items.reduce((s,x)=>s+x.b.total,0);
+  const depositAll = items.reduce((s,x)=>s+x.b.caparra,0);
+  return {items, totalAll, depositAll};
 }
 function renderListino(){
   const t = STATE.tables[STATE.activeTable];
-  minInfo.textContent = `Minimo tavolo: ${money(STATE.areaMin[t.area])}. Soglia persone: ${t.real}×${STATE.pricesPerPax[t.area]}€ = ${money(STATE.pricesPerPax[t.area]*t.real)}.`;
   const champagne = STATE.bottleList.filter(b=>b.category==='champagne');
-  const distillati= STATE.bottleList.filter(b=>b.category==='distillati');
+  const dist = STATE.bottleList.filter(b=>b.category==='distillati');
 
-  const sec = (title, arr)=>`
+  const sec=(title,arr)=>`
     <div class="cat">${title}</div>
     ${arr.map(b=>{
-      const slot = t.bottles.find(x=>x.id===b.id) || {qty:0};
-      return `
-      <div class="item">
-        <div>
-          <h4>${b.name}</h4>
-          <div class="small em">Listino: ${money(b.price)}</div>
-          ${b.includes ? `<div class="inc">${(b.includes+'').replace(/\n/g,'<br>')}</div>`:''}
-        </div>
-        <div class="price">${slot.qty>0? '× '+slot.qty : ''}</div>
+      const slot = t.bottles.find(x=>x.id===b.id)||{qty:0};
+      return `<div class="item">
+        <div><h4>${b.name}</h4><div class="small">Listino: ${(Number(b.price||0)).toFixed(2)}€</div>${b.includes?`<div class="inc">${(b.includes+'').replace(/\n/g,'<br>')}</div>`:''}</div>
+        <div class="price">${slot.qty>0?'× '+slot.qty:''}</div>
         <div style="display:flex;gap:8px;align-items:center">
-          <button data-minus="${b.id}" class="btn">−</button>
+          <button class="btn" data-minus="${b.id}">−</button>
           <div class="small" style="min-width:24px;text-align:center" data-qty="${b.id}">${slot.qty||0}</div>
-          <button data-plus="${b.id}" class="btn">+</button>
+          <button class="btn" data-plus="${b.id}">+</button>
         </div>
       </div>`;
-    }).join('')}
-  `;
-  listinoBox.innerHTML = sec('Champagne', champagne) + sec('Distillati', distillati);
+    }).join('')}`;
+  listinoBox.innerHTML = sec('Champagne',champagne)+sec('Distillati',dist);
 
   listinoBox.querySelectorAll('[data-plus]').forEach(btn=>{
-    btn.onclick = ()=>{
-      const id = btn.getAttribute('data-plus');
-      const slot = ensureBottleSlotUI(t,id);
-      slot.qty = Number(slot.qty||0)+1;
-      listinoBox.querySelector(`[data-qty="${id}"]`).textContent = slot.qty;
-      renderSummary(); renderPaxWarnings();
-    };
+    btn.onclick=()=>{ const id=btn.getAttribute('data-plus'); const slot=ensureBottleSlot(t,id); slot.qty=Number(slot.qty||0)+1; listinoBox.querySelector(`[data-qty="${id}"]`).textContent=slot.qty; renderSummary(); };
   });
   listinoBox.querySelectorAll('[data-minus]').forEach(btn=>{
-    btn.onclick = ()=>{
-      const id = btn.getAttribute('data-minus');
-      const slot = ensureBottleSlotUI(t,id);
-      slot.qty = Math.max(0, Number(slot.qty||0)-1);
-      listinoBox.querySelector(`[data-qty="${id}"]`).textContent = slot.qty;
-      renderSummary(); renderPaxWarnings();
-    };
+    btn.onclick=()=>{ const id=btn.getAttribute('data-minus'); const slot=ensureBottleSlot(t,id); slot.qty=Math.max(0,Number(slot.qty||0)-1); listinoBox.querySelector(`[data-qty="${id}"]`).textContent=slot.qty; renderSummary(); };
   });
 }
-
 function renderSummary(){
-  const { items, totalAll, depositAll } = computeAll();
-
-  const rows = items.map(({t,b})=>{
+  const {items,totalAll,depositAll}=computeAll();
+  summaryBox.innerHTML = items.map(({t,b})=>{
     const color = t.area==='gold'?'var(--gold)':t.area==='silver'?'var(--silver)':'var(--classic)';
-    const need = Math.max(0, b.expected - b.spentAfterMin);
+    const min = STATE.areaMin[t.area]||0;
     return `
-      <div class="line" style="font-weight:800;color:${color}">Tavolo ${t.index+1} — ${t.area.toUpperCase()} (${t.real} pax)</div>
-      <div class="line"><span>Bottiglie (listino)</span><span>${money(b.sumListino)}</span></div>
-      <div class="line"><span>Aggiunta minimo tavolo</span><span>${money(b.addMinimo)}</span></div>
-      <div class="small em">Soglia persone: ${t.real}×${STATE.pricesPerPax[t.area]}€ = ${money(b.expected)} ${b.needsExtra ? `(mancano ${money(need)})` : '(raggiunta)'}</div>
-      ${b.needsExtra && t.real>4 ? `<div class="line"><span>Persone extra (${t.real-4})</span><span>${money(b.extra)}</span></div>`:''}
-      <div class="line"><span>Totale tavolo</span><strong>${money(b.total)}</strong></div>
-      <div class="line small"><span>Totale a persona</span><span>${money(round2(b.perHead))}</span></div>
-      <div class="hr"></div>
-    `;
+      <div class="line" style="font-weight:800;color:${color}">Tavolo ${t.index+1} — ${t.area.toUpperCase()} (${t.real} pax) <span class="small" style="opacity:.85"> (min ${min}€)</span></div>
+      <div class="line"><span>Bottiglie (listino)</span><span>${b.sum.toFixed(2)}€</span></div>
+      ${b.extra>0?`<div class="line"><span>Persone extra (${Math.max(0,t.real-4)})</span><span>${b.extra.toFixed(2)}€</span></div>`:''}
+      <div class="line"><span>Totale tavolo</span><strong>${b.total.toFixed(2)}€</strong></div>
+      <div class="line small"><span>Totale a persona</span><span>${b.perHead.toFixed(2)}€</span></div>
+      <div class="hr"></div>`;
   }).join('');
-
-  summaryBox.innerHTML = rows;
-
-  const mode = document.querySelector('input[name="payMode"]:checked')?.value || 'deposito';
-  totalLabel.textContent = (mode==='full') ? 'Totale (paga ora)' : 'Caparra (ora)';
-  totalValue.textContent = money((mode==='full') ? totalAll : depositAll);
+  const mode = document.querySelector('input[name="payMode"]:checked')?.value||'deposito';
+  if (mode==='full'){ totalLabel.textContent='Totale (paga ora)'; totalValue.textContent=totalAll.toFixed(2)+'€'; saldoInfo.textContent=''; }
+  else { totalLabel.textContent='Caparra (ora)'; totalValue.textContent=depositAll.toFixed(2)+'€'; saldoInfo.textContent='Saldo in serata'; }
 
   const hasAny = STATE.tables.some(t=> t.bottles.some(b=>Number(b.qty||0)>0));
   confirmBtn.disabled = !hasAny || !legalChk.checked;
 }
+function renderTabs2(){ renderTabs(tabs2,true); }
+function renderStep2(){ renderTabs2(); renderListino(); renderSummary(); }
 
-function renderTabs2(){ renderTabs(tabs2, true); }
-
-function renderStep2(){
-  renderTabs2();
-  renderListino();
-  renderSummary();
-}
-
-/* ===== Avvisi dinamici ===== */
-function renderPaxWarnings(){
-  const { items } = computeAll();
-  const probs = items.filter(({t,b})=> t.zone && t.real>4 && b.needsExtra);
-  if (probs.length===0){
-    paxInlineWarn.style.display='none';
-    paxWarn.style.display='none';
-    return;
-  }
-  const p = probs[0];
-  const missing = Math.max(0, p.b.expected - p.b.spentAfterMin);
-  paxInlineWarn.textContent = `Tavolo ${p.t.index+1}: soglia ${p.t.real}×${STATE.pricesPerPax[p.t.area]}€ = ${money(p.b.expected)} (mancano ${money(missing)}). In mancanza si applicano ${(p.t.real-4)}×25€ = ${money((p.t.real-4)*25)}.`;
-  paxInlineWarn.style.display='inline-block';
-  paxWarn.textContent = `Attenzione: per i tavoli con >4 pax si applicano extra 25€ a testa SOLO se non raggiungete la soglia €/pax dell’area.`;
-  paxWarn.style.display='inline-flex';
-}
-
-/* ================== Navigazione ================== */
-function goToStep2(){
-  const bad = STATE.tables.find(t=>!t.area || !t.zone);
-  if (bad){ alert(`Seleziona l'area sulla mappa per ogni tavolo (manca Tavolo ${bad.index+1}).`); return; }
+/* ========== Navigazione & bind ========== */
+function goToStep2Gate(){
+  const bad = STATE.tables.find(t=>!t.zone);
+  if (bad){ alert(`Seleziona una zona sulla mappa (manca Tavolo ${bad.index+1}).`); return; }
   legalGate.style.display='flex';
 }
-function backToStep1(){
-  s2.style.display='none';
-  s1.style.display='block';
-  stepBadge2.classList.remove('active');
-  stepBadge1.classList.add('active');
+function backToStep1View(){
+  s2.style.display='none'; s1.style.display='block';
+  stepBadge2.classList.remove('active'); stepBadge1.classList.add('active');
   renderStep1();
 }
 
-/* ================== Bind base ================== */
-paxMinus.onclick = ()=>{ paxInput.value = Math.max(1, Number(paxInput.value||1)-1); onTotalPaxChange(); };
-paxPlus.onclick  = ()=>{ paxInput.value = Math.min(21, Number(paxInput.value||1)+1); onTotalPaxChange(); };
-paxInput.oninput = ()=>{ 
-  const v = Math.max(1, Math.min(21, parseInt(paxInput.value||'1',10)||1));
-  paxInput.value = v; onTotalPaxChange();
-};
-function onTotalPaxChange(){
+paxMinus.onclick = ()=>{ paxInput.value = Math.max(1, Number(paxInput.value||1)-1); onPaxChange(); };
+paxPlus.onclick  = ()=>{ paxInput.value = Math.min(21, Number(paxInput.value||1)+1); onPaxChange(); };
+paxInput.oninput = ()=>{ const v=Math.max(1,Math.min(21,parseInt(paxInput.value||'1',10)||1)); paxInput.value=v; onPaxChange(); };
+
+function onPaxChange(){
   STATE.totalPax = Number(paxInput.value||1);
-  ensureTables();
-  STATE.activeTable = 0;
-  renderStep1();
-  renderPaxWarnings();
+  ensureTables(); STATE.activeTable=0; renderStep1();
 }
 
-goStep2.onclick = goToStep2;
-backStep1.onclick = backToStep1;
-document.querySelectorAll('input[name="payMode"]').forEach(r=>{
-  r.addEventListener('change', ()=>{ renderSummary(); });
-});
+goStep2.onclick = goToStep2Gate;
+backStep1.onclick = backToStep1View;
+document.querySelectorAll('input[name="payMode"]').forEach(r=> r.addEventListener('change', renderSummary));
 
-/* Popup legale */
-legalCancel.onclick = ()=>{ legalGate.style.display='none'; };
+legalCancel.onclick=()=>{ legalGate.style.display='none'; };
 legalChk.onchange = ()=>{ legalOk.disabled = !legalChk.checked; renderSummary(); };
 legalOk.onclick = ()=>{
   legalGate.style.display='none';
-  s1.style.display='none';
-  s2.style.display='block';
-  stepBadge1.classList.remove('active');
-  stepBadge2.classList.add('active');
+  s1.style.display='none'; s2.style.display='block';
+  stepBadge1.classList.remove('active'); stepBadge2.classList.add('active');
   renderStep2();
 };
 
-/* ================== Auth + Age gate + Locks ================== */
+/* ========== Boot ========== */
+const OUT = `<a href="./login.html?from=./attendees-tavolo.html">Acquista</a> <a href="./login.html">Accedi</a>`;
+const IN  = u => `<span>👋 Ciao, <b>${(u.displayName||u.email||'Utente').split(' ')[0]}</b></span> <a href="./checkout.html">Vai al checkout</a> <a href="#" id="logoutLink" style="color:#8b5cf6">Logout</a>`;
+
 onUser(async (u)=>{
   if(!u){ nav.innerHTML=OUT; location.href='./login.html?from=./attendees-tavolo.html'; return; }
-  STATE.user = u;
-  nav.innerHTML = IN(u);
-  document.getElementById('logoutLink')?.addEventListener('click', async (e)=>{ e.preventDefault(); await doSignOut(); nav.innerHTML=OUT; location.href='./login.html?from=./attendees-tavolo.html'; });
-
-  // DOB
-  let prof = profFromLS(u.uid);
-  let dob = parseDob(prof?.dob);
-  if (!dob){
-    const d = await profFromDB(u.uid);
-    dob = parseDob(d?.dob) || parseDob(d?.profile?.dob);
-    if (dob){
-      try{
-        const merged = { ...(prof||{}), dob: d?.dob ?? d?.profile?.dob };
-        localStorage.setItem('trapperreo_profile_'+u.uid, JSON.stringify(merged));
-      }catch{}
-    }
-  }
-  const isAdult = ageFrom(dob) >= 18;
-  if (!isAdult){ ageGate.style.display='flex'; return; }
+  STATE.user=u; nav.innerHTML=IN(u);
+  document.getElementById('logoutLink')?.addEventListener('click', async (e)=>{ e.preventDefault(); await doSignOut(); location.href='./login.html?from=./attendees-tavolo.html'; });
 
   await loadBottleConfig();
   await fetchLocks();
 
   ensureTables();
   renderStep1();
-  renderPaxWarnings();
 });
 </script>
 </body>
