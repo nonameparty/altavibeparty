@@ -9,7 +9,7 @@
 :root{--accent:#8b5cf6;--border:rgba(255,255,255,.12);--muted:rgba(255,255,255,.78)}
 *{box-sizing:border-box;margin:0;padding:0}
 body{background:#000;color:#fff;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;line-height:1.5;min-height:100vh}
-.wrap{max-width:1100px;margin:auto;padding:22px}
+.wrap{max-width:1200px;margin:auto;padding:22px}
 h1{font-size:32px;font-weight:900;margin-bottom:8px}
 h2{font-size:20px;font-weight:900}
 .muted{color:var(--muted)}
@@ -27,6 +27,7 @@ input,select{background:#0f0f10;border:1px solid var(--border);border-radius:10p
 .modal{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;align-items:center;justify-content:center;z-index:60}
 .modal .box{background:#0f0f10;border:1px solid var(--border);border-radius:14px;padding:16px;width:min(560px,92vw)}
 .row{display:flex;gap:8px;margin-top:8px}
+.ticketRow{border:1px solid rgba(255,255,255,.12);border-radius:10px;padding:8px;margin-bottom:8px}
 </style>
 </head>
 <body>
@@ -36,12 +37,29 @@ input,select{background:#0f0f10;border:1px solid var(--border);border-radius:10p
 
   <div id="errBanner" class="notice"></div>
 
+  <!-- Azioni rapide -->
   <div class="card" style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
-    <a href="./founder-gift.html" class="btn">Crea omaggio</a>
-    <a href="./scanner.html" class="btn ghost">Scanner</a>
-    <a href="./checkout.html" class="btn ghost">Nuovo ordine</a>
+    <a href="./founder-gift.html" class="btn">🎁 Crea omaggio</a>
+    <a href="./founder-discount.html" class="btn ghost">% Codice sconto</a>
+    <a href="./founder-tables.html" class="btn">🍾 Tavoli & bottiglie</a>
+    <a href="./scanner.html" class="btn ghost">📷 Scanner</a>
+    <button id="btnExportCSV" class="btn">Export CSV utenti</button>
   </div>
 
+  <!-- Statistiche -->
+  <section class="card">
+    <div class="right" style="justify-content:space-between;">
+      <h2>Statistiche rapide</h2>
+      <div id="statLoad" class="badge">Carico…</div>
+    </div>
+    <div style="display:flex;gap:16px;flex-wrap:wrap;margin-top:8px">
+      <div class="badge">Utenti attivi: <span id="statActive">—</span></div>
+      <div class="badge">Utenti totali: <span id="statTotal">—</span></div>
+      <div class="badge">% verificati: <span id="statVerified">—</span></div>
+    </div>
+  </section>
+
+  <!-- Gestione utenti -->
   <section class="card">
     <div class="right" style="justify-content:space-between;">
       <h2>Gestione utenti</h2>
@@ -74,8 +92,8 @@ input,select{background:#0f0f10;border:1px solid var(--border);border-radius:10p
 </div>
 
 <script type="module">
-import { app, onUser } from './auth.v2.js?v=6';
-import { getFirestore, doc, getDoc, getDocs, collection, setDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/12.5.0/firebase-firestore.js';
+import { app, onUser, exportUsersCSV } from './auth.v2.js?v=6';
+import { getFirestore, doc, getDoc, setDoc, collection, getDocs, deleteDoc } from 'https://www.gstatic.com/firebasejs/12.5.0/firebase-firestore.js';
 
 const db = getFirestore(app);
 const who = document.getElementById('who');
@@ -83,15 +101,16 @@ const tbody = document.querySelector('#tbl tbody');
 const empty = document.getElementById('empty');
 const qInput= document.getElementById('q');
 const btnSearch=document.getElementById('btnSearch');
+const btnExportCSV = document.getElementById('btnExportCSV');
 const modal = document.getElementById('modal');
 const mName = document.getElementById('mName');
 const mDob  = document.getElementById('mDob');
 const mCancel = document.getElementById('mCancel');
 const mSave   = document.getElementById('mSave');
-
-let EDIT = null; // {uid, tid}
+let EDIT = null;
 
 function lc(s){ return (s||'').toString().trim().toLowerCase(); }
+
 async function isFounder(email, uid){
   try{
     const cfg = await getDoc(doc(db,'config','admins'));
@@ -102,60 +121,55 @@ async function isFounder(email, uid){
     return !!(f[lc(email)] || r==='founder' || a[lc(email)]);
   }catch{ return false; }
 }
-
 function openModal(){ modal.style.display='flex'; modal.setAttribute('aria-hidden','false'); }
 function closeModal(){ modal.style.display='none'; modal.setAttribute('aria-hidden','true'); }
 
-function rowTicket(uid, t){
+function ticketRow(uid, t){
   const state = (t.status||'pending').toLowerCase();
-  const color = state==='verified'?'#22c55e':state==='flagged'?'#ef4444':'#ffffff55';
-  const editBtn = `<button class="btn ghost small" data-edit="${uid}:${t.id}">Modifica</button>`;
   return `
-    <div style="border:1px solid ${color};border-radius:10px;padding:8px;margin-bottom:8px">
+    <div class="ticketRow">
       <div style="display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap">
         <div><b>${t.type||'Ticket'}</b> — <span style="opacity:.85">${t.name||'—'} • ${(t.dob||'').toString().slice(0,10)||'—'}</span></div>
         <div style="display:flex;gap:6px;align-items:center">
           <span class="badge">${state}</span>
-          ${editBtn}
+          <button class="btn ghost small" data-edit="${uid}:${t.id}">Modifica</button>
+          <button class="btn ghost small" data-del="${uid}:${t.id}">Elimina</button>
         </div>
       </div>
     </div>
   `;
 }
+function orderRow(o){
+  const when = o.createdAt?.seconds ? new Date(o.createdAt.seconds*1000).toLocaleString() : '';
+  const title = o.title || (o.kind==='gift'?'Omaggio':'Ordine');
+  const tot = (o.total!=null) ? `${(Number(o.total)||0).toFixed(2)}€` : '';
+  return `<div class="small" style="border-bottom:1px dashed rgba(255,255,255,.12);padding:6px 0">
+    <div><b>${title}</b> ${tot}</div><div style="opacity:.8">${when}</div>
+  </div>`;
+}
 
-function renderUsers(list){
-  tbody.innerHTML='';
-  empty.style.display = list.length? 'none':'block';
-  list.forEach(async u=>{
-    // tickets
+async function renderUsers(list){
+  tbody.innerHTML=''; empty.style.display = list.length? 'none':'block';
+  for (const u of list){
     const ts = await getDocs(collection(db,'users',u.uid,'tickets'));
-    const tickets = [];
-    ts.forEach(d=> tickets.push({ id:d.id, ...(d.data()||{}) }) );
-    // cronologia (ordini)
-    const os = await getDocs(collection(db,'users',u.uid,'orders')).catch(()=>({empty:true, forEach:()=>{}}));
-    const orders=[];
-    os.forEach(o=> orders.push({ id:o.id, ...(o.data()||{}) }) );
+    const tickets = []; ts.forEach(d=> tickets.push({ id:d.id, ...(d.data()||{}) }));
+    const os = await getDocs(collection(db,'users',u.uid,'orders')).catch(()=>({forEach:()=>{}}));
+    const orders=[]; os.forEach(o=> orders.push({ id:o.id, ...(o.data()||{}) }));
 
     const tr = document.createElement('tr');
     tr.innerHTML = `
-      <td style="min-width:220px">
+      <td style="min-width:240px">
         <div><b>${u.name||'—'}</b></div>
         <div class="small" style="opacity:.8">${u.email||'—'}</div>
+        <div class="small" style="opacity:.8">DOB: ${(u.dob||'').toString().slice(0,10)||'—'}</div>
       </td>
-      <td>${ tickets.length? tickets.map(t=>rowTicket(u.uid,t)).join('') : '<span class="small muted">Nessun ticket</span>' }</td>
-      <td style="min-width:240px">
-        ${
-          orders.length
-          ? orders.map(o=>`<div class="small" style="border-bottom:1px dashed rgba(255,255,255,.12);padding:6px 0">
-              <div><b>${o.title||'Ordine'}</b> — ${o.total? (o.total.toFixed?o.total.toFixed(2):o.total) +'€':''}</div>
-              <div style="opacity:.8">${o.createdAt? (new Date(o.createdAt.seconds*1000)).toLocaleString() : ''}</div>
-            </div>`).join('')
-          : '<span class="small muted">Nessun ordine</span>'
-        }
+      <td>${ tickets.length? tickets.map(t=>ticketRow(u.uid,t)).join('') : '<span class="small muted">Nessun ticket</span>' }</td>
+      <td style="min-width:260px">
+        ${ orders.length ? orders.map(orderRow).join('') : '<span class="small muted">Nessun ordine/omaggio</span>' }
       </td>
     `;
     tbody.appendChild(tr);
-  });
+  }
 
   // bind edit
   tbody.querySelectorAll('[data-edit]').forEach(btn=>{
@@ -170,6 +184,15 @@ function renderUsers(list){
       openModal();
     };
   });
+  // bind delete
+  tbody.querySelectorAll('[data-del]').forEach(btn=>{
+    btn.onclick = async ()=>{
+      const [uid, tid] = btn.getAttribute('data-del').split(':');
+      if(!confirm('Eliminare definitivamente questo biglietto?')) return;
+      await deleteDoc(doc(db,'users',uid,'tickets',tid));
+      alert('Biglietto eliminato.'); location.reload();
+    };
+  });
 }
 
 async function searchUsers(term){
@@ -178,8 +201,25 @@ async function searchUsers(term){
   const q = lc(term);
   const out = q
     ? arr.filter(u=> lc(u.email)==q || lc(u.name_lc||u.name||'').startsWith(q))
-    : arr.slice(0,50);
+    : arr.slice(0,80);
   renderUsers(out);
+}
+
+async function runStats(){
+  document.getElementById('statLoad').textContent='…';
+  const us = await getDocs(collection(db,'users'));
+  let active=0, total=us.size, verified=0, tickets=0;
+  for (const docu of us.docs){
+    const v = docu.data()||{};
+    if ((v.status||'active').toLowerCase()==='active') active++;
+    const ts = await getDocs(collection(db,'users',docu.id,'tickets'));
+    tickets += ts.size;
+    ts.forEach(t=>{ if((t.data()?.status||'').toLowerCase()==='verified') verified++; });
+  }
+  document.getElementById('statActive').textContent = active;
+  document.getElementById('statTotal').textContent  = total;
+  document.getElementById('statVerified').textContent = tickets? Math.round(verified*100/tickets)+'%' : '0%';
+  document.getElementById('statLoad').textContent='';
 }
 
 onUser(async (u)=>{
@@ -187,10 +227,18 @@ onUser(async (u)=>{
   const ok = await isFounder(u.email||'', u.uid);
   who.textContent = ok ? `Ciao ${u.email} — permessi Founder/Admin attivi.` : 'Accesso negato.';
   if(!ok){ setTimeout(()=>location.href='./account-2.html', 1200); return; }
-  await searchUsers(''); // primi N
+  await runStats();
+  await searchUsers('');
 });
 
 btnSearch.onclick = ()=> searchUsers(qInput.value);
+btnExportCSV.onclick = async ()=>{
+  try{ btnExportCSV.disabled=true; btnExportCSV.textContent='Esporto…';
+    const n = await exportUsersCSV(); btnExportCSV.textContent=`Export (${n}) ✓`;
+  }catch{ btnExportCSV.textContent='Export CSV utenti'; } finally{
+    setTimeout(()=>{ btnExportCSV.disabled=false; btnExportCSV.textContent='Export CSV utenti'; },800);
+  }
+};
 
 mCancel.onclick = ()=> closeModal();
 mSave.onclick = async ()=>{
@@ -201,10 +249,9 @@ mSave.onclick = async ()=>{
   if(!name || !/^\d{4}-\d{2}-\d{2}$/.test(dob)){ alert('Compila correttamente.'); return; }
   const qr = JSON.stringify({ uid, tid, v:1 });
   await setDoc(doc(db,'users',uid,'tickets',tid), {
-    name, dob, qr, locked:true, updatedAt: serverTimestamp()
+    name, dob, qr, locked:true, updatedAt: Date.now()
   }, { merge:true });
-  alert('Aggiornato.');
-  closeModal(); location.reload();
+  alert('Aggiornato.'); closeModal(); location.reload();
 };
 </script>
 </body>
