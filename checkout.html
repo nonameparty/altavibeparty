@@ -202,9 +202,7 @@ h1{font-size:26px;font-weight:900;letter-spacing:-.2px}
 </main>
 <script type="module">
 import { onUser, doSignOut, app } from './auth.v2.js?v=6';
-import {
-  getFirestore, doc, getDoc
-} from 'https://www.gstatic.com/firebasejs/12.5.0/firebase-firestore.js';
+import { getFirestore, doc, getDoc } from 'https://www.gstatic.com/firebasejs/12.5.0/firebase-firestore.js';
 
 const db = getFirestore(app);
 
@@ -224,11 +222,13 @@ const payBtn  = document.getElementById('payBtn');
 const optName = document.getElementById('optNameChange');
 const nameLine= document.getElementById('nameChangeLine');
 
-const vipBlock = document.getElementById('vipTableBlock');   // deve esistere e partire con hidden
+/* ---------- VIP block: forza nascosto sin da SUBITO ---------- */
+const vipBlock = document.getElementById('vipTableBlock');   // deve esistere
 const vipBtn   = document.getElementById('vipReserve');      // link “Prenota il tuo tavolo”
-const vipNote  = document.getElementById('vipNote');         // descrizione VIP
+const vipNote  = document.getElementById('vipNote');         // descrizione VIP (se presente)
+if (vipBlock){ vipBlock.hidden = true; vipBlock.style.display = 'none'; } // ← hard hide
 
-/* ---------- Helper di utilità ---------- */
+/* ---------- Helpers ---------- */
 const OUT = `
   <a href="./login.html?from=./checkout.html">Acquista il tuo biglietto</a>
   <a href="./login.html">Accedi</a>
@@ -255,16 +255,17 @@ function drinkLabels(){ return document.querySelectorAll('.drink-label'); }
 
 function parseDob(any){
   if (!any) return null;
-  if (typeof any === 'object' && any.seconds) return new Date(any.seconds*1000); // Firestore TS
-  if (typeof any === 'number') { const d=new Date(any); return isNaN(d)?null:d; } // ms
+  if (typeof any === 'object' && any.seconds != null) return new Date(any.seconds*1000); // Firestore TS
+  if (typeof any === 'number') { const d=new Date(any); return isNaN(d)?null:d; }         // ms
   const s=String(any).trim(); if(!s) return null;
-  if (/^\d{4}$/.test(s)) { const d=new Date(Number(s),0,1); return isNaN(d)?null:d; } // solo anno
-  if (/^\d{4}-\d{2}-\d{2}/.test(s) || /^\d{4}-\d{2}-\d{2}T/.test(s)) { const d=new Date(s); return isNaN(d)?null:d; }
-  if (/^\d{1,2}\/\d{1,2}\/\d{4}$/.test(s)) { const [dd,mm,yy]=s.split('/').map(n=>parseInt(n,10)); const d=new Date(yy,mm-1,dd); return isNaN(d)?null:d; }
+  if (/^\d{4}$/.test(s)) { const d=new Date(Number(s),0,1); return isNaN(d)?null:d; }     // solo anno
+  if (/^\d{4}-\d{2}-\d{2}/.test(s) || /^\d{4}-\d{2}-\d{2}T/.test(s)) { const d=new Date(s); return isNaN(d)?null:d; } // ISO
+  if (/^\d{1,2}\/\d{1,2}\/\d{4}$/.test(s)) { const [dd,mm,yy]=s.split('/').map(n=>parseInt(n,10)); const d=new Date(yy,mm-1,dd); return isNaN(d)?null:d; } // it
   const d=new Date(s); return isNaN(d)?null:d;
 }
 function ageFrom(d){
-  if(!d) return 0; const t=new Date();
+  if(!d) return 0;
+  const t=new Date();
   let a=t.getFullYear()-d.getFullYear();
   const m=t.getMonth()-d.getMonth();
   if (m<0 || (m===0 && t.getDate()<d.getDate())) a--;
@@ -278,21 +279,21 @@ async function profFromDB(uid){
   try{ const snap=await getDoc(doc(db,'users',uid)); return snap.exists()?snap.data():null; }catch{ return null; }
 }
 
-/* ---------- Gating 18+ sicuro ---------- */
+/* ---------- Gating 18+ ---------- */
 function setAdultUI(isAdult){
-  // Aggiorna etichette drink
+  // Etichette drink
   drinkLabels().forEach(el=>{
     el.textContent = isAdult ? '1 drink (alcolico/analcolico)' : '1 drink analcolico';
   });
 
-  // Descrizione VIP
+  // Descrizione VIP (se presente la nota)
   if (vipNote){
     vipNote.innerHTML = isAdult
       ? 'Accesso area VIP • <span class="drink-label">1 drink (alcolico/analcolico)</span> + <strong>guardaroba incluso</strong>.'
       : 'Accesso area VIP • <strong>2 drink analcolici</strong> + <strong>guardaroba incluso</strong>.';
   }
 
-  // Blocco tavoli: per sicurezza parte hidden nell’HTML.
+  // Mostra/Nasconde IL BLOCCO TAVOLI
   if (vipBlock){
     if (isAdult){
       vipBlock.hidden = false;
@@ -303,7 +304,7 @@ function setAdultUI(isAdult){
     }
   }
 
-  // Azione bottone
+  // Click sul bottone tavolo
   if (vipBtn){
     vipBtn.onclick = (e)=>{
       if (!isAdult){ e.preventDefault(); return; }
@@ -312,9 +313,9 @@ function setAdultUI(isAdult){
   }
 }
 
-/* ---------- Render riepilogo (minimo) ---------- */
+/* ---------- Riepilogo ---------- */
 function render(){
-  if (!qEB || !qSTD || !qFAST || !qVIP) return; // se mancano input, esci silenziosamente
+  if (!qEB || !qSTD || !qFAST || !qVIP) return;
   const parts = subtotalBySku();
   const gross = parts.EB + parts.STD + parts.FAST + parts.VIP;
 
@@ -338,7 +339,6 @@ function render(){
 }
 
 function bindQty(){
-  // Proteggi sempre le query
   document.querySelectorAll('[data-plus]').forEach(b=>{
     b.addEventListener('click', ()=>{
       const sel=b.getAttribute('data-plus'); if(!sel) return;
@@ -355,7 +355,6 @@ function bindQty(){
       render();
     });
   });
-
   [qEB,qSTD,qFAST,qVIP,optName].forEach(el=>{
     if(!el) return;
     el.addEventListener(el.type==='checkbox'?'change':'input', render);
@@ -383,12 +382,10 @@ onUser(async (u)=>{
     let prof = profFromLS(u.uid);
     let dob  = parseDob(prof?.dob);
 
-    // 2) Firestore /users/{uid}.dob
+    // 2) Firestore /users/{uid}.dob o /users/{uid}.profile.dob
     if (!dob){
       const doc1 = await profFromDB(u.uid);
-      dob = parseDob(doc1?.dob);
-      // 3) Firestore /users/{uid}.profile.dob
-      if (!dob) dob = parseDob(doc1?.profile?.dob);
+      dob = parseDob(doc1?.dob) || parseDob(doc1?.profile?.dob);
       // sync su LS se trovato
       if (dob){
         try{
@@ -401,20 +398,29 @@ onUser(async (u)=>{
     const age = ageFrom(dob);
     const isAdult = age >= 18;
 
-    // Log di verifica (puoi toglierli dopo il test)
-    console.log('[DOB]', { rawLS: prof?.dob, parsedFromLS: parseDob(prof?.dob),
-                           fetched: dob, age, isAdult });
+    // DEBUG utile: vedi esattamente cosa sta arrivando
+    console.log('[CHECKOUT DOB]', {
+      fromLS: prof?.dob ?? null,
+      parsedFromLS: parseDob(prof?.dob) ?? null,
+      fromDB: dob ?? null,
+      age, isAdult
+    });
+
+    // Se DOB mancante → trattiamo come minorenne
+    if (!dob){
+      console.warn('DOB non trovato: nascondo tavoli per sicurezza.');
+    }
 
     setAdultUI(isAdult);
     render();
   }catch(err){
     console.error('onUser fatal:', err);
-    // se per qualunque motivo crascia, *mantieni nascosto* il blocco tavoli
+    // fallback: nascondi tavoli
     if (vipBlock){ vipBlock.hidden = true; vipBlock.style.display='none'; }
   }
 });
 
-/* ---------- Init bind ---------- */
+/* ---------- Init ---------- */
 bindQty();
 render();
 
