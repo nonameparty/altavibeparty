@@ -50,7 +50,7 @@ h1{font-size:26px;font-weight:900;letter-spacing:-.2px}
 .row[data-type="vip"] {border-color:color-mix(in srgb, var(--c-vip)45%, #fff 0%)}
 .flag.eb{color:var(--c-eb)} .flag.std{color:var(--c-std)} .flag.fast{color:var(--c-fast)} .flag.vip{color:var(--c-vip)}
 
-/* blocco Tavolo VIP */
+/* Tavolo VIP CTA */
 .viptable{margin-top:12px;display:flex;justify-content:space-between;align-items:center;background:#0b0b0b;border:1px dashed rgba(245,158,11,.6);border-radius:12px;padding:14px}
 .viptable .title{font-weight:900}
 .viptable .cta{background:transparent;border:1px solid var(--c-vip);color:#fff;padding:10px 14px;border-radius:10px;cursor:pointer;text-decoration:none}
@@ -84,7 +84,6 @@ h1{font-size:26px;font-weight:900;letter-spacing:-.2px}
   <h1>Blocca la tua notte</h1>
   <div class="muted" id="hello">Ciao, <strong>ospite</strong></div>
 
-  <!-- simulazione settimane -->
   <div class="weeks" aria-label="Simulazione settimane">
     <button data-week="4" class="active">Settimana 4</button>
     <button data-week="3">Settimana 3</button>
@@ -115,7 +114,7 @@ h1{font-size:26px;font-weight:900;letter-spacing:-.2px}
           </div>
         </div>
 
-        <!-- STANDARD (+ promo 3x40) -->
+        <!-- STANDARD -->
         <div class="row" data-type="std" id="rowSTD">
           <div>
             <div class="title">Standard <span class="flag std">consigliato</span></div>
@@ -152,13 +151,13 @@ h1{font-size:26px;font-weight:900;letter-spacing:-.2px}
           </div>
         </div>
 
-        <!-- Tavolo VIP (solo 18+): SOLO CTA -->
+        <!-- Tavolo VIP (18+) — solo CTA -->
         <div class="viptable" id="vipTableBlock" hidden>
           <div>
             <div class="title">Tavolo VIP (18+)</div>
             <div class="muted">Posto riservato di gruppo + servizio al tavolo.</div>
           </div>
-          <a class="cta" id="vipReserve" href="./attendees-tavolo.html">Scopri di più</a>
+          <a class="cta" id="vipReserve" href="./attendees-tavolo.html">Prenota ora il tuo tavolo</a>
         </div>
 
       </div>
@@ -169,7 +168,6 @@ h1{font-size:26px;font-weight:900;letter-spacing:-.2px}
       <h2 style="font-size:18px;font-weight:900;margin-bottom:8px">Riepilogo</h2>
       <div id="lines"></div>
 
-      <!-- Protezione cambio nome -->
       <div class="hr"></div>
       <div class="line">
         <label class="small" style="cursor:pointer">
@@ -179,7 +177,6 @@ h1{font-size:26px;font-weight:900;letter-spacing:-.2px}
         <span id="nameChangeLine">0€</span>
       </div>
 
-      <!-- CODICE SCONTO -->
       <div class="hr"></div>
       <div id="discBlock">
         <div class="line" style="align-items:center;gap:8px">
@@ -213,11 +210,11 @@ import {
 
 const db = getFirestore();
 
-/* ====== Riferimenti UI ====== */
+/* UI refs */
 const nav   = document.getElementById('navArea');
 const hello = document.getElementById('hello');
-const OUT = \`<a href="./login.html?from=./checkout.html">Acquista il tuo biglietto</a><a href="./login.html">Accedi</a><a href="./signup.html">Registrati</a>\`;
-const IN  = (u)=>\`<span>👋 Ciao, <strong>\${(u.displayName||u.email||'Utente').split(' ')[0]}</strong></span><a href="./checkout.html">Vai al checkout</a><a href="#" id="logoutLink" style="color:#8b5cf6">Logout</a>\`;
+const OUT = `<a href="./login.html?from=./checkout.html">Acquista il tuo biglietto</a><a href="./login.html">Accedi</a><a href="./signup.html">Registrati</a>`;
+const IN  = (u)=>`<span>👋 Ciao, <strong>${(u.displayName||u.email||'Utente').split(' ')[0]}</strong></span><a href="./checkout.html">Vai al checkout</a><a href="#" id="logoutLink" style="color:#8b5cf6">Logout</a>`;
 
 const qEB   = document.getElementById('qEB');
 const qSTD  = document.getElementById('qSTD');
@@ -231,50 +228,68 @@ const payBtn  = document.getElementById('payBtn');
 const optName = document.getElementById('optNameChange');
 const nameLine= document.getElementById('nameChangeLine');
 
-/* ====== Tavolo VIP (18+) ====== */
 const vipBlock = document.getElementById('vipTableBlock');
 const vipNote  = document.getElementById('vipNote');
 
-/* ====== Helpers età ====== */
-function calcAge(dobISO){ if(!dobISO) return null; const d=new Date(dobISO), t=new Date(); if(isNaN(d)) return null; let a=t.getFullYear()-d.getFullYear(); const m=t.getMonth()-d.getMonth(); if(m<0||(m===0&&t.getDate()<d.getDate())) a--; return a; }
-function getProfileLocal(uid){ try { return JSON.parse(localStorage.getItem('trapperreo_profile_'+uid)||'null'); } catch { return null; } }
+/* ===== DOB parsing & age ===== */
+function parseDOB(input){
+  if(!input) return null;
+  const s = String(input).trim();
+  // ISO o YYYY/MM/DD
+  let m = s.match(/^(\d{4})[-\/](\d{1,2})[-\/](\d{1,2})$/);
+  if(m){ return new Date(Number(m[1]), Number(m[2])-1, Number(m[3])); }
+  // DD/MM/YYYY o DD-MM-YYYY
+  m = s.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})$/);
+  if(m){ return new Date(Number(m[3]), Number(m[2])-1, Number(m[1])); }
+  const d = new Date(s);
+  return isNaN(d) ? null : d;
+}
+function calcAgeFrom(d){ if(!d) return null; const t=new Date(); let a=t.getFullYear()-d.getFullYear(); const m=t.getMonth()-d.getMonth(); if(m<0||(m===0&&t.getDate()<d.getDate())) a--; return a; }
+function getProfileLocal(uid){ try{ return JSON.parse(localStorage.getItem('trapperreo_profile_'+uid)||'null'); }catch{return null;} }
 
-let isAdult = false;
-let currentUser = null;
-let authReadyResolve; const authReady = new Promise(r => (authReadyResolve=r));
+let currentUser=null, isAdult=false;
+let authReadyResolve; const authReady = new Promise(r=>authReadyResolve=r);
 
 onUser(async (u)=>{
   if(!u){ nav.innerHTML=OUT; location.href='./login.html?from=./checkout.html'; return; }
   currentUser = u; authReadyResolve();
-  nav.innerHTML = IN(u);
-  document.getElementById('logoutLink')?.addEventListener('click', async (e)=>{e.preventDefault();await doSignOut();nav.innerHTML=OUT;location.href='./login.html?from=./checkout.html';});
-  hello.innerHTML = \`Ciao, <strong>\${(u.displayName||u.email||'Utente').split(' ')[0]}</strong>\`;
 
-  // prova localStorage → Firestore
-  const prof = getProfileLocal(u.uid);
-  let age = prof?.dob ? calcAge(prof.dob) : null;
-  if(age===null){
+  nav.innerHTML = IN(u);
+  document.getElementById('logoutLink')?.addEventListener('click', async (e)=>{ e.preventDefault(); await doSignOut(); nav.innerHTML=OUT; location.href='./login.html?from=./checkout.html'; });
+  hello.innerHTML = `Ciao, <strong>${(u.displayName||u.email||'Utente').split(' ')[0]}</strong>`;
+
+  let dobStr = null;
+  const loc = getProfileLocal(u.uid);
+  if(loc?.dob) dobStr = loc.dob;
+
+  if(!dobStr){
     try{
-      const s = await getDoc(doc(db,'users',u.uid));
-      if(s.exists()){
-        const d=s.data()||{};
-        if(d.dob){ age = calcAge(d.dob); localStorage.setItem('trapperreo_profile_'+u.uid, JSON.stringify({ dob:d.dob, name:d.name||u.displayName||'' })); }
+      const snap = await getDoc(doc(db,'users',u.uid));
+      if(snap.exists()){
+        const d = snap.data()||{};
+        dobStr = d.dob || d.birthdate || d.dateOfBirth || null;
+        if(dobStr){
+          localStorage.setItem('trapperreo_profile_'+u.uid, JSON.stringify({ dob: dobStr, name: d.name||u.displayName||'' }));
+        }
       }
     }catch{}
   }
+
+  const dob = parseDOB(dobStr);
+  const age = calcAgeFrom(dob);
   isAdult = (age!==null && age>=18);
 
-  // UI drink labels + nota VIP + blocco tavolo
-  document.querySelectorAll('.drink-label').forEach(el=>{ el.textContent = isAdult ? '1 drink (alcolico/analcolico)' : '1 drink analcolico'; });
+  // UI dipendenti dall'età
+  document.querySelectorAll('.drink-label').forEach(el=>{
+    el.textContent = isAdult ? '1 drink (alcolico/analcolico)' : '1 drink analcolico';
+  });
   vipNote.innerHTML = isAdult
     ? 'Accesso area VIP • 1 drink (alcolico/analcolico) + <strong>guardaroba incluso</strong>.'
     : 'Accesso area VIP • <strong>2 drink analcolici</strong> + <strong>guardaroba incluso</strong>.';
-
-  // mostra il blocco Prenota Tavolo SOLO se maggiorenne
-  vipBlock.hidden = !isAdult;
+  vipBlock.hidden = !isAdult; // mostra CTA solo 18+
 });
 
-/* ====== Settimane/stock ====== */
+/* ===== settimane & stock ===== */
 const weekBtns = document.querySelectorAll('.weeks button');
 let week = 4;
 const STOCK = {
@@ -283,10 +298,10 @@ const STOCK = {
   2:{ EB:0,   STD:300, FAST:180, VIP:100 },
   1:{ EB:0,   STD:250, FAST:120, VIP:80  },
 };
-function setWeek(w){ week = w; weekBtns.forEach(b=>b.classList.toggle('active', Number(b.dataset.week)===w)); highlightByWeek(); applyStock(); render(); }
+function setWeek(w){ week=w; weekBtns.forEach(b=>b.classList.toggle('active', Number(b.dataset.week)===w)); highlightByWeek(); applyStock(); render(); }
 weekBtns.forEach(b=>b.addEventListener('click', ()=>setWeek(Number(b.dataset.week))));
-function highlightByWeek(){ [['rowEB',4],['rowSTD',3],['rowFAST',2],['rowVIP',1]].forEach(([id,w])=>{ const el=document.getElementById(id); el.style.boxShadow = (week===w) ? '0 0 0 2px rgba(139,92,246,.18)' : 'none'; }); }
-function leftText(left){ if(left<=0) return 'Esaurito'; if(left<=50) return \`Mancano \${left} prevendite\`; return \`Disponibili \${left}\`; }
+function highlightByWeek(){ [['rowEB',4],['rowSTD',3],['rowFAST',2],['rowVIP',1]].forEach(([id,w])=>{ const el=document.getElementById(id); el.style.boxShadow=(week===w)?'0 0 0 2px rgba(139,92,246,.18)':'none'; }); }
+function leftText(left){ if(left<=0) return 'Esaurito'; if(left<=50) return `Mancano ${left} prevendite`; return `Disponibili ${left}`; }
 function currentStock(){ return {...STOCK[week]}; }
 function applyStock(){
   const st=currentStock();
@@ -297,19 +312,19 @@ function applyStock(){
   });
 }
 
-/* ====== Prezzi & promo ====== */
+/* ===== prezzi & promo ===== */
 const PRICE = { EB:12, STD:15, FAST:20, VIP:25, NAMECHANGE:1.90, STD3:40 };
 const money = n => (n<0?'-':'') + Math.abs(n).toFixed(2).replace('.00','') + '€';
 const qty = ()=>({ EB:+(qEB.value||0), STD:+(qSTD.value||0), FAST:+(qFAST.value||0), VIP:+(qVIP.value||0) });
 function stdTotal(q){ const b=Math.floor(q/3), r=q%3; return b*PRICE.STD3 + r*PRICE.STD; }
-function subtotalBySku(){ const q = qty(); return { EB:q.EB*PRICE.EB, STD:stdTotal(q.STD), FAST:q.FAST*PRICE.FAST, VIP:q.VIP*PRICE.VIP }; }
+function subtotalBySku(){ const q=qty(); return { EB:q.EB*PRICE.EB, STD:stdTotal(q.STD), FAST:q.FAST*PRICE.FAST, VIP:q.VIP*PRICE.VIP }; }
 function ticketsCount(){ const q=qty(); return q.EB+q.STD+q.FAST+q.VIP; }
 
-/* ====== Persistenza carrello ====== */
+/* ===== persistenza ===== */
 function saveCart(){ const q=qty(); localStorage.setItem('trapperreo_cart', JSON.stringify({ eb:q.EB,std:q.STD,fast:q.FAST,vip:q.VIP, nc: optName.checked?1:0 })); }
 function restoreCart(){ try{ const s=JSON.parse(localStorage.getItem('trapperreo_cart')||'null'); if(!s) return; qEB.value=s.eb??0; qSTD.value=s.std??0; qFAST.value=s.fast??0; qVIP.value=s.vip??0; optName.checked=(s.nc===1);}catch{} }
 
-/* ====== Sconti ====== */
+/* ===== sconti ===== */
 const discInput  = document.getElementById('discInput');
 const discApply  = document.getElementById('discApply');
 const discRemove = document.getElementById('discRemove');
@@ -323,7 +338,7 @@ const writeApplied = (s) => { if(!s) localStorage.removeItem('trapperreo_discoun
 
 function normalize(raw){
   const code   = uc(raw.code || raw.name || '');
-  const type   = (raw.type || 'percent').toString().toLowerCase(); // 'percent' | 'fixed'
+  const type   = (raw.type || 'percent').toString().toLowerCase();
   const value  = Number(raw.value ?? raw.amount ?? 0);
   const active = (raw.active ?? raw.enabled ?? true) === true;
   const applies= (raw.appliesTo || raw.scope || (raw.userEmail ? 'user' : 'all')).toString().toLowerCase();
@@ -333,7 +348,7 @@ function normalize(raw){
   if(!code || !(value>0) || !['percent','fixed'].includes(type)) return null;
   return { code, type, value, active, applies, allowedEmails, allowedSkus };
 }
-async function fetchCol(col){ try{ const snap=await getDocs(collection(db,col)); const arr=[]; snap.forEach(d=>{const n=normalize(d.data()||{}); if(n&&n.active) arr.push(n);}); return arr; }catch{ return []; } }
+async function fetchCol(col){ try{ const snap=await getDocs(collection(db,col)); const arr=[]; snap.forEach(d=>{ const n=normalize(d.data()||{}); if(n&&n.active) arr.push(n); }); return arr; }catch{ return []; } }
 async function fetchDiscountsList(){ const a=await fetchCol('discounts'); const b=await fetchCol('discountCodes'); const map=new Map(); [...b,...a].forEach(d=>map.set(d.code,d)); allDiscounts=[...map.values()]; }
 function eligibleForUser(d,u){ if(d.applies==='all') return true; const email=lc(u?.email||''); if(!email) return false; return (d.allowedEmails||[]).includes(email); }
 function allowedSet(d){ return (d.allowedSkus && d.allowedSkus.length>0) ? d.allowedSkus : ['EB','STD','FAST','VIP']; }
@@ -357,7 +372,7 @@ async function fetchSingleFrom(colName, code){
 }
 async function fetchSingleByCode(code){ const a=await fetchSingleFrom('discounts',code); if(a) return a; return await fetchSingleFrom('discountCodes',code); }
 
-/* ====== Render ====== */
+/* ===== render ===== */
 function render(){
   applyStock();
   const parts = subtotalBySku();
@@ -368,23 +383,23 @@ function render(){
   if(snap){
     const d={ code:snap.code, type:snap.type, value:snap.value, allowedSkus:(snap.allowedSkus&&snap.allowedSkus.length?snap.allowedSkus:['EB','STD','FAST','VIP']) };
     disc = computeDiscountAmount(d, parts);
-    tag  = \`\${snap.code} — \${snap.type==='percent' ? '%'+snap.value : '−'+money(snap.value)}\`;
+    tag  = `${snap.code} — ${snap.type==='percent' ? '%'+snap.value : '−'+money(snap.value)}`;
   }
 
   const tCount = ticketsCount();
-  const prot   = optName.checked ? tCount*PRICE.NAMECHANGE : 0;
+  const prot   = optName.checked ? tCount * PRICE.NAMECHANGE : 0;
   const total  = Math.max(0, gross - disc) + prot;
 
   const L=[]; const label=k=>({EB:'Early Bird',STD:'Standard',FAST:'Fast Entry',VIP:'VIP Entry'})[k];
   const q = qty();
-  if(q.EB>0)   L.push(\`<div class="line"><span>\${label('EB')} × \${q.EB}</span><span>\${money(parts.EB)}</span></div>\`);
-  if(q.STD>0)  L.push(\`<div class="line"><span>\${label('STD')} × \${q.STD}</span><span>\${money(parts.STD)}</span></div>\`);
-  if(q.FAST>0) L.push(\`<div class="line"><span>\${label('FAST')} × \${q.FAST}</span><span>\${money(parts.FAST)}</span></div>\`);
-  if(q.VIP>0)  L.push(\`<div class="line"><span>\${label('VIP')} × \${q.VIP}</span><span>\${money(parts.VIP)}</span></div>\`);
-  if(tag)      L.push(\`<div class="line" style="color:#22c55e;font-weight:800"><span>Sconto (\${tag})</span><span>- \${money(disc)}</span></div>\`);
+  if(q.EB>0)   L.push(`<div class="line"><span>${label('EB')} × ${q.EB}</span><span>${money(parts.EB)}</span></div>`);
+  if(q.STD>0)  L.push(`<div class="line"><span>${label('STD')} × ${q.STD}</span><span>${money(parts.STD)}</span></div>`);
+  if(q.FAST>0) L.push(`<div class="line"><span>${label('FAST')} × ${q.FAST}</span><span>${money(parts.FAST)}</span></div>`);
+  if(q.VIP>0)  L.push(`<div class="line"><span>${label('VIP')} × ${q.VIP}</span><span>${money(parts.VIP)}</span></div>`);
+  if(tag)      L.push(`<div class="line" style="color:#22c55e;font-weight:800"><span>Sconto (${tag})</span><span>- ${money(disc)}</span></div>`);
   if(optName.checked && tCount>0){
     nameLine.textContent = money(prot);
-    L.push(\`<div class="line"><span>Protezione cambio nome × \${tCount}</span><span>\${money(prot)}</span></div>\`);
+    L.push(`<div class="line"><span>Protezione cambio nome × ${tCount}</span><span>${money(prot)}</span></div>`);
   } else { nameLine.textContent = '0€'; }
 
   lines.innerHTML = L.join('');
@@ -392,7 +407,7 @@ function render(){
   payBtn.disabled = tCount<=0;
 }
 
-/* ====== Bind qty ====== */
+/* qty bind */
 function bindQty(){
   document.querySelectorAll('[data-plus]').forEach(b=>{
     b.addEventListener('click',()=>{ const t=document.querySelector(b.getAttribute('data-plus')); t.value=(parseInt(t.value||0)+1); saveCart(); render(); });
@@ -405,9 +420,8 @@ function bindQty(){
   });
 }
 
-/* ====== Sconti: Applica / Rimuovi (NO popup) ====== */
+/* sconti: senza popup */
 let authReadyDone=false; authReady.then(()=>{authReadyDone=true; discApply.disabled=false;});
-
 function setHintOk(msg){ discHint.textContent=msg; discHint.classList.remove('hint-err'); discHint.classList.add('hint-ok'); }
 function setHintErr(msg){ discHint.textContent=msg; discHint.classList.remove('hint-ok'); discHint.classList.add('hint-err'); }
 function clearHint(){ discHint.textContent=''; discHint.classList.remove('hint-ok','hint-err'); }
@@ -428,19 +442,19 @@ discApply?.addEventListener('click', async ()=>{
 
   writeApplied({ code:found.code, type:found.type, value:found.value, allowedSkus:allowedSet(found) });
   render();
-  setHintOk(\`Applicato: \${found.code} — \${found.type==='percent' ? '%'+found.value : '−'+money(found.value)}\`);
+  setHintOk(`Applicato: ${found.code} — ${found.type==='percent' ? '%'+found.value : '−'+money(found.value)}`);
 });
 
 discRemove?.addEventListener('click', ()=>{ writeApplied(null); render(); clearHint(); });
 
-/* ====== Init ====== */
+/* init */
 restoreCart();
 setWeek(4);
 await fetchDiscountsList();
 bindQty();
 render();
 
-/* Procedi */
+/* procedi */
 payBtn.addEventListener('click', ()=>{
   const q = qty();
   const tickets = q.EB + q.STD + q.FAST + q.VIP;
