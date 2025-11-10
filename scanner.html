@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Scanner QR — TRAPPERREO</title>
 <link rel="preconnect" href="https://unpkg.com">
+<meta name="apple-mobile-web-app-capable" content="yes">
 <style>
   :root{--bg:#000;--card:#0f0f10;--b:#2a2a2a;--text:#fff;--muted:#bdbdbd;--accent:#8b5cf6;--ok:#22c55e;--err:#ef4444}
   *{box-sizing:border-box} body{margin:0;background:var(--bg);color:var(--text);font:14px/1.4 ui-sans-serif,system-ui,Inter,Segoe UI,Roboto,Arial}
@@ -45,13 +46,17 @@
       <label class="btn" for="fileInp">📷 Carica immagine</label>
       <input id="fileInp" type="file" accept="image/*" capture="environment" style="display:none">
     </div>
-    <div class="hint" style="margin-top:6px">
-      Se la camera non parte: assicurati che l'URL sia <b>HTTPS</b> (o localhost), consenti il permesso, chiudi altre app che usano la camera. Su iOS serve toccare “Avvia fotocamera”.
+    <div class="hint" style="margin-top:6px" id="iosHint">
+      Se la camera non parte su iPhone: assicurati che l'URL sia <b>HTTPS</b> (o localhost),
+      tocca “Avvia fotocamera”, poi accetta il permesso. Se hai negato in passato:
+      Impostazioni → Safari → Avanzate → Dati siti web → rimuovi il sito oppure
+      Impostazioni → Safari → Fotocamera: “Chiedi/Consenti”.
     </div>
   </section>
 
   <section class="card">
-    <video id="video" playsinline muted></video>
+    <!-- autoplay+playsinline+muted sono fondamentali su iOS -->
+    <video id="video" autoplay playsinline muted></video>
     <canvas id="canvas"></canvas>
   </section>
 
@@ -68,13 +73,11 @@
   const isSecure = window.isSecureContext || location.hostname==='localhost';
   document.getElementById('secureHint').textContent = isSecure ? 'HTTPS ok' : '⚠️ Usa HTTPS o localhost';
 
-  const { BrowserMultiFormatReader, NotFoundException } = window.ZXingBrowser;
+  const { BrowserMultiFormatReader } = window.ZXingBrowser;
   const codeReader = new BrowserMultiFormatReader();
 
   const video = document.getElementById('video');
-  const canvas = document.getElementById('canvas');
-  const ctx = canvas.getContext('2d');
-  const sel = document.getElementById('selDevice');
+  const sel   = document.getElementById('selDevice');
   const startBtn = document.getElementById('btnStart');
   const stopBtn  = document.getElementById('btnStop');
   const fileInp  = document.getElementById('fileInp');
@@ -84,8 +87,8 @@
 
   let currentDeviceId = null;
   let running = false;
+  let cancelScan = null; // funzione di reset ZXing
   let lastValue = '';
-  let beep;
 
   function setState(text, ok=false, err=false){
     stateEl.textContent = text;
@@ -94,107 +97,125 @@
     if(err) statusBox.classList.add('err');
   }
 
-  async function ensureDevices(){
+  async function listDevicesAfterStart(){
     try{
       const list = await navigator.mediaDevices.enumerateDevices();
       const cams = list.filter(d=>d.kind==='videoinput');
       sel.innerHTML = cams.map(d=>`<option value="${d.deviceId}">${d.label || 'Fotocamera'}</option>`).join('');
       sel.disabled = cams.length===0;
-      // preferisci quella “environment” se presente nel label
+      // preferisci quella con "back/environment"
       const env = cams.find(d=>(d.label||'').toLowerCase().includes('back') || (d.label||'').toLowerCase().includes('environment'));
       currentDeviceId = env?.deviceId || cams[0]?.deviceId || null;
-      if (currentDeviceId) sel.value = currentDeviceId;
-      return cams.length>0;
-    }catch(e){ return false; }
+      if(currentDeviceId) sel.value = currentDeviceId;
+    }catch(e){ /* ignore */ }
   }
 
   async function start(){
     if(!isSecure){ setState('Serve HTTPS o localhost', false, true); return; }
-    startBtn.disabled = true; setState('Avvio fotocamera…');
+    startBtn.disabled = true; setState('Richiesta permesso…');
+
     try{
-      // prima chiamata senza deviceId per farsi sbloccare i label
-      const tmp = await navigator.mediaDevices.getUserMedia({video:{facingMode:'environment'}, audio:false});
-      tmp.getTracks().forEach(t=>t.stop());
-      await ensureDevices();
-      if(!currentDeviceId){ setState('Nessuna fotocamera rilevata', false, true); startBtn.disabled=false; return; }
-
-      const stream = await navigator.mediaDevices.getUserMedia({ video:{ deviceId:{ exact: currentDeviceId } }, audio:false });
+      // 1) Ottieni stream con camera posteriore IDEALE (senza fermarlo!)
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: { ideal: 'environment' } },
+        audio: false
+      });
       video.srcObject = stream;
-      await video.play();
 
-      // prepara beep
-      try{
-        const ac = new (window.AudioContext||window.webkitAudioContext)();
-        beep = ()=>{ const o=ac.createOscillator(); const g=ac.createGain(); o.connect(g); g.connect(ac.destination); o.frequency.value=880; g.gain.value=0.1; o.start(); setTimeout(()=>{o.stop();},120); };
-      }catch{ beep = ()=>{} }
+      // 2) Aspetta che il video sia pronto su iOS
+      await new Promise(res=>{
+        const ready = ()=>{ res(); cleanup(); };
+        const cleanup=()=>{
+          video.removeEventListener('loadedmetadata', onMeta);
+          video.removeEventListener('canplay', onPlay);
+        };
+        const onMeta = ()=>{ /* ok */ };
+        const onPlay = ()=> ready();
+        video.addEventListener('loadedmetadata', onMeta, {once:true});
+        video.addEventListener('canplay', onPlay, {once:true});
+        // fallback 1s in caso iOS non emettesse eventi (raro):
+        setTimeout(ready, 1000);
+      });
 
-      running = true; stopBtn.disabled=false; sel.disabled=false;
-      loop();
+      // 3) Popola elenco device (ora i label sono sbloccati)
+      await listDevicesAfterStart();
+
+      // 4) Avvia decodifica continua usando ZXing helper (stabile su iOS)
+      running = true;
+      stopBtn.disabled = false;
       setState('Scanner attivo ✓', true, false);
+
+      // se abbiamo un deviceId specifico usalo, altrimenti stream corrente
+      const deviceId = currentDeviceId || undefined;
+
+      cancelScan = codeReader.decodeFromVideoDevice(deviceId, video, (result, err)=>{
+        if(!running) return;
+        if(result){
+          const v = result.getText ? result.getText() : result.text;
+          if(v && v !== lastValue){
+            lastValue = v;
+            lastEl.textContent = v;
+            setState('QR letto ✓', true, false);
+            if('vibrate' in navigator){ navigator.vibrate(60); }
+          }
+        }
+        // gli errori transient (NotFoundException) sono normali durante la ricerca: ignora
+      });
+
     }catch(e){
       console.error(e);
-      setState('Permesso negato o dispositivo occupato', false, true);
-      startBtn.disabled=false;
+      const name = (e && (e.name||e.code)) || '';
+      if(name === 'NotAllowedError'){
+        setState('Permesso fotocamera negato. Vai in Impostazioni → Safari → Fotocamera.', false, true);
+      }else if(name === 'NotFoundError' || name === 'OverconstrainedError'){
+        setState('Nessuna fotocamera trovata o in uso da un\'altra app.', false, true);
+      }else{
+        setState('Errore avvio camera. Riavvia Safari o il dispositivo.', false, true);
+      }
+      startBtn.disabled = false;
     }
   }
 
   function stop(){
-    running=false;
-    stopBtn.disabled=true; sel.disabled=true;
-    startBtn.disabled=false;
+    running = false;
+    stopBtn.disabled = true;
+    startBtn.disabled = false;
+
+    try{ codeReader.reset(); }catch(_){}
+    try{ cancelScan && cancelScan(); }catch(_){}
+
     const s = video.srcObject;
     if (s) s.getTracks().forEach(t=>t.stop());
-    video.srcObject=null;
+    video.srcObject = null;
     setState('Fermato');
-  }
-
-  async function loop(){
-    if(!running) return;
-    try{
-      const res = await codeReader.decodeOnceFromVideoElement(video);
-      if(res && res.getText){
-        const value = res.getText();
-        if(value !== lastValue){
-          lastValue = value;
-          lastEl.textContent = value;
-          setState('QR letto ✓', true, false);
-          beep && beep();
-          if('vibrate' in navigator){ navigator.vibrate(60); }
-          // attendo 800ms poi ricomincio
-          setTimeout(()=>{ if(running){ setState('Scanner attivo ✓', true); loop(); } }, 800);
-          return;
-        }
-      }
-    }catch(err){
-      if(!(err instanceof NotFoundException)){
-        console.debug('decode error', err);
-      }
-    }
-    // nessun codice in questo frame → continua
-    requestAnimationFrame(loop);
   }
 
   // cambio camera
   sel.addEventListener('change', async ()=>{
-    currentDeviceId = sel.value;
-    if(running){ stop(); start(); }
+    currentDeviceId = sel.value || null;
+    if(!running) return;
+    // riavvia con il nuovo deviceId
+    stop();
+    start();
   });
 
   startBtn.addEventListener('click', start);
   stopBtn.addEventListener('click', stop);
 
-  // fallback: immagine da file
+  // fallback: immagine da file (scansione offline)
   fileInp.addEventListener('change', async ()=>{
     const f = fileInp.files?.[0]; if(!f) return;
     const img = new Image();
     img.onload = async ()=>{
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
       canvas.width = img.naturalWidth; canvas.height = img.naturalHeight;
       ctx.drawImage(img, 0, 0);
       try{
         const res = await window.ZXingBrowser.BrowserMultiFormatReader.decodeFromCanvas(canvas);
         const v = res?.text || res?.getText?.();
         if(v){
-          lastValue = v; lastEl.textContent = v; setState('QR letto da immagine ✓', true, false); beep && beep();
+          lastValue = v; lastEl.textContent = v; setState('QR letto da immagine ✓', true, false);
         }else{
           setState('Nessun QR nell\'immagine', false, true);
         }
@@ -206,8 +227,8 @@
     img.src = URL.createObjectURL(f);
   });
 
-  // tenta di popolare subito la lista device (non parte la camera)
-  if(navigator.mediaDevices?.enumerateDevices){ ensureDevices(); }
+  // prova a popolare i device quando possibile (non parte la camera)
+  if(navigator.mediaDevices?.enumerateDevices){ navigator.mediaDevices.enumerateDevices().then(()=>{}).catch(()=>{}); }
 })();
 </script>
 </body>
