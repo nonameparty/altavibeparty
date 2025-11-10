@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Scanner — TRAPPERREO</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/html5-qrcode@2.3.10/minified/html5-qrcode.min.js"></script>
+<style>
+:root{--accent:#8b5cf6;--border:rgba(255,255,255,.12);--ok:#22c55e;--danger:#ef4444;--muted:rgba(255,255,255,.78)}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#000;color:#fff;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;line-height:1.5;min-height:100vh}
+.wrap{max-width:900px;margin:auto;padding:20px}
+h1{font-size:28px;font-weight:900;margin-bottom:10px}
+.card{background:rgba(255,255,255,.06);border:1px solid var(--border);border-radius:16px;padding:16px;margin-top:12px}
+.btn{display:inline-block;padding:10px 14px;border-radius:10px;background:var(--accent);color:#000;font-weight:900;border:none;cursor:pointer}
+.btn.ghost{background:transparent;border:1px solid var(--border);color:#fff}
+.grid{display:grid;grid-template-columns:1fr;gap:12px}
+.row{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px dashed rgba(255,255,255,.12)}
+.row:last-child{border-bottom:none}
+.state{padding:4px 8px;border-radius:999px;font-size:12px;border:1px solid var(--border)}
+.state.ok{border-color:var(--ok);color:var(--ok)}
+.state.bad{border-color:var(--danger);color:var(--danger)}
+.notice{color:var(--muted);font-size:13px}
+.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px}
+#reader{width:100%;max-width:420px;margin:auto;border-radius:10px;overflow:hidden}
+</style>
+</head>
+<body>
+<main class="wrap">
+  <h1>Area Scanner (staff)</h1>
+  <div class="notice">Solo founder / admin / checker. Inquadra un QR per vedere i dati e convalidare.</div>
+
+  <section class="card">
+    <div id="reader"></div>
+  </section>
+
+  <section id="resultBox" class="card" style="display:none">
+    <h2 style="font-size:20px;font-weight:900;margin-bottom:8px">Dettagli biglietto</h2>
+    <div class="grid" id="details"></div>
+    <div class="actions">
+      <button id="btnOk" class="btn">Conferma ingresso</button>
+      <button id="btnNo" class="btn ghost">Segnala — NON corrisponde</button>
+    </div>
+  </section>
+</main>
+
+<script type="module">
+import { app, onUser, requireActiveUser } from './auth.v2.js?v=6';
+import { getFirestore, doc, getDoc, setDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/12.5.0/firebase-firestore.js';
+
+await requireActiveUser('./login.html?from=./scanner.html');
+
+const db = getFirestore(app);
+let CURRENT = null; // {uid, tid, data}
+
+function showDetails(ticket, uid, tid){
+  CURRENT = { uid, tid, data: ticket };
+  const d = document.getElementById('details');
+  const state = (ticket.status||'pending').toLowerCase();
+  d.innerHTML = `
+    <div class="row"><div>ID</div><div>${tid}</div></div>
+    <div class="row"><div>Nome</div><div><b>${ticket.name||'—'}</b></div></div>
+    <div class="row"><div>Nascita</div><div>${(ticket.dob||'').toString().slice(0,10)||'—'}</div></div>
+    <div class="row"><div>Tipo</div><div>${ticket.type||'Biglietto'}</div></div>
+    <div class="row"><div>Stato</div>
+      <div class="state ${state==='verified'?'ok':state==='flagged'?'bad':''}">${state}</div>
+    </div>
+  `;
+  document.getElementById('resultBox').style.display='block';
+}
+
+async function loadTicket(uid, tid){
+  const snap = await getDoc(doc(db,'users',uid,'tickets',tid));
+  if(!snap.exists()){ alert('Ticket non trovato.'); return; }
+  showDetails(snap.data()||{}, uid, tid);
+}
+
+function safeParse(text){
+  try{ return JSON.parse(text); }catch{ return null; }
+}
+
+const html5QrCode = new Html5Qrcode("reader");
+const config = { fps: 10, qrbox: 280, aspectRatio: 1.0 };
+Html5Qrcode.getCameras().then(async devices=>{
+  const cam = devices && devices.length ? devices[0].id : null;
+  await html5QrCode.start(
+    cam || { facingMode: "environment" },
+    config,
+    (decoded)=>{
+      const payload = safeParse(decoded);
+      if(!payload || !payload.uid || !payload.tid){ return; }
+      html5QrCode.pause(true); // freeze su match
+      loadTicket(payload.uid, payload.tid);
+    },
+    (_)=>{}
+  );
+});
+
+document.getElementById('btnOk').onclick = async ()=>{
+  if(!CURRENT) return;
+  const user = await new Promise(res=>onUser(res));
+  const { uid, tid } = CURRENT;
+  await setDoc(doc(db,'users',uid,'tickets',tid), {
+    status:'verified', verifiedAt: serverTimestamp(),
+    verifiedBy: user.uid, verifiedByEmail: user.email
+  }, { merge:true });
+  await setDoc(doc(db,'scans', `${uid}_${tid}_${Date.now()}`), {
+    uid, tid, action:'verified', by:user.uid, email:user.email, at: serverTimestamp()
+  });
+  alert('Ingresso confermato ✓');
+  location.reload();
+};
+
+document.getElementById('btnNo').onclick = async ()=>{
+  if(!CURRENT) return;
+  const user = await new Promise(res=>onUser(res));
+  const { uid, tid } = CURRENT;
+  await setDoc(doc(db,'users',uid,'tickets',tid), {
+    status:'flagged', flaggedAt: serverTimestamp(),
+    flaggedBy: user.uid, flaggedByEmail: user.email
+  }, { merge:true });
+  await setDoc(doc(db,'scans', `${uid}_${tid}_${Date.now()}`), {
+    uid, tid, action:'flagged', by:user.uid, email:user.email, at: serverTimestamp()
+  });
+  alert('Segnalato.');
+  location.reload();
+};
+</script>
+</body>
+</html>
