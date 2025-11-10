@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Founder — Bottiglie</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&display=swap" rel="stylesheet" />
+<style>
+:root{--accent:#8b5cf6;--border:rgba(255,255,255,.12);--muted:rgba(255,255,255,.78)}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#000;color:#fff;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;line-height:1.5;min-height:100vh}
+.wrap{max-width:1200px;margin:auto;padding:22px}
+h1{font-size:32px;font-weight:900;margin-bottom:8px}
+h2{font-size:20px;font-weight:900;margin-bottom:8px}
+.muted{color:var(--muted)}
+.card{background:rgba(255,255,255,.06);border:1px solid var(--border);border-radius:16px;padding:18px;margin-top:14px}
+.grid{display:grid;gap:12px}
+@media(min-width:920px){.grid-2{grid-template-columns:1.3fr 1fr}}
+input,select,textarea{background:#0f0f10;border:1px solid var(--border);border-radius:10px;color:#fff;padding:10px;width:100%}
+.label{font-size:12px;opacity:.9;margin-bottom:6px}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.btn{display:inline-block;padding:10px 14px;border-radius:10px;background:var(--accent);color:#000;font-weight:900;border:none;cursor:pointer}
+.btn.ghost{background:transparent;border:1px solid var(--border);color:#fff}
+.small{font-size:12px}
+.badge{display:inline-block;padding:4px 8px;border:1px solid var(--border);border-radius:999px;font-size:12px}
+.list{display:grid;gap:12px}
+.item{display:grid;grid-template-columns:80px 1fr auto;gap:12px;align-items:center;background:#0b0b0b;border:1px solid rgba(255,255,255,.12);border-radius:12px;padding:10px}
+.item img{width:80px;height:80px;object-fit:cover;border-radius:10px;border:1px solid rgba(255,255,255,.12);background:#111}
+.item h4{font-size:16px;margin-bottom:4px}
+.kv{display:flex;flex-wrap:wrap;gap:8px}
+.kv span{background:#0f0f10;border:1px solid rgba(255,255,255,.12);border-radius:8px;padding:4px 8px;font-size:12px}
+.actions{display:flex;gap:8px;flex-wrap:wrap}
+hr{border:none;height:1px;background:rgba(255,255,255,.08);margin:12px 0}
+.notice{display:none;margin:10px 0;padding:12px;border-radius:10px;background:#2a0e0e;border:1px solid #ff6b6b;color:#ffdede}
+.ok{display:none;margin:10px 0;padding:12px;border-radius:10px;background:#0e2a14;border:1px solid #34d399;color:#c6f6d5}
+.filter{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.toggle{display:inline-flex;align-items:center;gap:8px;font-size:13px}
+.toggle input{accent-color:var(--accent)}
+</style>
+</head>
+<body>
+<main class="wrap">
+  <h1>Gestione Bottiglie</h1>
+  <div id="who" class="muted">Verifica permessi…</div>
+
+  <div id="err" class="notice"></div>
+  <div id="ok"  class="ok"></div>
+
+  <section class="card">
+    <h2>Nuova / Modifica bottiglia</h2>
+    <div class="grid grid-2">
+      <div class="grid">
+        <div>
+          <div class="label">Nome</div>
+          <input id="fName" placeholder="Es. Moët & Chandon Impérial">
+        </div>
+        <div>
+          <div class="label">Categoria</div>
+          <select id="fCat">
+            <option value="champagne">Champagne</option>
+            <option value="spumanti">Spumanti</option>
+            <option value="distillati">Distillati</option>
+          </select>
+        </div>
+        <div>
+          <div class="label">URL immagine (https://...)</div>
+          <input id="fImg" placeholder="Incolla un URL immagine">
+        </div>
+        <div class="row">
+          <div>
+            <div class="label">Costo interno (non visibile)</div>
+            <input id="fCost" type="number" min="0" step="0.01" placeholder="Es. 65">
+          </div>
+          <div>
+            <div class="label">Prezzo listino (visibile)</div>
+            <input id="fPrice" type="number" min="0" step="0.01" placeholder="Es. 105">
+          </div>
+        </div>
+        <div class="row">
+          <div>
+            <div class="label">Minimo — Area VIP</div>
+            <input id="fMinVip" type="number" min="0" step="1" placeholder="Es. 120">
+          </div>
+          <div>
+            <div class="label">Minimo — Area ARGENTO</div>
+            <input id="fMinArg" type="number" min="0" step="1" placeholder="Es. 110">
+          </div>
+        </div>
+        <div class="row">
+          <div>
+            <div class="label">Minimo — Area BRONZO</div>
+            <input id="fMinBro" type="number" min="0" step="1" placeholder="Es. 100">
+          </div>
+          <div class="toggle" style="margin-top:24px">
+            <input id="fVisible" type="checkbox" checked>
+            <label for="fVisible">Visibile nel listino</label>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <div class="small muted">Suggerimento: per le immagini usa link diretti (ad es. da un CDN o da Firebase Storage se lo configurerai); qui basta incollare l’URL.</div>
+        <hr>
+        <div class="actions">
+          <button id="btnSave" class="btn">Salva</button>
+          <button id="btnReset" class="btn ghost">Reset form</button>
+        </div>
+        <div class="small muted" style="margin-top:8px">Quando modifichi un elemento dalla lista, i campi verranno caricati qui.</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="card">
+    <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap">
+      <h2>Listino</h2>
+      <div class="filter">
+        <span class="small muted">Filtra per categoria:</span>
+        <select id="fltCat">
+          <option value="">Tutte</option>
+          <option value="champagne">Champagne</option>
+          <option value="spumanti">Spumanti</option>
+          <option value="distillati">Distillati</option>
+        </select>
+        <label class="toggle"><input type="checkbox" id="fltOnlyVisible"> Solo visibili</label>
+      </div>
+    </div>
+    <div id="list" class="list" style="margin-top:10px"></div>
+    <div id="empty" class="muted small" style="display:none;margin-top:8px">Nessun elemento.</div>
+  </section>
+</main>
+
+<script type="module">
+/* ========== Firebase ========== */
+import { app, onUser } from './auth.v2.js?v=6';
+import {
+  getFirestore, doc, getDoc, setDoc, updateDoc, serverTimestamp, deleteField
+} from 'https://www.gstatic.com/firebasejs/12.5.0/firebase-firestore.js';
+
+const db = getFirestore(app);
+
+/* ========== UI refs ========== */
+const who   = document.getElementById('who');
+const ERR   = document.getElementById('err');
+const OK    = document.getElementById('ok');
+
+const fName = document.getElementById('fName');
+const fCat  = document.getElementById('fCat');
+const fImg  = document.getElementById('fImg');
+const fCost = document.getElementById('fCost');
+const fPrice= document.getElementById('fPrice');
+const fMinVip=document.getElementById('fMinVip');
+const fMinArg=document.getElementById('fMinArg');
+const fMinBro=document.getElementById('fMinBro');
+const fVisible=document.getElementById('fVisible');
+
+const btnSave  = document.getElementById('btnSave');
+const btnReset = document.getElementById('btnReset');
+
+const fltCat   = document.getElementById('fltCat');
+const fltOnly  = document.getElementById('fltOnlyVisible');
+const list     = document.getElementById('list');
+const emptyMsg = document.getElementById('empty');
+
+/* ========== Helpers ========== */
+const lc = s => (s||'').toString().trim().toLowerCase();
+function showErr(m){ ERR.textContent=m; ERR.style.display='block'; setTimeout(()=>ERR.style.display='none', 4000); }
+function showOk(m){ OK.textContent=m; OK.style.display='block'; setTimeout(()=>OK.style.display='none', 2500); }
+function id(){ return (crypto?.randomUUID ? crypto.randomUUID() : 'id_'+Date.now()); }
+
+/* Founder check come nel tuo founder.html */
+async function isFounder(email){
+  try{
+    const snap = await getDoc(doc(db,'config','admins'));
+    const founders = snap.exists() ? (snap.data().founders || {}) : {};
+    return !!founders[(email||'').toLowerCase()];
+  }catch(_){ return false; }
+}
+
+/* Stato in memoria del documento /config/bottles */
+const CFG_REF = doc(db,'config','bottles');   // <— UNICO documento
+let ITEMS = {};   // mappa id -> payload
+let editingId = null;
+
+/* ========== Carica listino ========== */
+async function loadAll(){
+  try{
+    const snap = await getDoc(CFG_REF);
+    if(snap.exists()){
+      const data = snap.data() || {};
+      ITEMS = data.items || {};
+    }else{
+      ITEMS = {};
+    }
+    renderList();
+  }catch(e){
+    console.error('load bottles error', e);
+    showErr('Impossibile caricare il listino.');
+  }
+}
+
+/* ========== Render list ========== */
+function renderList(){
+  list.innerHTML = '';
+  const cat = lc(fltCat.value || '');
+  const onlyVis = !!fltOnly.checked;
+
+  const arr = Object.entries(ITEMS).map(([id, v])=>({id, ...v}));
+  arr.sort((a,b)=> lc(a.category).localeCompare(lc(b.category)) || lc(a.name).localeCompare(lc(b.name)));
+
+  const filtered = arr.filter(x=>{
+    if(cat && lc(x.category)!==cat) return false;
+    if(onlyVis && x.visible!==true) return false;
+    return true;
+  });
+
+  emptyMsg.style.display = filtered.length ? 'none':'block';
+
+  filtered.forEach(item=>{
+    const el = document.createElement('div');
+    el.className = 'item';
+    el.innerHTML = `
+      <img src="${item.img || ''}" alt="">
+      <div>
+        <h4>${item.name || '—'}</h4>
+        <div class="kv">
+          <span>Categoria: ${item.category||'—'}</span>
+          <span>Listino: €${Number(item.price||0).toFixed(2)}</span>
+          <span>Costo interno: €${Number(item.cost||0).toFixed(2)}</span>
+          <span>Min VIP: €${Number(item.min?.vip||0).toFixed(0)}</span>
+          <span>Min ARG: €${Number(item.min?.argento||0).toFixed(0)}</span>
+          <span>Min BRO: €${Number(item.min?.bronzo||0).toFixed(0)}</span>
+          <span>${item.visible===false? 'Nascosto' : 'Visibile'}</span>
+        </div>
+      </div>
+      <div class="actions">
+        <button class="btn ghost" data-edit="${item.id}">Modifica</button>
+        <button class="btn ghost" data-toggle="${item.id}">${item.visible===false?'Mostra':'Nascondi'}</button>
+        <button class="btn" style="background:#ef4444;color:#fff" data-del="${item.id}">Elimina</button>
+      </div>
+    `;
+    list.appendChild(el);
+  });
+
+  // bind azioni
+  list.querySelectorAll('[data-edit]').forEach(b=>{
+    b.addEventListener('click', ()=>{
+      const id = b.getAttribute('data-edit');
+      loadIntoForm(id);
+    });
+  });
+  list.querySelectorAll('[data-toggle]').forEach(b=>{
+    b.addEventListener('click', async ()=>{
+      const id = b.getAttribute('data-toggle');
+      await toggleVisible(id);
+    });
+  });
+  list.querySelectorAll('[data-del]').forEach(b=>{
+    b.addEventListener('click', async ()=>{
+      const id = b.getAttribute('data-del');
+      if(confirm('Eliminare questa bottiglia?')){
+        await deleteItem(id);
+      }
+    });
+  });
+}
+
+/* ========== Form helpers ========== */
+function resetForm(){
+  editingId = null;
+  fName.value = '';
+  fCat.value = 'champagne';
+  fImg.value = '';
+  fCost.value = '';
+  fPrice.value = '';
+  fMinVip.value = '';
+  fMinArg.value = '';
+  fMinBro.value = '';
+  fVisible.checked = true;
+}
+
+function loadIntoForm(id){
+  const v = ITEMS[id];
+  if(!v) return;
+  editingId = id;
+  fName.value = v.name || '';
+  fCat.value  = v.category || 'champagne';
+  fImg.value  = v.img || '';
+  fCost.value = v.cost ?? '';
+  fPrice.value= v.price ?? '';
+  fMinVip.value = v.min?.vip ?? '';
+  fMinArg.value = v.min?.argento ?? '';
+  fMinBro.value = v.min?.bronzo ?? '';
+  fVisible.checked = v.visible !== false;
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+/* ========== CRUD ========== */
+// salva/aggiorna una bottiglia dentro il map items
+async function saveItem(){
+  const name = fName.value.trim();
+  if(!name){ showErr('Inserisci il nome.'); return; }
+
+  const payload = {
+    name,
+    category: fCat.value,
+    img: fImg.value.trim(),
+    cost: Number(fCost.value || 0),
+    price: Number(fPrice.value || 0),
+    min: {
+      vip: Number(fMinVip.value || 0),
+      argento: Number(fMinArg.value || 0),
+      bronzo: Number(fMinBro.value || 0)
+    },
+    visible: !!fVisible.checked,
+    updatedAt: Date.now()
+  };
+  const idKey = editingId || id();
+  if(!editingId) payload.createdAt = Date.now();
+
+  try{
+    // aggiorna doc /config/bottles con campo nidificato items.<idKey>
+    await setDoc(CFG_REF, { items: { [idKey]: payload } }, { merge: true });
+    ITEMS[idKey] = { ...payload };
+    showOk(editingId ? 'Bottiglia aggiornata.' : 'Bottiglia creata.');
+    resetForm(); renderList();
+  }catch(e){
+    console.error('save error', e);
+    showErr('Errore nel salvataggio (permessi?).');
+  }
+}
+
+async function toggleVisible(idKey){
+  if(!ITEMS[idKey]) return;
+  const next = ITEMS[idKey].visible === false ? true : false;
+  try{
+    await setDoc(CFG_REF, { items: { [idKey]: { visible: next, updatedAt: Date.now() } } }, { merge: true });
+    ITEMS[idKey].visible = next;
+    ITEMS[idKey].updatedAt = Date.now();
+    renderList();
+  }catch(e){
+    console.error('toggle error', e);
+    showErr('Errore cambiando la visibilità.');
+  }
+}
+
+async function deleteItem(idKey){
+  try{
+    // elimina il campo annidato items.<idKey>
+    await updateDoc(CFG_REF, { [`items.${idKey}`]: deleteField() });
+    delete ITEMS[idKey];
+    renderList();
+    showOk('Eliminato.');
+  }catch(e){
+    console.error('delete error', e);
+    showErr('Errore durante la cancellazione.');
+  }
+}
+
+/* ========== Bind UI ========== */
+btnSave.addEventListener('click', saveItem);
+btnReset.addEventListener('click', resetForm);
+fltCat.addEventListener('change', renderList);
+fltOnly.addEventListener('change', renderList);
+
+/* ========== Gate Founder + init ========== */
+onUser(async (u)=>{
+  if(!u){ location.href = './login.html?from=./founder-bottles.html'; return; }
+  const ok = await isFounder(u.email||'');
+  who.textContent = ok
+    ? `Ciao ${u.displayName || u.email} — permessi Founder attivi.`
+    : 'Accesso negato (solo Founder).';
+  if(!ok){ setTimeout(()=>location.href='./account-2.html', 1200); return; }
+
+  await loadAll();
+});
+</script>
+</body>
+</html>
