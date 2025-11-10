@@ -27,6 +27,8 @@ h1{font-size:26px;font-weight:900;letter-spacing:-.2px}
 .badges{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
 .badge{background:#0f0f10;border:1px solid rgba(255,255,255,.15);border-radius:10px;padding:8px 10px;font-size:13px}
 
+.adult-only[hidden]{display:none!important}
+
 /* settimane */
 .weeks{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0 6px}
 .weeks button{background:#0f0f10;border:1px solid var(--border);color:#fff;padding:8px 10px;border-radius:10px;cursor:pointer;font-weight:700}
@@ -222,11 +224,13 @@ const payBtn  = document.getElementById('payBtn');
 const optName = document.getElementById('optNameChange');
 const nameLine= document.getElementById('nameChangeLine');
 
-/* ---------- VIP block: forza nascosto sin da SUBITO ---------- */
-const vipBlock = document.getElementById('vipTableBlock');   // deve esistere
-const vipBtn   = document.getElementById('vipReserve');      // link “Prenota il tuo tavolo”
-const vipNote  = document.getElementById('vipNote');         // descrizione VIP (se presente)
-if (vipBlock){ vipBlock.hidden = true; vipBlock.style.display = 'none'; } // ← hard hide
+/* ---------- Tutto ciò che è 18+ parte nascosto HARD ---------- */
+const adultBlocks = Array.from(document.querySelectorAll('.adult-only, #vipTableBlock'));
+adultBlocks.forEach(el => { if(!el) return; el.hidden = true; el.style.display = 'none'; });
+
+const vipBlock = document.getElementById('vipTableBlock');
+const vipBtn   = document.getElementById('vipReserve');
+const vipNote  = document.getElementById('vipNote');
 
 /* ---------- Helpers ---------- */
 const OUT = `
@@ -250,17 +254,17 @@ function subtotalBySku(){
   return { EB:q.EB*PRICE.EB, STD:stdTotal(q.STD), FAST:q.FAST*PRICE.FAST, VIP:q.VIP*PRICE.VIP };
 }
 function ticketsCount(){ const q=qty(); return q.EB+q.STD+q.FAST+q.VIP; }
-
 function drinkLabels(){ return document.querySelectorAll('.drink-label'); }
 
 function parseDob(any){
   if (!any) return null;
-  if (typeof any === 'object' && any.seconds != null) return new Date(any.seconds*1000); // Firestore TS
-  if (typeof any === 'number') { const d=new Date(any); return isNaN(d)?null:d; }         // ms
+  if (typeof any === 'object' && any.seconds != null) return new Date(any.seconds*1000);
+  if (any instanceof Date) return isNaN(any.getTime()) ? null : any;
+  if (typeof any === 'number') { const d=new Date(any); return isNaN(d)?null:d; }
   const s=String(any).trim(); if(!s) return null;
-  if (/^\d{4}$/.test(s)) { const d=new Date(Number(s),0,1); return isNaN(d)?null:d; }     // solo anno
-  if (/^\d{4}-\d{2}-\d{2}/.test(s) || /^\d{4}-\d{2}-\d{2}T/.test(s)) { const d=new Date(s); return isNaN(d)?null:d; } // ISO
-  if (/^\d{1,2}\/\d{1,2}\/\d{4}$/.test(s)) { const [dd,mm,yy]=s.split('/').map(n=>parseInt(n,10)); const d=new Date(yy,mm-1,dd); return isNaN(d)?null:d; } // it
+  if (/^\d{4}$/.test(s)) { const d=new Date(Number(s),0,1); return isNaN(d)?null:d; }
+  if (/^\d{4}-\d{2}-\d{2}/.test(s) || /^\d{4}-\d{2}-\d{2}T/.test(s)) { const d=new Date(s); return isNaN(d)?null:d; }
+  if (/^\d{1,2}\/\d{1,2}\/\d{4}$/.test(s)) { const [dd,mm,yy]=s.split('/').map(n=>parseInt(n,10)); const d=new Date(yy,mm-1,dd); return isNaN(d)?null:d; }
   const d=new Date(s); return isNaN(d)?null:d;
 }
 function ageFrom(d){
@@ -272,39 +276,66 @@ function ageFrom(d){
   return a;
 }
 
-function profFromLS(uid){
-  try{ return JSON.parse(localStorage.getItem('trapperreo_profile_'+uid)||'null'); }catch{ return null; }
+function profLSKey(uid){ return `trapperreo_profile_${uid}`; }
+function readProfileLS(uid){
+  try{ return JSON.parse(localStorage.getItem(profLSKey(uid))||'null'); }catch{ return null; }
 }
-async function profFromDB(uid){
-  try{ const snap=await getDoc(doc(db,'users',uid)); return snap.exists()?snap.data():null; }catch{ return null; }
+function writeProfileLS(uid, profile){
+  try{ localStorage.setItem(profLSKey(uid), JSON.stringify(profile)); }catch{}
+}
+
+/* ========== LEGGO SEMPRE FIRESTORE PRIMA ==========
+   Restituisce {dobDate, source:'db'|'ls'|'none', rawLS, rawDB} */
+async function readDobFreshFirst(uid){
+  let rawDB=null, rawLS=null, dobDate=null, source='none';
+
+  // 1) leggi DB
+  try{
+    const snap = await getDoc(doc(db,'users',uid));
+    if (snap.exists()){
+      const data = snap.data() || {};
+      rawDB = (data.dob ?? data.profile?.dob ?? null);
+      const parsedDB = parseDob(rawDB);
+      if (parsedDB){ dobDate = parsedDB; source='db'; }
+    }
+  }catch(e){ /* ignore, vedo LS dopo */ }
+
+  // 2) se DB ok, sincronizza la cache e ritorna
+  if (dobDate){
+    const currLS = readProfileLS(uid) || {};
+    if (currLS.dob !== rawDB) writeProfileLS(uid, { ...currLS, dob: rawDB });
+    return { dobDate, source, rawLS: currLS?.dob ?? null, rawDB };
+  }
+
+  // 3) fallback LS
+  const profLS = readProfileLS(uid);
+  rawLS = profLS?.dob ?? null;
+  const parsedLS = parseDob(rawLS);
+  if (parsedLS){ dobDate = parsedLS; source='ls'; }
+
+  return { dobDate, source, rawLS, rawDB };
 }
 
 /* ---------- Gating 18+ ---------- */
 function setAdultUI(isAdult){
-  // Etichette drink
+  // drink labels
   drinkLabels().forEach(el=>{
     el.textContent = isAdult ? '1 drink (alcolico/analcolico)' : '1 drink analcolico';
   });
-
-  // Descrizione VIP (se presente la nota)
+  // vip note se presente
   if (vipNote){
     vipNote.innerHTML = isAdult
       ? 'Accesso area VIP • <span class="drink-label">1 drink (alcolico/analcolico)</span> + <strong>guardaroba incluso</strong>.'
       : 'Accesso area VIP • <strong>2 drink analcolici</strong> + <strong>guardaroba incluso</strong>.';
   }
+  // mostra/nascondi tutto ciò che è 18+
+  adultBlocks.forEach(el=>{
+    if (!el) return;
+    if (isAdult){ el.hidden = false; el.style.display = ''; }
+    else        { el.hidden = true;  el.style.display = 'none'; }
+  });
 
-  // Mostra/Nasconde IL BLOCCO TAVOLI
-  if (vipBlock){
-    if (isAdult){
-      vipBlock.hidden = false;
-      vipBlock.style.display = 'flex';
-    } else {
-      vipBlock.hidden = true;
-      vipBlock.style.display = 'none';
-    }
-  }
-
-  // Click sul bottone tavolo
+  // azione bottone tavolo
   if (vipBtn){
     vipBtn.onclick = (e)=>{
       if (!isAdult){ e.preventDefault(); return; }
@@ -337,22 +368,19 @@ function render(){
   if (grandEl) grandEl.textContent = money(total);
   if (payBtn)  payBtn.disabled = tCount<=0;
 }
-
 function bindQty(){
   document.querySelectorAll('[data-plus]').forEach(b=>{
     b.addEventListener('click', ()=>{
       const sel=b.getAttribute('data-plus'); if(!sel) return;
       const t=document.querySelector(sel); if(!t) return;
-      t.value=(parseInt(t.value||0)+1);
-      render();
+      t.value=(parseInt(t.value||0)+1); render();
     });
   });
   document.querySelectorAll('[data-minus]').forEach(b=>{
     b.addEventListener('click', ()=>{
       const sel=b.getAttribute('data-minus'); if(!sel) return;
       const t=document.querySelector(sel); if(!t) return;
-      t.value=Math.max(0,parseInt(t.value||0)-1);
-      render();
+      t.value=Math.max(0,parseInt(t.value||0)-1); render();
     });
   });
   [qEB,qSTD,qFAST,qVIP,optName].forEach(el=>{
@@ -378,45 +406,22 @@ onUser(async (u)=>{
     });
     hello.innerHTML = `Ciao, <strong>${(u.displayName||u.email||'Utente').split(' ')[0]}</strong>`;
 
-    // 1) LocalStorage
-    let prof = profFromLS(u.uid);
-    let dob  = parseDob(prof?.dob);
-
-    // 2) Firestore /users/{uid}.dob o /users/{uid}.profile.dob
-    if (!dob){
-      const doc1 = await profFromDB(u.uid);
-      dob = parseDob(doc1?.dob) || parseDob(doc1?.profile?.dob);
-      // sync su LS se trovato
-      if (dob){
-        try{
-          const merged = { ...(prof||{}), dob: doc1?.dob ?? doc1?.profile?.dob };
-          localStorage.setItem('trapperreo_profile_'+u.uid, JSON.stringify(merged));
-        }catch{}
-      }
-    }
-
-    const age = ageFrom(dob);
+    // DOB: DB prima, poi LS
+    const { dobDate, source, rawLS, rawDB } = await readDobFreshFirst(u.uid);
+    const age = ageFrom(dobDate);
     const isAdult = age >= 18;
 
-    // DEBUG utile: vedi esattamente cosa sta arrivando
-    console.log('[CHECKOUT DOB]', {
-      fromLS: prof?.dob ?? null,
-      parsedFromLS: parseDob(prof?.dob) ?? null,
-      fromDB: dob ?? null,
-      age, isAdult
-    });
+    console.log('[CHECKOUT DOB]', { fromLS: rawLS ?? null, parsedFromLS: parseDob(rawLS), fromDB: parseDob(rawDB), age, isAdult, source });
 
-    // Se DOB mancante → trattiamo come minorenne
-    if (!dob){
-      console.warn('DOB non trovato: nascondo tavoli per sicurezza.');
-    }
+    // Se DOB mancante o invalido → tratto come minorenne (blocchi restano nascosti)
+    if (!dobDate) console.warn('DOB mancante/illeggibile → minorenne di default.');
 
     setAdultUI(isAdult);
     render();
   }catch(err){
     console.error('onUser fatal:', err);
-    // fallback: nascondi tavoli
-    if (vipBlock){ vipBlock.hidden = true; vipBlock.style.display='none'; }
+    // fallback: nascondi tutto ciò che è 18+
+    adultBlocks.forEach(el => { if(!el) return; el.hidden = true; el.style.display = 'none'; });
   }
 });
 
