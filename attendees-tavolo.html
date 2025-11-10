@@ -54,14 +54,14 @@ h2{font-size:20px;font-weight:900;margin:14px 0 8px}
 .floor .dance{width:58%;height:58%;border:1px dashed rgba(255,255,255,.22);border-radius:12px;display:grid;place-items:center;color:#bbb;font-size:12px}
 
 /* zone cliccabili */
-.zone{position:absolute;display:grid;place-items:center;border-radius:10px;border:1.5px solid rgba(255,255,255,.18);padding:8px 12px;background:#101010;cursor:pointer;transition:transform .12s, box-shadow .12s, border-color .12s, background .12s; z-index:2; pointer-events:auto}
+.zone{position:absolute;display:grid;place-items:center;border-radius:10px;border:1.5px solid rgba(255,255,255,.18);padding:8px 12px;background:#101010;cursor:pointer;transition:transform .12s, box-shadow .12s, border-color .12s, background .12s; z-index:5; pointer-events:auto}
 .zone:hover{transform:translateY(-1px)}
 .zone .pp{font-weight:900}
 .zone .lbl{font-size:12px;opacity:.9}
 .zone[data-area="gold"]{border-color:var(--gold)}
 .zone[data-area="silver"]{border-color:var(--silver)}
 .zone[data-area="classic"]{border-color:var(--classic)}
-.zone.active{outline:2px solid rgba(34,197,94,.8); box-shadow:0 0 0 4px rgba(34,197,94,.25)}
+.zone.active{outline:2px solid rgba(34,197,94,.85); box-shadow:0 0 0 4px rgba(34,197,94,.28)}
 .zone.busy{background:#2a0c0c;border-color:#ff8080}
 .zone.busy .pp{color:#ffb3b3}
 .zone .tag{position:absolute;top:-9px;right:-9px;background:var(--ok);color:#000;font-weight:900;font-size:10px;border-radius:12px;padding:2px 6px;border:1px solid #0a0}
@@ -118,7 +118,7 @@ h2{font-size:20px;font-weight:900;margin:14px 0 8px}
   <div class="legend">
     <div class="row">
       <div class="chip"><span class="dot" style="background:var(--gold)"></span><b>Gold</b> da 45€/pax • minimo 180€</div>
-      <div class="chip"><span class="dot" style="background:var(--silver)"></span><b>Silver</b> da 40€/pax • minimo 140€</div>
+      <div class="chip"><span class="dot" style="background:var(--silver)"></span><b>Silver</b> da 35€/pax • minimo 140€</div>
     </div>
     <div class="row" style="margin-top:6px">
       <div class="chip"><span class="dot" style="background:var(--classic)"></span><b>Classic</b> da 30€/pax • minimo 120€</div>
@@ -154,18 +154,18 @@ h2{font-size:20px;font-weight:900;margin:14px 0 8px}
           <div class="deck">DJ • Consolle</div>
           <div class="floor"><div class="dance">PISTA</div></div>
 
-          <!-- GOLD dietro consolle (3) -->
+          <!-- GOLD -->
           <div class="zone" data-area="gold"   data-zone="gold-left"   style="top:54px;left:18%;"><div><div class="pp">GOLD</div><div class="lbl">da 45€/pax</div></div></div>
           <div class="zone" data-area="gold"   data-zone="gold-center" style="top:54px;left:50%;transform:translateX(-50%);"><div><div class="pp">GOLD</div><div class="lbl">da 45€/pax</div></div></div>
           <div class="zone" data-area="gold"   data-zone="gold-right"  style="top:54px;right:18%;"><div><div class="pp">GOLD</div><div class="lbl">da 45€/pax</div></div></div>
 
-          <!-- SILVER lato pista (2 sx + 2 dx) -->
+          <!-- SILVER -->
           <div class="zone" data-area="silver" data-zone="silver-left1"  style="top:50%;left:8%;transform:translateY(-50%)"><div><div class="pp">SILVER</div><div class="lbl">da 35€/pax</div></div></div>
           <div class="zone" data-area="silver" data-zone="silver-left2"  style="top:70%;left:8%;"><div><div class="pp">SILVER</div><div class="lbl">da 35€/pax</div></div></div>
           <div class="zone" data-area="silver" data-zone="silver-right1" style="top:50%;right:8%;transform:translateY(-50%)"><div><div class="pp">SILVER</div><div class="lbl">da 35€/pax</div></div></div>
           <div class="zone" data-area="silver" data-zone="silver-right2" style="top:70%;right:8%;"><div><div class="pp">SILVER</div><div class="lbl">da 35€/pax</div></div></div>
 
-          <!-- CLASSIC (2 sx + 2 dx) -->
+          <!-- CLASSIC -->
           <div class="zone" data-area="classic" data-zone="classic-left1"  style="bottom:16px;left:18%;"><div><div class="pp">CLASSIC</div><div class="lbl">da 30€/pax</div></div></div>
           <div class="zone" data-area="classic" data-zone="classic-right1" style="bottom:16px;right:18%;"><div><div class="pp">CLASSIC</div><div class="lbl">da 30€/pax</div></div></div>
         </div>
@@ -215,9 +215,7 @@ h2{font-size:20px;font-weight:900;margin:14px 0 8px}
         </div>
         <div class="small em" style="margin-top:8px">
           Gli extra 25€ per persone oltre la 4ª scattano solo se non raggiungi la soglia €/pax.
-          Tavolo Classic: minimo per persona 30€
-          Tavolo Silver: minimo per persona 35€
-          Tavolo Gold: minimo per persone 45€
+          Tavolo Classic: minimo per persona 30€ • Silver: 35€ • Gold: 45€.
         </div>
       </div>
     </div>
@@ -254,7 +252,7 @@ h2{font-size:20px;font-weight:900;margin:14px 0 8px}
 
 <script type="module">
 /* ================= Firebase & Auth ================= */
-import { onUser, doSignOut, app } from './auth.v2.js?v=6';
+import { onUser, doSignOut, app } from './auth.v2.js?v=7';
 import {
   getFirestore, doc, getDoc, setDoc
 } from 'https://www.gstatic.com/firebasejs/12.5.0/firebase-firestore.js';
@@ -338,19 +336,18 @@ const STATE = {
   totalPax:4,
   pricesPerPax:{ classic:30, silver:35, gold:45 }, // soglia €/pax
   areaMin:{ classic:120, silver:140, gold:180 },   // minimo tavolo
-  tables:[],        // [{index, area:'classic'|'silver'|'gold', pax:4..7, real, zone, bottles:[{id,qty}]}]
-  bottleList:[],    // [{id,name,category:'champagne'|'distillati',price,cost,visible,includes?}]
+  tables:[],        // [{index, area, pax, real, zone, bottles:[{id,qty}]}]
+  bottleList:[],    // [{id,name,category,price,cost,visible,includes?}]
   locks:{}          // zona -> {heldBy, tableIndex, heldAt, status}
 };
 
-/* ================== Carica listino (opzionale da Firestore) ================== */
+/* ================== Carica listino ================== */
 async function loadBottleConfig(){
   try{
     const snap = await getDoc(doc(db,'config','bottles'));
     if(!snap.exists()) return;
-    const data = snap.data()||{};
-    const items = data.items || {};
-    const arr = Object.entries(items).map(([id,v])=>({
+    const items = snap.data()?.items || {};
+    STATE.bottleList = Object.entries(items).map(([id,v])=>({
       id, name:v.name||'—',
       category: lc(v.category||''),
       price: Number(v.price||0),
@@ -358,11 +355,10 @@ async function loadBottleConfig(){
       visible: v.visible!==false,
       includes: (v.includes||'').toString()
     })).filter(x=>x.visible);
-    STATE.bottleList = arr;
   }catch(e){}
 }
 
-/* ================== Locks Tavoli (soft-lock 3 min) ================== */
+/* ================== Locks (soft 3m) ================== */
 async function fetchLocks(){
   try{
     const ref = doc(db,'locks','tables');
@@ -371,14 +367,20 @@ async function fetchLocks(){
   }catch{ STATE.locks = {}; }
 }
 async function tryHoldZone(zoneId, tableIndex){
-  const now = Date.now();
-  const curr = STATE.locks[zoneId];
-  if (curr && (now - (curr.heldAt||0) < 180000) && curr.heldBy !== STATE.user?.uid){
-    return false;
+  try{
+    const now = Date.now();
+    const curr = STATE.locks[zoneId];
+    if (curr && (now - (curr.heldAt||0) < 180000) && curr.heldBy !== STATE.user?.uid){
+      return false;
+    }
+    // prova a scrivere, ma non bloccare la selezione se fallisce
+    STATE.locks[zoneId] = { heldBy: STATE.user?.uid||'local', tableIndex, heldAt: now, status:'pending' };
+    await setDoc(doc(db,'locks','tables'), { [zoneId]: STATE.locks[zoneId] }, { merge:true });
+    return true;
+  }catch(e){
+    // BEST-EFFORT: se non riesco a scrivere, lascio comunque selezionare
+    return true;
   }
-  STATE.locks[zoneId] = { heldBy: STATE.user.uid, tableIndex, heldAt: now, status:'pending' };
-  await setDoc(doc(db,'locks','tables'), { [zoneId]: STATE.locks[zoneId] }, { merge:true });
-  return true;
 }
 function isZoneBusy(zoneId){
   const l = STATE.locks[zoneId];
@@ -386,10 +388,12 @@ function isZoneBusy(zoneId){
   return (Date.now() - (l.heldAt||0) < 180000) && l.status !== 'released';
 }
 function markZoneReleased(zoneId){
-  if(!STATE.locks[zoneId]) return;
-  STATE.locks[zoneId].status='released';
-  STATE.locks[zoneId].heldAt=Date.now();
-  setDoc(doc(db,'locks','tables'), { [zoneId]: STATE.locks[zoneId] }, { merge:true });
+  try{
+    if(!STATE.locks[zoneId]) return;
+    STATE.locks[zoneId].status='released';
+    STATE.locks[zoneId].heldAt=Date.now();
+    setDoc(doc(db,'locks','tables'), { [zoneId]: STATE.locks[zoneId] }, { merge:true });
+  }catch{}
 }
 
 /* ================== Split / Rebalance ================== */
@@ -474,7 +478,7 @@ function ensureTables(){
   }));
 }
 
-/* ========== Calcoli con nuova logica €/pax + extra condizionale ========== */
+/* ========== Calcoli €/pax + extra condizionale ========== */
 function ensureBottleSlot(table, id){
   const idx = table.bottles.findIndex(b=>b.id===id);
   if (idx<0) table.bottles.push({id,qty:0});
@@ -494,21 +498,17 @@ function computeTableBreakdown(table){
   });
 
   const minArea = STATE.areaMin[table.area] || 0;
-  const spentBeforeMin = sumListino;
-  const addMinimo = Math.max(0, minArea - spentBeforeMin);
+  const addMinimo = Math.max(0, minArea - sumListino);
   const spentAfterMin = sumListino + addMinimo;
 
-  // soglia €/pax per QUESTO tavolo = prezzo/pax area * persone REALI al tavolo
   const perPax = STATE.pricesPerPax[table.area] || 0;
   const expected = perPax * (table.real || 0);
 
-  // EXTRA 25€ solo se non raggiungi la soglia expected
   const needsExtra = spentAfterMin < expected;
   const extra = needsExtra ? Math.max(0, (table.real || 0) - 4) * 25 : 0;
 
   const total = spentAfterMin + extra;
 
-  // caparra = max(25€*pax base costo, Σ costi interni)
   const capMin = 25 * table.pax;
   const caparra = Math.max(capMin, sumInterni);
 
@@ -552,9 +552,13 @@ function renderTableDetail(){
 async function handleZoneClick(el){
   const area = el.getAttribute('data-area');
   const zone = el.getAttribute('data-zone');
+
+  // se appare busy → non selezionare
   if (isZoneBusy(zone)) return;
+
+  // prova a fare hold ma NON bloccare in caso di errore/permessi
   const ok = await tryHoldZone(zone, STATE.activeTable);
-  if (!ok) return;
+  if (!ok) return; // occupato da altri (lock valido)
 
   const prev = STATE.tables[STATE.activeTable].zone;
   if (prev && prev!==zone) markZoneReleased(prev);
@@ -562,15 +566,14 @@ async function handleZoneClick(el){
   STATE.tables[STATE.activeTable].area = area;
   STATE.tables[STATE.activeTable].zone = zone;
 
-  // tag T1/T2 visivo
+  // tag T1/T2
   zones.forEach(z=>z.querySelector('.tag')?.remove());
   STATE.tables.forEach(t=>{
     if(!t.zone) return;
     const n = zones.find(z=>z.getAttribute('data-zone')===t.zone);
     if(n){
       const tag=document.createElement('div');
-      tag.className='tag';
-      tag.textContent='T'+(t.index+1);
+      tag.className='tag'; tag.textContent='T'+(t.index+1);
       n.appendChild(tag);
     }
   });
@@ -590,7 +593,6 @@ function renderMap(){
     const zid = z.getAttribute('data-zone');
     if (isZoneBusy(zid)) z.classList.add('busy');
   });
-  // evidenzia zona del tavolo attivo
   const act = STATE.tables[STATE.activeTable].zone;
   if (act){
     const el = zones.find(z=>z.getAttribute('data-zone')===act);
@@ -605,6 +607,10 @@ function renderStep1(){
   renderMap();
 }
 
+function ensureBottleSlotUI(t,id){
+  const slot = ensureBottleSlot(t,id);
+  return slot;
+}
 function renderListino(){
   const t = STATE.tables[STATE.activeTable];
   minInfo.textContent = `Minimo tavolo: ${money(STATE.areaMin[t.area])}. Soglia persone: ${t.real}×${STATE.pricesPerPax[t.area]}€ = ${money(STATE.pricesPerPax[t.area]*t.real)}.`;
@@ -636,8 +642,7 @@ function renderListino(){
   listinoBox.querySelectorAll('[data-plus]').forEach(btn=>{
     btn.onclick = ()=>{
       const id = btn.getAttribute('data-plus');
-      const meta = STATE.bottleList.find(x=>x.id===id); if(!meta) return;
-      const slot = ensureBottleSlot(t,id);
+      const slot = ensureBottleSlotUI(t,id);
       slot.qty = Number(slot.qty||0)+1;
       listinoBox.querySelector(`[data-qty="${id}"]`).textContent = slot.qty;
       renderSummary(); renderPaxWarnings();
@@ -646,7 +651,7 @@ function renderListino(){
   listinoBox.querySelectorAll('[data-minus]').forEach(btn=>{
     btn.onclick = ()=>{
       const id = btn.getAttribute('data-minus');
-      const slot = ensureBottleSlot(t,id);
+      const slot = ensureBottleSlotUI(t,id);
       slot.qty = Math.max(0, Number(slot.qty||0)-1);
       listinoBox.querySelector(`[data-qty="${id}"]`).textContent = slot.qty;
       renderSummary(); renderPaxWarnings();
@@ -675,15 +680,9 @@ function renderSummary(){
   summaryBox.innerHTML = rows;
 
   const mode = document.querySelector('input[name="payMode"]:checked')?.value || 'deposito';
-  if (mode==='full'){
-    totalLabel.textContent = 'Totale (paga ora)';
-    totalValue.textContent = money(totalAll);
-  } else {
-    totalLabel.textContent = 'Caparra (ora)';
-    totalValue.textContent = money(depositAll);
-  }
+  totalLabel.textContent = (mode==='full') ? 'Totale (paga ora)' : 'Caparra (ora)';
+  totalValue.textContent = money((mode==='full') ? totalAll : depositAll);
 
-  // almeno 1 bottiglia selezionata
   const hasAny = STATE.tables.some(t=> t.bottles.some(b=>Number(b.qty||0)>0));
   confirmBtn.disabled = !hasAny || !legalChk.checked;
 }
@@ -696,31 +695,27 @@ function renderStep2(){
   renderSummary();
 }
 
-/* ===== Avvisi dinamici vicino “Indica il numero delle persone. Se siete più di 7 verrete divisi in 2 tavoli differenti.?” e nel titolo ===== */
+/* ===== Avvisi dinamici ===== */
 function renderPaxWarnings(){
   const { items } = computeAll();
-  // Cerca problemi SOLO per tavoli con più di 4 persone e zona selezionata
   const probs = items.filter(({t,b})=> t.zone && t.real>4 && b.needsExtra);
   if (probs.length===0){
     paxInlineWarn.style.display='none';
     paxWarn.style.display='none';
     return;
   }
-  // mostro dettaglio primo problema (inline) e sintesi in header
   const p = probs[0];
   const missing = Math.max(0, p.b.expected - p.b.spentAfterMin);
   paxInlineWarn.textContent = `Tavolo ${p.t.index+1}: soglia ${p.t.real}×${STATE.pricesPerPax[p.t.area]}€ = ${money(p.b.expected)} (mancano ${money(missing)}). In mancanza si applicano ${(p.t.real-4)}×25€ = ${money((p.t.real-4)*25)}.`;
   paxInlineWarn.style.display='inline-block';
-
   paxWarn.textContent = `Attenzione: per i tavoli con >4 pax si applicano extra 25€ a testa SOLO se non raggiungete la soglia €/pax dell’area.`;
   paxWarn.style.display='inline-flex';
 }
 
-/* ================== Navigazione step ================== */
+/* ================== Navigazione ================== */
 function goToStep2(){
   const bad = STATE.tables.find(t=>!t.area || !t.zone);
   if (bad){ alert(`Seleziona l'area sulla mappa per ogni tavolo (manca Tavolo ${bad.index+1}).`); return; }
-  // mostra popup legale
   legalGate.style.display='flex';
 }
 function backToStep1(){
@@ -754,10 +749,7 @@ document.querySelectorAll('input[name="payMode"]').forEach(r=>{
 
 /* Popup legale */
 legalCancel.onclick = ()=>{ legalGate.style.display='none'; };
-legalChk.onchange = ()=>{ 
-  legalOk.disabled = !legalChk.checked; 
-  renderSummary(); // abilita/disabilita Procedi coerentemente
-};
+legalChk.onchange = ()=>{ legalOk.disabled = !legalChk.checked; renderSummary(); };
 legalOk.onclick = ()=>{
   legalGate.style.display='none';
   s1.style.display='none';
@@ -767,7 +759,7 @@ legalOk.onclick = ()=>{
   renderStep2();
 };
 
-/* ================== Auth boot + Age gate + Locks ================== */
+/* ================== Auth + Age gate + Locks ================== */
 onUser(async (u)=>{
   if(!u){ nav.innerHTML=OUT; location.href='./login.html?from=./attendees-tavolo.html'; return; }
   STATE.user = u;
