@@ -25,7 +25,7 @@ h1{font-size:34px;font-weight:900;letter-spacing:-.3px;margin-bottom:6px}
 .badge{background:#0f0f10;border:1px solid rgba(255,255,255,.15);border-radius:10px;padding:8px 10px;font-size:13px}
 .grid{display:grid;grid-template-columns:2fr 1fr;gap:16px}
 @media(max-width:900px){.grid{grid-template-columns:1fr}}
-.card{background:rgba(255,255,255,.06);border:1px solid var(--border);border-radius:16px;padding:18px}
+.card{background:rgba(255,255,255,.06);border:1px solid var(--border);border-radius:16px;padding:18px;margin-bottom:20px}
 .card h2{font-size:20px;font-weight:900;margin-bottom:10px}
 .muted{color:var(--muted)}
 .ticket-list{display:grid;gap:10px}
@@ -92,22 +92,40 @@ input{background:#0f0f10;border:1px solid var(--border);border-radius:10px;color
       </div>
       <div class="modal-bd">
         <button id="btnEdit" class="btn">Modifica profilo</button>
-        <a class="btn ghost" href="./scanner.html">Area scanner (staff)</a>
+        <a class="btn ghost hidden" id="btnScannerProfile" href="./scanner.html">Area scanner (staff)</a>
       </div>
       <div class="notice">Il nominativo del biglietto si blocca alla generazione del QR. Puoi sbloccarlo una sola volta (4€) per rigenerare il QR.</div>
     </aside>
   </div>
 
-  <aside id="founderBox" class="card hidden" style="margin-top:16px">
+  <!-- 🔥 SEZIONI PR / CAPO PR / ADMIN -->
+  <aside id="prPanel" class="card hidden">
+    <h2>Pannello PR</h2>
+    <p>Accesso riservato ai PR.</p>
+  </aside>
+
+  <aside id="capoPrPanel" class="card hidden">
+    <h2>Pannello Capo PR</h2>
+    <p>Gestione team, ammonizioni e statistiche.</p>
+  </aside>
+
+  <aside id="adminPanel" class="card hidden">
+    <h2>Pannello Admin</h2>
+    <p>Controllo completo vendite, categorie e sistema.</p>
+  </aside>
+
+  <!-- Founder -->
+  <aside id="founderBox" class="card hidden">
     <span class="state ok">Founder</span>
     <h2>Pannello Founder</h2>
     <div id="founderHello" class="muted" style="margin-bottom:12px"></div>
     <div style="display:grid;gap:10px;grid-template-columns:repeat(3, minmax(200px, 1fr))">
-      <a class="btn" href="./founder.html" style="text-align:center">Pannello</a>
+      <a class="btn" href="./founder.html" style="text-align:center">Pannello Founder</a>
       <a class="btn" href="./founder-gift.html" style="text-align:center">Crea omaggio</a>
       <a class="btn" href="./scanner.html" style="text-align:center">Scanner</a>
     </div>
   </aside>
+
 </main>
 
 <!-- MODAL profilo -->
@@ -158,6 +176,11 @@ input{background:#0f0f10;border:1px solid var(--border);border-radius:10px;color
 
   const founderBox   = document.getElementById('founderBox');
   const founderHello = document.getElementById('founderHello');
+
+  const prPanel      = document.getElementById('prPanel');
+  const capoPrPanel  = document.getElementById('capoPrPanel');
+  const adminPanel   = document.getElementById('adminPanel');
+  const btnScannerProfile = document.getElementById('btnScannerProfile');
 
   const modal   = document.getElementById('modal');
   const btnEdit = document.getElementById('btnEdit');
@@ -272,6 +295,26 @@ input{background:#0f0f10;border:1px solid var(--border);border-radius:10px;color
     });
   }
 
+  // Mostra pannelli in base al ruolo
+  function showRolePanels(role) {
+    if (!role) return;
+    const r = role.toLowerCase();
+    if (r === 'pr')       prPanel.classList.remove('hidden');
+    if (r === 'capo_pr')  capoPrPanel.classList.remove('hidden');
+    if (r === 'admin')    adminPanel.classList.remove('hidden');
+    if (r === 'founder') {
+      adminPanel.classList.remove('hidden'); // se vuoi, l'admin può vedere anche questo
+      founderBox.classList.remove('hidden');
+    }
+
+    // Area scanner visibile solo per founder / admin / checker / scanner
+    const canScan = ['founder','admin','checker','scanner'].includes(r);
+    if (btnScannerProfile) {
+      if (canScan) btnScannerProfile.classList.remove('hidden');
+      else         btnScannerProfile.classList.add('hidden');
+    }
+  }
+
   async function mountFounder(u){
     const ok = await isFounderOrAdmin(u.email||'', u.uid);
     if(!ok){ founderBox.classList.add('hidden'); return; }
@@ -307,6 +350,7 @@ input{background:#0f0f10;border:1px solid var(--border);border-radius:10px;color
     inpEmail.value = me.email || u.email || '';
 
     await loadTickets(u.uid);
+    showRolePanels(me.role || 'customer');
     await mountFounder(u);
   });
 
@@ -323,5 +367,6 @@ input{background:#0f0f10;border:1px solid var(--border);border-radius:10px;color
     vName.textContent = name; vDob.textContent = dob||'—'; closeModal();
   });
 </script>
+
 </body>
 </html>
