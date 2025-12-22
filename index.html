@@ -23,7 +23,7 @@ header{position:sticky;top:0;z-index:50;backdrop-filter:saturate(140%) blur(6px)
 nav a, nav span{color:#fff;text-decoration:none;margin-left:18px;font-size:14px;opacity:.95}
 nav a:hover{color:var(--accent)}
 
-/* HERO (SVG embedded inline, no file esterno) */
+/* HERO */
 .hero{
   min-height:95vh;
   display:flex;align-items:center;justify-content:center;
@@ -52,16 +52,14 @@ nav a:hover{color:var(--accent)}
 h1{font-size:clamp(40px,6vw,72px);line-height:1.05;font-weight:900}
 h1 .accent{color:var(--accent);text-shadow:0 0 16px rgba(139,92,246,.25)}
 .hero p{margin-top:12px;color:rgba(255,255,255,.9);font-size:clamp(16px,2.3vw,18px)}
-.btn{display:inline-block;margin-top:24px;padding:13px 22px;background:var(--accent);color:#000;font-weight:800;border-radius:10px;text-decoration:none}
+.btn{display:inline-block;padding:13px 22px;background:var(--accent);color:#000;font-weight:900;border-radius:10px;text-decoration:none}
 .btn.outline{background:transparent;border:1px solid var(--accent);color:#fff}
 
-/* Hero improvements */
 .hero-meta{margin-top:14px;color:rgba(255,255,255,.92)}
 .price-from{color:var(--accent)}
 .chips{display:flex;flex-wrap:wrap;gap:10px;margin-top:12px}
 .chip{font-size:13px;padding:8px 10px;border-radius:999px;background:rgba(0,0,0,.45);border:1px solid rgba(255,255,255,.14)}
 .hero-actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:18px}
-.hero-actions .btn{margin-top:0}
 .hero-trust{margin-top:12px;font-size:13px;color:rgba(255,255,255,.75)}
 
 /* SECTIONS */
@@ -127,18 +125,16 @@ footer{padding:0;border-top:1px solid rgba(255,255,255,.08)}
   <div class="nav">
     <div class="brand"><div class="brand-badge"></div><div>TRAPPERREO</div></div>
     <nav id="navArea">
-      <!-- fallback non loggato -->
       <a href="#event">Info</a>
       <a href="#tickets">Ticket</a>
       <a href="#faq">FAQ</a>
-      <a href="./login.html?from=./checkout.html" style="color:#8b5cf6;font-weight:800">Acquista</a>
+      <a id="navBuy" href="./checkout.html" style="color:#8b5cf6;font-weight:900">Acquista</a>
       <a href="./login.html">Accedi</a>
     </nav>
   </div>
 </header>
 
 <section class="hero" id="home">
-  <!-- SVG background embedded inline -->
   <svg class="hero-bg" viewBox="0 0 2000 1200" preserveAspectRatio="xMidYMid slice" aria-hidden="true" focusable="false">
     <defs>
       <linearGradient id="bgG" x1="0" y1="0" x2="0" y2="1">
@@ -146,33 +142,24 @@ footer{padding:0;border-top:1px solid rgba(255,255,255,.08)}
         <stop offset="0.55" stop-color="#32156d"/>
         <stop offset="1" stop-color="#062b33"/>
       </linearGradient>
-
       <radialGradient id="glow" cx="50%" cy="35%" r="70%">
         <stop offset="0" stop-color="#8b5cf6" stop-opacity="0.55"/>
         <stop offset="0.55" stop-color="#00ffd0" stop-opacity="0.12"/>
         <stop offset="1" stop-color="#000" stop-opacity="0"/>
       </radialGradient>
-
-      <filter id="blur18" x="-30%" y="-30%" width="160%" height="160%">
-        <feGaussianBlur stdDeviation="18"/>
-      </filter>
-      <filter id="blur10" x="-30%" y="-30%" width="160%" height="160%">
-        <feGaussianBlur stdDeviation="10"/>
-      </filter>
+      <filter id="blur18" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="18"/></filter>
+      <filter id="blur10" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="10"/></filter>
     </defs>
 
-    <!-- base -->
     <rect width="2000" height="1200" fill="url(#bgG)"/>
     <rect width="2000" height="1200" fill="url(#glow)"/>
 
-    <!-- lasers / beams -->
     <g filter="url(#blur18)" opacity="0.55">
       <polygon points="-250,130 520,-40 1500,980 730,1150" fill="#8b5cf6" opacity="0.20"/>
       <polygon points="200,210 920,-90 1820,980 1100,1200" fill="#00ffd0" opacity="0.14"/>
       <polygon points="780,240 1320,-120 2250,880 1710,1180" fill="#ff78e6" opacity="0.10"/>
     </g>
 
-    <!-- bokeh lights -->
     <g filter="url(#blur10)">
       <circle cx="340" cy="240" r="90" fill="#8b5cf6" opacity="0.25"/>
       <circle cx="620" cy="320" r="60" fill="#00ffd0" opacity="0.18"/>
@@ -184,7 +171,6 @@ footer{padding:0;border-top:1px solid rgba(255,255,255,.08)}
       <circle cx="1550" cy="520" r="90" fill="#00ffd0" opacity="0.10"/>
     </g>
 
-    <!-- confetti dots (leggero, non pesante) -->
     <g opacity="0.35">
       <circle cx="180" cy="220" r="2" fill="#fff"/><circle cx="260" cy="360" r="2" fill="#8b5cf6"/>
       <circle cx="380" cy="180" r="2" fill="#00ffd0"/><circle cx="510" cy="260" r="2" fill="#ff78e6"/>
@@ -193,41 +179,11 @@ footer{padding:0;border-top:1px solid rgba(255,255,255,.08)}
       <circle cx="1180" cy="210" r="2" fill="#fff"/><circle cx="1320" cy="360" r="2" fill="#8b5cf6"/>
       <circle cx="1460" cy="170" r="2" fill="#00ffd0"/><circle cx="1580" cy="310" r="2" fill="#ff78e6"/>
       <circle cx="1740" cy="230" r="2" fill="#fff"/><circle cx="1860" cy="380" r="2" fill="#8b5cf6"/>
-
-      <circle cx="220" cy="520" r="2" fill="#00ffd0"/><circle cx="460" cy="560" r="2" fill="#fff"/>
-      <circle cx="720" cy="610" r="2" fill="#ff78e6"/><circle cx="980" cy="580" r="2" fill="#8b5cf6"/>
-      <circle cx="1260" cy="610" r="2" fill="#00ffd0"/><circle cx="1500" cy="560" r="2" fill="#fff"/>
-      <circle cx="1760" cy="600" r="2" fill="#ff78e6"/>
     </g>
 
-    <!-- crowd silhouette -->
     <g>
       <path d="M0,930 C160,880 280,910 380,900 C520,880 640,920 780,910 C980,890 1080,940 1240,920 C1400,900 1520,940 1660,920 C1820,900 1900,920 2000,890 L2000,1200 L0,1200 Z"
             fill="#000" opacity="0.88"/>
-      <!-- some heads -->
-      <g opacity="0.95">
-        <circle cx="160" cy="915" r="26" fill="#000"/>
-        <circle cx="240" cy="905" r="22" fill="#000"/>
-        <circle cx="340" cy="920" r="28" fill="#000"/>
-        <circle cx="460" cy="910" r="24" fill="#000"/>
-        <circle cx="610" cy="925" r="30" fill="#000"/>
-        <circle cx="740" cy="910" r="24" fill="#000"/>
-        <circle cx="880" cy="925" r="30" fill="#000"/>
-        <circle cx="1010" cy="915" r="26" fill="#000"/>
-        <circle cx="1160" cy="930" r="32" fill="#000"/>
-        <circle cx="1320" cy="915" r="26" fill="#000"/>
-        <circle cx="1460" cy="930" r="32" fill="#000"/>
-        <circle cx="1600" cy="920" r="28" fill="#000"/>
-        <circle cx="1740" cy="935" r="34" fill="#000"/>
-        <circle cx="1880" cy="925" r="30" fill="#000"/>
-      </g>
-      <!-- some raised arms -->
-      <g opacity="0.95">
-        <rect x="260" y="760" width="38" height="170" rx="16" fill="#000"/>
-        <rect x="860" y="740" width="42" height="195" rx="18" fill="#000"/>
-        <rect x="1480" y="760" width="38" height="175" rx="16" fill="#000"/>
-        <rect x="1760" y="720" width="46" height="215" rx="18" fill="#000"/>
-      </g>
     </g>
   </svg>
 
@@ -247,10 +203,11 @@ footer{padding:0;border-top:1px solid rgba(255,255,255,.08)}
     </div>
 
     <div class="hero-actions">
-      <a class="btn" id="ctaBuy" href="./login.html?from=./checkout.html">Acquista ora</a>
+      <a class="btn" id="ctaBuy" href="./checkout.html">Acquista ora</a>
+      <a class="btn outline" href="./login.html">Accedi</a>
     </div>
 
-    <p class="hero-trust">Pagamento sicuro · Biglietto immediato · Assistenza su Instagram</p>
+    <p class="hero-trust">Pagamento sicuro · Ticket immediato · Assistenza su Instagram</p>
   </div>
 </section>
 
@@ -270,7 +227,7 @@ footer{padding:0;border-top:1px solid rgba(255,255,255,.08)}
       </div>
 
       <div style="display:flex;gap:12px;flex-wrap:wrap">
-        <a class="btn" id="btnBuy2" href="./login.html?from=./checkout.html">Acquista il tuo biglietto</a>
+        <a class="btn" id="btnBuy2" href="./checkout.html">Acquista il tuo biglietto</a>
       </div>
     </div>
   </div>
@@ -281,7 +238,7 @@ footer{padding:0;border-top:1px solid rgba(255,255,255,.08)}
     <h2>Biglietti</h2>
     <p class="lead">Scegli la tua prevendita. Early Bird dura poco: quando finisce, sale il prezzo.</p>
 
-    <div class="ticket-grid">
+    <div class="ticket-grid" id="ticketsGrid">
       <div class="tcard">
         <div class="ttop">
           <div class="tname">Early Bird <span class="tag">miglior prezzo</span></div>
@@ -292,7 +249,7 @@ footer{padding:0;border-top:1px solid rgba(255,255,255,.08)}
           <div>✔ Ticket QR digitale</div>
           <div>✔ Posti limitati</div>
         </div>
-        <a class="btn" href="./login.html?from=./checkout.html">Acquista ora</a>
+        <a class="btn buyBtn" href="./checkout.html">Acquista ora</a>
       </div>
 
       <div class="tcard featured">
@@ -305,7 +262,7 @@ footer{padding:0;border-top:1px solid rgba(255,255,255,.08)}
           <div>✔ Ticket QR digitale</div>
           <div>✔ <strong>Promo crew:</strong> 3 ticket a 40€</div>
         </div>
-        <a class="btn" href="./login.html?from=./checkout.html">Acquista ora</a>
+        <a class="btn buyBtn" href="./checkout.html">Acquista ora</a>
       </div>
 
       <div class="tcard">
@@ -318,7 +275,7 @@ footer{padding:0;border-top:1px solid rgba(255,255,255,.08)}
           <div>✔ Ticket QR digitale</div>
           <div>✔ Meno attesa</div>
         </div>
-        <a class="btn" href="./login.html?from=./checkout.html">Acquista ora</a>
+        <a class="btn buyBtn" href="./checkout.html">Acquista ora</a>
       </div>
 
       <div class="tcard">
@@ -331,7 +288,7 @@ footer{padding:0;border-top:1px solid rgba(255,255,255,.08)}
           <div>✔ Area dedicata (se prevista)</div>
           <div>✔ Ticket QR digitale</div>
         </div>
-        <a class="btn" href="./login.html?from=./checkout.html">Acquista ora</a>
+        <a class="btn buyBtn" href="./checkout.html">Acquista ora</a>
       </div>
     </div>
   </div>
@@ -353,7 +310,7 @@ footer{padding:0;border-top:1px solid rgba(255,255,255,.08)}
 <footer>
   <div class="footer-top">
     <div class="fcol"><h4>TRAPPERREO</h4><a href="#event">Chi siamo</a><a href="#event">Contatti</a><a href="#">Lavora con noi</a></div>
-    <div class="fcol"><h4>Eventi</h4><a href="#event">I nostri eventi</a><a href="#tickets">Tutte le info biglietti</a><a href="#">Diventa Staff</a></div>
+    <div class="fcol"><h4>Eventi</h4><a href="#event">I nostri eventi</a><a href="#tickets">Info biglietti</a><a href="#">Diventa Staff</a></div>
     <div class="fcol"><h4>Extra</h4><a href="#">News</a><a href="#">Shop</a></div>
     <div class="fcol"><h4>Legale</h4><a href="#">Privacy Policy</a><a href="#">Terms & Conditions</a><a href="#">Change privacy settings</a></div>
   </div>
@@ -361,30 +318,26 @@ footer{padding:0;border-top:1px solid rgba(255,255,255,.08)}
     <div class="wrap">
       <div><strong>TRAPPERREO</strong> — evento privato</div>
       <div>Contatti: Instagram / WhatsApp (inserisci i link reali)</div>
-      <div>Ingresso <strong>16+</strong> con documento · Prevendita consigliata</div>
+      <div>Ingresso <strong>16+</strong> con documento · Ticket QR digitale</div>
     </div>
   </div>
 </footer>
 
-<!-- Sticky CTA (mobile) -->
-<a class="sticky-buy" id="stickyBuy" href="./login.html?from=./checkout.html">Acquista ora il tuo biglietto</a>
+<a class="sticky-buy" id="stickyBuy" href="./checkout.html">Acquista ora il tuo biglietto</a>
 
 <script type="module">
 import { onUser, doSignOut } from './auth.v2.js?v=6';
 
 const nav  = document.getElementById('navArea');
-const cta1 = document.getElementById('ctaBuy');
-const cta2 = document.getElementById('btnBuy2');
-const sticky = document.getElementById('stickyBuy');
 
-const IG = "https://instagram.com/tuo_profilo"; // <-- cambia
+const IG = "https://instagram.com/tuo_profilo"; // cambia
 
 const OUT = `
   <a href="#event">Info</a>
   <a href="#tickets">Ticket</a>
   <a href="#faq">FAQ</a>
   <a href="${IG}" target="_blank" rel="noopener">Instagram</a>
-  <a href="./login.html?from=./checkout.html" style="color:#8b5cf6;font-weight:800">Acquista</a>
+  <a href="./checkout.html" style="color:#8b5cf6;font-weight:900">Acquista</a>
   <a href="./login.html">Accedi</a>
 `;
 
@@ -396,29 +349,19 @@ const IN = (u) => {
     <a href="${IG}" target="_blank" rel="noopener">Instagram</a>
     <a href="./checkout.html">Vai al checkout</a>
     <a href="./account-2.html">Area personale</a>
-    <a href="#" id="logoutLink" style="color:#8b5cf6">Logout</a>
+    <a href="#" id="logoutLink" style="color:#8b5cf6;font-weight:900">Logout</a>
   `;
 };
-
-function setBuyLinks(href){
-  if (cta1) cta1.href = href;
-  if (cta2) cta2.href = href;
-  if (sticky) sticky.href = href;
-  document.querySelectorAll('#tickets a.btn').forEach(a => a.href = href);
-}
 
 onUser((u)=>{
   if(!u){
     nav.innerHTML = OUT;
-    setBuyLinks("./login.html?from=./checkout.html");
   }else{
     nav.innerHTML = IN(u);
-    setBuyLinks("./checkout.html");
     document.getElementById('logoutLink')?.addEventListener('click', async (e)=>{
       e.preventDefault();
       await doSignOut();
       nav.innerHTML = OUT;
-      setBuyLinks("./login.html?from=./checkout.html");
     });
   }
 });
