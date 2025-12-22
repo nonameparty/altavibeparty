@@ -6,55 +6,221 @@
 <title>Conferma dati — 1 biglietto</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&display=swap" rel="stylesheet">
 <style>
-  :root{--bg:#000;--text:#fff;--card:#0c0c0f;--border:rgba(255,255,255,.12);--accent:#8b5cf6;--ok:#22c55e}
-  *{box-sizing:border-box} body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,sans-serif}
-  .wrap{max-width:900px;margin:auto;padding:22px}
-  h1{font-size:28px;font-weight:900;letter-spacing:-.2px;margin:8px 0 14px}
-  .grid{display:grid;grid-template-columns:2fr 1fr;gap:16px}
-  .card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:16px}
-  .field{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:8px}
-  .field input{width:100%;background:#0f0f10;border:1px solid var(--border);border-radius:10px;color:#fff;padding:12px}
-  .line{display:flex;justify-content:space-between;margin:6px 0;font-size:14px}
-  .total{font-size:22px;font-weight:900;margin-top:8px}
-  .btn{background:var(--accent);color:#000;border:none;border-radius:10px;padding:10px 14px;font-weight:900;cursor:pointer}
-  .ghost{background:transparent;border:1px solid var(--border);color:#fff}
-  .muted{opacity:.8;font-size:13px}
-  .save{color:var(--ok);font-weight:800}
-  .hr{height:1px;background:var(--border);margin:12px 0}
+  :root{
+    --bg:#000;
+    --text:#fff;
+    --muted:rgba(255,255,255,.72);
+    --card:rgba(255,255,255,.06);
+    --border:rgba(255,255,255,.12);
+    --accent:#8b5cf6;
+    --ok:#22c55e;
+    --danger:#ef4444;
+    --flash:#fde047;
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{
+    margin:0;background:var(--bg);color:var(--text);
+    font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+    padding-bottom:92px; /* spazio barra mobile */
+  }
+
+  /* Header minimal coerente */
+  header{
+    position:sticky;top:0;z-index:50;
+    backdrop-filter:saturate(140%) blur(6px);
+    background:rgba(0,0,0,.6);
+    border-bottom:1px solid rgba(255,255,255,.08);
+  }
+  .nav{
+    max-width:1100px;margin:auto;padding:14px 20px;
+    display:flex;align-items:center;justify-content:space-between;gap:14px
+  }
+  .brand{display:flex;align-items:center;gap:10px;font-weight:900;letter-spacing:-.3px}
+  .brand-badge{width:22px;height:22px;background:var(--accent);transform:skew(-6deg);border-radius:3px}
+  nav{display:flex;align-items:center;gap:14px;flex-wrap:wrap;justify-content:flex-end}
+  nav a{color:#fff;text-decoration:none;font-size:14px;opacity:.95}
+  nav a:hover{color:var(--accent)}
+
+  .wrap{max-width:1100px;margin:auto;padding:20px}
+  h1{font-size:28px;font-weight:900;letter-spacing:-.3px;margin:8px 0 6px}
+  .sub{color:var(--muted);font-size:14px;margin-bottom:14px}
+
+  .grid{display:grid;grid-template-columns:1fr;gap:16px}
+  @media(min-width:900px){.grid{grid-template-columns:2fr 1fr}}
+
+  .card{
+    background:var(--card);
+    border:1px solid var(--border);
+    border-radius:18px;
+    padding:16px;
+  }
+  .card h2{margin:0 0 10px 0;font-size:16px;font-weight:900;letter-spacing:-.2px}
+  .meta{
+    color:rgba(255,255,255,.82);
+    font-size:13px;line-height:1.35
+  }
+
+  .ticketHeader{
+    display:flex;align-items:center;justify-content:space-between;gap:12px;
+    margin-bottom:10px;
+  }
+  .pill{
+    display:inline-flex;align-items:center;gap:8px;
+    padding:6px 10px;border-radius:999px;
+    border:1px solid rgba(255,255,255,.14);
+    background:rgba(0,0,0,.25);
+    font-size:12px;font-weight:900;color:rgba(255,255,255,.9);
+    white-space:nowrap;
+  }
+  .pill .dot{width:8px;height:8px;border-radius:50%;background:var(--flash);opacity:.95}
+
+  .formGrid{
+    display:grid;grid-template-columns:1fr;gap:10px;margin-top:10px
+  }
+  @media(min-width:520px){.formGrid.two{grid-template-columns:1fr 1fr}}
+  label{
+    display:block;font-size:12px;color:rgba(255,255,255,.72);font-weight:800;margin:0 0 6px 2px
+  }
+  .input{
+    width:100%;
+    background:#0f0f10;
+    border:1px solid rgba(255,255,255,.16);
+    border-radius:12px;
+    color:#fff;
+    padding:12px 12px;
+    font-weight:800;
+    outline:none;
+  }
+  .input:focus{border-color:rgba(139,92,246,.55); box-shadow:0 0 0 3px rgba(139,92,246,.12)}
+  .hint{margin-top:8px;color:rgba(255,255,255,.70);font-size:13px;line-height:1.4}
+
+  .hr{height:1px;background:rgba(255,255,255,.10);margin:12px 0}
+  .line{display:flex;justify-content:space-between;gap:10px;margin:7px 0;font-size:14px;color:rgba(255,255,255,.88)}
+  .save{color:var(--ok);font-weight:900}
+  .totalRow{display:flex;justify-content:space-between;align-items:flex-end;margin-top:8px}
+  .totalRow .k{font-size:13px;color:rgba(255,255,255,.72);font-weight:800}
+  .totalRow .v{font-size:28px;font-weight:900;letter-spacing:-.4px}
+
+  .actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
+  .btn{
+    padding:12px 14px;border-radius:14px;
+    border:1px solid rgba(255,255,255,.16);
+    background:#111;color:#fff;font-weight:900;cursor:pointer;
+  }
+  .btn.primary{background:var(--accent);color:#000;border-color:rgba(139,92,246,.55)}
+  .btn:disabled{opacity:.5;cursor:not-allowed}
+
+  /* Sidebar sticky su desktop */
+  .sticky{position:sticky;top:84px}
+
+  /* Barra mobile */
+  .mobileBar{
+    position:fixed;left:14px;right:14px;bottom:14px;z-index:220;
+    background:rgba(10,10,10,.92);
+    border:1px solid rgba(255,255,255,.14);
+    border-radius:18px;
+    padding:12px;
+    display:flex;align-items:center;justify-content:space-between;gap:12px;
+    box-shadow:0 18px 50px rgba(0,0,0,.55);
+  }
+  .mobileBar .t{display:flex;flex-direction:column;line-height:1.1}
+  .mobileBar .t .k{font-size:12px;color:rgba(255,255,255,.72);font-weight:800}
+  .mobileBar .t .v{font-size:24px;font-weight:900;margin-top:6px}
+  .mobileBar .btns{display:flex;gap:10px;align-items:center}
+  .mBtn{
+    padding:12px 14px;border-radius:14px;font-weight:900;border:none;cursor:pointer;
+  }
+  .mBtn.ghost{background:transparent;border:1px solid rgba(255,255,255,.18);color:#fff}
+  .mBtn.primary{background:var(--accent);color:#000}
+  .mBtn:disabled{opacity:.5;cursor:not-allowed}
+
+  @media(min-width:900px){
+    body{padding-bottom:0}
+    .mobileBar{display:none}
+  }
 </style>
 </head>
 <body>
-  <main class="wrap">
-    <h1>Conferma dati — 1 biglietto</h1>
-    <div class="grid">
-      <section class="card">
-        <h3 style="margin:0 0 8px 0;font-size:14px;opacity:.9" id="ticketLabel">Early Bird × 1</h3>
-        <div class="field">
-          <div><input id="first" placeholder="Nome"></div>
-          <div><input id="last" placeholder="Cognome"></div>
-        </div>
-        <div class="field" style="grid-template-columns:1fr">
-          <div><input id="email" placeholder="email@email.it" inputmode="email"></div>
-        </div>
-      </section>
 
-      <aside class="card">
-        <div class="muted" id="eventMeta">Sab 21 Mar 2026 · 22:30 → 04:30 · Via Italia 38, Biella</div>
-        <div class="hr"></div>
-        <div id="summaryLines"></div>
-        <div class="total">Totale (IVA inclusa) <span id="grand">0€</span></div>
-        <div class="hr"></div>
-        <div class="muted" style="margin-bottom:10px">
-          Se non hai un account, potrai registrarti dopo l’acquisto: ti invieremo un link e il biglietto
-          sarà già visibile nella tua area personale.
+<header>
+  <div class="nav">
+    <div class="brand"><div class="brand-badge"></div><div>TRAPPERREO</div></div>
+    <nav>
+      <a href="./index.html">Home</a>
+      <a href="./index.html#tickets">Ticket</a>
+      <a href="./index.html#faq">FAQ</a>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+  <h1>Conferma dati</h1>
+  <div class="sub">Compila i dati per <strong>1 biglietto</strong>. Li useremo per intestare l’ingresso.</div>
+
+  <div class="grid">
+    <!-- LEFT -->
+    <section class="card">
+      <div class="ticketHeader">
+        <div class="pill" id="ticketPill"><span class="dot"></span><span id="ticketLabel">Biglietto</span></div>
+        <div class="meta">🎟️ Ingresso nominativo</div>
+      </div>
+
+      <div class="formGrid two">
+        <div>
+          <label for="first">Nome</label>
+          <input class="input" id="first" autocomplete="given-name" placeholder="Es. Marco">
         </div>
-        <div style="display:flex;gap:8px">
-          <button id="backBtn" class="btn ghost">Indietro</button>
-          <button id="payBtn" class="btn">Paga ora</button>
+        <div>
+          <label for="last">Cognome</label>
+          <input class="input" id="last" autocomplete="family-name" placeholder="Es. Rossi">
         </div>
-      </aside>
-    </div>
-  </main>
+      </div>
+
+      <div class="formGrid">
+        <div>
+          <label for="email">Email</label>
+          <input class="input" id="email" autocomplete="email" placeholder="email@email.it" inputmode="email">
+        </div>
+      </div>
+
+      <div class="hint">
+        Se non hai un account, potrai registrarti dopo l’acquisto: ti invieremo un link e il biglietto sarà già visibile nella tua area personale.
+      </div>
+    </section>
+
+    <!-- RIGHT -->
+    <aside class="card sticky">
+      <div class="meta" id="eventMeta">Sab 21 Mar 2026 · 22:30 → 04:30 · Via Italia 38, Biella</div>
+      <div class="hr"></div>
+
+      <div id="summaryLines"></div>
+
+      <div class="hr"></div>
+      <div class="totalRow">
+        <div class="k">Totale (IVA inclusa)</div>
+        <div class="v" id="grand">0€</div>
+      </div>
+
+      <div class="actions" style="margin-top:14px">
+        <button id="backBtn" class="btn">Indietro</button>
+        <button id="payBtn" class="btn primary" disabled>Paga ora</button>
+      </div>
+    </aside>
+  </div>
+</main>
+
+<!-- barra mobile -->
+<div class="mobileBar" aria-live="polite">
+  <div class="t">
+    <div class="k">Totale</div>
+    <div class="v" id="mGrand">0€</div>
+  </div>
+  <div class="btns">
+    <button id="mBack" class="mBtn ghost">Indietro</button>
+    <button id="mPay" class="mBtn primary" disabled>Paga</button>
+  </div>
+</div>
 
 <script type="module">
 import { onUser } from './auth.v2.js?v=6';
@@ -62,7 +228,6 @@ import { onUser } from './auth.v2.js?v=6';
 const PRICE = { EB:12, STD:15, FAST:20, VIP:25, NAMECHANGE:1.90, STD3:40 };
 const money = n => (n<0?'-':'') + Math.abs(n).toFixed(2).replace('.00','') + '€';
 
-/* === capisco quale biglietto è stato scelto dal QS === */
 const Q = new URLSearchParams(location.search);
 const qty = {
   eb: +(Q.get('eb')||0),
@@ -72,8 +237,11 @@ const qty = {
   nc: +(Q.get('nc')||0)
 };
 const kind = qty.eb? 'EB' : qty.std? 'STD' : qty.fast? 'FAST' : 'VIP';
-document.getElementById('ticketLabel').textContent =
-  (kind==='EB'?'Early Bird':kind==='STD'?'Standard':kind==='FAST'?'Fast Entry':'VIP Entry') + ' × 1';
+
+const kindLabel =
+  (kind==='EB'?'Early Bird':kind==='STD'?'Standard':kind==='FAST'?'Fast Entry':'VIP Entry');
+
+document.getElementById('ticketLabel').textContent = `${kindLabel} × 1`;
 
 /* === sconto da localStorage === */
 function readDiscount(){
@@ -88,6 +256,7 @@ onUser(u=>{
   document.getElementById('first').value = f || '';
   document.getElementById('last').value  = l || '';
   document.getElementById('email').value = u.email || '';
+  validate();
 });
 
 /* === calcolo totale + sconto === */
@@ -110,6 +279,7 @@ function computeDiscount(d, p){
 
 const summaryLines = document.getElementById('summaryLines');
 const grand = document.getElementById('grand');
+const mGrand = document.getElementById('mGrand');
 
 function render(){
   const p = parts();
@@ -119,28 +289,52 @@ function render(){
   const tot  = Math.max(0, gross - disc) + prot;
 
   const L=[];
-  if(qty.eb)   L.push(`<div class="line"><span>Early Bird × 1</span><span>${money(p.EB)}</span></div>`);
-  if(qty.std)  L.push(`<div class="line"><span>Standard × 1</span><span>${money(p.STD)}</span></div>`);
-  if(qty.fast) L.push(`<div class="line"><span>Fast Entry × 1</span><span>${money(p.FAST)}</span></div>`);
-  if(qty.vip)  L.push(`<div class="line"><span>VIP Entry × 1</span><span>${money(p.VIP)}</span></div>`);
+  L.push(`<div class="line"><span>${kindLabel} × 1</span><span>${money(gross)}</span></div>`);
+
   if(discountSnap){
     const tag = `${discountSnap.code} — ${discountSnap.type==='percent' ? '%'+discountSnap.value : '−'+money(discountSnap.value)}`;
-    L.push(`<div class="line" style="color:#22c55e;font-weight:800"><span>Sconto (${tag})</span><span>- ${money(disc)}</span></div>`);
+    L.push(`<div class="line save"><span>Sconto (${tag})</span><span>- ${money(disc)}</span></div>`);
   }
   if(prot>0){
     L.push(`<div class="line"><span>Protezione cambio nome × 1</span><span>${money(prot)}</span></div>`);
   }
+
   summaryLines.innerHTML = L.join('');
   grand.textContent = money(tot);
+  mGrand.textContent = money(tot);
 }
 render();
 
+/* === Validazione (abilita paga) === */
+const first = document.getElementById('first');
+const last  = document.getElementById('last');
+const email = document.getElementById('email');
+
+const payBtn = document.getElementById('payBtn');
+const mPay   = document.getElementById('mPay');
+
+function validEmail(v){
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(v||'').trim());
+}
+function validate(){
+  const ok = first.value.trim().length>=2 && last.value.trim().length>=2 && validEmail(email.value);
+  payBtn.disabled = !ok;
+  mPay.disabled = !ok;
+}
+[first,last,email].forEach(el=>el.addEventListener('input', validate));
+validate();
+
 /* === Bottoni === */
-document.getElementById('backBtn').addEventListener('click', ()=>history.back());
-document.getElementById('payBtn').addEventListener('click', ()=>{
-  // TODO: integrare pagamento
+function goBack(){ history.back(); }
+document.getElementById('backBtn').addEventListener('click', goBack);
+document.getElementById('mBack').addEventListener('click', goBack);
+
+function pay(){
+  if (payBtn.disabled) return;
   alert('Pagamento: placeholder');
-});
+}
+payBtn.addEventListener('click', pay);
+mPay.addEventListener('click', pay);
 </script>
 </body>
 </html>
