@@ -12,10 +12,9 @@
   --c-eb:#8b5cf6;
   --c-std:#60a5fa;
   --c-fast:#34d399;
-  /* VIP: via “oro”, mettiamo fucsia club */
   --c-vip:#fb7185;
 
-  --flash:#fde047; /* giallo feedback */
+  --flash:#fde047; /* giallo */
 }
 *{box-sizing:border-box;margin:0;padding:0}
 body{background:var(--bg);color:var(--text);font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;line-height:1.5;min-height:100vh;display:grid;grid-template-rows:auto 1fr}
@@ -32,10 +31,39 @@ h1{font-size:28px;font-weight:900;letter-spacing:-.3px}
 @media(min-width:900px){.grid{grid-template-columns:2fr 1fr}}
 .card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:18px}
 
-/* Evento lineare (non pill) */
+/* Evento lineare */
 .eventline{margin-top:10px;color:rgba(255,255,255,.82);font-size:14px}
 .eventline strong{color:#fff}
 .eventline .dot{opacity:.55;margin:0 10px}
+
+/* Banner */
+.banner{
+  margin-top:12px;
+  background:linear-gradient(180deg, rgba(253,224,71,.12), rgba(255,255,255,.04));
+  border:1px solid rgba(253,224,71,.35);
+  border-radius:14px;
+  padding:12px 14px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:12px;
+}
+.banner strong{color:#fff}
+.banner p{color:rgba(255,255,255,.82);font-size:13px;line-height:1.35}
+.banner a{
+  white-space:nowrap;
+  text-decoration:none;
+  background:var(--flash);
+  color:#000;
+  font-weight:900;
+  padding:10px 12px;
+  border-radius:12px;
+  border:1px solid rgba(253,224,71,.55);
+}
+@media(max-width:520px){
+  .banner{flex-direction:column;align-items:flex-start}
+  .banner a{width:100%;text-align:center}
+}
 
 /* Admin tools */
 .admin-only[hidden]{display:none!important}
@@ -45,7 +73,12 @@ h1{font-size:28px;font-weight:900;letter-spacing:-.3px}
 
 /* biglietti */
 .tickets{display:grid;gap:12px;margin-top:8px}
-.row{display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center;background:#0b0b0b;border:1px solid rgba(255,255,255,.1);border-radius:12px;padding:14px;transition:box-shadow .18s, transform .12s, border-color .18s}
+.row{
+  display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center;
+  background:#0b0b0b;border:1px solid rgba(255,255,255,.1);
+  border-radius:12px;padding:14px;
+  transition:box-shadow .18s, transform .12s, border-color .18s;
+}
 .title{font-weight:900;display:flex;align-items:center;gap:8px}
 .flag{display:inline-block;padding:3px 8px;border-radius:8px;border:1px solid currentColor;font-size:12px;font-weight:900}
 .note{font-size:13px;opacity:.95;margin-top:6px}
@@ -56,19 +89,19 @@ h1{font-size:28px;font-weight:900;letter-spacing:-.3px}
 .qty button{width:36px;height:36px;background:#111;border:none;color:#fff;font-weight:900;cursor:pointer;transition:filter .15s, transform .08s}
 .qty button:active{transform:scale(.96)}
 .qty button.is-plus{position:relative}
-.qty button.flash{filter:drop-shadow(0 0 14px rgba(253,224,71,.55))}
-.qty button.flash::after{
-  content:"";
-  position:absolute; inset:0;
-  background:rgba(253,224,71,.18);
-}
+.qty button.flash{filter:drop-shadow(0 0 16px rgba(253,224,71,.70))}
+.qty button.flash::after{content:"";position:absolute;inset:0;background:rgba(253,224,71,.18)}
 .qty input{width:48px;height:36px;text-align:center;background:#0a0a0a;border:none;color:#fff;font-weight:900}
 .qty input.pop{animation:pop .18s ease-out}
 @keyframes pop{from{transform:scale(1)} to{transform:scale(1.08)}}
 
+/* >>> QUI: contorno giallo “vero” quando selezionato <<< */
 .row.selected{
-  border-color:rgba(253,224,71,.55);
-  box-shadow:0 0 0 2px rgba(253,224,71,.10), 0 14px 42px rgba(0,0,0,.35);
+  border-color: var(--flash) !important;
+  box-shadow:
+    0 0 0 2px rgba(253,224,71,.55),
+    0 0 22px rgba(253,224,71,.20),
+    0 14px 42px rgba(0,0,0,.40);
 }
 .sold{opacity:.45;filter:grayscale(1)}
 .sold .qty button{cursor:not-allowed;opacity:.4}
@@ -97,18 +130,15 @@ h1{font-size:28px;font-weight:900;letter-spacing:-.3px}
 .pay{display:inline-block;padding:12px 16px;border-radius:10px;text-decoration:none;font-weight:900;background:var(--accent);color:#000;cursor:pointer;border:none}
 .pay[disabled]{opacity:.5;cursor:not-allowed}
 
-/* hint sconto */
-.hint-ok{color:#86efac}
-.hint-err{color:var(--err)}
-
 /* Modal */
-.modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.65);display:none;align-items:center;justify-content:center;z-index:200}
+.modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.68);display:none;align-items:center;justify-content:center;z-index:200}
 .modal{width:min(92vw,520px);background:#0b0b0b;border:1px solid rgba(255,255,255,.14);border-radius:18px;padding:18px}
 .modal h3{font-size:18px;font-weight:900;margin-bottom:6px}
-.modal p{color:rgba(255,255,255,.82);font-size:14px;margin-bottom:14px}
+.modal p{color:rgba(255,255,255,.85);font-size:14px;margin-bottom:14px}
 .modal-actions{display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end}
 .btn{padding:11px 14px;border-radius:10px;border:1px solid rgba(255,255,255,.16);background:#111;color:#fff;font-weight:900;cursor:pointer}
 .btn.primary{background:var(--flash);color:#000;border-color:rgba(253,224,71,.55)}
+.btn.danger{background:#ef4444;color:#fff;border-color:rgba(239,68,68,.65)}
 .btn.ghost{background:transparent}
 </style>
 </head>
@@ -125,7 +155,15 @@ h1{font-size:28px;font-weight:900;letter-spacing:-.3px}
   <h1>Prendi il tuo ticket</h1>
   <div class="muted" id="hello">👋 Ciao</div>
 
-  <!-- Admin only: simulazione settimane (NASCOSTA agli ospiti) -->
+  <!-- Banner: incentivo maggiorenni -->
+  <div class="banner" id="adultBanner" hidden>
+    <div>
+      <p><strong>Se sei maggiorenne</strong>: registrati prima di acquistare e avrai <strong>1 drink alcolico omaggio</strong> (invece dell’analcolico).</p>
+    </div>
+    <a id="adultBannerCta" href="./signup.html?from=./checkout.html">Registrati</a>
+  </div>
+
+  <!-- Admin only: simulazione settimane -->
   <div class="weeks admin-only" id="weeksBlock" hidden aria-label="Simulazione settimane (admin)">
     <button data-week="4" class="active">Settimana 4</button>
     <button data-week="3">Settimana 3</button>
@@ -135,7 +173,6 @@ h1{font-size:28px;font-weight:900;letter-spacing:-.3px}
 
   <div class="grid">
     <div class="card">
-      <!-- Evento in linea -->
       <div class="eventline">
         <strong>Sab 21 Mar 2026</strong><span class="dot">•</span>22:30 → 04:30<span class="dot">•</span>Via Italia 38, Biella
       </div>
@@ -143,7 +180,6 @@ h1{font-size:28px;font-weight:900;letter-spacing:-.3px}
       <h2 style="font-size:20px;font-weight:900;margin:14px 0 8px">Scegli i biglietti</h2>
 
       <div class="tickets">
-
         <!-- EARLY -->
         <div class="row" data-type="eb" id="rowEB">
           <div>
@@ -214,7 +250,7 @@ h1{font-size:28px;font-weight:900;letter-spacing:-.3px}
           </div>
         </div>
 
-        <!-- Tavolo VIP (18+) — solo CTA -->
+        <!-- Tavolo VIP (18+) -->
         <div class="viptable" id="vipTableBlock" hidden>
           <div>
             <div class="title">Tavolo VIP (18+)</div>
@@ -222,48 +258,6 @@ h1{font-size:28px;font-weight:900;letter-spacing:-.3px}
           </div>
           <a class="cta" id="vipReserve" href="./attendees-tavolo.html">Prenota ora il tuo tavolo</a>
         </div>
-
-        <!-- Founder/Admin: Magazzino Early Bird (solo tool, non obbligatorio) -->
-        <div class="card admin-only" id="ebAdminPanel" hidden style="margin-top:14px;background:#070707">
-          <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap">
-            <div>
-              <div style="font-weight:900">Magazzino Early Bird</div>
-              <div class="small muted">Solo staff. Se Stripe è attivo: incrementa “sold” a pagamento completato. Se non è attivo: incrementa alla creazione ordine fittizio.</div>
-            </div>
-            <span class="pill-muted" id="rolePill">STAFF</span>
-          </div>
-
-          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:12px">
-            <label class="small">Limit
-              <input id="ebLimit" type="number" min="0" style="width:100%;margin-top:6px;background:#0f0f10;border:1px solid rgba(255,255,255,.15);border-radius:10px;color:#fff;padding:10px">
-            </label>
-            <label class="small">Sold
-              <input id="ebSold" type="number" min="0" style="width:100%;margin-top:6px;background:#0f0f10;border:1px solid rgba(255,255,255,.15);border-radius:10px;color:#fff;padding:10px">
-            </label>
-            <label class="small">Manual OFF
-              <select id="ebOff" style="width:100%;margin-top:6px;background:#0f0f10;border:1px solid rgba(255,255,255,.15);border-radius:10px;color:#fff;padding:10px">
-                <option value="0">No</option>
-                <option value="1">Sì</option>
-              </select>
-            </label>
-          </div>
-
-          <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:10px">
-            <label class="small">Start (opzionale)
-              <input id="ebStart" type="datetime-local" style="width:100%;margin-top:6px;background:#0f0f10;border:1px solid rgba(255,255,255,.15);border-radius:10px;color:#fff;padding:10px">
-            </label>
-            <label class="small">End (opzionale)
-              <input id="ebEnd" type="datetime-local" style="width:100%;margin-top:6px;background:#0f0f10;border:1px solid rgba(255,255,255,.15);border-radius:10px;color:#fff;padding:10px">
-            </label>
-          </div>
-
-          <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end;margin-top:12px">
-            <button id="ebResetDates" class="btn ghost" type="button">Annulla date</button>
-            <button id="ebSave" class="btn primary" type="button">Salva</button>
-          </div>
-          <div id="ebAdminHint" class="small muted" style="margin-top:8px"></div>
-        </div>
-
       </div>
     </div>
 
@@ -280,7 +274,7 @@ h1{font-size:28px;font-weight:900;letter-spacing:-.3px}
           <span style="font-weight:900">Protezione cambio nome</span>
           <span class="muted">(1,90€ / biglietto)</span>
           <div class="muted" style="margin-top:6px;font-size:12px;line-height:1.35">
-            Ti permette <strong>1 cambio nome</strong> per ticket fino a <strong>24h prima</strong>.
+            Se compri per amici, ti salva: <strong>1 cambio nome</strong> fino a <strong>24h prima</strong>.
           </div>
         </label>
         <span id="nameChangeLine" class="pill-muted">Non inclusa</span>
@@ -318,7 +312,7 @@ h1{font-size:28px;font-weight:900;letter-spacing:-.3px}
 <div class="modal-backdrop" id="ncModal">
   <div class="modal" role="dialog" aria-modal="true" aria-labelledby="ncTitle">
     <h3 id="ncTitle">Aggiungere protezione cambio nome?</h3>
-    <p id="ncText">Con pochi euro in più puoi cambiare il nome dei ticket fino a 24h prima. Utile se compri per amici.</p>
+    <p id="ncText"></p>
     <div class="modal-actions">
       <button class="btn ghost" type="button" id="ncNo">No grazie, continua</button>
       <button class="btn primary" type="button" id="ncYes">Aggiungi e continua</button>
@@ -327,23 +321,20 @@ h1{font-size:28px;font-weight:900;letter-spacing:-.3px}
 </div>
 
 <script type="module">
-/** ================= Auth & Firebase ================= */
 import { onUser, doSignOut, app } from './auth.v2.js?v=6';
+import { getAuth, signInAnonymously } from 'https://www.gstatic.com/firebasejs/12.5.0/firebase-auth.js';
 import {
-  getFirestore, doc, getDoc, setDoc, collection, getDocs, query, where, limit, runTransaction, serverTimestamp
+  getFirestore, doc, getDoc, collection, getDocs, query, where, limit
 } from 'https://www.gstatic.com/firebasejs/12.5.0/firebase-firestore.js';
-import {
-  getAuth, signInAnonymously
-} from 'https://www.gstatic.com/firebasejs/12.5.0/firebase-auth.js';
 
 const db = getFirestore(app);
 const auth = getAuth(app);
 
-/** ================= UI base ================= */
+/** UI */
 const nav   = document.getElementById('navArea');
 const hello = document.getElementById('hello');
-
-const weeksBlock = document.getElementById('weeksBlock');
+const adultBanner = document.getElementById('adultBanner');
+const adultBannerCta = document.getElementById('adultBannerCta');
 
 const qEB   = document.getElementById('qEB');
 const qSTD  = document.getElementById('qSTD');
@@ -351,8 +342,13 @@ const qFAST = document.getElementById('qFAST');
 const qVIP  = document.getElementById('qVIP');
 
 const rowEB = document.getElementById('rowEB');
-const ebLeft = document.getElementById('ebLeft');
-const ebFlag = document.getElementById('ebFlag');
+const rowSTD = document.getElementById('rowSTD');
+const rowFAST = document.getElementById('rowFAST');
+const rowVIP = document.getElementById('rowVIP');
+
+const vipNote  = document.getElementById('vipNote');
+const vipBtn   = document.getElementById('vipReserve');
+const vipTableBlock = document.getElementById('vipTableBlock');
 
 const lines   = document.getElementById('lines');
 const grandEl = document.getElementById('grandTot');
@@ -361,38 +357,12 @@ const payBtn  = document.getElementById('payBtn');
 const optName = document.getElementById('optNameChange');
 const nameLine= document.getElementById('nameChangeLine');
 
-/** ====== Modal cambio nome ====== */
+/** Modal */
 const ncModal = document.getElementById('ncModal');
 const ncNo = document.getElementById('ncNo');
 const ncYes = document.getElementById('ncYes');
 const ncText = document.getElementById('ncText');
 
-/** ====== Box Codice Sconto ====== */
-const discBlock  = document.getElementById('discBlock');
-const discInput  = document.getElementById('discInput');
-const discApply  = document.getElementById('discApply');
-const discRemove = document.getElementById('discRemove');
-const discHint   = document.getElementById('discHint');
-
-/** ====== VIP/tavolo (NON CAMBIO LA LOGICA 18+) ====== */
-const adultBlocks = Array.from(document.querySelectorAll('.adult-only, #vipTableBlock'));
-adultBlocks.forEach(el => { if(!el) return; el.hidden = true; el.style.display = 'none'; });
-const vipNote  = document.getElementById('vipNote');
-const vipBtn   = document.getElementById('vipReserve');
-
-/** ====== Admin panel EB ====== */
-const ebAdminPanel = document.getElementById('ebAdminPanel');
-const rolePill = document.getElementById('rolePill');
-const ebLimitInp = document.getElementById('ebLimit');
-const ebSoldInp  = document.getElementById('ebSold');
-const ebOffSel   = document.getElementById('ebOff');
-const ebStartInp = document.getElementById('ebStart');
-const ebEndInp   = document.getElementById('ebEnd');
-const ebResetDates = document.getElementById('ebResetDates');
-const ebSaveBtn = document.getElementById('ebSave');
-const ebAdminHint = document.getElementById('ebAdminHint');
-
-/** ================= Helpers comuni ================= */
 const OUT = `
   <a href="./index.html">Home</a>
   <a href="./index.html#tickets">Ticket</a>
@@ -418,10 +388,6 @@ function subtotalBySku(){
   return { EB:q.EB*PRICE.EB, STD:stdTotal(q.STD), FAST:q.FAST*PRICE.FAST, VIP:q.VIP*PRICE.VIP };
 }
 function ticketsCount(){ const q=qty(); return q.EB+q.STD+q.FAST+q.VIP; }
-function drinkLabels(){ return document.querySelectorAll('.drink-label'); }
-
-const lc=s=>(s||'').toString().trim().toLowerCase();
-const uc=s=>(s||'').toString().trim().toUpperCase();
 
 function flashBtn(btn){
   if(!btn) return;
@@ -431,62 +397,26 @@ function flashBtn(btn){
 function popInput(inp){
   if(!inp) return;
   inp.classList.remove('pop');
-  // force reflow
   void inp.offsetWidth;
   inp.classList.add('pop');
   setTimeout(()=>inp.classList.remove('pop'), 220);
 }
 
-/** ================= Età (tua logica) ================= */
-function parseDob(any){
-  if (!any) return null;
-  if (typeof any === 'object' && any.seconds != null) return new Date(any.seconds*1000);
-  if (any instanceof Date) return isNaN(any.getTime()) ? null : any;
-  if (typeof any === 'number') { const d=new Date(any); return isNaN(d)?null:d; }
-  const s=String(any).trim(); if(!s) return null;
-  if (/^\d{4}$/.test(s)) { const d=new Date(Number(s),0,1); return isNaN(d)?null:d; }
-  if (/^\d{4}-\d{2}-\d{2}/.test(s) || /^\d{4}-\d{2}-\d{2}T/.test(s)) { const d=new Date(s); return isNaN(d)?null:d; }
-  if (/^\d{1,2}\/\d{1,2}\/\d{4}$/.test(s)) { const [dd,mm,yy]=s.split('/').map(n=>parseInt(n,10)); const d=new Date(yy,mm-1,dd); return isNaN(d)?null:d; }
-  const d=new Date(s); return isNaN(d)?null:d;
-}
-function ageFrom(d){
-  if(!d) return 0;
-  const t=new Date();
-  let a=t.getFullYear()-d.getFullYear();
-  const m=t.getMonth()-d.getMonth();
-  if (m<0 || (m===0 && t.getDate()<d.getDate())) a--;
-  return a;
-}
-function profLSKey(uid){ return `trapperreo_profile_${uid}`; }
-function readProfileLS(uid){
-  try{ return JSON.parse(localStorage.getItem(profLSKey(uid))||'null'); }catch{ return null; }
-}
-function writeProfileLS(uid, profile){
-  try{ localStorage.setItem(profLSKey(uid), JSON.stringify(profile)); }catch{}
-}
-async function readDobFreshFirst(uid){
-  let rawDB=null, rawLS=null, dobDate=null, source='none';
+/** ===== Guest checkout: anon signin silenzioso ===== */
+async function ensureAnon(){
   try{
-    const snap = await getDoc(doc(db,'users',uid));
-    if (snap.exists()){
-      const data = snap.data() || {};
-      rawDB = (data.dob ?? data.profile?.dob ?? null);
-      const parsed = parseDob(rawDB);
-      if (parsed){ dobDate=parsed; source='db'; }
-    }
-  }catch{}
-  if (dobDate){
-    const currLS = readProfileLS(uid) || {};
-    if (currLS.dob !== rawDB) writeProfileLS(uid, { ...currLS, dob: rawDB });
-    return { dobDate, source, rawLS: (currLS?.dob ?? null), rawDB };
+    const u = auth.currentUser;
+    if (u) return u;
+    const cred = await signInAnonymously(auth);
+    return cred.user;
+  }catch(e){
+    console.error('anon sign-in failed', e);
+    return null;
   }
-  const profLS = readProfileLS(uid);
-  rawLS = profLS?.dob ?? null;
-  const parsedLS = parseDob(rawLS);
-  if (parsedLS){ dobDate = parsedLS; source='ls'; }
-  return { dobDate, source, rawLS, rawDB };
 }
 
+/** Drink labels */
+function drinkLabels(){ return document.querySelectorAll('.drink-label'); }
 function setAdultUI(isAdult){
   drinkLabels().forEach(el=>{
     el.textContent = isAdult ? '1 drink (alcolico/analcolico)' : '1 drink analcolico';
@@ -496,11 +426,10 @@ function setAdultUI(isAdult){
       ? 'Accesso area VIP • <span class="drink-label">1 drink (alcolico/analcolico)</span> + <strong>guardaroba incluso</strong>.'
       : 'Accesso area VIP • <strong>2 drink analcolici</strong> + <strong>guardaroba incluso</strong>.';
   }
-  adultBlocks.forEach(el=>{
-    if (!el) return;
-    if (isAdult){ el.hidden = false; el.style.display = ''; }
-    else        { el.hidden = true;  el.style.display = 'none'; }
-  });
+  // tavolo VIP solo se adulto
+  if (vipTableBlock){
+    vipTableBlock.hidden = !isAdult;
+  }
   if (vipBtn){
     vipBtn.onclick = (e)=>{
       if (!isAdult){ e.preventDefault(); return; }
@@ -509,305 +438,95 @@ function setAdultUI(isAdult){
   }
 }
 
-/** ================= Ruoli (admin/founder) =================
- *  Leggiamo config/admins (schema elastico):
- *  - founders: [email...]
- *  - admins:   [email...]
- */
-async function getStaffRole(user){
-  const email = lc(user?.email || '');
-  if (!email) return { isAdmin:false, isFounder:false };
-
+/** Age helpers (tua logica ridotta) */
+function parseDob(any){
+  if (!any) return null;
+  if (typeof any === 'object' && any.seconds != null) return new Date(any.seconds*1000);
+  if (any instanceof Date) return isNaN(any.getTime()) ? null : any;
+  const d=new Date(any); return isNaN(d)?null:d;
+}
+function ageFrom(d){
+  if(!d) return 0;
+  const t=new Date();
+  let a=t.getFullYear()-d.getFullYear();
+  const m=t.getMonth()-d.getMonth();
+  if (m<0 || (m===0 && t.getDate()<d.getDate())) a--;
+  return a;
+}
+async function readDob(uid){
   try{
-    const snap = await getDoc(doc(db,'config','admins'));
-    if (!snap.exists()) return { isAdmin:false, isFounder:false };
-
-    const d = snap.data() || {};
-    const founders = Array.isArray(d.founders) ? d.founders.map(lc) : [];
-    const admins   = Array.isArray(d.admins) ? d.admins.map(lc) : [];
-    const isFounder = founders.includes(email);
-    const isAdmin = isFounder || admins.includes(email);
-    return { isAdmin, isFounder };
-  }catch{
-    return { isAdmin:false, isFounder:false };
-  }
-}
-
-/** ================= Early Bird: magazzino (config su Firestore) =================
- * Documento consigliato: events/current
- * earlyBird: { limit:50, sold:0, manualOff:false, startAt:Timestamp|ISO|null, endAt:... }
- */
-let EB_CFG = { limit:50, sold:0, manualOff:false, startAt:null, endAt:null };
-
-function toDTLocal(v){
-  if(!v) return '';
-  const d = (v?.seconds!=null) ? new Date(v.seconds*1000) : (v instanceof Date ? v : new Date(v));
-  if (isNaN(d)) return '';
-  const pad=n=>String(n).padStart(2,'0');
-  return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
-}
-function inWindowNow(cfg){
-  const now = new Date();
-  const s = cfg.startAt ? new Date(cfg.startAt?.seconds!=null ? cfg.startAt.seconds*1000 : cfg.startAt) : null;
-  const e = cfg.endAt   ? new Date(cfg.endAt?.seconds!=null ? cfg.endAt.seconds*1000 : cfg.endAt) : null;
-  if (s && !isNaN(s) && now < s) return false;
-  if (e && !isNaN(e) && now > e) return false;
-  return true;
-}
-function ebIsAvailable(){
-  const q = qty();
-  const want = q.EB || 0;
-  const left = Math.max(0, (EB_CFG.limit||0) - (EB_CFG.sold||0));
-  const okWindow = inWindowNow(EB_CFG);
-  const ok = !EB_CFG.manualOff && okWindow && left > 0;
-  // se hanno già selezionato più di quanto resta, non va bene
-  return { ok, left, want };
-}
-function setEbUI(){
-  if(!rowEB) return;
-  const { ok, left } = ebIsAvailable();
-
-  // testo magazzino
-  if (ebLeft){
-    if (!inWindowNow(EB_CFG) && (EB_CFG.startAt || EB_CFG.endAt)){
-      // fuori finestra
-      if (EB_CFG.startAt){
-        const s = new Date(EB_CFG.startAt?.seconds!=null ? EB_CFG.startAt.seconds*1000 : EB_CFG.startAt);
-        ebLeft.textContent = isNaN(s) ? '' : `Disponibile da ${s.toLocaleString('it-IT',{weekday:'short',day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'})}`;
-      } else {
-        ebLeft.textContent = 'Non disponibile al momento';
-      }
-    } else if (EB_CFG.manualOff){
-      ebLeft.textContent = 'Non disponibile (manual OFF)';
-    } else if (left <= 0){
-      ebLeft.textContent = 'Sold out';
-    } else {
-      ebLeft.textContent = `Rimasti ${left}/${EB_CFG.limit}`;
-    }
-  }
-
-  // flag
-  if (ebFlag){
-    ebFlag.textContent = (left <= 0 || EB_CFG.manualOff) ? 'sold out' : 'solo 72h';
-  }
-
-  // disabilita / grigio
-  rowEB.classList.toggle('sold', !ok);
-
-  // blocca controlli se non disponibile
-  const minus = rowEB.querySelector('[data-minus="#qEB"]');
-  const plus  = rowEB.querySelector('[data-plus="#qEB"]');
-  if (minus) minus.disabled = !ok && (+qEB.value<=0);
-  if (plus)  plus.disabled  = !ok;
-  if (!ok && +qEB.value>0){
-    // se non disponibile, forziamo a 0 per non portarsi dietro qty invalida
-    qEB.value = 0;
-  }
-}
-
-/** ================= Pagamenti: Stripe “se esiste” =================
- * Leggiamo config/payments (schema elastico):
- * - stripeEnabled: true/false
- */
-let STRIPE_ENABLED = false;
-async function loadPaymentsConfig(){
-  try{
-    const snap = await getDoc(doc(db,'config','payments'));
-    const d = snap.exists() ? (snap.data()||{}) : {};
-    STRIPE_ENABLED = !!(d.stripeEnabled ?? d.stripe ?? false);
-  }catch{
-    STRIPE_ENABLED = false;
-  }
-}
-
-/** ================= SCONTI (tua logica) ================= */
-let ALL_DISCOUNTS = [];
-let CURRENT_USER = null; // può essere anonimo
-let UI_USER = null;      // user reale per UI (no anon)
-
-const readApplied  = () => { try{ return JSON.parse(localStorage.getItem('trapperreo_discount_applied')||'null'); }catch{ return null; } };
-const writeApplied = (s) => { if(!s) localStorage.removeItem('trapperreo_discount_applied'); else localStorage.setItem('trapperreo_discount_applied', JSON.stringify(s)); };
-
-function normalize(raw){
-  const code   = uc(raw.code || raw.name || '');
-  const type   = (raw.type || 'percent').toString().toLowerCase();
-  const value  = Number(raw.value ?? raw.amount ?? 0);
-  const active = (raw.active ?? raw.enabled ?? true) === true;
-
-  const applies = (raw.appliesTo || raw.scope || (raw.userEmail ? 'user' : 'all')).toString().toLowerCase();
-  let allowedEmails = Array.isArray(raw.allowedEmails) ? raw.allowedEmails.map(lc) : [];
-  if (applies === 'user' && raw.userEmail) {
-    const ue = lc(raw.userEmail);
-    if (!allowedEmails.includes(ue)) allowedEmails.push(ue);
-  }
-  const allowedSkus = Array.isArray(raw.allowedSkus) ? raw.allowedSkus
-                     : (Array.isArray(raw.skus) ? raw.skus : []);
-  const label = raw.label || raw.title || '';
-
-  if (!code || !(value>0) || !['percent','fixed'].includes(type)) return null;
-  return { code, type, value, active, applies, allowedEmails, allowedSkus, label };
-}
-
-async function fetchCol(col){
-  try{
-    const snap = await getDocs(collection(db,col));
-    const arr=[]; snap.forEach(d=>{ const n=normalize(d.data()||{}); if(n && n.active) arr.push(n); });
-    return arr;
-  }catch{ return []; }
-}
-async function loadDiscounts(){
-  const a = await fetchCol('discounts');
-  const b = await fetchCol('discountCodes');
-  const map = new Map();
-  [...b, ...a].forEach(d=> map.set(d.code, d));
-  ALL_DISCOUNTS = Array.from(map.values());
-}
-
-function eligibleForUser(d, userForEligibility){
-  if (!d) return false;
-  if (d.applies === 'all') return true;
-  const email = lc(userForEligibility?.email || '');
-  if (!email) return false;
-  if (Array.isArray(d.allowedEmails) && d.allowedEmails.length > 0) {
-    return d.allowedEmails.includes(email);
-  }
-  return false;
-}
-function allowedSet(d){
-  return (d.allowedSkus && d.allowedSkus.length>0) ? d.allowedSkus : ['EB','STD','FAST','VIP'];
-}
-function computeDiscountAmount(d, parts){
-  const allow = allowedSet(d);
-  const base = (allow.includes('EB')?parts.EB:0)
-             + (allow.includes('STD')?parts.STD:0)
-             + (allow.includes('FAST')?parts.FAST:0)
-             + (allow.includes('VIP')?parts.VIP:0);
-  if (d.type === 'percent') return Math.max(0, +(base * (d.value/100)).toFixed(2));
-  if (d.type === 'fixed')   return Math.max(0, Math.min(base, d.value));
-  return 0;
-}
-function findInCacheForUser(code, userForEligibility){
-  const C = uc(code);
-  return ALL_DISCOUNTS.find(d => d.code===C && eligibleForUser(d, userForEligibility)) || null;
-}
-async function fetchSingleFrom(colName, code){
-  try{
-    const qy = query(collection(db,colName), where('code','==',uc(code)), limit(1));
-    const snap = await getDocs(qy);
-    if (snap.empty) return null;
-    const d = normalize(snap.docs[0].data()||{});
-    if (!d || !d.active) return null;
-
-    // eligibilità basata su UI_USER (user reale) non su anon
-    return eligibleForUser(d, UI_USER) ? d : { __reason:'not-eligible' };
+    const snap = await getDoc(doc(db,'users',uid));
+    if (!snap.exists()) return null;
+    const data = snap.data()||{};
+    return parseDob(data.dob ?? data.profile?.dob ?? null);
   }catch{ return null; }
 }
-async function fetchSingle(code){
-  const a = await fetchSingleFrom('discounts', code);
-  if (a) return a;
-  return await fetchSingleFrom('discountCodes', code);
-}
-function shouldShowDiscountBox(userForEligibility){
-  if (!Array.isArray(ALL_DISCOUNTS) || ALL_DISCOUNTS.length===0) return false;
-  return ALL_DISCOUNTS.some(d => eligibleForUser(d, userForEligibility));
-}
-function showDiscountUI(yes){
-  if (!discBlock) return;
-  discBlock.style.display = yes ? '' : 'none';
-  discBlock.hidden = !yes;
-}
-function setDiscountControlsEnabled(yes){
-  if (discApply) discApply.disabled = !yes;
-  if (discInput) discInput.disabled = !yes;
-  if (discRemove) discRemove.disabled = !yes;
-  if (!yes && discHint){
-    discHint.textContent = '';
-    discHint.classList.remove('hint-ok','hint-err');
+
+/** Banner maggiorenni */
+function showAdultBanner(show, logged){
+  adultBanner.hidden = !show;
+  if (show){
+    adultBannerCta.href = logged ? './account-2.html' : './signup.html?from=./checkout.html';
+    adultBannerCta.textContent = logged ? 'Completa profilo' : 'Registrati';
   }
 }
 
-/** ================== Render riepilogo con sconto + UI selezione ================== */
+/** Modal protezione: ORA SEMPRE quando non selezionata */
+function openNcModal(totalTickets){
+  const extra = totalTickets * PRICE.NAMECHANGE;
+  ncText.innerHTML = `
+    <strong>Ultimo check:</strong> senza protezione non potrai cambiare i nomi all’ultimo.
+    <br><br>
+    Aggiungila ora per <strong>${money(extra)}</strong> e vai tranquillo (cambio nome fino a <strong>24h prima</strong>).
+  `;
+  ncModal.style.display = 'flex';
+}
+function closeNcModal(){ ncModal.style.display = 'none'; }
+
+/** Render */
 function render(){
-  if (!qEB || !qSTD || !qFAST || !qVIP) return;
-
-  // EB UI (magazzino) sempre aggiornata
-  setEbUI();
-
   const parts = subtotalBySku();
   const gross = parts.EB + parts.STD + parts.FAST + parts.VIP;
 
-  // evidenzia righe selezionate
   const q = qty();
-  rowEB?.classList.toggle('selected', q.EB>0);
-  document.getElementById('rowSTD')?.classList.toggle('selected', q.STD>0);
-  document.getElementById('rowFAST')?.classList.toggle('selected', q.FAST>0);
-  document.getElementById('rowVIP')?.classList.toggle('selected', q.VIP>0);
-
-  const snap = readApplied();
-  let discAmt = 0, tag=null;
-  if (snap){
-    const d = {
-      code: snap.code,
-      type: snap.type,
-      value: snap.value,
-      allowedSkus: (snap.allowedSkus && snap.allowedSkus.length ? snap.allowedSkus : ['EB','STD','FAST','VIP'])
-    };
-    discAmt = computeDiscountAmount(d, parts);
-    tag = `${snap.code} — ${snap.type==='percent' ? '%'+snap.value : '−'+money(snap.value)}`;
-  }
+  rowEB.classList.toggle('selected', q.EB>0);
+  rowSTD.classList.toggle('selected', q.STD>0);
+  rowFAST.classList.toggle('selected', q.FAST>0);
+  rowVIP.classList.toggle('selected', q.VIP>0);
 
   const tCount = ticketsCount();
   const prot   = optName?.checked ? tCount * PRICE.NAMECHANGE : 0;
 
-  // “0€” no: metti “Non inclusa” se off
   if (nameLine){
     nameLine.textContent = optName?.checked && tCount>0 ? `+ ${money(prot)}` : 'Non inclusa';
     nameLine.className = optName?.checked ? '' : 'pill-muted';
   }
 
-  const total  = Math.max(0, gross - discAmt) + prot;
+  const total = gross + prot;
 
-  const L=[]; const label = k=>({EB:'Early Bird',STD:'Standard',FAST:'Fast Entry',VIP:'VIP Entry'})[k];
+  const L=[];
+  const label = k=>({EB:'Early Bird',STD:'Standard',FAST:'Fast Entry',VIP:'VIP Entry'})[k];
   if(q.EB>0)   L.push(`<div class="line"><span>${label('EB')} × ${q.EB}</span><span>${money(parts.EB)}</span></div>`);
   if(q.STD>0)  L.push(`<div class="line"><span>${label('STD')} × ${q.STD}</span><span>${money(parts.STD)}</span></div>`);
   if(q.FAST>0) L.push(`<div class="line"><span>${label('FAST')} × ${q.FAST}</span><span>${money(parts.FAST)}</span></div>`);
   if(q.VIP>0)  L.push(`<div class="line"><span>${label('VIP')} × ${q.VIP}</span><span>${money(parts.VIP)}</span></div>`);
-  if(tag)      L.push(`<div class="line" style="color:#22c55e;font-weight:900"><span>Sconto (${tag})</span><span>- ${money(discAmt)}</span></div>`);
   if(optName?.checked && tCount>0){
     L.push(`<div class="line"><span>Protezione cambio nome × ${tCount}</span><span>${money(prot)}</span></div>`);
   }
 
-  if (lines)   lines.innerHTML   = L.join('');
-  if (grandEl) grandEl.textContent = money(total);
-  if (payBtn)  payBtn.disabled = tCount<=0;
-
-  // hint default sconto
-  if (discHint && !snap){
-    discHint.textContent = '';
-    discHint.classList.remove('hint-ok','hint-err');
-  }
+  lines.innerHTML = L.join('');
+  grandEl.textContent = money(total);
+  payBtn.disabled = tCount<=0;
 }
 
-/** ================= Qty binding + feedback ================= */
+/** Qty binding + feedback */
 function bindQty(){
   document.querySelectorAll('[data-plus]').forEach(b=>{
     b.addEventListener('click', ()=>{
       const sel=b.getAttribute('data-plus'); if(!sel) return;
       const t=document.querySelector(sel); if(!t) return;
-
-      // EB: impedisci se sold out/manualOff/finestra
-      if (sel === '#qEB'){
-        const { ok, left } = ebIsAvailable();
-        if (!ok){ flashBtn(b); return; }
-        // non superare left (best effort lato UI)
-        const next = (parseInt(t.value||0)+1);
-        if (next > left){ flashBtn(b); return; }
-      }
-
       t.value = (parseInt(t.value||0)+1);
-      flashBtn(b);
-      popInput(t);
-      render();
+      flashBtn(b); popInput(t); render();
     });
   });
   document.querySelectorAll('[data-minus]').forEach(b=>{
@@ -815,8 +534,7 @@ function bindQty(){
       const sel=b.getAttribute('data-minus'); if(!sel) return;
       const t=document.querySelector(sel); if(!t) return;
       t.value = Math.max(0,parseInt(t.value||0)-1);
-      popInput(t);
-      render();
+      popInput(t); render();
     });
   });
 
@@ -826,213 +544,20 @@ function bindQty(){
   });
 }
 
-/** ======= Applica / rimuovi sconto ======= */
-async function handleApply(){
-  const code = uc(discInput?.value||'');
-  if(!code){
-    if (discHint){ discHint.textContent='Inserisci un codice'; discHint.classList.add('hint-err'); discHint.classList.remove('hint-ok'); }
-    return;
-  }
-
-  let found = findInCacheForUser(code, UI_USER);
-  if(!found){
-    const one = await fetchSingle(code);
-    if (one && !one.__reason) found = one;
-    else if (one && one.__reason === 'not-eligible'){
-      writeApplied(null); render();
-      if (discHint){ discHint.textContent='Codice valido ma riservato agli utenti registrati.'; discHint.classList.add('hint-err'); discHint.classList.remove('hint-ok'); }
-      return;
-    }
-  }
-  if(!found){
-    writeApplied(null); render();
-    if (discHint){ discHint.textContent='Codice sconto non valido'; discHint.classList.add('hint-err'); discHint.classList.remove('hint-ok'); }
-    return;
-  }
-
-  writeApplied({
-    code: found.code,
-    type: found.type,
-    value: found.value,
-    allowedSkus: allowedSet(found)
-  });
-  if (discHint){ discHint.textContent='Codice applicato ✔︎'; discHint.classList.remove('hint-err'); discHint.classList.add('hint-ok'); }
-  render();
-}
-function handleRemove(){
-  writeApplied(null);
-  if (discHint){ discHint.textContent='Codice rimosso'; discHint.classList.remove('hint-err'); discHint.classList.add('hint-ok'); }
-  render();
-}
-
-/** ================= Guest + anon sign-in silenzioso =================
- *  Serve per fare transazioni Firestore (magazzino) senza chiedere login.
- *  UI: resta “guest”.
- */
-async function ensureAnon(){
-  try{
-    const u = auth.currentUser;
-    if (u) return u;
-    const cred = await signInAnonymously(auth);
-    return cred.user;
-  }catch{
-    return null;
-  }
-}
-
-/** ================= Caricamento config evento + payments ================= */
-async function loadEventConfig(){
-  try{
-    const snap = await getDoc(doc(db,'events','current'));
-    if (snap.exists()){
-      const d = snap.data() || {};
-      const eb = d.earlyBird || {};
-      EB_CFG = {
-        limit: Number(eb.limit ?? 50),
-        sold: Number(eb.sold ?? 0),
-        manualOff: !!(eb.manualOff ?? false),
-        startAt: eb.startAt ?? null,
-        endAt: eb.endAt ?? null,
-      };
-    } else {
-      EB_CFG = { limit:50, sold:0, manualOff:false, startAt:null, endAt:null };
-    }
-  }catch{
-    EB_CFG = { limit:50, sold:0, manualOff:false, startAt:null, endAt:null };
-  }
-  setEbUI();
-}
-
-/** ================= Founder tools EB ================= */
-function showAdminTools(show, roleLabel='STAFF'){
-  if (weeksBlock){ weeksBlock.hidden = !show; }
-  if (ebAdminPanel){ ebAdminPanel.hidden = !show; }
-  if (rolePill){ rolePill.textContent = roleLabel; }
-}
-
-function bindAdminPanel(){
-  if (!ebSaveBtn) return;
-
-  ebSaveBtn.addEventListener('click', async ()=>{
-    try{
-      const lim = Math.max(0, Number(ebLimitInp.value || 0));
-      const sold = Math.max(0, Number(ebSoldInp.value || 0));
-      const manualOff = ebOffSel.value === '1';
-
-      const startAt = ebStartInp.value ? new Date(ebStartInp.value) : null;
-      const endAt   = ebEndInp.value ? new Date(ebEndInp.value) : null;
-
-      const payload = {
-        earlyBird: {
-          limit: lim,
-          sold,
-          manualOff,
-          startAt: startAt ? startAt.toISOString() : null,
-          endAt: endAt ? endAt.toISOString() : null
-        },
-        updatedAt: serverTimestamp()
-      };
-
-      await setDoc(doc(db,'events','current'), payload, { merge:true });
-
-      EB_CFG.limit = lim;
-      EB_CFG.sold = sold;
-      EB_CFG.manualOff = manualOff;
-      EB_CFG.startAt = payload.earlyBird.startAt;
-      EB_CFG.endAt = payload.earlyBird.endAt;
-
-      ebAdminHint.textContent = 'Salvato ✅';
-      setTimeout(()=>ebAdminHint.textContent='', 1400);
-      render();
-    }catch(e){
-      ebAdminHint.textContent = 'Errore salvataggio (controlla permessi Firestore).';
-      console.error(e);
-    }
-  });
-
-  ebResetDates?.addEventListener('click', ()=>{
-    ebStartInp.value = '';
-    ebEndInp.value = '';
-  });
-}
-
-/** ================= Magazzino: increment sold =================
- * Regola:
- * - Se Stripe è attivo: incrementa sold a pagamento completato (altrove).
- * - Se Stripe NON è attivo: incrementa sold quando crei l’ordine fittizio.
- */
-async function incrementEBSoldAtomic(delta){
-  if (delta <= 0) return { ok:true };
-  const u = await ensureAnon();
-  if (!u) return { ok:false, reason:'no-auth' };
-
-  try{
-    const ref = doc(db,'events','current');
-    const res = await runTransaction(db, async (tx)=>{
-      const snap = await tx.get(ref);
-      const d = snap.exists() ? (snap.data()||{}) : {};
-      const eb = d.earlyBird || {};
-      const limit = Number(eb.limit ?? EB_CFG.limit ?? 50);
-      const sold  = Number(eb.sold ?? EB_CFG.sold ?? 0);
-      const manualOff = !!(eb.manualOff ?? EB_CFG.manualOff ?? false);
-
-      if (manualOff) return { ok:false, reason:'manualOff' };
-      if (sold + delta > limit) return { ok:false, reason:'soldOut' };
-
-      tx.set(ref, {
-        earlyBird: {
-          ...eb,
-          limit,
-          sold: sold + delta
-        },
-        updatedAt: serverTimestamp()
-      }, { merge:true });
-
-      return { ok:true, limit, sold: sold + delta };
-    });
-
-    // aggiorna cache
-    if (res?.ok){
-      EB_CFG.sold = res.sold ?? EB_CFG.sold;
-      EB_CFG.limit = res.limit ?? EB_CFG.limit;
-      setEbUI();
-    }
-    return res || { ok:true };
-  }catch(e){
-    console.error('incrementEBSoldAtomic error', e);
-    return { ok:false, reason:'tx-fail' };
-  }
-}
-
-/** ================= UI state helpers (guest vs logged) ================= */
+/** UI state */
 async function enterGuestUI(){
   nav.innerHTML = OUT;
   hello.textContent = '👋 Ciao';
-  UI_USER = null;
-
-  // Guest UI: niente DOB
   setAdultUI(false);
 
-  // Sconti: solo quelli "all"
-  await loadDiscounts();
-  const show = shouldShowDiscountBox(null);
-  showDiscountUI(show);
-  setDiscountControlsEnabled(show);
-
-  // rimuovi eventuale sconto user-only
-  const snap = readApplied();
-  if (snap){
-    const exists = findInCacheForUser(snap.code, null) || await fetchSingle(snap.code);
-    if (!exists || exists.__reason === 'not-eligible') writeApplied(null);
-  }
+  // Banner: per guest lo mostriamo come incentivo “se sei 18+”
+  showAdultBanner(true, false);
 
   render();
 }
-
 async function enterLoggedUI(u){
   nav.innerHTML = IN(u);
   hello.innerHTML = `👋 Ciao, <strong>${(u.displayName||u.email||'Utente').split(' ')[0]}</strong>`;
-  UI_USER = u;
 
   document.getElementById('logoutLink')?.addEventListener('click', async (e)=>{
     e.preventDefault();
@@ -1040,183 +565,79 @@ async function enterLoggedUI(u){
     await enterGuestUI();
   });
 
-  const { dobDate } = await readDobFreshFirst(u.uid);
-  const age = ageFrom(dobDate);
-  setAdultUI(age >= 18);
-
-  await loadDiscounts();
-  const show = shouldShowDiscountBox(UI_USER);
-  showDiscountUI(show);
-  setDiscountControlsEnabled(show);
-
-  const snap = readApplied();
-  if (snap){
-    const exists = findInCacheForUser(snap.code, UI_USER) || await fetchSingle(snap.code);
-    if (!exists || exists.__reason === 'not-eligible') writeApplied(null);
-  }
+  // Se è adulto, mostra banner (benefit alcolico)
+  const dob = await readDob(u.uid);
+  const isAdult = ageFrom(dob) >= 18;
+  setAdultUI(isAdult);
+  showAdultBanner(isAdult, true);
 
   render();
 }
 
-/** ================= Upsell modal “cambio nome” ================= */
-function openNcModal(totalTickets){
-  const extra = totalTickets * PRICE.NAMECHANGE;
-  ncText.textContent = `Con ${money(extra)} in più puoi cambiare il nome dei ticket fino a 24h prima. Utile se compri per amici.`;
-  ncModal.style.display = 'flex';
-}
-function closeNcModal(){
-  ncModal.style.display = 'none';
-}
-function shouldShowNcUpsell(tickets){
-  if (tickets <= 0) return false;
-  // lo mostriamo soprattutto quando è plausibile che compri per altri
-  if (tickets < 2) return false;
-  if (optName?.checked) return false;
-  if (localStorage.getItem('trapperreo_nc_upsell_dismissed') === '1') return false;
-  return true;
-}
-
-/** ================= Boot ================= */
-bindQty();
-discApply?.addEventListener('click', handleApply);
-discRemove?.addEventListener('click', handleRemove);
-
-await loadPaymentsConfig();
-await loadEventConfig();
-
-// inizializza panel EB (valori)
-if (ebLimitInp) ebLimitInp.value = String(EB_CFG.limit ?? 50);
-if (ebSoldInp)  ebSoldInp.value  = String(EB_CFG.sold ?? 0);
-if (ebOffSel)   ebOffSel.value   = EB_CFG.manualOff ? '1' : '0';
-if (ebStartInp) ebStartInp.value = toDTLocal(EB_CFG.startAt);
-if (ebEndInp)   ebEndInp.value   = toDTLocal(EB_CFG.endAt);
-bindAdminPanel();
-
-hello.textContent = 'Caricamento…';
-
-onUser(async (u)=>{
-  try{
-    // Se è anonimo: UI guest (ma teniamo CURRENT_USER per transazioni)
-    if (u && u.isAnonymous){
-      CURRENT_USER = u;
-      await enterGuestUI();
-      showAdminTools(false);
-      return;
-    }
-
-    if(!u){
-      // nessun user: facciamo UI guest + (facoltativo) anon per transazioni quando serve
-      CURRENT_USER = null;
-      await enterGuestUI();
-      showAdminTools(false);
-      return;
-    }
-
-    // user reale
-    CURRENT_USER = u;
-    await enterLoggedUI(u);
-
-    // staff?
-    const { isAdmin, isFounder } = await getStaffRole(u);
-    showAdminTools(isAdmin, isFounder ? 'FOUNDER' : 'ADMIN');
-
-    // se staff, aggiorna i campi panel in base alla config
-    if (isAdmin && ebAdminPanel){
-      ebLimitInp.value = String(EB_CFG.limit ?? 50);
-      ebSoldInp.value  = String(EB_CFG.sold ?? 0);
-      ebOffSel.value   = EB_CFG.manualOff ? '1' : '0';
-      ebStartInp.value = toDTLocal(EB_CFG.startAt);
-      ebEndInp.value   = toDTLocal(EB_CFG.endAt);
-    }
-  }catch(err){
-    console.error('onUser fatal:', err);
-    CURRENT_USER = null;
-    await enterGuestUI();
-    showAdminTools(false);
-  }
-});
-
-/** ================= Procedi ================= */
+/** Procedi (guest ok) + modal protezione sempre */
 function goNext(){
   const q = qty();
   const tickets = q.EB + q.STD + q.FAST + q.VIP;
-
   const qs = new URLSearchParams({
     std:q.STD||0, fast:q.FAST||0, vip:q.VIP||0, eb:q.EB||0, nc: optName?.checked?1:0
   }).toString();
-
   if(tickets > 1) location.href = `./attendees.html?${qs}`;
   else            location.href = `./attendees-single.html?${qs}`;
 }
 
 payBtn?.addEventListener('click', async ()=>{
-  const q = qty();
-  const tickets = q.EB + q.STD + q.FAST + q.VIP;
-  if (tickets <= 0) return;
+  const tCount = ticketsCount();
+  if (tCount<=0) return;
 
-  // Upsell protezione cambio nome
-  if (shouldShowNcUpsell(tickets)){
-    openNcModal(tickets);
+  // guest checkout vero: crea anon user silenzioso (così non ti obbliga più al login)
+  await ensureAnon();
 
-    ncNo.onclick = async ()=>{
-      localStorage.setItem('trapperreo_nc_upsell_dismissed','1');
+  // se NON selezionato: apri modal SEMPRE (pressione)
+  if (!optName.checked){
+    openNcModal(tCount);
+
+    ncNo.onclick = ()=>{
       closeNcModal();
-
-      // Magazzino EB: se Stripe NON attivo, incrementiamo sold “a ordine fittizio”
-      if (!STRIPE_ENABLED && q.EB > 0){
-        const res = await incrementEBSoldAtomic(q.EB);
-        if (res && res.ok === false){
-          // se fallisce (sold out), blocca e mostra stato
-          qEB.value = 0;
-          render();
-          return;
-        }
-      }
-
+      // salviamo che l'ha rifiutata questa volta (ma NON lo blocchiamo)
+      localStorage.setItem('trapperreo_nc_last_reject', Date.now().toString());
       goNext();
     };
-
-    ncYes.onclick = async ()=>{
+    ncYes.onclick = ()=>{
       optName.checked = true;
       closeNcModal();
       render();
-
-      // Magazzino EB: se Stripe NON attivo, incrementiamo qui
-      if (!STRIPE_ENABLED && q.EB > 0){
-        const res = await incrementEBSoldAtomic(q.EB);
-        if (res && res.ok === false){
-          qEB.value = 0;
-          render();
-          return;
-        }
-      }
-
       goNext();
     };
-
     return;
-  }
-
-  // Magazzino EB: se Stripe NON attivo, incrementiamo sold “a ordine fittizio”
-  if (!STRIPE_ENABLED && q.EB > 0){
-    const res = await incrementEBSoldAtomic(q.EB);
-    if (res && res.ok === false){
-      qEB.value = 0;
-      render();
-      return;
-    }
   }
 
   goNext();
 });
 
-// chiudi modal cliccando fuori
 ncModal?.addEventListener('click', (e)=>{
   if (e.target === ncModal) closeNcModal();
 });
 
-// primo render
+/** Boot */
+bindQty();
 render();
+
+hello.textContent = 'Caricamento…';
+onUser(async (u)=>{
+  try{
+    // Se l’utente non c’è, NON redirect: guest UI
+    if(!u){ await enterGuestUI(); return; }
+
+    // Se è anonimo: guest UI (nessuno vede login)
+    if(u.isAnonymous){ await enterGuestUI(); return; }
+
+    // User reale
+    await enterLoggedUI(u);
+  }catch(err){
+    console.error(err);
+    await enterGuestUI();
+  }
+});
 </script>
 
 </body>
