@@ -6,33 +6,21 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&display=swap" rel="stylesheet">
 <style>
 :root{
-  --bg:#000; --text:#fff;
-  --accent:#8b5cf6;
-  --border:rgba(255,255,255,.12);
-  --card:rgba(255,255,255,.06);
-  --muted:rgba(255,255,255,.78);
-  --err:#ef4444;
+  --bg:#000; --text:#fff; --accent:#8b5cf6; --border:rgba(255,255,255,.12);
+  --card:rgba(255,255,255,.06); --err:#ef4444; --muted:rgba(255,255,255,.78);
 
-  --sel:#fde047; /* giallo selezione */
+  /* pochi colori: solo accenti leggeri */
+  --c-eb:rgba(139,92,246,.9);
+  --c-std:rgba(139,92,246,.9); /* consigliato in viola */
+  --c-fast:rgba(52,211,153,.9); /* verde soft */
+  --c-vip:rgba(251,113,133,.9); /* rosa soft */
+
+  --flash:#fde047; /* giallo */
 }
 *{box-sizing:border-box;margin:0;padding:0}
-html,body{height:100%}
-body{
-  background:var(--bg);color:var(--text);
-  font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
-  line-height:1.5;min-height:100vh;display:grid;grid-template-rows:auto 1fr;
-}
-a{color:inherit}
-header{
-  position:sticky;top:0;z-index:50;
-  backdrop-filter:saturate(140%) blur(6px);
-  background:rgba(0,0,0,.6);
-  border-bottom:1px solid rgba(255,255,255,.08);
-}
-.nav{
-  max-width:1200px;margin:auto;padding:14px 20px;
-  display:flex;align-items:center;justify-content:space-between
-}
+body{background:var(--bg);color:var(--text);font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;line-height:1.5;min-height:100vh;display:grid;grid-template-rows:auto 1fr}
+header{position:sticky;top:0;z-index:50;backdrop-filter:saturate(140%) blur(6px);background:rgba(0,0,0,.6);border-bottom:1px solid rgba(255,255,255,.08)}
+.nav{max-width:1200px;margin:auto;padding:14px 20px;display:flex;align-items:center;justify-content:space-between}
 .brand{display:flex;align-items:center;gap:10px;font-weight:900;letter-spacing:-.3px}
 .brand-badge{width:22px;height:22px;background:var(--accent);transform:skew(-6deg);border-radius:3px}
 nav a, nav span{color:#fff;text-decoration:none;margin-left:18px;font-size:14px;opacity:.95}
@@ -44,157 +32,162 @@ h1{font-size:28px;font-weight:900;letter-spacing:-.3px}
 @media(min-width:900px){.grid{grid-template-columns:2fr 1fr}}
 .card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:18px}
 
-/* header testo “ciao” */
-.hello{margin-top:6px;color:rgba(255,255,255,.86);font-weight:700}
-
-/* Evento lineare (no pill brutte) */
-.eventline{margin-top:12px;color:rgba(255,255,255,.82);font-size:14px}
+/* Evento lineare */
+.eventline{margin-top:10px;color:rgba(255,255,255,.82);font-size:14px}
 .eventline strong{color:#fff}
 .eventline .dot{opacity:.55;margin:0 10px}
 
-/* Banner maggiorenni */
+/* Banner */
 .banner{
   margin-top:12px;
-  background:linear-gradient(180deg, rgba(139,92,246,.16), rgba(255,255,255,.03));
-  border:1px solid rgba(139,92,246,.35);
+  background:linear-gradient(180deg, rgba(253,224,71,.12), rgba(255,255,255,.04));
+  border:1px solid rgba(253,224,71,.35);
   border-radius:14px;
   padding:12px 14px;
   display:flex;
   justify-content:space-between;
-  align-items:center;
+  align-items:flex-start;
   gap:12px;
 }
-.banner p{color:rgba(255,255,255,.86);font-size:13px;line-height:1.35}
+.banner p{color:rgba(255,255,255,.84);font-size:13px;line-height:1.35}
+.banner strong{color:#fff}
+.banner .actions{display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:flex-end}
 .banner a{
-  white-space:nowrap;text-decoration:none;
-  background:var(--accent);color:#000;font-weight:900;
-  padding:10px 12px;border-radius:12px;border:none;
+  white-space:nowrap;
+  text-decoration:none;
+  font-weight:900;
+  padding:10px 12px;
+  border-radius:12px;
+  border:1px solid rgba(253,224,71,.55);
 }
-.banner a.secondary{
-  background:transparent;color:#fff;border:1px solid rgba(255,255,255,.18)
+.banner a.primary{background:var(--flash);color:#000}
+.banner a.secondary{background:transparent;color:#fff;border-color:rgba(255,255,255,.18)}
+.banner button.close{
+  background:transparent;border:1px solid rgba(255,255,255,.18);
+  color:#fff;border-radius:10px;padding:10px 12px;font-weight:900;cursor:pointer
 }
 @media(max-width:520px){
   .banner{flex-direction:column;align-items:flex-start}
-  .banner a{width:100%;text-align:center}
+  .banner .actions{width:100%;justify-content:flex-start}
+  .banner a, .banner button.close{width:100%;text-align:center}
 }
 
+/* Admin tools */
+.admin-only[hidden]{display:none!important}
+.weeks{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0 6px}
+.weeks button{background:#0f0f10;border:1px solid var(--border);color:#fff;padding:8px 10px;border-radius:10px;cursor:pointer;font-weight:800;font-size:13px}
+.weeks button.active{border-color:var(--accent);box-shadow:0 0 0 2px rgba(139,92,246,.15)}
+.admin-panel{
+  margin-top:10px;
+  padding:12px;
+  background:#0b0b0b;
+  border:1px solid rgba(255,255,255,.12);
+  border-radius:12px;
+}
+.admin-panel h3{font-size:14px;font-weight:900;margin-bottom:8px}
+.admin-panel .row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media(max-width:720px){.admin-panel .row2{grid-template-columns:1fr}}
+.admin-panel input{
+  width:100%;
+  background:#0f0f10;border:1px solid rgba(255,255,255,.15);
+  border-radius:10px;color:#fff;padding:10px;font-weight:800
+}
+.admin-panel .btns{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px}
+.admin-panel button{
+  padding:10px 12px;border-radius:10px;border:1px solid rgba(255,255,255,.18);
+  background:#111;color:#fff;font-weight:900;cursor:pointer
+}
+.admin-panel button.primary{background:var(--accent);color:#000;border-color:rgba(139,92,246,.55)}
+
 /* biglietti */
-.tickets{display:grid;gap:12px;margin-top:12px}
+.tickets{display:grid;gap:12px;margin-top:8px}
 .row{
   display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center;
-  background:#0b0b0b;border:1px solid rgba(255,255,255,.12);
+  background:#0b0b0b;border:1px solid rgba(255,255,255,.1);
   border-radius:12px;padding:14px;
-  transition:box-shadow .18s, transform .10s, border-color .18s;
+  transition:box-shadow .18s, transform .12s, border-color .18s;
 }
-.row:hover{transform:translateY(-1px)}
 .title{font-weight:900;display:flex;align-items:center;gap:8px}
 .flag{
-  display:inline-block;padding:3px 8px;border-radius:999px;
+  display:inline-block;padding:3px 10px;border-radius:999px;
   border:1px solid rgba(255,255,255,.18);
   font-size:12px;font-weight:900;color:rgba(255,255,255,.9)
 }
-.note{font-size:13px;opacity:.95;margin-top:6px;color:rgba(255,255,255,.82)}
+.flag.std{border-color:rgba(139,92,246,.6); background:rgba(139,92,246,.10); color:#fff}
+.flag.eb{border-color:rgba(139,92,246,.45)}
+.flag.fast{border-color:rgba(52,211,153,.45)}
+.flag.vip{border-color:rgba(251,113,133,.45)}
+.note{font-size:13px;opacity:.95;margin-top:6px;color:rgba(255,255,255,.80)}
 .controls{display:flex;align-items:center;gap:10px}
 .price{font-weight:900}
 
-.qty{
-  display:flex;align-items:center;
-  border:1px solid rgba(255,255,255,.22);
-  border-radius:10px;overflow:hidden
-}
-.qty button{
-  width:36px;height:36px;background:#111;border:none;color:#fff;
-  font-weight:900;cursor:pointer;
-  transition:filter .15s, transform .08s, background .15s;
-}
+.qty{display:flex;align-items:center;border:1px solid rgba(255,255,255,.22);border-radius:10px;overflow:hidden}
+.qty button{width:36px;height:36px;background:#111;border:none;color:#fff;font-weight:900;cursor:pointer;transition:filter .15s, transform .08s}
 .qty button:active{transform:scale(.96)}
-.qty button.is-plus.flash{
-  background:rgba(253,224,71,.22);
-  filter:drop-shadow(0 0 14px rgba(253,224,71,.75));
-}
-.qty input{
-  width:48px;height:36px;text-align:center;background:#0a0a0a;border:none;
-  color:#fff;font-weight:900;
-}
+.qty button.is-plus{position:relative}
+.qty button.flash{filter:drop-shadow(0 0 16px rgba(253,224,71,.70))}
+.qty button.flash::after{content:"";position:absolute;inset:0;background:rgba(253,224,71,.18)}
+.qty input{width:48px;height:36px;text-align:center;background:#0a0a0a;border:none;color:#fff;font-weight:900}
 .qty input.pop{animation:pop .18s ease-out}
 @keyframes pop{from{transform:scale(1)} to{transform:scale(1.08)}}
 
-/* >>> selezione: bordo giallo evidente <<< */
+/* selezione gialla */
 .row.selected{
-  border-color: var(--sel) !important;
+  border-color: var(--flash) !important;
   box-shadow:
     0 0 0 2px rgba(253,224,71,.55),
-    0 0 18px rgba(253,224,71,.18),
-    0 12px 34px rgba(0,0,0,.42);
+    0 0 22px rgba(253,224,71,.20),
+    0 14px 42px rgba(0,0,0,.40);
 }
+.sold{opacity:.45;filter:grayscale(1)}
+.sold .qty button{cursor:not-allowed;opacity:.4}
+.sold .qty input{opacity:.65}
 
-/* stato disabilitato */
-.row.sold{opacity:.45;filter:grayscale(1)}
-.row.sold .qty button{cursor:not-allowed;opacity:.4}
+/* accento leggero per differenziare (senza caos) */
+.row[data-type="fast"]{border-left:3px solid rgba(52,211,153,.55)}
+.row[data-type="vip"]{border-left:3px solid rgba(251,113,133,.55)}
+.row[data-type="std"]{border-left:3px solid rgba(139,92,246,.55)}
+.row[data-type="eb"]{border-left:3px solid rgba(139,92,246,.55)}
 
 /* Tavolo VIP */
-.viptable{
-  margin-top:12px;
-  display:flex;justify-content:space-between;align-items:center;gap:14px;
-  background:#0b0b0b;border:1px dashed rgba(255,255,255,.22);
-  border-radius:12px;padding:14px
-}
+.viptable{margin-top:12px;display:flex;justify-content:space-between;align-items:center;gap:12px;background:#0b0b0b;border:1px dashed rgba(251,113,133,.65);border-radius:12px;padding:14px}
 .viptable .title{font-weight:900}
-.viptable .muted{color:rgba(255,255,255,.72);font-size:13px}
-.viptable .cta{
-  background:var(--accent);color:#000;border:none;
-  padding:10px 14px;border-radius:10px;cursor:pointer;text-decoration:none;font-weight:900;
-}
-.viptable .cta.secondary{background:transparent;color:#fff;border:1px solid rgba(255,255,255,.18)}
+.viptable .cta{background:transparent;border:1px solid rgba(255,255,255,.18);color:#fff;padding:10px 14px;border-radius:10px;cursor:pointer;text-decoration:none;font-weight:900}
+.viptable .cta.primary{border-color:rgba(251,113,133,.65)}
 .viptable .cta[aria-disabled="true"]{opacity:.55;cursor:not-allowed;pointer-events:none}
 
 /* riepilogo */
-.small{font-size:13px;opacity:.78}
+.small{font-size:13px;opacity:.75}
 .hr{height:1px;background:rgba(255,255,255,.08);margin:14px 0}
 .line{display:flex;justify-content:space-between;font-size:14px;margin:6px 0;gap:12px}
 .total{font-size:22px;font-weight:900}
+.pill-muted{display:inline-block;padding:4px 10px;border:1px solid rgba(255,255,255,.14);border-radius:999px;font-size:12px;color:rgba(255,255,255,.75)}
 
-/* Bottone desktop (resta) */
-.sticky{position:sticky;bottom:0;background:linear-gradient(180deg, rgba(0,0,0,.0), rgba(0,0,0,.4) 20%, #000 40%);padding-top:16px;margin-top:16px}
-.pay{
-  display:inline-block;padding:12px 16px;border-radius:10px;text-decoration:none;
-  font-weight:900;background:var(--accent);color:#000;cursor:pointer;border:none;width:100%;
+/* banner multi-ticket sotto riepilogo */
+.multiBanner{
+  margin-top:12px;
+  background:linear-gradient(180deg, rgba(253,224,71,.14), rgba(255,255,255,.04));
+  border:1px solid rgba(253,224,71,.35);
+  border-radius:14px;
+  padding:12px 14px;
+  color:rgba(255,255,255,.88);
+  font-size:13px;
 }
+.multiBanner strong{color:#fff}
+
+/* sticky */
+.sticky{position:sticky;bottom:0;background:linear-gradient(180deg, rgba(0,0,0,.0), rgba(0,0,0,.4) 20%, #000 40%);padding-top:16px;margin-top:16px}
+.pay{display:inline-block;width:100%;padding:12px 16px;border-radius:10px;text-decoration:none;font-weight:900;background:var(--accent);color:#000;cursor:pointer;border:none}
 .pay[disabled]{opacity:.5;cursor:not-allowed}
 
-/* Mobile bar “Acquista ora” sticky */
-.mobilebar{
-  position:fixed;left:0;right:0;bottom:0;z-index:120;
-  display:none;
-  padding:10px 12px calc(10px + env(safe-area-inset-bottom));
-  background:rgba(0,0,0,.82);
-  border-top:1px solid rgba(255,255,255,.10);
-  backdrop-filter: blur(10px) saturate(140%);
-}
-.mobilebar .inner{max-width:1100px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:10px}
-.mobilebar .sum{font-weight:900}
-.mobilebar .sub{font-size:12px;color:rgba(255,255,255,.72)}
-.mobilebar .btn{
-  background:var(--accent);color:#000;border:none;
-  padding:12px 14px;border-radius:12px;font-weight:900;cursor:pointer;min-width:150px;
-}
-.mobilebar .btn[disabled]{opacity:.5;cursor:not-allowed}
-@media(max-width:899px){
-  .mobilebar{display:block}
-  .sticky{display:none}
-}
-
-/* Modal protezione */
+/* Modal */
 .modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.68);display:none;align-items:center;justify-content:center;z-index:200}
 .modal{width:min(92vw,520px);background:#0b0b0b;border:1px solid rgba(255,255,255,.14);border-radius:18px;padding:18px}
 .modal h3{font-size:18px;font-weight:900;margin-bottom:6px}
-.modal p{color:rgba(255,255,255,.85);font-size:14px;margin-bottom:14px}
+.modal p{color:rgba(255,255,255,.85);font-size:14px;margin-bottom:14px;line-height:1.45}
 .modal-actions{display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end}
-.btn{
-  padding:11px 14px;border-radius:10px;border:1px solid rgba(255,255,255,.16);
-  background:#111;color:#fff;font-weight:900;cursor:pointer
-}
-.btn.primary{background:var(--sel);color:#000;border-color:rgba(253,224,71,.55)}
+.btn{padding:11px 14px;border-radius:10px;border:1px solid rgba(255,255,255,.16);background:#111;color:#fff;font-weight:900;cursor:pointer}
+.btn.primary{background:var(--flash);color:#000;border-color:rgba(253,224,71,.55)}
 .btn.ghost{background:transparent}
 </style>
 </head>
@@ -209,12 +202,50 @@ h1{font-size:28px;font-weight:900;letter-spacing:-.3px}
 
 <main class="wrap">
   <h1>Prendi il tuo ticket</h1>
-  <div class="hello" id="hello">👋 Ciao</div>
+  <div class="muted" id="hello">👋 Ciao</div>
 
-  <!-- Banner maggiorenni -->
+  <!-- Banner (dinamico) -->
   <div class="banner" id="adultBanner" hidden>
-    <p id="adultBannerText"></p>
-    <a id="adultBannerCta" href="./signup.html?from=./checkout.html">Registrati</a>
+    <div>
+      <p id="adultBannerText"></p>
+    </div>
+    <div class="actions" id="adultBannerActions"></div>
+  </div>
+
+  <!-- Admin only -->
+  <div class="weeks admin-only" id="weeksBlock" hidden aria-label="Simulazione settimane (admin)">
+    <button data-week="4" class="active">Settimana 4</button>
+    <button data-week="3">Settimana 3</button>
+    <button data-week="2">Settimana 2</button>
+    <button data-week="1">Settimana 1</button>
+  </div>
+
+  <div class="admin-panel admin-only" id="adminPanel" hidden>
+    <h3>Magazzino Early Bird</h3>
+    <div class="row2">
+      <div>
+        <div class="small muted" style="margin-bottom:6px">Cap (es. 50)</div>
+        <input id="admCap" type="number" min="1" value="50">
+      </div>
+      <div>
+        <div class="small muted" style="margin-bottom:6px">Sold (venduti)</div>
+        <input id="admSold" type="number" min="0" value="0">
+      </div>
+    </div>
+    <div class="row2" style="margin-top:10px">
+      <div>
+        <div class="small muted" style="margin-bottom:6px">Disabilitato manualmente</div>
+        <input id="admDisabled" type="text" value="false" placeholder="true/false">
+      </div>
+      <div>
+        <div class="small muted" style="margin-bottom:6px">Info</div>
+        <div class="small" id="admInfo">—</div>
+      </div>
+    </div>
+    <div class="btns">
+      <button class="primary" id="admSave">Salva</button>
+      <button id="admReload">Ricarica</button>
+    </div>
   </div>
 
   <div class="grid">
@@ -227,10 +258,13 @@ h1{font-size:28px;font-weight:900;letter-spacing:-.3px}
 
       <div class="tickets">
         <!-- EARLY -->
-        <div class="row" id="rowEB">
+        <div class="row" data-type="eb" id="rowEB">
           <div>
-            <div class="title">Early Bird <span class="flag">solo 72h</span></div>
-            <div class="note">Ingresso + <span class="drink-label">1 drink</span>.</div>
+            <div class="title">Early Bird <span class="flag eb" id="ebFlag">solo 72h</span></div>
+            <div class="note">
+              Ingresso + <span class="drink-label">1 drink</span>.
+              <span id="ebLeft" class="muted"></span>
+            </div>
           </div>
           <div class="controls">
             <div class="price">12€</div>
@@ -243,12 +277,12 @@ h1{font-size:28px;font-weight:900;letter-spacing:-.3px}
         </div>
 
         <!-- STANDARD -->
-        <div class="row" id="rowSTD">
+        <div class="row" data-type="std" id="rowSTD">
           <div>
-            <div class="title">Standard <span class="flag">consigliato</span></div>
+            <div class="title">Standard <span class="flag std">consigliato</span></div>
             <div class="note">Ingresso + <span class="drink-label">1 drink</span>.</div>
-            <div class="note" style="margin-top:6px">
-              <strong>🎟️ 3 prevendite</strong> = <strong>3×40€</strong>
+            <div class="note" style="margin-top:6px;opacity:.95">
+              <strong>🎟️ Acquista 3 prevendite</strong> → <strong>3×40€</strong>
             </div>
           </div>
           <div class="controls">
@@ -262,9 +296,9 @@ h1{font-size:28px;font-weight:900;letter-spacing:-.3px}
         </div>
 
         <!-- FAST -->
-        <div class="row" id="rowFAST">
+        <div class="row" data-type="fast" id="rowFAST">
           <div>
-            <div class="title">Fast Entry <span class="flag">salti la fila</span></div>
+            <div class="title">Fast Entry <span class="flag fast">salti la fila</span></div>
             <div class="note">Accesso prioritario + <span class="drink-label">1 drink</span>.</div>
           </div>
           <div class="controls">
@@ -278,9 +312,9 @@ h1{font-size:28px;font-weight:900;letter-spacing:-.3px}
         </div>
 
         <!-- VIP -->
-        <div class="row" id="rowVIP">
+        <div class="row" data-type="vip" id="rowVIP">
           <div>
-            <div class="title">VIP Entry <span class="flag">area VIP</span></div>
+            <div class="title">VIP Entry <span class="flag vip">area VIP</span></div>
             <div class="note" id="vipNote"></div>
           </div>
           <div class="controls">
@@ -293,15 +327,14 @@ h1{font-size:28px;font-weight:900;letter-spacing:-.3px}
           </div>
         </div>
 
-        <!-- Tavolo VIP sempre visibile -->
+        <!-- Tavolo VIP (sempre visibile con stato) -->
         <div class="viptable" id="vipTableBlock">
           <div>
-            <div class="title" id="vipTitle">Tavolo VIP (18+)</div>
-            <div class="muted" id="vipDesc">Posto riservato di gruppo + servizio al tavolo.</div>
+            <div class="title">Tavolo VIP (18+)</div>
+            <div class="muted" id="vipTableText">Accedi con un account 18+ per prenotare.</div>
           </div>
-          <a class="cta secondary" id="vipCta" href="./login.html?from=./checkout.html">Accedi</a>
+          <a class="cta primary" id="vipReserve" href="./login.html?from=./checkout.html">Accedi</a>
         </div>
-
       </div>
     </div>
 
@@ -318,36 +351,26 @@ h1{font-size:28px;font-weight:900;letter-spacing:-.3px}
           <span style="font-weight:900">Protezione cambio nome</span>
           <span class="muted">(1,90€ / biglietto)</span>
           <div class="muted" style="margin-top:6px;font-size:12px;line-height:1.35">
-            1 cambio nome fino a <strong>24h prima</strong>.
+            Se compri per amici, ti salva: <strong>1 cambio nome</strong> fino a <strong>24h prima</strong>.
           </div>
         </label>
-        <span id="nameChangeLine" class="small">0€</span>
+        <span id="nameChangeLine" class="pill-muted">Non inclusa</span>
       </div>
 
       <div class="hr"></div>
-      <div class="line total"><span>Totale</span><strong id="grandTot">0€</strong></div>
+      <div class="line total"><span>Totale (IVA inclusa)</span><strong id="grandTot">0€</strong></div>
 
       <div class="sticky" style="margin-top:10px">
-        <button id="payBtn" class="pay" disabled>Acquista ora</button>
+        <button id="payBtn" class="pay" disabled>Procedi</button>
       </div>
 
-      <div class="small" style="margin-top:10px">
-        Se acquisti più biglietti, assegnerai i nomi nel passaggio successivo.
+      <div id="multiNote" class="multiBanner" hidden>
+        <strong>Stai acquistando più biglietti.</strong><br>
+        Nel passaggio successivo assegnerai i <strong>nomi</strong> per ogni ticket.
       </div>
     </aside>
   </div>
 </main>
-
-<!-- Mobile sticky bar -->
-<div class="mobilebar" id="mobileBar" aria-live="polite">
-  <div class="inner">
-    <div>
-      <div class="sum">Totale: <span id="mobileTot">0€</span></div>
-      <div class="sub" id="mobileSub">Seleziona almeno 1 biglietto</div>
-    </div>
-    <button class="btn" id="mobilePay" disabled>Acquista ora</button>
-  </div>
-</div>
 
 <!-- Modal upsell cambio nome -->
 <div class="modal-backdrop" id="ncModal">
@@ -355,7 +378,7 @@ h1{font-size:28px;font-weight:900;letter-spacing:-.3px}
     <h3 id="ncTitle">Aggiungere protezione cambio nome?</h3>
     <p id="ncText"></p>
     <div class="modal-actions">
-      <button class="btn ghost" type="button" id="ncNo">No grazie</button>
+      <button class="btn ghost" type="button" id="ncNo">No grazie, continua</button>
       <button class="btn primary" type="button" id="ncYes">Aggiungi e continua</button>
     </div>
   </div>
@@ -364,10 +387,22 @@ h1{font-size:28px;font-weight:900;letter-spacing:-.3px}
 <script type="module">
 import { onUser, doSignOut, app } from './auth.v2.js?v=6';
 import { getAuth, signInAnonymously } from 'https://www.gstatic.com/firebasejs/12.5.0/firebase-auth.js';
-import { getFirestore, doc, getDoc } from 'https://www.gstatic.com/firebasejs/12.5.0/firebase-firestore.js';
+import {
+  getFirestore, doc, getDoc, setDoc, runTransaction
+} from 'https://www.gstatic.com/firebasejs/12.5.0/firebase-firestore.js';
 
 const db = getFirestore(app);
 const auth = getAuth(app);
+
+/** ===== CONFIG ===== */
+const INVENTORY_DOC = doc(db, 'inventory', 'earlybird'); // {cap:50, sold:0, disabled:false}
+const DEFAULT_CAP = 50;
+
+/** Metti qui admin/founder */
+const ADMIN_EMAILS = [
+  // 'tuoemail@gmail.com',
+  // 'founder@trapperreo.it',
+];
 
 /** UI */
 const nav   = document.getElementById('navArea');
@@ -375,7 +410,16 @@ const hello = document.getElementById('hello');
 
 const adultBanner = document.getElementById('adultBanner');
 const adultBannerText = document.getElementById('adultBannerText');
-const adultBannerCta = document.getElementById('adultBannerCta');
+const adultBannerActions = document.getElementById('adultBannerActions');
+
+const weeksBlock = document.getElementById('weeksBlock');
+const adminPanel = document.getElementById('adminPanel');
+const admCap = document.getElementById('admCap');
+const admSold = document.getElementById('admSold');
+const admDisabled = document.getElementById('admDisabled');
+const admInfo = document.getElementById('admInfo');
+const admSave = document.getElementById('admSave');
+const admReload = document.getElementById('admReload');
 
 const qEB   = document.getElementById('qEB');
 const qSTD  = document.getElementById('qSTD');
@@ -387,22 +431,19 @@ const rowSTD = document.getElementById('rowSTD');
 const rowFAST = document.getElementById('rowFAST');
 const rowVIP = document.getElementById('rowVIP');
 
+const ebLeft = document.getElementById('ebLeft');
+
 const vipNote  = document.getElementById('vipNote');
-const vipTable = document.getElementById('vipTableBlock');
-const vipCta   = document.getElementById('vipCta');
-const vipDesc  = document.getElementById('vipDesc');
+const vipTableText = document.getElementById('vipTableText');
+const vipReserve = document.getElementById('vipReserve');
 
 const lines   = document.getElementById('lines');
 const grandEl = document.getElementById('grandTot');
 const payBtn  = document.getElementById('payBtn');
 
-const mobileBar = document.getElementById('mobileBar');
-const mobileTot = document.getElementById('mobileTot');
-const mobileSub = document.getElementById('mobileSub');
-const mobilePay = document.getElementById('mobilePay');
-
 const optName = document.getElementById('optNameChange');
 const nameLine= document.getElementById('nameChangeLine');
+const multiNote = document.getElementById('multiNote');
 
 /** Modal */
 const ncModal = document.getElementById('ncModal');
@@ -414,10 +455,10 @@ const OUT = `
   <a href="./index.html">Home</a>
   <a href="./index.html#tickets">Ticket</a>
   <a href="./index.html#faq">FAQ</a>
-  <a href="./login.html?from=./checkout.html" style="color:#8b5cf6;font-weight:900">Accedi (opz.)</a>
+  <a href="./login.html?from=./checkout.html" style="color:#8b5cf6;font-weight:900">Accedi</a>
 `;
 const IN  = (u)=>`
-  <span style="opacity:.95">👋 Ciao, <strong>${(u.displayName||u.email||'Utente').split(' ')[0]}</strong></span>
+  <span>👋 Ciao, <strong>${(u.displayName||u.email||'Utente').split(' ')[0]}</strong></span>
   <a href="./index.html">Home</a>
   <a href="./checkout.html">Checkout</a>
   <a href="./account-2.html">Area personale</a>
@@ -448,7 +489,7 @@ function popInput(inp){
   setTimeout(()=>inp.classList.remove('pop'), 220);
 }
 
-/** Guest checkout vero (anon, silenzioso) */
+/** ===== Guest checkout: anon signin silenzioso ===== */
 async function ensureAnon(){
   try{
     const u = auth.currentUser;
@@ -461,10 +502,11 @@ async function ensureAnon(){
   }
 }
 
-/** Età */
+/** ===== Age helpers ===== */
 function parseDob(any){
   if (!any) return null;
   if (typeof any === 'object' && any.seconds != null) return new Date(any.seconds*1000);
+  if (any instanceof Date) return isNaN(any.getTime()) ? null : any;
   const d=new Date(any); return isNaN(d)?null:d;
 }
 function ageFrom(d){
@@ -484,100 +526,183 @@ async function readDob(uid){
   }catch{ return null; }
 }
 
-/** Drink labels */
+/** ===== Drink labels ===== */
 function drinkLabels(){ return document.querySelectorAll('.drink-label'); }
-function setDrinkUI(isAdult){
+function setAdultUI(isAdult){
   drinkLabels().forEach(el=>{
     el.textContent = isAdult ? '1 drink (alcolico/analcolico)' : '1 drink analcolico';
   });
-  vipNote.innerHTML = isAdult
-    ? 'Accesso area VIP • <span class="drink-label">1 drink (alcolico/analcolico)</span> + <strong>guardaroba incluso</strong>.'
-    : 'Accesso area VIP • <strong>2 drink analcolici</strong> + <strong>guardaroba incluso</strong>.';
+  if (vipNote){
+    vipNote.innerHTML = isAdult
+      ? 'Accesso area VIP • <span class="drink-label">1 drink (alcolico/analcolico)</span> + <strong>guardaroba incluso</strong>.'
+      : 'Accesso area VIP • <strong>2 drink analcolici</strong> + <strong>guardaroba incluso</strong>.';
+  }
 }
 
-/** VIP block sempre visibile */
-function setVipBlock({ logged, isAdult, dobMissing }){
-  if(!logged){
-    vipDesc.textContent = 'Per prenotare serve un account 18+. Se sei maggiorenne, accedi o registrati.';
-    vipCta.textContent = 'Accedi';
-    vipCta.classList.add('secondary');
-    vipCta.removeAttribute('aria-disabled');
-    vipCta.href = './login.html?from=./checkout.html';
-    return;
-  }
-  if (dobMissing){
-    vipDesc.textContent = 'Se sei 18+, completa la data di nascita nel profilo per prenotare il tavolo.';
-    vipCta.textContent = 'Completa profilo';
-    vipCta.classList.remove('secondary');
-    vipCta.removeAttribute('aria-disabled');
-    vipCta.href = './account-2.html';
-    return;
-  }
-  if (!isAdult){
-    vipDesc.textContent = 'Disponibile solo per maggiorenni (18+).';
-    vipCta.textContent = 'Solo 18+';
-    vipCta.classList.add('secondary');
-    vipCta.setAttribute('aria-disabled','true');
-    vipCta.href = '#';
-    return;
-  }
-  vipDesc.textContent = 'Posto riservato di gruppo + servizio al tavolo.';
-  vipCta.textContent = 'Prenota ora';
-  vipCta.classList.remove('secondary');
-  vipCta.removeAttribute('aria-disabled');
-  vipCta.href = './attendees-tavolo.html';
-}
-
-/** Banner maggiorenni: sempre “sensato” */
-function setAdultBanner({ logged, isAdult, dobMissing }){
+/** ===== Banner logic ===== */
+function showBanner(type){
+  // type: 'guest' | 'adult' | 'minor'
   adultBanner.hidden = false;
+  adultBannerActions.innerHTML = '';
 
-  if(!logged){
+  if(type === 'guest'){
     adultBannerText.innerHTML = `<strong>Se sei maggiorenne</strong>: registrati prima di acquistare e avrai <strong>1 drink alcolico omaggio</strong> (invece dell’analcolico).`;
-    adultBannerCta.textContent = 'Registrati';
-    adultBannerCta.className = '';
-    adultBannerCta.href = './signup.html?from=./checkout.html';
+    const reg = document.createElement('a');
+    reg.className = 'primary';
+    reg.href = './signup.html?from=./checkout.html';
+    reg.textContent = 'Registrati';
+
+    const acc = document.createElement('a');
+    acc.className = 'secondary';
+    acc.href = './login.html?from=./checkout.html';
+    acc.textContent = 'Accedi';
+
+    adultBannerActions.append(reg, acc);
     return;
   }
 
-  if(dobMissing){
-    adultBannerText.innerHTML = `Se sei <strong>18+</strong>, aggiungi la tua data di nascita al profilo per sbloccare il <strong>drink alcolico</strong>.`;
-    adultBannerCta.textContent = 'Completa profilo';
-    adultBannerCta.className = '';
-    adultBannerCta.href = './account-2.html';
+  if(type === 'adult'){
+    adultBannerText.innerHTML = `✅ <strong>Account maggiorenne</strong>: drink alcolico disponibile.`;
+    const close = document.createElement('button');
+    close.className = 'close';
+    close.type = 'button';
+    close.textContent = 'Chiudi';
+    close.onclick = ()=>{ adultBanner.hidden = true; };
+    adultBannerActions.append(close);
     return;
   }
 
-  if(isAdult){
-    adultBannerText.innerHTML = `✅ Profilo <strong>18+</strong>: drink alcolico disponibile.`;
-    adultBannerCta.textContent = 'Ok';
-    adultBannerCta.className = 'secondary';
-    adultBannerCta.href = './account-2.html';
-    return;
-  }
-
-  // loggato ma minorenne
-  adultBannerText.innerHTML = `Drink alcolico disponibile solo <strong>18+</strong>.`;
-  adultBannerCta.textContent = 'Ok';
-  adultBannerCta.className = 'secondary';
-  adultBannerCta.href = './account-2.html';
+  // minor
+  adultBannerText.innerHTML = `ℹ️ Drink alcolico disponibile solo <strong>18+</strong>. Con questo ticket hai <strong>analcolico</strong>.`;
+  const close = document.createElement('button');
+  close.className = 'close';
+  close.type = 'button';
+  close.textContent = 'Chiudi';
+  close.onclick = ()=>{ adultBanner.hidden = true; };
+  adultBannerActions.append(close);
 }
 
-/** Modal protezione (pressione) */
+/** ===== VIP table state ===== */
+function setVipTableState({ logged, isAdult, dobMissing }){
+  if(!logged){
+    vipTableText.textContent = 'Per prenotare serve un account 18+. Se sei maggiorenne, accedi o registrati.';
+    vipReserve.textContent = 'Accedi';
+    vipReserve.href = './login.html?from=./checkout.html';
+    vipReserve.setAttribute('aria-disabled','false');
+    return;
+  }
+  if(dobMissing){
+    vipTableText.textContent = 'Se sei 18+, completa la data di nascita nel profilo per prenotare il tavolo.';
+    vipReserve.textContent = 'Completa profilo';
+    vipReserve.href = './account-2.html';
+    vipReserve.setAttribute('aria-disabled','false');
+    return;
+  }
+  if(!isAdult){
+    vipTableText.textContent = 'Disponibile solo per maggiorenni (18+).';
+    vipReserve.textContent = 'Solo 18+';
+    vipReserve.href = '#';
+    vipReserve.setAttribute('aria-disabled','true');
+    return;
+  }
+  vipTableText.textContent = 'Posto riservato di gruppo + servizio al tavolo.';
+  vipReserve.textContent = 'Prenota ora';
+  vipReserve.href = './attendees-tavolo.html';
+  vipReserve.setAttribute('aria-disabled','false');
+}
+
+/** ===== Early Bird inventory ===== */
+let EB = { cap: DEFAULT_CAP, sold: 0, disabled: false };
+
+function applyEbUI(){
+  const left = Math.max(0, (EB.cap||DEFAULT_CAP) - (EB.sold||0));
+  if (ebLeft) ebLeft.textContent = left>0 ? `(${left} rimasti)` : `(sold out)`;
+
+  const soldOut = EB.disabled || left<=0;
+  rowEB.classList.toggle('sold', soldOut);
+
+  // se sold out: forza qty 0 e blocca controlli
+  const minus = rowEB.querySelector('[data-minus="#qEB"]');
+  const plus  = rowEB.querySelector('[data-plus="#qEB"]');
+  const input = qEB;
+
+  if (soldOut){
+    if (input) input.value = 0;
+    if (plus)  plus.disabled = true;
+    if (minus) minus.disabled = true;
+  }else{
+    if (plus)  plus.disabled = false;
+    if (minus) minus.disabled = false;
+  }
+}
+
+async function loadEbInventory(){
+  try{
+    const snap = await getDoc(INVENTORY_DOC);
+    if (!snap.exists()){
+      await setDoc(INVENTORY_DOC, { cap: DEFAULT_CAP, sold: 0, disabled: false }, { merge:true });
+      EB = { cap: DEFAULT_CAP, sold: 0, disabled: false };
+    }else{
+      const d = snap.data()||{};
+      EB = {
+        cap: Number(d.cap ?? DEFAULT_CAP),
+        sold: Number(d.sold ?? 0),
+        disabled: Boolean(d.disabled ?? false)
+      };
+    }
+  }catch(e){
+    console.warn('loadEbInventory failed', e);
+    EB = { cap: DEFAULT_CAP, sold: 0, disabled: false };
+  }
+  applyEbUI();
+  if (admCap) admCap.value = String(EB.cap);
+  if (admSold) admSold.value = String(EB.sold);
+  if (admDisabled) admDisabled.value = String(EB.disabled);
+  if (admInfo) admInfo.textContent = `cap=${EB.cap}, sold=${EB.sold}, disabled=${EB.disabled}`;
+}
+
+/** Reserve EB on proceed (transaction) */
+async function reserveEarlyBird(qtyWanted){
+  if (!qtyWanted || qtyWanted<=0) return true;
+
+  try{
+    await runTransaction(db, async (tx)=>{
+      const snap = await tx.get(INVENTORY_DOC);
+      let cap = DEFAULT_CAP, sold = 0, disabled = false;
+      if (snap.exists()){
+        const d = snap.data()||{};
+        cap = Number(d.cap ?? DEFAULT_CAP);
+        sold = Number(d.sold ?? 0);
+        disabled = Boolean(d.disabled ?? false);
+      }
+      const left = Math.max(0, cap - sold);
+      if (disabled) throw new Error('EARLY_DISABLED');
+      if (qtyWanted > left) throw new Error('EARLY_SOLD_OUT');
+      tx.set(INVENTORY_DOC, { cap, sold: sold + qtyWanted, disabled }, { merge:true });
+    });
+    await loadEbInventory();
+    return true;
+  }catch(e){
+    console.warn('reserveEarlyBird failed', e?.message || e);
+    await loadEbInventory();
+    return false;
+  }
+}
+
+/** ===== Modal protezione ===== */
 function openNcModal(totalTickets){
   const extra = totalTickets * PRICE.NAMECHANGE;
   ncText.innerHTML = `
-    Ultimo check: stai comprando <strong>${totalTickets}</strong> ticket.
-    <br><br>
-    Con la protezione puoi fare <strong>1 cambio nome</strong> fino a <strong>24h prima</strong>.
-    <br><br>
-    Aggiungila ora per <strong>${money(extra)}</strong>?
+    <strong>Ultimo check:</strong> stai comprando <strong>${totalTickets}</strong> ticket.<br><br>
+    Con la protezione puoi fare <strong>1 cambio nome</strong> fino a <strong>24h prima</strong>.<br>
+    <span class="muted" style="opacity:.9">Senza protezione, se dovrai cambiarlo dopo pagherai <strong>4€</strong>.</span><br><br>
+    Aggiungerla ora costa <strong>${money(extra)}</strong>.
   `;
   ncModal.style.display = 'flex';
 }
 function closeNcModal(){ ncModal.style.display = 'none'; }
 
-/** Render */
+/** ===== Render ===== */
 function render(){
   const parts = subtotalBySku();
   const gross = parts.EB + parts.STD + parts.FAST + parts.VIP;
@@ -591,8 +716,15 @@ function render(){
   const tCount = ticketsCount();
   const prot   = optName?.checked ? tCount * PRICE.NAMECHANGE : 0;
 
-  // qui: niente pill che cambia, solo testo pulito
-  nameLine.textContent = prot ? `+ ${money(prot)}` : '0€';
+  if (nameLine){
+    if (optName?.checked && tCount>0){
+      nameLine.textContent = `+ ${money(prot)}`;
+      nameLine.className = '';
+    }else{
+      nameLine.textContent = 'Non inclusa';
+      nameLine.className = 'pill-muted';
+    }
+  }
 
   const total = gross + prot;
 
@@ -608,20 +740,16 @@ function render(){
 
   lines.innerHTML = L.join('');
   grandEl.textContent = money(total);
-
-  // bottoni
   payBtn.disabled = tCount<=0;
-  mobilePay.disabled = tCount<=0;
 
-  // mobile bar sempre coerente
-  mobileTot.textContent = money(total);
-  mobileSub.textContent = tCount>0 ? `Hai selezionato ${tCount} ticket` : 'Seleziona almeno 1 biglietto';
+  if (multiNote) multiNote.hidden = !(tCount>1);
 }
 
-/** Bind qty + feedback */
+/** Qty binding + feedback */
 function bindQty(){
   document.querySelectorAll('[data-plus]').forEach(b=>{
     b.addEventListener('click', ()=>{
+      if (b.disabled) return;
       const sel=b.getAttribute('data-plus'); if(!sel) return;
       const t=document.querySelector(sel); if(!t) return;
       t.value = (parseInt(t.value||0)+1);
@@ -630,6 +758,7 @@ function bindQty(){
   });
   document.querySelectorAll('[data-minus]').forEach(b=>{
     b.addEventListener('click', ()=>{
+      if (b.disabled) return;
       const sel=b.getAttribute('data-minus'); if(!sel) return;
       const t=document.querySelector(sel); if(!t) return;
       t.value = Math.max(0,parseInt(t.value||0)-1);
@@ -650,21 +779,32 @@ function goNext(){
   const qs = new URLSearchParams({
     std:q.STD||0, fast:q.FAST||0, vip:q.VIP||0, eb:q.EB||0, nc: optName?.checked?1:0
   }).toString();
-
   if(tickets > 1) location.href = `./attendees.html?${qs}`;
   else            location.href = `./attendees-single.html?${qs}`;
 }
 
-async function handleProceed(){
+payBtn?.addEventListener('click', async ()=>{
   const tCount = ticketsCount();
   if (tCount<=0) return;
 
-  // guest ok: crea anon user silenzioso -> transazioni future possibili, ZERO login obbligatorio
+  // guest ok: anon user silenzioso (zero login obbligatorio)
   await ensureAnon();
 
+  // magazzino EB: riserva PRIMA di andare avanti
+  const q = qty();
+  if (q.EB>0){
+    const ok = await reserveEarlyBird(q.EB);
+    if(!ok){
+      alert('Early Bird terminati o non disponibili. Seleziona un altro ticket.');
+      qEB.value = 0;
+      render();
+      return;
+    }
+  }
+
+  // modal upsell
   if (!optName.checked){
     openNcModal(tCount);
-
     ncNo.onclick = ()=>{
       closeNcModal();
       goNext();
@@ -679,71 +819,94 @@ async function handleProceed(){
   }
 
   goNext();
-}
-
-/** Click acquista (desktop + mobile) */
-payBtn?.addEventListener('click', handleProceed);
-mobilePay?.addEventListener('click', handleProceed);
+});
 
 ncModal?.addEventListener('click', (e)=>{
   if (e.target === ncModal) closeNcModal();
 });
 
-/** Boot UI */
+/** Admin check */
+function isAdminUser(u){
+  const email = (u?.email || '').toLowerCase();
+  const local = localStorage.getItem('tr_admin') === '1'; // override per test
+  return local || (email && ADMIN_EMAILS.map(x=>x.toLowerCase()).includes(email));
+}
+
+async function enterGuestUI(){
+  nav.innerHTML = OUT;
+  hello.textContent = '👋 Ciao';
+  setAdultUI(false);
+  showBanner('guest');
+  setVipTableState({ logged:false, isAdult:false, dobMissing:true });
+  weeksBlock.hidden = true;
+  adminPanel.hidden = true;
+  await loadEbInventory();
+  render();
+}
+
+async function enterLoggedUI(u){
+  nav.innerHTML = IN(u);
+  hello.innerHTML = `👋 Ciao, <strong>${(u.displayName||u.email||'Utente').split(' ')[0]}</strong>`;
+
+  document.getElementById('logoutLink')?.addEventListener('click', async (e)=>{
+    e.preventDefault();
+    await doSignOut();
+    await enterGuestUI();
+  });
+
+  const dob = await readDob(u.uid);
+  const dobMissing = !dob;
+  const isAdult = dob ? (ageFrom(dob) >= 18) : false;
+
+  setAdultUI(isAdult);
+
+  // banner: adulto -> chiudibile, minor -> info chiudibile
+  showBanner(isAdult ? 'adult' : 'minor');
+
+  // tavolo VIP
+  setVipTableState({ logged:true, isAdult, dobMissing });
+
+  // admin tools
+  const admin = isAdminUser(u);
+  weeksBlock.hidden = !admin;
+  adminPanel.hidden = !admin;
+
+  await loadEbInventory();
+
+  // admin controls
+  if (admin){
+    admReload.onclick = loadEbInventory;
+    admSave.onclick = async ()=>{
+      try{
+        const cap = Math.max(1, Number(admCap.value||DEFAULT_CAP));
+        const sold = Math.max(0, Number(admSold.value||0));
+        const disabled = String(admDisabled.value||'false').trim().toLowerCase() === 'true';
+        await setDoc(INVENTORY_DOC, { cap, sold, disabled }, { merge:true });
+        await loadEbInventory();
+        alert('Salvato ✅');
+      }catch(e){
+        console.error(e);
+        alert('Errore salvataggio');
+      }
+    };
+  }
+
+  render();
+}
+
+/** Boot */
 bindQty();
 render();
-
-/** Stato utente */
 hello.textContent = 'Caricamento…';
+
 onUser(async (u)=>{
   try{
-    // GUEST (nessun redirect)
-    if(!u || u.isAnonymous){
-      nav.innerHTML = OUT;
-      hello.textContent = '👋 Ciao';
-
-      setDrinkUI(false);
-      setAdultBanner({ logged:false, isAdult:false, dobMissing:true });
-      setVipBlock({ logged:false, isAdult:false, dobMissing:true });
-
-      render();
-      return;
-    }
-
-    // LOGGATO
-    nav.innerHTML = IN(u);
-    hello.innerHTML = `👋 Ciao, <strong>${(u.displayName||u.email||'Utente').split(' ')[0]}</strong>`;
-
-    document.getElementById('logoutLink')?.addEventListener('click', async (e)=>{
-      e.preventDefault();
-      await doSignOut();
-      // niente redirect: torna guest
-      nav.innerHTML = OUT;
-      hello.textContent = '👋 Ciao';
-      setDrinkUI(false);
-      setAdultBanner({ logged:false, isAdult:false, dobMissing:true });
-      setVipBlock({ logged:false, isAdult:false, dobMissing:true });
-      render();
-    });
-
-    const dob = await readDob(u.uid);
-    const dobMissing = !dob;
-    const isAdult = dob ? (ageFrom(dob) >= 18) : false;
-
-    setDrinkUI(isAdult);
-    setAdultBanner({ logged:true, isAdult, dobMissing });
-    setVipBlock({ logged:true, isAdult, dobMissing });
-
-    render();
+    if(!u){ await enterGuestUI(); return; }
+    if(u.isAnonymous){ await enterGuestUI(); return; }
+    await enterLoggedUI(u);
   }catch(err){
     console.error(err);
-    // fallback guest “sicuro”
-    nav.innerHTML = OUT;
-    hello.textContent = '👋 Ciao';
-    setDrinkUI(false);
-    setAdultBanner({ logged:false, isAdult:false, dobMissing:true });
-    setVipBlock({ logged:false, isAdult:false, dobMissing:true });
-    render();
+    await enterGuestUI();
   }
 });
 </script>
