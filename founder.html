@@ -6,111 +6,479 @@
 <title>Founder — TRAPPERREO</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&display=swap" rel="stylesheet" />
 <style>
-:root{--accent:#8b5cf6;--border:rgba(255,255,255,.12);--muted:rgba(255,255,255,.78)}
+:root{
+  --bg:#000;
+  --text:#fff;
+  --card:rgba(255,255,255,.06);
+  --card2:#0b0b0b;
+  --border:rgba(255,255,255,.12);
+  --muted:rgba(255,255,255,.72);
+  --accent:#8b5cf6;
+  --ok:#22c55e;
+  --warn:#fde047;
+  --bad:#ef4444;
+
+  --r:18px;
+}
 *{box-sizing:border-box;margin:0;padding:0}
-body{background:#000;color:#fff;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;line-height:1.5;min-height:100vh}
-.wrap{max-width:1200px;margin:auto;padding:22px}
-h1{font-size:32px;font-weight:900;margin-bottom:8px}
-h2{font-size:20px;font-weight:900}
+body{
+  background:var(--bg);color:var(--text);
+  font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+  line-height:1.45;min-height:100vh;
+}
+a{color:inherit;text-decoration:none}
+.wrap{max-width:1200px;margin:auto;padding:18px}
 .muted{color:var(--muted)}
-.card{background:rgba(255,255,255,.06);border:1px solid var(--border);border-radius:16px;padding:18px;margin-top:14px}
-input,select{background:#0f0f10;border:1px solid var(--border);border-radius:10px;color:#fff;padding:10px}
-.btn{display:inline-block;padding:10px 14px;border-radius:10px;background:var(--accent);color:#000;font-weight:900;border:none;cursor:pointer}
-.btn.ghost{background:transparent;border:1px solid var(--border);color:#fff}
-.grid2{display:grid;grid-template-columns:1fr auto;gap:10px}
-.table{width:100%;border-collapse:collapse;margin-top:12px;font-size:14px}
-.table th,.table td{padding:10px;border-bottom:1px solid rgba(255,255,255,.08);vertical-align:top}
-.badge{display:inline-block;font-size:12px;border:1px solid var(--border);border-radius:999px;padding:3px 8px}
 .small{font-size:12px}
-.right{display:flex;gap:10px;align-items:center}
-.notice{display:none;margin:10px 0;padding:12px;border-radius:10px;background:#2a0e0e;border:1px solid #ff6b6b;color:#ffdede}
-.modal{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;align-items:center;justify-content:center;z-index:60}
-.modal .box{background:#0f0f10;border:1px solid var(--border);border-radius:14px;padding:16px;width:min(560px,92vw)}
-.row{display:flex;gap:8px;margin-top:8px}
-.ticketRow{border:1px solid rgba(255,255,255,.12);border-radius:10px;padding:8px;margin-bottom:8px}
+.hr{height:1px;background:rgba(255,255,255,.08);margin:12px 0}
+
+.topbar{
+  position:sticky;top:0;z-index:50;
+  backdrop-filter:saturate(140%) blur(6px);
+  background:rgba(0,0,0,.6);
+  border-bottom:1px solid rgba(255,255,255,.08);
+}
+.topbar-inner{
+  max-width:1200px;margin:auto;padding:14px 18px;
+  display:flex;align-items:center;justify-content:space-between;gap:14px;
+}
+.brand{display:flex;align-items:center;gap:10px;font-weight:900;letter-spacing:-.3px}
+.brand-badge{width:22px;height:22px;background:var(--accent);transform:skew(-6deg);border-radius:4px}
+.pills{display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end}
+.pill{
+  display:inline-flex;align-items:center;gap:8px;
+  padding:8px 10px;border-radius:999px;
+  border:1px solid rgba(255,255,255,.14);
+  background:rgba(255,255,255,.03);
+  color:#fff;font-weight:800;font-size:13px;
+  white-space:nowrap;
+}
+.pill strong{font-weight:900}
+.pill.ok{border-color:rgba(34,197,94,.35)}
+.pill.bad{border-color:rgba(239,68,68,.35)}
+.pill.accent{border-color:rgba(139,92,246,.35)}
+.pill.ghost{background:transparent}
+.pill:hover{border-color:rgba(255,255,255,.26)}
+
+h1{
+  font-size:30px;font-weight:900;letter-spacing:-.2px;
+  margin:14px 0 6px;
+}
+.subhead{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.notice{
+  display:none;margin-top:12px;padding:12px 14px;border-radius:14px;
+  border:1px solid rgba(239,68,68,.45);
+  background:rgba(239,68,68,.10);
+  color:#ffdede;
+}
+.notice.show{display:block}
+
+.card{
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:var(--r);
+  padding:16px;
+}
+.card + .card{margin-top:14px}
+
+.actions{
+  display:flex;gap:10px;flex-wrap:wrap;align-items:center;
+}
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:8px;
+  padding:10px 12px;border-radius:12px;
+  border:1px solid rgba(255,255,255,.16);
+  background:#111;color:#fff;
+  font-weight:900;cursor:pointer;
+}
+.btn.primary{background:var(--accent);border-color:rgba(139,92,246,.6);color:#000}
+.btn.ghost{background:transparent}
+.btn.danger{background:rgba(239,68,68,.12);border-color:rgba(239,68,68,.55)}
+.btn:disabled{opacity:.55;cursor:not-allowed}
+
+.stats{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:12px;
+  margin-top:14px;
+}
+@media(max-width:900px){.stats{grid-template-columns:1fr}}
+
+.stat{
+  background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
+  border:1px solid rgba(255,255,255,.12);
+  border-radius:16px;padding:14px;
+}
+.stat .k{font-size:12px;color:rgba(255,255,255,.65);text-transform:uppercase;letter-spacing:.6px}
+.stat .v{font-size:26px;font-weight:900;margin-top:6px;letter-spacing:-.2px}
+.stat .s{margin-top:6px;color:rgba(255,255,255,.72);font-size:13px}
+.loadingDot{
+  display:inline-block;width:8px;height:8px;border-radius:50%;
+  background:rgba(255,255,255,.35);
+  animation:pulse 1.1s infinite ease-in-out;
+}
+@keyframes pulse{0%,100%{opacity:.3;transform:scale(.9)}50%{opacity:1;transform:scale(1.1)}}
+
+.workspace{
+  margin-top:14px;
+  display:grid;grid-template-columns:380px 1fr;gap:14px;
+}
+@media(max-width:980px){.workspace{grid-template-columns:1fr}}
+.panel{
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:var(--r);
+  overflow:hidden;
+}
+.panelHead{
+  padding:14px 14px 12px;
+  border-bottom:1px solid rgba(255,255,255,.08);
+  display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;
+}
+.panelHead h2{font-size:16px;font-weight:900}
+.panelBody{padding:14px}
+
+.searchRow{
+  display:flex;gap:8px;align-items:center;flex-wrap:wrap;
+}
+.input{
+  width:100%;
+  background:#0f0f10;border:1px solid rgba(255,255,255,.15);
+  border-radius:12px;color:#fff;padding:10px 12px;font-weight:800;
+}
+.searchRow .input{flex:1;min-width:200px}
+.counter{font-size:12px;color:rgba(255,255,255,.75)}
+.list{
+  display:grid;gap:10px;margin-top:10px;
+}
+.userCard{
+  background:var(--card2);
+  border:1px solid rgba(255,255,255,.10);
+  border-radius:14px;padding:12px;
+  display:flex;justify-content:space-between;gap:10px;cursor:pointer;
+  transition:transform .10s, border-color .16s, box-shadow .16s;
+}
+.userCard:hover{border-color:rgba(255,255,255,.22);transform:translateY(-1px)}
+.userCard.active{
+  border-color:rgba(139,92,246,.55);
+  box-shadow:0 0 0 2px rgba(139,92,246,.18);
+}
+.uName{font-weight:900}
+.uMeta{margin-top:4px;color:rgba(255,255,255,.72);font-size:12px}
+.badges{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end;align-content:flex-start}
+.badge{
+  display:inline-flex;align-items:center;gap:6px;
+  font-size:12px;font-weight:900;
+  border:1px solid rgba(255,255,255,.14);
+  border-radius:999px;padding:4px 8px;
+  color:rgba(255,255,255,.92);
+}
+.badge.ok{border-color:rgba(34,197,94,.40)}
+.badge.warn{border-color:rgba(253,224,71,.40)}
+.badge.bad{border-color:rgba(239,68,68,.45)}
+.badge.accent{border-color:rgba(139,92,246,.45)}
+
+.detailEmpty{
+  padding:18px;
+  border:1px dashed rgba(255,255,255,.14);
+  border-radius:16px;
+  color:rgba(255,255,255,.75);
+  background:rgba(255,255,255,.03);
+}
+.detailTop{
+  display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;
+  align-items:flex-start;
+}
+.detailTop h3{font-size:18px;font-weight:900;letter-spacing:-.1px}
+.detailTop .meta{margin-top:6px;color:rgba(255,255,255,.72);font-size:13px}
+.detailActions{display:flex;gap:8px;flex-wrap:wrap}
+
+.section{
+  margin-top:14px;
+  background:rgba(0,0,0,.28);
+  border:1px solid rgba(255,255,255,.10);
+  border-radius:16px;
+  overflow:hidden;
+}
+.sectionHead{
+  padding:12px 14px;
+  display:flex;justify-content:space-between;align-items:center;gap:10px;
+  border-bottom:1px solid rgba(255,255,255,.08);
+}
+.sectionHead .t{font-weight:900}
+.sectionBody{padding:12px 14px}
+.rowItem{
+  border:1px solid rgba(255,255,255,.10);
+  background:#0b0b0b;
+  border-radius:14px;
+  padding:10px 12px;
+  margin-bottom:10px;
+}
+.rowItem:last-child{margin-bottom:0}
+.rowItemTop{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:flex-start}
+.rowItemTop b{font-weight:900}
+.rowItemSub{margin-top:6px;color:rgba(255,255,255,.75);font-size:12px}
+.rowItemBtns{display:flex;gap:8px;align-items:center}
+.kbtn{
+  padding:8px 10px;border-radius:10px;
+  border:1px solid rgba(255,255,255,.16);
+  background:transparent;color:#fff;font-weight:900;cursor:pointer;
+  font-size:12px;
+}
+.kbtn:hover{border-color:rgba(255,255,255,.26)}
+.kbtn.danger{border-color:rgba(239,68,68,.55);background:rgba(239,68,68,.10)}
+
+.split2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
+@media(max-width:640px){.split2{grid-template-columns:1fr}}
+.copy{
+  display:inline-flex;gap:8px;align-items:center;
+  border:1px solid rgba(255,255,255,.14);
+  background:rgba(255,255,255,.03);
+  border-radius:12px;padding:10px 12px;
+  color:rgba(255,255,255,.9);
+  font-weight:800;
+}
+.copy code{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;font-size:12px;color:rgba(255,255,255,.85)}
+.copy button{
+  margin-left:auto;
+  padding:8px 10px;border-radius:10px;
+  border:1px solid rgba(255,255,255,.16);
+  background:#111;color:#fff;font-weight:900;cursor:pointer;font-size:12px;
+}
+.copy button:hover{border-color:rgba(255,255,255,.26)}
+
+.footerHint{margin-top:10px;color:rgba(255,255,255,.65);font-size:12px}
+
+/* Modal */
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.66);display:none;align-items:center;justify-content:center;z-index:70}
+.modal .box{
+  width:min(560px,92vw);
+  background:#0f0f10;border:1px solid rgba(255,255,255,.14);
+  border-radius:16px;padding:16px;
+}
+.modal h4{font-size:16px;font-weight:900;margin-bottom:8px}
+.modal label{display:block;font-size:12px;color:rgba(255,255,255,.7);margin-top:10px;margin-bottom:6px}
+.modal input{
+  width:100%;
+  background:#0b0b0b;border:1px solid rgba(255,255,255,.14);
+  border-radius:12px;color:#fff;padding:12px;font-weight:800;
+}
+.modal .rowBtns{display:flex;gap:10px;justify-content:flex-end;margin-top:12px;flex-wrap:wrap}
+.toast{
+  position:fixed;left:50%;transform:translateX(-50%);
+  bottom:18px;z-index:80;
+  background:#0b0b0b;border:1px solid rgba(255,255,255,.14);
+  padding:10px 12px;border-radius:14px;
+  color:#fff;font-weight:900;font-size:13px;
+  display:none;
+}
+.toast.show{display:block}
 </style>
 </head>
+
 <body>
+<header class="topbar">
+  <div class="topbar-inner">
+    <div class="brand">
+      <div class="brand-badge"></div>
+      <div>TRAPPERREO</div>
+    </div>
+    <div class="pills">
+      <a class="pill accent" href="./founder-gift.html">🎁 Omaggi</a>
+      <a class="pill ghost" href="./founder-discount.html">% Sconti</a>
+      <a class="pill accent" href="./founder-tables.html">🍾 Tavoli</a>
+      <a class="pill ghost" href="./scanner.html">📷 Scanner</a>
+      <button id="btnExportCSV" class="pill" type="button">⬇️ Export CSV</button>
+    </div>
+  </div>
+</header>
+
 <main class="wrap">
-  <h1>Pannello Founder</h1>
-  <div id="who" class="muted">Verifica permessi…</div>
+  <div class="subhead">
+    <div>
+      <h1>Pannello Founder</h1>
+      <div id="who" class="muted">Verifica permessi…</div>
+    </div>
+    <div class="actions">
+      <button id="btnReloadAll" class="btn ghost" type="button">↻ Ricarica</button>
+      <button id="btnLogout" class="btn ghost" type="button" style="display:none">Logout</button>
+    </div>
+  </div>
 
   <div id="errBanner" class="notice"></div>
 
-  <!-- Azioni rapide -->
-  <div class="card" style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
-    <a href="./founder-gift.html" class="btn">🎁 Crea omaggio</a>
-    <a href="./founder-discount.html" class="btn ghost">% Codice sconto</a>
-    <a href="./founder-tables.html" class="btn">🍾 Tavoli & bottiglie</a>
-    <a href="./scanner.html" class="btn ghost">📷 Scanner</a>
-    <button id="btnExportCSV" class="btn">Export CSV utenti</button>
-  </div>
-
-  <!-- Statistiche -->
-  <section class="card">
-    <div class="right" style="justify-content:space-between;">
-      <h2>Statistiche rapide</h2>
-      <div id="statLoad" class="badge">Carico…</div>
+  <!-- Stats -->
+  <section class="stats">
+    <div class="stat">
+      <div class="k">Utenti</div>
+      <div class="v"><span id="statTotal">—</span></div>
+      <div class="s">Attivi: <b id="statActive">—</b> <span id="statLoad1" class="loadingDot" style="display:none"></span></div>
     </div>
-    <div style="display:flex;gap:16px;flex-wrap:wrap;margin-top:8px">
-      <div class="badge">Utenti attivi: <span id="statActive">—</span></div>
-      <div class="badge">Utenti totali: <span id="statTotal">—</span></div>
-      <div class="badge">% verificati: <span id="statVerified">—</span></div>
+    <div class="stat">
+      <div class="k">Ticket</div>
+      <div class="v"><span id="statTickets">—</span></div>
+      <div class="s">Verificati: <b id="statVerified">—</b> <span id="statLoad2" class="loadingDot" style="display:none"></span></div>
+    </div>
+    <div class="stat">
+      <div class="k">Operazioni</div>
+      <div class="v"><span id="statOps">—</span></div>
+      <div class="s">Ordini/omaggi letti (per stats). <span id="statLoad3" class="loadingDot" style="display:none"></span></div>
     </div>
   </section>
 
-  <!-- Gestione utenti -->
-  <section class="card">
-    <div class="right" style="justify-content:space-between;">
-      <h2>Gestione utenti</h2>
-      <div class="right">
-        <input id="q" placeholder="Cerca email o nome…" />
-        <button id="btnSearch" class="btn">Cerca</button>
+  <!-- Workspace -->
+  <section class="workspace">
+    <!-- LEFT: users -->
+    <div class="panel">
+      <div class="panelHead">
+        <h2>Utenti</h2>
+        <div class="counter" id="counter">—</div>
+      </div>
+      <div class="panelBody">
+        <div class="searchRow">
+          <input id="q" class="input" placeholder="Cerca per email o nome…" autocomplete="off" />
+          <button id="btnSearch" class="btn primary" type="button">Cerca</button>
+          <button id="btnReset" class="btn ghost" type="button">Reset</button>
+        </div>
+
+        <div class="footerHint">
+          Suggerimento: scrivi “gmail.com” per filtrare veloce, oppure un nome.
+        </div>
+
+        <div class="hr"></div>
+
+        <div id="userList" class="list"></div>
+        <div id="empty" class="muted small" style="display:none;margin-top:10px">Nessun risultato.</div>
       </div>
     </div>
-    <table class="table" id="tbl">
-      <thead>
-        <tr><th>Utente</th><th>Biglietti</th><th>Cronologia</th></tr>
-      </thead>
-      <tbody></tbody>
-    </table>
-    <div id="empty" class="muted small" style="display:none;margin-top:8px">Nessun risultato.</div>
+
+    <!-- RIGHT: detail -->
+    <div class="panel" id="detailPanel">
+      <div class="panelHead">
+        <h2>Dettaglio</h2>
+        <div class="counter" id="detailHint">Seleziona un utente</div>
+      </div>
+      <div class="panelBody" id="detailBody">
+        <div class="detailEmpty">
+          <b>Seleziona un utente</b> dalla lista a sinistra.<br>
+          Qui vedrai biglietti, ordini/omaggi e potrai modificare i nominativi.
+        </div>
+      </div>
+    </div>
   </section>
 </main>
 
-<!-- Modale edit ticket -->
+<!-- Modal edit ticket -->
 <div id="modal" class="modal" aria-hidden="true">
-  <div class="box">
-    <h3 style="font-weight:900">Modifica nominativo (gratis staff)</h3>
-    <div class="row"><input id="mName" placeholder="Nome e cognome" style="flex:1"></div>
-    <div class="row"><input id="mDob"  type="date" style="flex:1"></div>
-    <div class="row" style="justify-content:flex-end">
-      <button id="mCancel" class="btn ghost">Annulla</button>
-      <button id="mSave" class="btn">Salva & rigenera QR</button>
+  <div class="box" role="dialog" aria-modal="true" aria-labelledby="mTitle">
+    <h4 id="mTitle">Modifica ticket</h4>
+    <div class="muted small" id="mSub">—</div>
+
+    <label for="mName">Nome e cognome</label>
+    <input id="mName" placeholder="Es. Mario Rossi" />
+
+    <label for="mDob">Data di nascita</label>
+    <input id="mDob" type="date" />
+
+    <div class="rowBtns">
+      <button id="mCancel" class="btn ghost" type="button">Annulla</button>
+      <button id="mSave" class="btn primary" type="button">Salva & rigenera QR</button>
     </div>
   </div>
 </div>
 
+<div id="toast" class="toast"></div>
+
 <script type="module">
-import { app, onUser, exportUsersCSV } from './auth.v2.js?v=6';
-import { getFirestore, doc, getDoc, setDoc, collection, getDocs, deleteDoc } from 'https://www.gstatic.com/firebasejs/12.5.0/firebase-firestore.js';
+import { app, onUser, doSignOut, exportUsersCSV } from './auth.v2.js?v=6';
+import {
+  getFirestore, doc, getDoc, setDoc,
+  collection, getDocs, deleteDoc,
+  query, limit
+} from 'https://www.gstatic.com/firebasejs/12.5.0/firebase-firestore.js';
 
 const db = getFirestore(app);
+
+/* ===== UI refs ===== */
 const who = document.getElementById('who');
-const tbody = document.querySelector('#tbl tbody');
-const empty = document.getElementById('empty');
-const qInput= document.getElementById('q');
-const btnSearch=document.getElementById('btnSearch');
+const errBanner = document.getElementById('errBanner');
+
+const statTotal = document.getElementById('statTotal');
+const statActive = document.getElementById('statActive');
+const statTickets = document.getElementById('statTickets');
+const statVerified = document.getElementById('statVerified');
+const statOps = document.getElementById('statOps');
+const statLoad1 = document.getElementById('statLoad1');
+const statLoad2 = document.getElementById('statLoad2');
+const statLoad3 = document.getElementById('statLoad3');
+
 const btnExportCSV = document.getElementById('btnExportCSV');
+const btnReloadAll = document.getElementById('btnReloadAll');
+const btnLogout = document.getElementById('btnLogout');
+
+const qInput = document.getElementById('q');
+const btnSearch = document.getElementById('btnSearch');
+const btnReset = document.getElementById('btnReset');
+const counter = document.getElementById('counter');
+
+const userListEl = document.getElementById('userList');
+const empty = document.getElementById('empty');
+
+const detailHint = document.getElementById('detailHint');
+const detailBody = document.getElementById('detailBody');
+
+/* Modal */
 const modal = document.getElementById('modal');
+const mTitle = document.getElementById('mTitle');
+const mSub = document.getElementById('mSub');
 const mName = document.getElementById('mName');
-const mDob  = document.getElementById('mDob');
+const mDob = document.getElementById('mDob');
 const mCancel = document.getElementById('mCancel');
-const mSave   = document.getElementById('mSave');
-let EDIT = null;
+const mSave = document.getElementById('mSave');
 
+const toast = document.getElementById('toast');
+
+/* ===== State ===== */
+let AUTH_USER = null;
+let USERS = [];        // {uid, email, name, name_lc, dob, status, role...}
+let FILTERED = [];
+let SELECTED = null;   // {uid, ...}
+let EDIT = null;       // {uid, tid, type}
+let DETAIL_CACHE = new Map(); // uid -> {tickets, orders}
+
+/* ===== Helpers ===== */
 function lc(s){ return (s||'').toString().trim().toLowerCase(); }
+function showToast(msg){
+  toast.textContent = msg;
+  toast.classList.add('show');
+  clearTimeout(showToast._t);
+  showToast._t = setTimeout(()=>toast.classList.remove('show'), 1600);
+}
+function showError(msg){
+  errBanner.textContent = msg;
+  errBanner.classList.add('show');
+}
+function clearError(){
+  errBanner.textContent = '';
+  errBanner.classList.remove('show');
+}
+function fmtDateMaybe(x){
+  try{
+    const s = (x||'').toString().slice(0,10);
+    return s || '—';
+  }catch{ return '—'; }
+}
+function badgeStatus(u){
+  const s = lc(u?.status || 'active');
+  if (s === 'active') return `<span class="badge ok">active</span>`;
+  if (s === 'banned' || s === 'disabled') return `<span class="badge bad">${s}</span>`;
+  return `<span class="badge warn">${s || '—'}</span>`;
+}
+function badgeRole(u){
+  const r = lc(u?.role || '');
+  if (!r) return '';
+  return `<span class="badge accent">${r}</span>`;
+}
 
+/* ===== Permissions ===== */
 async function isFounder(email, uid){
   try{
     const cfg = await getDoc(doc(db,'config','admins'));
@@ -121,138 +489,478 @@ async function isFounder(email, uid){
     return !!(f[lc(email)] || r==='founder' || a[lc(email)]);
   }catch{ return false; }
 }
-function openModal(){ modal.style.display='flex'; modal.setAttribute('aria-hidden','false'); }
-function closeModal(){ modal.style.display='none'; modal.setAttribute('aria-hidden','true'); }
 
-function ticketRow(uid, t){
-  const state = (t.status||'pending').toLowerCase();
+/* ===== Load users (fast) ===== */
+async function loadUsers(){
+  // Se hai tanti utenti: alza/abbassa LIMIT_USERS.
+  const LIMIT_USERS = 350;
+
+  const snap = await getDocs(query(collection(db,'users'), limit(LIMIT_USERS)));
+  const arr = [];
+  snap.forEach(d => {
+    const v = d.data() || {};
+    arr.push({
+      uid: d.id,
+      email: v.email || '',
+      name: v.name || v.displayName || '',
+      name_lc: v.name_lc || lc(v.name || v.displayName || ''),
+      dob: v.dob || (v.profile?.dob) || '',
+      status: v.status || 'active',
+      role: v.role || ''
+    });
+  });
+
+  // Ordine: prima chi ha email/nome (più utile), poi alfabetico
+  arr.sort((a,b)=>{
+    const an = lc(a.name||a.email||'');
+    const bn = lc(b.name||b.email||'');
+    return an.localeCompare(bn);
+  });
+
+  USERS = arr;
+  FILTERED = arr.slice();
+  renderUserList();
+}
+
+/* ===== Filter ===== */
+function filterUsers(term){
+  const q = lc(term);
+  if(!q){
+    FILTERED = USERS.slice();
+  }else{
+    FILTERED = USERS.filter(u=>{
+      const em = lc(u.email);
+      const nm = lc(u.name_lc || u.name);
+      return em.includes(q) || nm.includes(q);
+    });
+  }
+  renderUserList();
+}
+
+/* ===== Render list ===== */
+function renderUserList(){
+  userListEl.innerHTML = '';
+  empty.style.display = FILTERED.length ? 'none' : 'block';
+  counter.textContent = `Risultati: ${FILTERED.length}`;
+
+  const frag = document.createDocumentFragment();
+  FILTERED.slice(0, 200).forEach(u=>{
+    const div = document.createElement('div');
+    div.className = 'userCard' + (SELECTED?.uid === u.uid ? ' active' : '');
+    div.innerHTML = `
+      <div style="min-width:0">
+        <div class="uName">${u.name || '—'}</div>
+        <div class="uMeta" style="word-break:break-word">${u.email || '—'}</div>
+        <div class="uMeta">DOB: ${fmtDateMaybe(u.dob)}</div>
+      </div>
+      <div class="badges">
+        ${badgeStatus(u)}
+        ${badgeRole(u)}
+      </div>
+    `;
+    div.addEventListener('click', ()=> selectUser(u.uid));
+    frag.appendChild(div);
+  });
+  userListEl.appendChild(frag);
+
+  if (FILTERED.length > 200){
+    const more = document.createElement('div');
+    more.className = 'muted small';
+    more.style.marginTop = '10px';
+    more.textContent = `Mostro i primi 200. Affina la ricerca per vedere altri (${FILTERED.length - 200} nascosti).`;
+    userListEl.appendChild(more);
+  }
+}
+
+/* ===== Detail loading ===== */
+async function loadUserDetail(uid){
+  if (DETAIL_CACHE.has(uid)) return DETAIL_CACHE.get(uid);
+
+  const ticketsSnap = await getDocs(collection(db,'users',uid,'tickets'));
+  const tickets = [];
+  ticketsSnap.forEach(d => tickets.push({ id:d.id, ...(d.data()||{}) }));
+
+  const ordersSnap = await getDocs(collection(db,'users',uid,'orders')).catch(()=>null);
+  const orders = [];
+  ordersSnap?.forEach?.(d => orders.push({ id:d.id, ...(d.data()||{}) }));
+
+  // sort newest first if possible
+  tickets.sort((a,b)=> (b.updatedAt||0) - (a.updatedAt||0));
+  orders.sort((a,b)=> ((b.createdAt?.seconds||0) - (a.createdAt?.seconds||0)));
+
+  const payload = { tickets, orders };
+  DETAIL_CACHE.set(uid, payload);
+  return payload;
+}
+
+/* ===== Render detail ===== */
+function ticketStateBadge(t){
+  const s = lc(t.status || 'pending');
+  if (s === 'verified') return `<span class="badge ok">verified</span>`;
+  if (s === 'pending') return `<span class="badge warn">pending</span>`;
+  if (s === 'invalid') return `<span class="badge bad">invalid</span>`;
+  return `<span class="badge">${s || '—'}</span>`;
+}
+function orderRow(o){
+  const when = o.createdAt?.seconds ? new Date(o.createdAt.seconds*1000).toLocaleString() : '';
+  const title = o.title || (o.kind==='gift' ? 'Omaggio' : 'Ordine');
+  const tot = (o.total!=null) ? `${(Number(o.total)||0).toFixed(2)}€` : '';
+  const kind = o.kind ? `<span class="badge">${o.kind}</span>` : '';
   return `
-    <div class="ticketRow">
-      <div style="display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap">
-        <div><b>${t.type||'Ticket'}</b> — <span style="opacity:.85">${t.name||'—'} • ${(t.dob||'').toString().slice(0,10)||'—'}</span></div>
-        <div style="display:flex;gap:6px;align-items:center">
-          <span class="badge">${state}</span>
-          <button class="btn ghost small" data-edit="${uid}:${t.id}">Modifica</button>
-          <button class="btn ghost small" data-del="${uid}:${t.id}">Elimina</button>
+    <div class="rowItem">
+      <div class="rowItemTop">
+        <div><b>${title}</b> <span class="muted small">${tot}</span></div>
+        <div class="rowItemBtns">${kind}</div>
+      </div>
+      <div class="rowItemSub">${when || '—'}</div>
+    </div>
+  `;
+}
+function ticketRow(uid, t){
+  const type = t.type || 'Ticket';
+  const name = t.name || '—';
+  const dob = fmtDateMaybe(t.dob);
+  return `
+    <div class="rowItem">
+      <div class="rowItemTop">
+        <div>
+          <b>${type}</b>
+          <div class="rowItemSub">${name} • ${dob}</div>
+        </div>
+        <div class="rowItemBtns">
+          ${ticketStateBadge(t)}
+          <button class="kbtn" type="button" data-edit="${uid}:${t.id}">Modifica</button>
+          <button class="kbtn danger" type="button" data-del="${uid}:${t.id}">Elimina</button>
         </div>
       </div>
     </div>
   `;
 }
-function orderRow(o){
-  const when = o.createdAt?.seconds ? new Date(o.createdAt.seconds*1000).toLocaleString() : '';
-  const title = o.title || (o.kind==='gift'?'Omaggio':'Ordine');
-  const tot = (o.total!=null) ? `${(Number(o.total)||0).toFixed(2)}€` : '';
-  return `<div class="small" style="border-bottom:1px dashed rgba(255,255,255,.12);padding:6px 0">
-    <div><b>${title}</b> ${tot}</div><div style="opacity:.8">${when}</div>
-  </div>`;
+
+async function selectUser(uid){
+  clearError();
+  const u = USERS.find(x=>x.uid===uid);
+  if(!u) return;
+
+  SELECTED = u;
+  renderUserList();
+
+  detailHint.textContent = 'Carico…';
+  detailBody.innerHTML = `
+    <div class="detailEmpty">
+      <b>Caricamento dettagli</b> <span class="loadingDot"></span><br>
+      Biglietti e ordini/omaggi dell’utente selezionato.
+    </div>
+  `;
+
+  try{
+    const { tickets, orders } = await loadUserDetail(uid);
+
+    const tCount = tickets.length;
+    const verified = tickets.filter(t=> lc(t.status)==='verified').length;
+    const oCount = orders.length;
+
+    detailHint.textContent = `${tCount} ticket • ${oCount} ordini/omaggi`;
+
+    const head = `
+      <div class="detailTop">
+        <div>
+          <h3>${u.name || '—'}</h3>
+          <div class="meta">
+            ${u.email ? u.email : '—'} · DOB: ${fmtDateMaybe(u.dob)} · ${badgeStatus(u)} ${badgeRole(u)}
+          </div>
+          <div class="split2">
+            <div class="copy">
+              <div>
+                <div class="small muted">UID</div>
+                <code>${u.uid}</code>
+              </div>
+              <button type="button" data-copy="${u.uid}">Copia</button>
+            </div>
+            <div class="copy">
+              <div style="min-width:0">
+                <div class="small muted">Email</div>
+                <code style="word-break:break-word">${u.email || '—'}</code>
+              </div>
+              <button type="button" data-copy="${u.email || ''}">Copia</button>
+            </div>
+          </div>
+        </div>
+        <div class="detailActions">
+          <button class="btn ghost" type="button" id="btnClearCache">↻ Ricarica dettagli</button>
+          <a class="btn ghost" href="./account-2.html" title="Apri area personale (tua)">Area personale</a>
+        </div>
+      </div>
+    `;
+
+    // tickets section (show 3 + expand)
+    const showN = 3;
+    const ticketsTop = tickets.slice(0, showN).map(t=>ticketRow(uid,t)).join('') || `<div class="muted small">Nessun ticket.</div>`;
+    const ticketsRest = tickets.slice(showN).map(t=>ticketRow(uid,t)).join('');
+    const moreTicketsBtn = tickets.length > showN
+      ? `<button class="btn ghost" type="button" id="btnMoreTickets">Mostra altri (${tickets.length - showN})</button>`
+      : '';
+
+    const ordersTop = orders.slice(0, showN).map(orderRow).join('') || `<div class="muted small">Nessun ordine/omaggio.</div>`;
+    const ordersRest = orders.slice(showN).map(orderRow).join('');
+    const moreOrdersBtn = orders.length > showN
+      ? `<button class="btn ghost" type="button" id="btnMoreOrders">Mostra altri (${orders.length - showN})</button>`
+      : '';
+
+    const content = `
+      ${head}
+
+      <div class="section">
+        <div class="sectionHead">
+          <div class="t">Biglietti</div>
+          <div class="badges">
+            <span class="badge">tot: ${tCount}</span>
+            <span class="badge ok">verified: ${verified}</span>
+          </div>
+        </div>
+        <div class="sectionBody">
+          <div id="ticketsBlock">${ticketsTop}</div>
+          ${moreTicketsBtn ? `<div style="margin-top:10px;display:flex;justify-content:flex-end">${moreTicketsBtn}</div>` : ``}
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="sectionHead">
+          <div class="t">Ordini / Omaggi</div>
+          <div class="badges">
+            <span class="badge">tot: ${oCount}</span>
+          </div>
+        </div>
+        <div class="sectionBody">
+          <div id="ordersBlock">${ordersTop}</div>
+          ${moreOrdersBtn ? `<div style="margin-top:10px;display:flex;justify-content:flex-end">${moreOrdersBtn}</div>` : ``}
+        </div>
+      </div>
+
+      <div class="footerHint">
+        Nota: qui carichiamo ticket/ordini solo dell’utente selezionato (molto più veloce e ordinato).
+      </div>
+    `;
+
+    detailBody.innerHTML = content;
+
+    // copy buttons
+    detailBody.querySelectorAll('[data-copy]').forEach(b=>{
+      b.addEventListener('click', async ()=>{
+        const v = b.getAttribute('data-copy') || '';
+        try{ await navigator.clipboard.writeText(v); showToast('Copiato ✅'); }
+        catch{ showToast('Copia non disponibile'); }
+      });
+    });
+
+    // reload details (invalidate cache)
+    document.getElementById('btnClearCache')?.addEventListener('click', async ()=>{
+      DETAIL_CACHE.delete(uid);
+      showToast('Ricarico…');
+      await selectUser(uid);
+    });
+
+    // expand tickets/orders
+    document.getElementById('btnMoreTickets')?.addEventListener('click', ()=>{
+      const block = document.getElementById('ticketsBlock');
+      block.insertAdjacentHTML('beforeend', ticketsRest);
+      document.getElementById('btnMoreTickets')?.remove();
+      bindTicketButtons(); // bind for appended rows
+    });
+    document.getElementById('btnMoreOrders')?.addEventListener('click', ()=>{
+      const block = document.getElementById('ordersBlock');
+      block.insertAdjacentHTML('beforeend', ordersRest);
+      document.getElementById('btnMoreOrders')?.remove();
+    });
+
+    // bind ticket buttons in detail
+    bindTicketButtons();
+
+  }catch(e){
+    console.error(e);
+    showError('Errore nel caricamento dei dettagli utente.');
+    detailHint.textContent = 'Errore';
+  }
 }
 
-async function renderUsers(list){
-  tbody.innerHTML=''; empty.style.display = list.length? 'none':'block';
-  for (const u of list){
-    const ts = await getDocs(collection(db,'users',u.uid,'tickets'));
-    const tickets = []; ts.forEach(d=> tickets.push({ id:d.id, ...(d.data()||{}) }));
-    const os = await getDocs(collection(db,'users',u.uid,'orders')).catch(()=>({forEach:()=>{}}));
-    const orders=[]; os.forEach(o=> orders.push({ id:o.id, ...(o.data()||{}) }));
-
-    const tr = document.createElement('tr');
-    tr.innerHTML = `
-      <td style="min-width:240px">
-        <div><b>${u.name||'—'}</b></div>
-        <div class="small" style="opacity:.8">${u.email||'—'}</div>
-        <div class="small" style="opacity:.8">DOB: ${(u.dob||'').toString().slice(0,10)||'—'}</div>
-      </td>
-      <td>${ tickets.length? tickets.map(t=>ticketRow(u.uid,t)).join('') : '<span class="small muted">Nessun ticket</span>' }</td>
-      <td style="min-width:260px">
-        ${ orders.length ? orders.map(orderRow).join('') : '<span class="small muted">Nessun ordine/omaggio</span>' }
-      </td>
-    `;
-    tbody.appendChild(tr);
-  }
-
-  // bind edit
-  tbody.querySelectorAll('[data-edit]').forEach(btn=>{
+function bindTicketButtons(){
+  // edit
+  detailBody.querySelectorAll('[data-edit]').forEach(btn=>{
     btn.onclick = async ()=>{
       const [uid, tid] = btn.getAttribute('data-edit').split(':');
       const snap = await getDoc(doc(db,'users',uid,'tickets',tid));
       if(!snap.exists()) return;
       const t = snap.data()||{};
-      EDIT = { uid, tid };
+      EDIT = { uid, tid, type: t.type || 'Ticket' };
+      mTitle.textContent = 'Modifica ticket';
+      mSub.textContent = `${EDIT.type} • ${tid}`;
       mName.value = t.name || '';
-      mDob.value  = (t.dob||'').toString().slice(0,10) || '';
+      mDob.value  = fmtDateMaybe(t.dob) !== '—' ? fmtDateMaybe(t.dob) : '';
       openModal();
     };
   });
-  // bind delete
-  tbody.querySelectorAll('[data-del]').forEach(btn=>{
+
+  // delete
+  detailBody.querySelectorAll('[data-del]').forEach(btn=>{
     btn.onclick = async ()=>{
       const [uid, tid] = btn.getAttribute('data-del').split(':');
       if(!confirm('Eliminare definitivamente questo biglietto?')) return;
       await deleteDoc(doc(db,'users',uid,'tickets',tid));
-      alert('Biglietto eliminato.'); location.reload();
+      showToast('Biglietto eliminato.');
+      DETAIL_CACHE.delete(uid);
+      await selectUser(uid);
     };
   });
 }
 
-async function searchUsers(term){
-  const snap = await getDocs(collection(db,'users'));
-  const arr=[]; snap.forEach(d=> arr.push({ uid:d.id, ...(d.data()||{}) }) );
-  const q = lc(term);
-  const out = q
-    ? arr.filter(u=> lc(u.email)==q || lc(u.name_lc||u.name||'').startsWith(q))
-    : arr.slice(0,80);
-  renderUsers(out);
+/* ===== Modal ===== */
+function openModal(){
+  modal.style.display='flex';
+  modal.setAttribute('aria-hidden','false');
+  setTimeout(()=>mName.focus(), 0);
 }
-
-async function runStats(){
-  document.getElementById('statLoad').textContent='…';
-  const us = await getDocs(collection(db,'users'));
-  let active=0, total=us.size, verified=0, tickets=0;
-  for (const docu of us.docs){
-    const v = docu.data()||{};
-    if ((v.status||'active').toLowerCase()==='active') active++;
-    const ts = await getDocs(collection(db,'users',docu.id,'tickets'));
-    tickets += ts.size;
-    ts.forEach(t=>{ if((t.data()?.status||'').toLowerCase()==='verified') verified++; });
-  }
-  document.getElementById('statActive').textContent = active;
-  document.getElementById('statTotal').textContent  = total;
-  document.getElementById('statVerified').textContent = tickets? Math.round(verified*100/tickets)+'%' : '0%';
-  document.getElementById('statLoad').textContent='';
+function closeModal(){
+  modal.style.display='none';
+  modal.setAttribute('aria-hidden','true');
+  EDIT = null;
 }
+mCancel.addEventListener('click', closeModal);
+modal.addEventListener('click', (e)=>{ if(e.target===modal) closeModal(); });
+window.addEventListener('keydown', (e)=>{ if(e.key==='Escape' && modal.style.display==='flex') closeModal(); });
 
-onUser(async (u)=>{
-  if(!u){ location.href='./login.html?from=./founder.html'; return; }
-  const ok = await isFounder(u.email||'', u.uid);
-  who.textContent = ok ? `Ciao ${u.email} — permessi Founder/Admin attivi.` : 'Accesso negato.';
-  if(!ok){ setTimeout(()=>location.href='./account-2.html', 1200); return; }
-  await runStats();
-  await searchUsers('');
-});
-
-btnSearch.onclick = ()=> searchUsers(qInput.value);
-btnExportCSV.onclick = async ()=>{
-  try{ btnExportCSV.disabled=true; btnExportCSV.textContent='Esporto…';
-    const n = await exportUsersCSV(); btnExportCSV.textContent=`Export (${n}) ✓`;
-  }catch{ btnExportCSV.textContent='Export CSV utenti'; } finally{
-    setTimeout(()=>{ btnExportCSV.disabled=false; btnExportCSV.textContent='Export CSV utenti'; },800);
-  }
-};
-
-mCancel.onclick = ()=> closeModal();
-mSave.onclick = async ()=>{
+mSave.addEventListener('click', async ()=>{
   if(!EDIT) return;
   const { uid, tid } = EDIT;
   const name = mName.value.trim();
   const dob  = mDob.value;
-  if(!name || !/^\d{4}-\d{2}-\d{2}$/.test(dob)){ alert('Compila correttamente.'); return; }
+
+  if(!name){ alert('Inserisci Nome e cognome.'); return; }
+  if(!/^\d{4}-\d{2}-\d{2}$/.test(dob)){ alert('Inserisci una data valida (YYYY-MM-DD).'); return; }
+
   const qr = JSON.stringify({ uid, tid, v:1 });
   await setDoc(doc(db,'users',uid,'tickets',tid), {
-    name, dob, qr, locked:true, updatedAt: Date.now()
+    name, dob, qr,
+    locked: true,
+    updatedAt: Date.now()
   }, { merge:true });
-  alert('Aggiornato.'); closeModal(); location.reload();
-};
+
+  showToast('Aggiornato ✅');
+  closeModal();
+  DETAIL_CACHE.delete(uid);
+  await selectUser(uid);
+});
+
+/* ===== Stats (attenzione: può essere lento se hai tanti utenti) ===== */
+async function runStats(){
+  statLoad1.style.display = '';
+  statLoad2.style.display = '';
+  statLoad3.style.display = '';
+
+  const us = await getDocs(collection(db,'users'));
+  let total = us.size;
+  let active = 0;
+
+  let ticketsTotal = 0;
+  let verified = 0;
+  let ops = 0;
+
+  // NB: questo loop legge le subcollection -> se cresci molto, meglio fare stats server-side.
+  for (const docu of us.docs){
+    const v = docu.data()||{};
+    if (lc(v.status||'active') === 'active') active++;
+
+    const ts = await getDocs(collection(db,'users',docu.id,'tickets')).catch(()=>null);
+    if (ts){
+      ticketsTotal += ts.size;
+      ts.forEach(t=>{
+        if (lc(t.data()?.status||'') === 'verified') verified++;
+      });
+    }
+
+    const os = await getDocs(collection(db,'users',docu.id,'orders')).catch(()=>null);
+    if (os) ops += os.size;
+  }
+
+  statTotal.textContent = total;
+  statActive.textContent = active;
+
+  statTickets.textContent = ticketsTotal;
+  statVerified.textContent = ticketsTotal ? Math.round(verified*100/ticketsTotal)+'%' : '0%';
+
+  statOps.textContent = ops;
+
+  statLoad1.style.display = 'none';
+  statLoad2.style.display = 'none';
+  statLoad3.style.display = 'none';
+}
+
+/* ===== Events ===== */
+btnSearch.addEventListener('click', ()=> filterUsers(qInput.value));
+btnReset.addEventListener('click', ()=>{
+  qInput.value = '';
+  filterUsers('');
+});
+qInput.addEventListener('keydown', (e)=>{ if(e.key==='Enter') filterUsers(qInput.value); });
+
+// mini live search (debounce)
+let _t = null;
+qInput.addEventListener('input', ()=>{
+  clearTimeout(_t);
+  _t = setTimeout(()=> filterUsers(qInput.value), 180);
+});
+
+btnExportCSV.addEventListener('click', async ()=>{
+  try{
+    btnExportCSV.disabled = true;
+    btnExportCSV.textContent = '⬇️ Export…';
+    const n = await exportUsersCSV();
+    btnExportCSV.textContent = `⬇️ Export (${n}) ✓`;
+    showToast('CSV esportato ✅');
+  }catch(e){
+    console.error(e);
+    btnExportCSV.textContent = '⬇️ Export CSV';
+    showToast('Errore export');
+  }finally{
+    setTimeout(()=>{
+      btnExportCSV.disabled = false;
+      btnExportCSV.textContent = '⬇️ Export CSV';
+    }, 900);
+  }
+});
+
+btnReloadAll.addEventListener('click', async ()=>{
+  clearError();
+  showToast('Ricarico…');
+  DETAIL_CACHE.clear();
+  await loadUsers();
+  if (SELECTED?.uid) await selectUser(SELECTED.uid);
+});
+
+/* ===== Boot ===== */
+onUser(async (u)=>{
+  try{
+    if(!u){ location.href='./login.html?from=./founder.html'; return; }
+    AUTH_USER = u;
+    btnLogout.style.display = '';
+    btnLogout.onclick = async ()=>{ await doSignOut(); location.href='./login.html?from=./founder.html'; };
+
+    const ok = await isFounder(u.email||'', u.uid);
+    who.textContent = ok
+      ? `Ciao ${u.email} — permessi Founder/Admin attivi.`
+      : 'Accesso negato.';
+
+    if(!ok){ setTimeout(()=>location.href='./account-2.html', 1100); return; }
+
+    clearError();
+    await loadUsers();
+    // stats in background (non blocca la UI)
+    runStats().catch(e=>console.warn('stats failed', e));
+
+  }catch(err){
+    console.error(err);
+    showError('Errore inizializzazione pannello. Controlla console.');
+  }
+});
 </script>
 </body>
 </html>
