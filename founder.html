@@ -96,11 +96,13 @@ h1{
 .btn.danger{background:rgba(239,68,68,.12);border-color:rgba(239,68,68,.55)}
 .btn:disabled{opacity:.55;cursor:not-allowed}
 
+/* STATS */
 .stats{
-  display:grid;grid-template-columns:repeat(3,1fr);gap:12px;
+  display:grid;grid-template-columns:repeat(4,1fr);gap:12px;
   margin-top:14px;
 }
-@media(max-width:900px){.stats{grid-template-columns:1fr}}
+@media(max-width:1100px){.stats{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:640px){.stats{grid-template-columns:1fr}}
 
 .stat{
   background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
@@ -117,6 +119,7 @@ h1{
 }
 @keyframes pulse{0%,100%{opacity:.3;transform:scale(.9)}50%{opacity:1;transform:scale(1.1)}}
 
+/* WORKSPACE */
 .workspace{
   margin-top:14px;
   display:grid;grid-template-columns:380px 1fr;gap:14px;
@@ -205,6 +208,7 @@ h1{
 }
 .sectionHead .t{font-weight:900}
 .sectionBody{padding:12px 14px}
+
 .rowItem{
   border:1px solid rgba(255,255,255,.10);
   background:#0b0b0b;
@@ -228,6 +232,7 @@ h1{
 
 .split2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
 @media(max-width:640px){.split2{grid-template-columns:1fr}}
+
 .copy{
   display:inline-flex;gap:8px;align-items:center;
   border:1px solid rgba(255,255,255,.14);
@@ -247,6 +252,20 @@ h1{
 
 .footerHint{margin-top:10px;color:rgba(255,255,255,.65);font-size:12px}
 
+/* Manage panel controls */
+.mgrid{
+  display:grid;grid-template-columns:1fr 1fr;gap:10px;
+}
+@media(max-width:720px){.mgrid{grid-template-columns:1fr}}
+.select{
+  width:100%;
+  background:#0f0f10;border:1px solid rgba(255,255,255,.15);
+  border-radius:12px;color:#fff;padding:10px 12px;font-weight:900;
+}
+.help{
+  font-size:12px;color:rgba(255,255,255,.7);margin-top:6px;line-height:1.35
+}
+
 /* Modal */
 .modal{position:fixed;inset:0;background:rgba(0,0,0,.66);display:none;align-items:center;justify-content:center;z-index:70}
 .modal .box{
@@ -262,6 +281,7 @@ h1{
   border-radius:12px;color:#fff;padding:12px;font-weight:800;
 }
 .modal .rowBtns{display:flex;gap:10px;justify-content:flex-end;margin-top:12px;flex-wrap:wrap}
+
 .toast{
   position:fixed;left:50%;transform:translateX(-50%);
   bottom:18px;z-index:80;
@@ -312,15 +332,23 @@ h1{
       <div class="v"><span id="statTotal">—</span></div>
       <div class="s">Attivi: <b id="statActive">—</b> <span id="statLoad1" class="loadingDot" style="display:none"></span></div>
     </div>
+
     <div class="stat">
       <div class="k">Ticket</div>
       <div class="v"><span id="statTickets">—</span></div>
       <div class="s">Verificati: <b id="statVerified">—</b> <span id="statLoad2" class="loadingDot" style="display:none"></span></div>
     </div>
+
+    <div class="stat">
+      <div class="k">Fatturato</div>
+      <div class="v"><span id="statRevenue">—</span></div>
+      <div class="s">Ordini paganti: <b id="statOrders">—</b> <span id="statLoad3" class="loadingDot" style="display:none"></span></div>
+    </div>
+
     <div class="stat">
       <div class="k">Operazioni</div>
       <div class="v"><span id="statOps">—</span></div>
-      <div class="s">Ordini/omaggi letti (per stats). <span id="statLoad3" class="loadingDot" style="display:none"></span></div>
+      <div class="s">Omaggi: <b id="statGifts">—</b></div>
     </div>
   </section>
 
@@ -359,7 +387,7 @@ h1{
       <div class="panelBody" id="detailBody">
         <div class="detailEmpty">
           <b>Seleziona un utente</b> dalla lista a sinistra.<br>
-          Qui vedrai biglietti, ordini/omaggi e potrai modificare i nominativi.
+          Qui vedrai biglietti, ordini/omaggi e potrai gestire stato/ruoli.
         </div>
       </div>
     </div>
@@ -405,7 +433,10 @@ const statTotal = document.getElementById('statTotal');
 const statActive = document.getElementById('statActive');
 const statTickets = document.getElementById('statTickets');
 const statVerified = document.getElementById('statVerified');
+const statRevenue = document.getElementById('statRevenue');
+const statOrders  = document.getElementById('statOrders');
 const statOps = document.getElementById('statOps');
+const statGifts = document.getElementById('statGifts');
 const statLoad1 = document.getElementById('statLoad1');
 const statLoad2 = document.getElementById('statLoad2');
 const statLoad3 = document.getElementById('statLoad3');
@@ -446,6 +477,10 @@ let DETAIL_CACHE = new Map(); // uid -> {tickets, orders}
 
 /* ===== Helpers ===== */
 function lc(s){ return (s||'').toString().trim().toLowerCase(); }
+function money(n){
+  const x = Number(n||0);
+  return (x<0?'-':'') + Math.abs(x).toFixed(2).replace('.00','') + '€';
+}
 function showToast(msg){
   toast.textContent = msg;
   toast.classList.add('show');
@@ -469,7 +504,7 @@ function fmtDateMaybe(x){
 function badgeStatus(u){
   const s = lc(u?.status || 'active');
   if (s === 'active') return `<span class="badge ok">active</span>`;
-  if (s === 'banned' || s === 'disabled') return `<span class="badge bad">${s}</span>`;
+  if (s === 'disabled' || s === 'banned') return `<span class="badge bad">${s}</span>`;
   return `<span class="badge warn">${s || '—'}</span>`;
 }
 function badgeRole(u){
@@ -486,14 +521,35 @@ async function isFounder(email, uid){
     const r = role.exists()? (role.data().role||'') : '';
     const f = cfg.exists()? (cfg.data().founders||{}) : {};
     const a = cfg.exists()? (cfg.data().admins||{})   : {};
-    return !!(f[lc(email)] || r==='founder' || a[lc(email)]);
+
+    // accetta:
+    // - in config founders/admins
+    // - role nel doc utente: founder/admin
+    return !!(f[lc(email)] || a[lc(email)] || r==='founder' || r==='admin');
   }catch{ return false; }
+}
+
+/* ===== Write user patch ===== */
+async function patchUser(uid, patch, { confirmText = null } = {}){
+  if(confirmText){
+    const ok = confirm(confirmText);
+    if(!ok) return { ok:false, cancelled:true };
+  }
+  await setDoc(doc(db,'users',uid), patch, { merge:true });
+
+  // aggiorna cache locale USERS (così vedi subito badge cambiati)
+  const idx = USERS.findIndex(x=>x.uid===uid);
+  if(idx>=0) USERS[idx] = { ...USERS[idx], ...patch };
+
+  // aggiorna SELECTED
+  if(SELECTED?.uid === uid) SELECTED = { ...SELECTED, ...patch };
+
+  return { ok:true };
 }
 
 /* ===== Load users (fast) ===== */
 async function loadUsers(){
-  // Se hai tanti utenti: alza/abbassa LIMIT_USERS.
-  const LIMIT_USERS = 350;
+  const LIMIT_USERS = 350; // alza/abbassa
 
   const snap = await getDocs(query(collection(db,'users'), limit(LIMIT_USERS)));
   const arr = [];
@@ -510,7 +566,6 @@ async function loadUsers(){
     });
   });
 
-  // Ordine: prima chi ha email/nome (più utile), poi alfabetico
   arr.sort((a,b)=>{
     const an = lc(a.name||a.email||'');
     const bn = lc(b.name||b.email||'');
@@ -584,7 +639,6 @@ async function loadUserDetail(uid){
   const orders = [];
   ordersSnap?.forEach?.(d => orders.push({ id:d.id, ...(d.data()||{}) }));
 
-  // sort newest first if possible
   tickets.sort((a,b)=> (b.updatedAt||0) - (a.updatedAt||0));
   orders.sort((a,b)=> ((b.createdAt?.seconds||0) - (a.createdAt?.seconds||0)));
 
@@ -604,7 +658,7 @@ function ticketStateBadge(t){
 function orderRow(o){
   const when = o.createdAt?.seconds ? new Date(o.createdAt.seconds*1000).toLocaleString() : '';
   const title = o.title || (o.kind==='gift' ? 'Omaggio' : 'Ordine');
-  const tot = (o.total!=null) ? `${(Number(o.total)||0).toFixed(2)}€` : '';
+  const tot = (o.total!=null) ? `${money(o.total)}` : '';
   const kind = o.kind ? `<span class="badge">${o.kind}</span>` : '';
   return `
     <div class="rowItem">
@@ -688,7 +742,47 @@ async function selectUser(uid){
         </div>
         <div class="detailActions">
           <button class="btn ghost" type="button" id="btnClearCache">↻ Ricarica dettagli</button>
-          <a class="btn ghost" href="./account-2.html" title="Apri area personale (tua)">Area personale</a>
+        </div>
+      </div>
+    `;
+
+    const manage = `
+      <div class="section">
+        <div class="sectionHead">
+          <div class="t">Gestione profilo</div>
+          <div class="badges">
+            ${badgeStatus(u)}
+            ${badgeRole(u)}
+          </div>
+        </div>
+        <div class="sectionBody">
+          <div class="mgrid">
+            <div>
+              <div class="small muted" style="margin-bottom:6px">Stato utente</div>
+              <select id="setStatus" class="select">
+                <option value="active">active (attivo)</option>
+                <option value="disabled">disabled (bloccato)</option>
+                <option value="banned">banned (ban)</option>
+              </select>
+              <div class="help">Blocca/riattiva profilo dal sito. (Effetto dipende anche da come controlli <code>status</code> nelle altre pagine.)</div>
+            </div>
+
+            <div>
+              <div class="small muted" style="margin-bottom:6px">Ruolo</div>
+              <select id="setRole" class="select">
+                <option value="">(nessuno)</option>
+                <option value="checker">checker</option>
+                <option value="admin">admin</option>
+                <option value="founder">founder</option>
+              </select>
+              <div class="help"><b>ATTENZIONE:</b> cambiare ruolo dà poteri. Qui ti chiedo conferma con popup.</div>
+            </div>
+          </div>
+
+          <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:12px;justify-content:flex-end">
+            <button id="btnSaveStatus" class="btn ghost" type="button">Salva stato</button>
+            <button id="btnSaveRole" class="btn danger" type="button">Salva ruolo (con conferma)</button>
+          </div>
         </div>
       </div>
     `;
@@ -709,6 +803,7 @@ async function selectUser(uid){
 
     const content = `
       ${head}
+      ${manage}
 
       <div class="section">
         <div class="sectionHead">
@@ -737,12 +832,34 @@ async function selectUser(uid){
         </div>
       </div>
 
+      <div class="section">
+        <div class="sectionHead">
+          <div class="t">Fatturato (placeholder)</div>
+          <div class="badges">
+            <span class="badge warn">TODO</span>
+          </div>
+        </div>
+        <div class="sectionBody">
+          <div class="muted small" style="line-height:1.4">
+            Qui poi possiamo mettere filtri per date (oggi / settimana / mese), breakdown per tipo ticket,
+            e distinguere pagamenti reali vs omaggi. Per ora lo stiamo calcolando “grezzo” nelle statistiche in alto
+            sommando <code>orders.total</code> dove <code>kind != 'gift'</code>.
+          </div>
+        </div>
+      </div>
+
       <div class="footerHint">
-        Nota: qui carichiamo ticket/ordini solo dell’utente selezionato (molto più veloce e ordinato).
+        Nota: modifiche stato/ruolo scrivono direttamente nel documento <code>users/{uid}</code>.
       </div>
     `;
 
     detailBody.innerHTML = content;
+
+    // prefill selects
+    const setStatus = document.getElementById('setStatus');
+    const setRole = document.getElementById('setRole');
+    if(setStatus) setStatus.value = (u.status || 'active');
+    if(setRole) setRole.value = (u.role || '');
 
     // copy buttons
     detailBody.querySelectorAll('[data-copy]').forEach(b=>{
@@ -758,6 +875,50 @@ async function selectUser(uid){
       DETAIL_CACHE.delete(uid);
       showToast('Ricarico…');
       await selectUser(uid);
+    });
+
+    // save status (senza popup)
+    document.getElementById('btnSaveStatus')?.addEventListener('click', async ()=>{
+      const next = document.getElementById('setStatus')?.value || 'active';
+      const cur = (u.status || 'active');
+      if(next === cur){ showToast('Nessuna modifica'); return; }
+
+      // (se vuoi popup anche qui, basta aggiungerlo: confirmText: ...)
+      try{
+        await patchUser(uid, { status: next });
+        showToast('Stato aggiornato ✅');
+        renderUserList();
+        await selectUser(uid);
+      }catch(e){
+        console.error(e);
+        showToast('Errore salvataggio stato');
+      }
+    });
+
+    // save role (CON POPUP come hai chiesto)
+    document.getElementById('btnSaveRole')?.addEventListener('click', async ()=>{
+      const next = document.getElementById('setRole')?.value || '';
+      const cur = (u.role || '');
+      if(next === cur){ showToast('Nessuna modifica'); return; }
+
+      const label = u.email || u.uid;
+      const cText =
+        `⚠️ Sei sicuro?\n\n` +
+        `Stai cambiando RUOLO a: ${label}\n` +
+        `Da: "${cur || '(nessuno)'}"\n` +
+        `A:  "${next || '(nessuno)'}"\n\n` +
+        `Premi OK per confermare.`;
+
+      try{
+        const res = await patchUser(uid, { role: next }, { confirmText: cText });
+        if(res.cancelled){ showToast('Annullato'); return; }
+        showToast('Ruolo aggiornato ✅');
+        renderUserList();
+        await selectUser(uid);
+      }catch(e){
+        console.error(e);
+        showToast('Errore salvataggio ruolo');
+      }
     });
 
     // expand tickets/orders
@@ -844,7 +1005,7 @@ mSave.addEventListener('click', async ()=>{
     updatedAt: Date.now()
   }, { merge:true });
 
-  showToast('Aggiornato ✅');
+  showToast('Ticket aggiornato ✅');
   closeModal();
   DETAIL_CACHE.delete(uid);
   await selectUser(uid);
@@ -862,9 +1023,11 @@ async function runStats(){
 
   let ticketsTotal = 0;
   let verified = 0;
-  let ops = 0;
 
-  // NB: questo loop legge le subcollection -> se cresci molto, meglio fare stats server-side.
+  let revenue = 0;
+  let ordersCount = 0;
+  let giftsCount = 0;
+
   for (const docu of us.docs){
     const v = docu.data()||{};
     if (lc(v.status||'active') === 'active') active++;
@@ -878,7 +1041,20 @@ async function runStats(){
     }
 
     const os = await getDocs(collection(db,'users',docu.id,'orders')).catch(()=>null);
-    if (os) ops += os.size;
+    if (os){
+      os.forEach(o=>{
+        const d = o.data()||{};
+        const kind = lc(d.kind||'');
+        const tot = Number(d.total||0);
+
+        if (kind === 'gift'){
+          giftsCount++;
+        }else{
+          ordersCount++;
+          if (!isNaN(tot)) revenue += tot;
+        }
+      });
+    }
   }
 
   statTotal.textContent = total;
@@ -887,7 +1063,12 @@ async function runStats(){
   statTickets.textContent = ticketsTotal;
   statVerified.textContent = ticketsTotal ? Math.round(verified*100/ticketsTotal)+'%' : '0%';
 
+  statRevenue.textContent = money(revenue);
+  statOrders.textContent  = ordersCount;
+
+  const ops = ordersCount + giftsCount;
   statOps.textContent = ops;
+  statGifts.textContent = giftsCount;
 
   statLoad1.style.display = 'none';
   statLoad2.style.display = 'none';
@@ -953,9 +1134,7 @@ onUser(async (u)=>{
 
     clearError();
     await loadUsers();
-    // stats in background (non blocca la UI)
-    runStats().catch(e=>console.warn('stats failed', e));
-
+    runStats().catch(e=>console.warn('stats failed', e)); // stats “in background”
   }catch(err){
     console.error(err);
     showError('Errore inizializzazione pannello. Controlla console.');
