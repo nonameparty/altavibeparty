@@ -163,9 +163,9 @@ h1{font-size:28px;font-weight:900;letter-spacing:-.3px}
 .total{font-size:22px;font-weight:900}
 .pill-muted{display:inline-block;padding:4px 10px;border:1px solid rgba(255,255,255,.14);border-radius:999px;font-size:12px;color:rgba(255,255,255,.75)}
 
-/* banner multi-ticket sotto riepilogo */
+/* banner multi-ticket sotto titolo riepilogo */
 .multiBanner{
-  margin-top:12px;
+  margin:10px 0 10px 0;
   background:linear-gradient(180deg, rgba(253,224,71,.14), rgba(255,255,255,.04));
   border:1px solid rgba(253,224,71,.35);
   border-radius:14px;
@@ -175,7 +175,7 @@ h1{font-size:28px;font-weight:900;letter-spacing:-.3px}
 }
 .multiBanner strong{color:#fff}
 
-/* sticky */
+/* sticky dentro card (desktop) */
 .sticky{position:sticky;bottom:0;background:linear-gradient(180deg, rgba(0,0,0,.0), rgba(0,0,0,.4) 20%, #000 40%);padding-top:16px;margin-top:16px}
 .pay{display:inline-block;width:100%;padding:12px 16px;border-radius:10px;text-decoration:none;font-weight:900;background:var(--accent);color:#000;cursor:pointer;border:none}
 .pay[disabled]{opacity:.5;cursor:not-allowed}
@@ -189,6 +189,40 @@ h1{font-size:28px;font-weight:900;letter-spacing:-.3px}
 .btn{padding:11px 14px;border-radius:10px;border:1px solid rgba(255,255,255,.16);background:#111;color:#fff;font-weight:900;cursor:pointer}
 .btn.primary{background:var(--flash);color:#000;border-color:rgba(253,224,71,.55)}
 .btn.ghost{background:transparent}
+
+/* ✅ BOTTOM BAR (mobile) */
+.bottomBar{
+  position:fixed;
+  left:12px; right:12px; bottom:12px;
+  z-index:180;
+  border-radius:16px;
+  padding:12px;
+  background:rgba(0,0,0,.78);
+  border:1px solid rgba(255,255,255,.12);
+  backdrop-filter:saturate(140%) blur(10px);
+  display:none;
+  align-items:center;
+  gap:12px;
+  box-shadow:0 16px 50px rgba(0,0,0,.55);
+}
+.bottomBar .left{flex:1;min-width:0}
+.bottomBar .label{font-size:12px;color:rgba(255,255,255,.65);font-weight:700}
+.bottomBar .total{font-size:18px;font-weight:900}
+.bottomBar button{
+  padding:12px 14px;
+  border-radius:14px;
+  border:none;
+  font-weight:900;
+  cursor:pointer;
+  background:var(--accent);
+  color:#000;
+  min-width:130px;
+}
+.bottomBar button[disabled]{opacity:.5;cursor:not-allowed}
+@media(max-width:900px){
+  .bottomBar{display:flex}
+  body{padding-bottom:96px;} /* spazio per non coprire contenuti */
+}
 </style>
 </head>
 <body>
@@ -206,9 +240,7 @@ h1{font-size:28px;font-weight:900;letter-spacing:-.3px}
 
   <!-- Banner (dinamico) -->
   <div class="banner" id="adultBanner" hidden>
-    <div>
-      <p id="adultBannerText"></p>
-    </div>
+    <div><p id="adultBannerText"></p></div>
     <div class="actions" id="adultBannerActions"></div>
   </div>
 
@@ -340,7 +372,14 @@ h1{font-size:28px;font-weight:900;letter-spacing:-.3px}
 
     <!-- RIEPILOGO -->
     <aside class="card">
-      <h2 style="font-size:18px;font-weight:900;margin-bottom:8px">Riepilogo</h2>
+      <h2 style="font-size:18px;font-weight:900;margin-bottom:6px">Riepilogo</h2>
+
+      <!-- ✅ QUI: banner multi-ticket all’inizio -->
+      <div id="multiNote" class="multiBanner" hidden>
+        <strong>Stai acquistando più biglietti.</strong><br>
+        Nel passaggio successivo assegnerai i <strong>nomi</strong> per ogni ticket.
+      </div>
+
       <div id="lines"></div>
 
       <div class="hr"></div>
@@ -363,14 +402,18 @@ h1{font-size:28px;font-weight:900;letter-spacing:-.3px}
       <div class="sticky" style="margin-top:10px">
         <button id="payBtn" class="pay" disabled>Procedi</button>
       </div>
-
-      <div id="multiNote" class="multiBanner" hidden>
-        <strong>Stai acquistando più biglietti.</strong><br>
-        Nel passaggio successivo assegnerai i <strong>nomi</strong> per ogni ticket.
-      </div>
     </aside>
   </div>
 </main>
+
+<!-- ✅ BOTTOM BAR MOBILE (procedi sempre visibile) -->
+<div class="bottomBar" id="bottomBar" hidden>
+  <div class="left">
+    <div class="label">Totale</div>
+    <div class="total" id="bottomTotal">0€</div>
+  </div>
+  <button id="bottomPay" disabled>Procedi</button>
+</div>
 
 <!-- Modal upsell cambio nome -->
 <div class="modal-backdrop" id="ncModal">
@@ -444,6 +487,11 @@ const payBtn  = document.getElementById('payBtn');
 const optName = document.getElementById('optNameChange');
 const nameLine= document.getElementById('nameChangeLine');
 const multiNote = document.getElementById('multiNote');
+
+/** ✅ Bottom bar mobile */
+const bottomBar = document.getElementById('bottomBar');
+const bottomTotal = document.getElementById('bottomTotal');
+const bottomPay = document.getElementById('bottomPay');
 
 /** Modal */
 const ncModal = document.getElementById('ncModal');
@@ -541,12 +589,12 @@ function setAdultUI(isAdult){
 
 /** ===== Banner logic ===== */
 function showBanner(type){
-
+  // se lo hanno chiuso, non mostrarlo
   if (localStorage.getItem('tr_hide_banner') === '1') {
-  adultBanner.hidden = true;
-  return;
-}
-  // type: 'guest' | 'adult' | 'minor'
+    adultBanner.hidden = true;
+    return;
+  }
+
   adultBanner.hidden = false;
   adultBannerActions.innerHTML = '';
 
@@ -562,7 +610,16 @@ function showBanner(type){
     acc.href = './login.html?from=./checkout.html';
     acc.textContent = 'Accedi';
 
-    adultBannerActions.append(reg, acc);
+    const close = document.createElement('button');
+    close.className = 'close';
+    close.type = 'button';
+    close.textContent = 'Chiudi';
+    close.addEventListener('click', () => {
+      adultBanner.hidden = true;
+      localStorage.setItem('tr_hide_banner','1');
+    });
+
+    adultBannerActions.append(reg, acc, close);
     return;
   }
 
@@ -573,9 +630,9 @@ function showBanner(type){
     close.type = 'button';
     close.textContent = 'Chiudi';
     close.addEventListener('click', () => {
-  adultBanner.hidden = true;
-  localStorage.setItem('tr_hide_banner', '1');
-});
+      adultBanner.hidden = true;
+      localStorage.setItem('tr_hide_banner','1');
+    });
     adultBannerActions.append(close);
     return;
   }
@@ -587,9 +644,9 @@ function showBanner(type){
   close.type = 'button';
   close.textContent = 'Chiudi';
   close.addEventListener('click', () => {
-  adultBanner.hidden = true;
-  localStorage.setItem('tr_hide_banner', '1');
-});
+    adultBanner.hidden = true;
+    localStorage.setItem('tr_hide_banner','1');
+  });
   adultBannerActions.append(close);
 }
 
@@ -632,7 +689,6 @@ function applyEbUI(){
   const soldOut = EB.disabled || left<=0;
   rowEB.classList.toggle('sold', soldOut);
 
-  // se sold out: forza qty 0 e blocca controlli
   const minus = rowEB.querySelector('[data-minus="#qEB"]');
   const plus  = rowEB.querySelector('[data-plus="#qEB"]');
   const input = qEB;
@@ -751,9 +807,18 @@ function render(){
 
   lines.innerHTML = L.join('');
   grandEl.textContent = money(total);
-  payBtn.disabled = tCount<=0;
 
+  // abilita/disabilita procedi
+  const canProceed = tCount>0;
+  payBtn.disabled = !canProceed;
+
+  // banner multi-ticket
   if (multiNote) multiNote.hidden = !(tCount>1);
+
+  // ✅ bottom bar mobile
+  if (bottomTotal) bottomTotal.textContent = money(total);
+  if (bottomPay) bottomPay.disabled = !canProceed;
+  if (bottomBar) bottomBar.hidden = !canProceed;
 }
 
 /** Qty binding + feedback */
@@ -794,7 +859,7 @@ function goNext(){
   else            location.href = `./attendees-single.html?${qs}`;
 }
 
-payBtn?.addEventListener('click', async ()=>{
+async function handleProceed(){
   const tCount = ticketsCount();
   if (tCount<=0) return;
 
@@ -830,7 +895,10 @@ payBtn?.addEventListener('click', async ()=>{
   }
 
   goNext();
-});
+}
+
+payBtn?.addEventListener('click', handleProceed);
+bottomPay?.addEventListener('click', handleProceed);
 
 ncModal?.addEventListener('click', (e)=>{
   if (e.target === ncModal) closeNcModal();
@@ -910,8 +978,19 @@ bindQty();
 render();
 hello.textContent = 'Caricamento…';
 
+/** ✅ fallback: se onUser non risponde, vai guest */
+let booted = false;
+const safeBoot = setTimeout(async ()=>{
+  if(!booted){
+    try{ await enterGuestUI(); }catch{}
+  }
+}, 1000);
+
 onUser(async (u)=>{
   try{
+    booted = true;
+    clearTimeout(safeBoot);
+
     if(!u){ await enterGuestUI(); return; }
     if(u.isAnonymous){ await enterGuestUI(); return; }
     await enterLoggedUI(u);
