@@ -9,21 +9,28 @@
   --bg:#000; --text:#fff; --accent:#8b5cf6; --border:rgba(255,255,255,.12);
   --card:rgba(255,255,255,.06); --err:#ef4444; --muted:rgba(255,255,255,.78);
 
-  /* pochi colori: solo accenti leggeri */
+  /* pochi colori */
   --c-eb:rgba(139,92,246,.9);
   --c-std:rgba(139,92,246,.9); /* consigliato in viola */
-  --c-fast:rgba(52,211,153,.9); /* verde soft */
-  --c-vip:rgba(251,113,133,.9); /* rosa soft */
+  --c-fast:rgba(52,211,153,.9);
+  --c-vip:rgba(251,113,133,.9);
 
   --flash:#fde047; /* giallo */
 }
 *{box-sizing:border-box;margin:0;padding:0}
-body{background:var(--bg);color:var(--text);font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;line-height:1.5;min-height:100vh;display:grid;grid-template-rows:auto 1fr}
+html,body{height:100%}
+body{
+  background:var(--bg);color:var(--text);
+  font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+  line-height:1.5;min-height:100vh;display:grid;grid-template-rows:auto 1fr;
+  padding-bottom:88px; /* spazio per barra mobile */
+}
 header{position:sticky;top:0;z-index:50;backdrop-filter:saturate(140%) blur(6px);background:rgba(0,0,0,.6);border-bottom:1px solid rgba(255,255,255,.08)}
-.nav{max-width:1200px;margin:auto;padding:14px 20px;display:flex;align-items:center;justify-content:space-between}
-.brand{display:flex;align-items:center;gap:10px;font-weight:900;letter-spacing:-.3px}
+.nav{max-width:1200px;margin:auto;padding:14px 20px;display:flex;align-items:center;justify-content:space-between;gap:14px}
+.brand{display:flex;align-items:center;gap:10px;font-weight:900;letter-spacing:-.3px;white-space:nowrap}
 .brand-badge{width:22px;height:22px;background:var(--accent);transform:skew(-6deg);border-radius:3px}
-nav a, nav span{color:#fff;text-decoration:none;margin-left:18px;font-size:14px;opacity:.95}
+nav{display:flex;align-items:center;gap:14px;flex-wrap:wrap;justify-content:flex-end}
+nav a, nav span{color:#fff;text-decoration:none;font-size:14px;opacity:.95}
 nav a:hover{color:var(--accent)}
 .wrap{max-width:1100px;margin:auto;padding:20px}
 h1{font-size:28px;font-weight:900;letter-spacing:-.3px}
@@ -37,14 +44,14 @@ h1{font-size:28px;font-weight:900;letter-spacing:-.3px}
 .eventline strong{color:#fff}
 .eventline .dot{opacity:.55;margin:0 10px}
 
-/* Banner */
+/* Banner (adult) */
 .banner{
   margin-top:12px;
   background:linear-gradient(180deg, rgba(253,224,71,.12), rgba(255,255,255,.04));
   border:1px solid rgba(253,224,71,.35);
   border-radius:14px;
   padding:12px 14px;
-  display:flex;
+  display:none; /* IMPORTANT: default none, così non lascia “vuoto” */
   justify-content:space-between;
   align-items:flex-start;
   gap:12px;
@@ -59,6 +66,7 @@ h1{font-size:28px;font-weight:900;letter-spacing:-.3px}
   padding:10px 12px;
   border-radius:12px;
   border:1px solid rgba(253,224,71,.55);
+  display:inline-block;
 }
 .banner a.primary{background:var(--flash);color:#000}
 .banner a.secondary{background:transparent;color:#fff;border-color:rgba(255,255,255,.18)}
@@ -143,7 +151,7 @@ h1{font-size:28px;font-weight:900;letter-spacing:-.3px}
 .sold .qty button{cursor:not-allowed;opacity:.4}
 .sold .qty input{opacity:.65}
 
-/* accento leggero per differenziare (senza caos) */
+/* accento leggero */
 .row[data-type="fast"]{border-left:3px solid rgba(52,211,153,.55)}
 .row[data-type="vip"]{border-left:3px solid rgba(251,113,133,.55)}
 .row[data-type="std"]{border-left:3px solid rgba(139,92,246,.55)}
@@ -152,7 +160,11 @@ h1{font-size:28px;font-weight:900;letter-spacing:-.3px}
 /* Tavolo VIP */
 .viptable{margin-top:12px;display:flex;justify-content:space-between;align-items:center;gap:12px;background:#0b0b0b;border:1px dashed rgba(251,113,133,.65);border-radius:12px;padding:14px}
 .viptable .title{font-weight:900}
-.viptable .cta{background:transparent;border:1px solid rgba(255,255,255,.18);color:#fff;padding:10px 14px;border-radius:10px;cursor:pointer;text-decoration:none;font-weight:900}
+.viptable .cta{
+  background:transparent;border:1px solid rgba(255,255,255,.18);
+  color:#fff;padding:10px 14px;border-radius:10px;cursor:pointer;text-decoration:none;font-weight:900;
+  display:inline-block;
+}
 .viptable .cta.primary{border-color:rgba(251,113,133,.65)}
 .viptable .cta[aria-disabled="true"]{opacity:.55;cursor:not-allowed;pointer-events:none}
 
@@ -161,11 +173,16 @@ h1{font-size:28px;font-weight:900;letter-spacing:-.3px}
 .hr{height:1px;background:rgba(255,255,255,.08);margin:14px 0}
 .line{display:flex;justify-content:space-between;font-size:14px;margin:6px 0;gap:12px}
 .total{font-size:22px;font-weight:900}
-.pill-muted{display:inline-block;padding:4px 10px;border:1px solid rgba(255,255,255,.14);border-radius:999px;font-size:12px;color:rgba(255,255,255,.75)}
+.pill{
+  display:inline-block;padding:6px 12px;border:1px solid rgba(255,255,255,.14);
+  border-radius:999px;font-size:12px;color:rgba(255,255,255,.82);
+  background:rgba(0,0,0,.25);
+  white-space:nowrap;
+}
 
-/* banner multi-ticket sotto titolo riepilogo */
+/* multi-ticket banner (IN CIMA al riepilogo) */
 .multiBanner{
-  margin:10px 0 10px 0;
+  margin-top:10px;
   background:linear-gradient(180deg, rgba(253,224,71,.14), rgba(255,255,255,.04));
   border:1px solid rgba(253,224,71,.35);
   border-radius:14px;
@@ -175,13 +192,44 @@ h1{font-size:28px;font-weight:900;letter-spacing:-.3px}
 }
 .multiBanner strong{color:#fff}
 
-/* sticky dentro card (desktop) */
+/* Bottone procedi dentro card (desktop) */
 .sticky{position:sticky;bottom:0;background:linear-gradient(180deg, rgba(0,0,0,.0), rgba(0,0,0,.4) 20%, #000 40%);padding-top:16px;margin-top:16px}
-.pay{display:inline-block;width:100%;padding:12px 16px;border-radius:10px;text-decoration:none;font-weight:900;background:var(--accent);color:#000;cursor:pointer;border:none}
+.pay{display:inline-block;width:100%;padding:12px 16px;border-radius:12px;text-decoration:none;font-weight:900;background:var(--accent);color:#000;cursor:pointer;border:none}
 .pay[disabled]{opacity:.5;cursor:not-allowed}
 
+/* NASCONDI il “Procedi” della card su mobile: usiamo SOLO barra fissa */
+@media(max-width:899px){
+  .desktopProceed{display:none!important}
+}
+
+/* Barra fissa mobile */
+.mobileBar{
+  position:fixed;left:14px;right:14px;bottom:14px;z-index:220;
+  background:rgba(10,10,10,.92);
+  border:1px solid rgba(255,255,255,.14);
+  border-radius:18px;
+  padding:12px 12px;
+  display:flex;align-items:center;justify-content:space-between;gap:12px;
+  box-shadow:0 18px 50px rgba(0,0,0,.55);
+}
+.mobileBar .t{
+  display:flex;flex-direction:column;line-height:1.1;
+}
+.mobileBar .t .k{font-size:12px;color:rgba(255,255,255,.72);font-weight:700}
+.mobileBar .t .v{font-size:26px;font-weight:900;margin-top:6px}
+.mobileBar .btn{
+  padding:12px 14px;border-radius:14px;
+  background:var(--accent);color:#000;font-weight:900;border:none;cursor:pointer;
+  min-width:148px;
+}
+.mobileBar .btn[disabled]{opacity:.5;cursor:not-allowed}
+@media(min-width:900px){
+  .mobileBar{display:none}
+  body{padding-bottom:0}
+}
+
 /* Modal */
-.modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.68);display:none;align-items:center;justify-content:center;z-index:200}
+.modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.68);display:none;align-items:center;justify-content:center;z-index:260}
 .modal{width:min(92vw,520px);background:#0b0b0b;border:1px solid rgba(255,255,255,.14);border-radius:18px;padding:18px}
 .modal h3{font-size:18px;font-weight:900;margin-bottom:6px}
 .modal p{color:rgba(255,255,255,.85);font-size:14px;margin-bottom:14px;line-height:1.45}
@@ -189,40 +237,6 @@ h1{font-size:28px;font-weight:900;letter-spacing:-.3px}
 .btn{padding:11px 14px;border-radius:10px;border:1px solid rgba(255,255,255,.16);background:#111;color:#fff;font-weight:900;cursor:pointer}
 .btn.primary{background:var(--flash);color:#000;border-color:rgba(253,224,71,.55)}
 .btn.ghost{background:transparent}
-
-/* ✅ BOTTOM BAR (mobile) */
-.bottomBar{
-  position:fixed;
-  left:12px; right:12px; bottom:12px;
-  z-index:180;
-  border-radius:16px;
-  padding:12px;
-  background:rgba(0,0,0,.78);
-  border:1px solid rgba(255,255,255,.12);
-  backdrop-filter:saturate(140%) blur(10px);
-  display:none;
-  align-items:center;
-  gap:12px;
-  box-shadow:0 16px 50px rgba(0,0,0,.55);
-}
-.bottomBar .left{flex:1;min-width:0}
-.bottomBar .label{font-size:12px;color:rgba(255,255,255,.65);font-weight:700}
-.bottomBar .total{font-size:18px;font-weight:900}
-.bottomBar button{
-  padding:12px 14px;
-  border-radius:14px;
-  border:none;
-  font-weight:900;
-  cursor:pointer;
-  background:var(--accent);
-  color:#000;
-  min-width:130px;
-}
-.bottomBar button[disabled]{opacity:.5;cursor:not-allowed}
-@media(max-width:900px){
-  .bottomBar{display:flex}
-  body{padding-bottom:96px;} /* spazio per non coprire contenuti */
-}
 </style>
 </head>
 <body>
@@ -239,7 +253,7 @@ h1{font-size:28px;font-weight:900;letter-spacing:-.3px}
   <div class="muted" id="hello">👋 Ciao</div>
 
   <!-- Banner (dinamico) -->
-  <div class="banner" id="adultBanner" hidden>
+  <div class="banner" id="adultBanner" aria-live="polite">
     <div><p id="adultBannerText"></p></div>
     <div class="actions" id="adultBannerActions"></div>
   </div>
@@ -359,7 +373,7 @@ h1{font-size:28px;font-weight:900;letter-spacing:-.3px}
           </div>
         </div>
 
-        <!-- Tavolo VIP (sempre visibile con stato) -->
+        <!-- Tavolo VIP -->
         <div class="viptable" id="vipTableBlock">
           <div>
             <div class="title">Tavolo VIP (18+)</div>
@@ -372,9 +386,9 @@ h1{font-size:28px;font-weight:900;letter-spacing:-.3px}
 
     <!-- RIEPILOGO -->
     <aside class="card">
-      <h2 style="font-size:18px;font-weight:900;margin-bottom:6px">Riepilogo</h2>
+      <h2 style="font-size:18px;font-weight:900;margin-bottom:8px">Riepilogo</h2>
 
-      <!-- ✅ QUI: banner multi-ticket all’inizio -->
+      <!-- QUI (IN CIMA) multi-ticket note -->
       <div id="multiNote" class="multiBanner" hidden>
         <strong>Stai acquistando più biglietti.</strong><br>
         Nel passaggio successivo assegnerai i <strong>nomi</strong> per ogni ticket.
@@ -393,26 +407,27 @@ h1{font-size:28px;font-weight:900;letter-spacing:-.3px}
             Se compri per amici, ti salva: <strong>1 cambio nome</strong> fino a <strong>24h prima</strong>.
           </div>
         </label>
-        <span id="nameChangeLine" class="pill-muted">Non inclusa</span>
+        <span id="nameChangeLine" class="pill">Non inclusa</span>
       </div>
 
       <div class="hr"></div>
       <div class="line total"><span>Totale (IVA inclusa)</span><strong id="grandTot">0€</strong></div>
 
-      <div class="sticky" style="margin-top:10px">
+      <!-- Procedi desktop -->
+      <div class="sticky desktopProceed" style="margin-top:10px">
         <button id="payBtn" class="pay" disabled>Procedi</button>
       </div>
     </aside>
   </div>
 </main>
 
-<!-- ✅ BOTTOM BAR MOBILE (procedi sempre visibile) -->
-<div class="bottomBar" id="bottomBar" hidden>
-  <div class="left">
-    <div class="label">Totale</div>
-    <div class="total" id="bottomTotal">0€</div>
+<!-- Barra fissa mobile (procedi che segue) -->
+<div class="mobileBar" aria-live="polite">
+  <div class="t">
+    <div class="k">Totale</div>
+    <div class="v" id="mobileTotal">0€</div>
   </div>
-  <button id="bottomPay" disabled>Procedi</button>
+  <button class="btn" id="mobilePay" disabled>Procedi</button>
 </div>
 
 <!-- Modal upsell cambio nome -->
@@ -430,9 +445,7 @@ h1{font-size:28px;font-weight:900;letter-spacing:-.3px}
 <script type="module">
 import { onUser, doSignOut, app } from './auth.v2.js?v=6';
 import { getAuth, signInAnonymously } from 'https://www.gstatic.com/firebasejs/12.5.0/firebase-auth.js';
-import {
-  getFirestore, doc, getDoc, setDoc, runTransaction
-} from 'https://www.gstatic.com/firebasejs/12.5.0/firebase-firestore.js';
+import { getFirestore, doc, getDoc, setDoc, runTransaction } from 'https://www.gstatic.com/firebasejs/12.5.0/firebase-firestore.js';
 
 const db = getFirestore(app);
 const auth = getAuth(app);
@@ -482,16 +495,14 @@ const vipReserve = document.getElementById('vipReserve');
 
 const lines   = document.getElementById('lines');
 const grandEl = document.getElementById('grandTot');
-const payBtn  = document.getElementById('payBtn');
+
+const payBtn  = document.getElementById('payBtn');       // desktop
+const mobilePay = document.getElementById('mobilePay');  // mobile
+const mobileTotal = document.getElementById('mobileTotal');
 
 const optName = document.getElementById('optNameChange');
 const nameLine= document.getElementById('nameChangeLine');
 const multiNote = document.getElementById('multiNote');
-
-/** ✅ Bottom bar mobile */
-const bottomBar = document.getElementById('bottomBar');
-const bottomTotal = document.getElementById('bottomTotal');
-const bottomPay = document.getElementById('bottomPay');
 
 /** Modal */
 const ncModal = document.getElementById('ncModal');
@@ -587,19 +598,35 @@ function setAdultUI(isAdult){
   }
 }
 
-/** ===== Banner logic ===== */
+/** ===== Banner logic (NON lascia spazi vuoti) ===== */
+function hideBannerForever(){
+  try{ localStorage.setItem('tr_hide_banner','1'); }catch{}
+  adultBanner.style.display = 'none';
+}
 function showBanner(type){
-  // se lo hanno chiuso, non mostrarlo
+  // Se l’utente l’ha chiuso: non mostrarlo
   if (localStorage.getItem('tr_hide_banner') === '1') {
-    adultBanner.hidden = true;
+    adultBanner.style.display = 'none';
     return;
   }
 
-  adultBanner.hidden = false;
   adultBannerActions.innerHTML = '';
+  adultBannerText.innerHTML = ''; // evita “vuoto”
+  adultBanner.style.display = 'flex';
+
+  const mkClose = ()=>{
+    const close = document.createElement('button');
+    close.className = 'close';
+    close.type = 'button';
+    close.textContent = 'Chiudi';
+    close.addEventListener('click', hideBannerForever);
+    return close;
+  };
 
   if(type === 'guest'){
-    adultBannerText.innerHTML = `<strong>Se sei maggiorenne</strong>: registrati prima di acquistare e avrai <strong>1 drink alcolico omaggio</strong> (invece dell’analcolico).`;
+    adultBannerText.innerHTML =
+      `<strong>Se sei maggiorenne</strong>: registrati prima di acquistare e avrai <strong>1 drink alcolico omaggio</strong> (invece dell’analcolico).`;
+
     const reg = document.createElement('a');
     reg.className = 'primary';
     reg.href = './signup.html?from=./checkout.html';
@@ -610,44 +637,20 @@ function showBanner(type){
     acc.href = './login.html?from=./checkout.html';
     acc.textContent = 'Accedi';
 
-    const close = document.createElement('button');
-    close.className = 'close';
-    close.type = 'button';
-    close.textContent = 'Chiudi';
-    close.addEventListener('click', () => {
-      adultBanner.hidden = true;
-      localStorage.setItem('tr_hide_banner','1');
-    });
-
-    adultBannerActions.append(reg, acc, close);
+    adultBannerActions.append(reg, acc, mkClose());
     return;
   }
 
   if(type === 'adult'){
-    adultBannerText.innerHTML = `✅ <strong>Account maggiorenne</strong>: drink alcolico disponibile.`;
-    const close = document.createElement('button');
-    close.className = 'close';
-    close.type = 'button';
-    close.textContent = 'Chiudi';
-    close.addEventListener('click', () => {
-      adultBanner.hidden = true;
-      localStorage.setItem('tr_hide_banner','1');
-    });
-    adultBannerActions.append(close);
+    adultBannerText.innerHTML = `✅ <strong>Account maggiorenne</strong>: drink <strong>alcolico</strong> disponibile.`;
+    adultBannerActions.append(mkClose());
     return;
   }
 
   // minor
-  adultBannerText.innerHTML = `ℹ️ Drink alcolico disponibile solo <strong>18+</strong>. Con questo ticket hai <strong>analcolico</strong>.`;
-  const close = document.createElement('button');
-  close.className = 'close';
-  close.type = 'button';
-  close.textContent = 'Chiudi';
-  close.addEventListener('click', () => {
-    adultBanner.hidden = true;
-    localStorage.setItem('tr_hide_banner','1');
-  });
-  adultBannerActions.append(close);
+  adultBannerText.innerHTML =
+    `ℹ️ Drink alcolico disponibile solo <strong>18+</strong>. Con questo ticket hai <strong>analcolico</strong>.`;
+  adultBannerActions.append(mkClose());
 }
 
 /** ===== VIP table state ===== */
@@ -722,6 +725,7 @@ async function loadEbInventory(){
     EB = { cap: DEFAULT_CAP, sold: 0, disabled: false };
   }
   applyEbUI();
+
   if (admCap) admCap.value = String(EB.cap);
   if (admSold) admSold.value = String(EB.sold);
   if (admDisabled) admDisabled.value = String(EB.disabled);
@@ -770,6 +774,10 @@ function openNcModal(totalTickets){
 function closeNcModal(){ ncModal.style.display = 'none'; }
 
 /** ===== Render ===== */
+function setProceedEnabled(enabled){
+  if (payBtn) payBtn.disabled = !enabled;
+  if (mobilePay) mobilePay.disabled = !enabled;
+}
 function render(){
   const parts = subtotalBySku();
   const gross = parts.EB + parts.STD + parts.FAST + parts.VIP;
@@ -783,14 +791,11 @@ function render(){
   const tCount = ticketsCount();
   const prot   = optName?.checked ? tCount * PRICE.NAMECHANGE : 0;
 
+  // pill NON cambia forma, cambia solo testo
   if (nameLine){
-    if (optName?.checked && tCount>0){
-      nameLine.textContent = `+ ${money(prot)}`;
-      nameLine.className = '';
-    }else{
-      nameLine.textContent = 'Non inclusa';
-      nameLine.className = 'pill-muted';
-    }
+    if (optName?.checked && tCount>0) nameLine.textContent = `+ ${money(prot)}`;
+    else if (optName?.checked && tCount===0) nameLine.textContent = `Selezionata`;
+    else nameLine.textContent = 'Non inclusa';
   }
 
   const total = gross + prot;
@@ -807,18 +812,11 @@ function render(){
 
   lines.innerHTML = L.join('');
   grandEl.textContent = money(total);
+  if (mobileTotal) mobileTotal.textContent = money(total);
 
-  // abilita/disabilita procedi
-  const canProceed = tCount>0;
-  payBtn.disabled = !canProceed;
+  setProceedEnabled(tCount>0);
 
-  // banner multi-ticket
   if (multiNote) multiNote.hidden = !(tCount>1);
-
-  // ✅ bottom bar mobile
-  if (bottomTotal) bottomTotal.textContent = money(total);
-  if (bottomPay) bottomPay.disabled = !canProceed;
-  if (bottomBar) bottomBar.hidden = !canProceed;
 }
 
 /** Qty binding + feedback */
@@ -859,14 +857,14 @@ function goNext(){
   else            location.href = `./attendees-single.html?${qs}`;
 }
 
+/** Procedi handler (usato sia desktop che mobile) */
 async function handleProceed(){
   const tCount = ticketsCount();
   if (tCount<=0) return;
 
-  // guest ok: anon user silenzioso (zero login obbligatorio)
-  await ensureAnon();
+  await ensureAnon(); // guest ok
 
-  // magazzino EB: riserva PRIMA di andare avanti
+  // magazzino EB
   const q = qty();
   if (q.EB>0){
     const ok = await reserveEarlyBird(q.EB);
@@ -898,7 +896,7 @@ async function handleProceed(){
 }
 
 payBtn?.addEventListener('click', handleProceed);
-bottomPay?.addEventListener('click', handleProceed);
+mobilePay?.addEventListener('click', handleProceed);
 
 ncModal?.addEventListener('click', (e)=>{
   if (e.target === ncModal) closeNcModal();
@@ -907,7 +905,7 @@ ncModal?.addEventListener('click', (e)=>{
 /** Admin check */
 function isAdminUser(u){
   const email = (u?.email || '').toLowerCase();
-  const local = localStorage.getItem('tr_admin') === '1'; // override per test
+  const local = localStorage.getItem('tr_admin') === '1'; // override test
   return local || (email && ADMIN_EMAILS.map(x=>x.toLowerCase()).includes(email));
 }
 
@@ -939,7 +937,7 @@ async function enterLoggedUI(u){
 
   setAdultUI(isAdult);
 
-  // banner: adulto -> chiudibile, minor -> info chiudibile
+  // banner: adulto/minor chiudibile
   showBanner(isAdult ? 'adult' : 'minor');
 
   // tavolo VIP
@@ -952,7 +950,6 @@ async function enterLoggedUI(u){
 
   await loadEbInventory();
 
-  // admin controls
   if (admin){
     admReload.onclick = loadEbInventory;
     admSave.onclick = async ()=>{
@@ -978,19 +975,8 @@ bindQty();
 render();
 hello.textContent = 'Caricamento…';
 
-/** ✅ fallback: se onUser non risponde, vai guest */
-let booted = false;
-const safeBoot = setTimeout(async ()=>{
-  if(!booted){
-    try{ await enterGuestUI(); }catch{}
-  }
-}, 1000);
-
 onUser(async (u)=>{
   try{
-    booted = true;
-    clearTimeout(safeBoot);
-
     if(!u){ await enterGuestUI(); return; }
     if(u.isAnonymous){ await enterGuestUI(); return; }
     await enterLoggedUI(u);
