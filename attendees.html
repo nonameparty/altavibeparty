@@ -6,119 +6,328 @@
 <title>Conferma dati — più biglietti</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&display=swap" rel="stylesheet">
 <style>
-  :root{--bg:#000;--text:#fff;--card:#0c0c0f;--border:rgba(255,255,255,.12);--accent:#8b5cf6;--ok:#22c55e}
-  *{box-sizing:border-box} body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,sans-serif}
-  .wrap{max-width:1100px;margin:auto;padding:22px}
-  h1{font-size:28px;font-weight:900;letter-spacing:-.2px;margin:8px 0 14px}
-  .grid{display:grid;grid-template-columns:2fr 1fr;gap:16px}
-  .card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:16px}
-  .field{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:8px}
-  .field input{width:100%;background:#0f0f10;border:1px solid var(--border);border-radius:10px;color:#fff;padding:12px}
-  .line{display:flex;justify-content:space-between;margin:6px 0;font-size:14px}
-  .total{font-size:22px;font-weight:900;margin-top:8px}
-  .btn{background:var(--accent);color:#000;border:none;border-radius:10px;padding:10px 14px;font-weight:900;cursor:pointer}
-  .ghost{background:transparent;border:1px solid var(--border);color:#fff}
-  .slot{border:1px solid var(--border);border-radius:12px;padding:12px;margin-top:12px}
-  .slot h3{margin:0 0 10px 0;font-size:14px;opacity:.9}
-  .useme{width:100%;margin-top:10px;background:#1a1428;border:1px solid rgba(139,92,246,.5);color:#fff}
-  .muted{opacity:.8;font-size:13px}
-  .save{color:var(--ok);font-weight:800}
-  .hr{height:1px;background:var(--border);margin:12px 0}
+  :root{
+    --bg:#000;
+    --text:#fff;
+    --muted:rgba(255,255,255,.72);
+    --card:rgba(255,255,255,.06);
+    --border:rgba(255,255,255,.12);
+    --accent:#8b5cf6;
+    --ok:#22c55e;
+    --danger:#ef4444;
+    --flash:#fde047;
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{
+    margin:0;background:var(--bg);color:var(--text);
+    font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+    padding-bottom:92px;
+  }
+
+  header{
+    position:sticky;top:0;z-index:50;
+    backdrop-filter:saturate(140%) blur(6px);
+    background:rgba(0,0,0,.6);
+    border-bottom:1px solid rgba(255,255,255,.08);
+  }
+  .nav{
+    max-width:1100px;margin:auto;padding:14px 20px;
+    display:flex;align-items:center;justify-content:space-between;gap:14px
+  }
+  .brand{display:flex;align-items:center;gap:10px;font-weight:900;letter-spacing:-.3px}
+  .brand-badge{width:22px;height:22px;background:var(--accent);transform:skew(-6deg);border-radius:3px}
+  nav{display:flex;align-items:center;gap:14px;flex-wrap:wrap;justify-content:flex-end}
+  nav a{color:#fff;text-decoration:none;font-size:14px;opacity:.95}
+  nav a:hover{color:var(--accent)}
+
+  .wrap{max-width:1100px;margin:auto;padding:20px}
+  h1{font-size:28px;font-weight:900;letter-spacing:-.3px;margin:8px 0 6px}
+  .sub{color:var(--muted);font-size:14px;margin-bottom:14px}
+
+  .grid{display:grid;grid-template-columns:1fr;gap:16px}
+  @media(min-width:900px){.grid{grid-template-columns:2fr 1fr}}
+
+  .card{
+    background:var(--card);
+    border:1px solid var(--border);
+    border-radius:18px;
+    padding:16px;
+  }
+  .meta{color:rgba(255,255,255,.82);font-size:13px;line-height:1.35}
+  .hr{height:1px;background:rgba(255,255,255,.10);margin:12px 0}
+  .line{display:flex;justify-content:space-between;gap:10px;margin:7px 0;font-size:14px;color:rgba(255,255,255,.88)}
+  .save{color:var(--ok);font-weight:900}
+
+  .totalRow{display:flex;justify-content:space-between;align-items:flex-end;margin-top:8px}
+  .totalRow .k{font-size:13px;color:rgba(255,255,255,.72);font-weight:800}
+  .totalRow .v{font-size:28px;font-weight:900;letter-spacing:-.4px}
+
+  .actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
+  .btn{
+    padding:12px 14px;border-radius:14px;
+    border:1px solid rgba(255,255,255,.16);
+    background:#111;color:#fff;font-weight:900;cursor:pointer;
+  }
+  .btn.primary{background:var(--accent);color:#000;border-color:rgba(139,92,246,.55)}
+  .btn:disabled{opacity:.5;cursor:not-allowed}
+
+  .sticky{position:sticky;top:84px}
+
+  /* Slots */
+  .slots{display:grid;gap:12px}
+  .slot{
+    background:#0b0b0b;
+    border:1px solid rgba(255,255,255,.10);
+    border-radius:16px;
+    padding:14px;
+  }
+  .slotHead{
+    display:flex;align-items:center;justify-content:space-between;gap:12px;
+    margin-bottom:10px;
+  }
+  .pill{
+    display:inline-flex;align-items:center;gap:8px;
+    padding:6px 10px;border-radius:999px;
+    border:1px solid rgba(255,255,255,.14);
+    background:rgba(0,0,0,.25);
+    font-size:12px;font-weight:900;color:rgba(255,255,255,.9);
+    white-space:nowrap;
+  }
+  .pill .dot{width:8px;height:8px;border-radius:50%;background:var(--flash);opacity:.95}
+  .slotNum{color:rgba(255,255,255,.76);font-size:12px;font-weight:900}
+
+  .formGrid{display:grid;grid-template-columns:1fr;gap:10px}
+  @media(min-width:520px){.formGrid.two{grid-template-columns:1fr 1fr}}
+  label{
+    display:block;font-size:12px;color:rgba(255,255,255,.72);font-weight:800;margin:0 0 6px 2px
+  }
+  .input{
+    width:100%;
+    background:#0f0f10;
+    border:1px solid rgba(255,255,255,.16);
+    border-radius:12px;
+    color:#fff;
+    padding:12px 12px;
+    font-weight:800;
+    outline:none;
+  }
+  .input:focus{border-color:rgba(139,92,246,.55); box-shadow:0 0 0 3px rgba(139,92,246,.12)}
+  .miniBtn{
+    padding:10px 12px;border-radius:12px;
+    border:1px solid rgba(139,92,246,.35);
+    background:rgba(139,92,246,.12);
+    color:#fff;font-weight:900;cursor:pointer;
+  }
+  .miniBtn:disabled{opacity:.5;cursor:not-allowed}
+
+  .hint{
+    margin-top:10px;color:rgba(255,255,255,.72);
+    font-size:13px;line-height:1.45
+  }
+
+  /* barra mobile */
+  .mobileBar{
+    position:fixed;left:14px;right:14px;bottom:14px;z-index:220;
+    background:rgba(10,10,10,.92);
+    border:1px solid rgba(255,255,255,.14);
+    border-radius:18px;
+    padding:12px;
+    display:flex;align-items:center;justify-content:space-between;gap:12px;
+    box-shadow:0 18px 50px rgba(0,0,0,.55);
+  }
+  .mobileBar .t{display:flex;flex-direction:column;line-height:1.1}
+  .mobileBar .t .k{font-size:12px;color:rgba(255,255,255,.72);font-weight:800}
+  .mobileBar .t .v{font-size:24px;font-weight:900;margin-top:6px}
+  .mobileBar .btns{display:flex;gap:10px;align-items:center}
+  .mBtn{padding:12px 14px;border-radius:14px;font-weight:900;border:none;cursor:pointer}
+  .mBtn.ghost{background:transparent;border:1px solid rgba(255,255,255,.18);color:#fff}
+  .mBtn.primary{background:var(--accent);color:#000}
+  .mBtn:disabled{opacity:.5;cursor:not-allowed}
+
+  @media(min-width:900px){
+    body{padding-bottom:0}
+    .mobileBar{display:none}
+  }
 </style>
 </head>
 <body>
-  <main class="wrap">
-    <h1>Conferma dati — più biglietti</h1>
-    <div class="grid">
-      <section class="card" id="left">
-        <div id="slots"></div>
-      </section>
 
-      <aside class="card">
-        <div class="muted" id="eventMeta">Sab 21 Mar 2026 · 22:30 → 04:30 · Via Italia 38, Biella</div>
-        <div class="hr"></div>
-        <div id="summaryLines"></div>
-        <div class="total">Totale (IVA inclusa) <span id="grand">0€</span></div>
-        <div class="hr"></div>
-        <div class="muted" style="margin-bottom:10px">
-          Se un amico non è ancora registrato, potrà farlo dopo l’acquisto: gli invieremo un link e i biglietti
-          saranno già visibili nella sua area personale. La <strong>Protezione cambio nome</strong> (se attiva)
-          consente 1 cambio fino a 48h dall’evento.
-        </div>
-        <div style="display:flex;gap:8px">
-          <button id="backBtn" class="btn ghost">Indietro</button>
-          <button id="payBtn" class="btn">Paga ora</button>
-        </div>
-      </aside>
-    </div>
-  </main>
+<header>
+  <div class="nav">
+    <div class="brand"><div class="brand-badge"></div><div>TRAPPERREO</div></div>
+    <nav>
+      <a href="./index.html">Home</a>
+      <a href="./index.html#tickets">Ticket</a>
+      <a href="./index.html#faq">FAQ</a>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+  <h1>Conferma dati</h1>
+  <div class="sub">Stai acquistando più biglietti: assegna <strong>nome + cognome + email</strong> per ognuno.</div>
+
+  <div class="grid">
+    <!-- LEFT -->
+    <section class="card">
+      <div class="slots" id="slots"></div>
+
+      <div class="hint">
+        Se un amico non è ancora registrato, potrà farlo dopo l’acquisto: gli invieremo un link e i biglietti saranno già visibili nella sua area personale.
+      </div>
+    </section>
+
+    <!-- RIGHT -->
+    <aside class="card sticky">
+      <div class="meta" id="eventMeta">Sab 21 Mar 2026 · 22:30 → 04:30 · Via Italia 38, Biella</div>
+      <div class="hr"></div>
+
+      <div id="summaryLines"></div>
+
+      <div class="hr"></div>
+      <div class="totalRow">
+        <div class="k">Totale (IVA inclusa)</div>
+        <div class="v" id="grand">0€</div>
+      </div>
+
+      <div class="hr"></div>
+      <div class="meta" style="color:rgba(255,255,255,.75)">
+        Se hai attivato la <strong>Protezione cambio nome</strong>, potrai fare <strong>1 cambio nome</strong> entro i termini previsti.
+      </div>
+
+      <div class="actions" style="margin-top:14px">
+        <button id="backBtn" class="btn">Indietro</button>
+        <button id="payBtn" class="btn primary" disabled>Paga ora</button>
+      </div>
+    </aside>
+  </div>
+</main>
+
+<!-- barra mobile -->
+<div class="mobileBar" aria-live="polite">
+  <div class="t">
+    <div class="k">Totale</div>
+    <div class="v" id="mGrand">0€</div>
+  </div>
+  <div class="btns">
+    <button id="mBack" class="mBtn ghost">Indietro</button>
+    <button id="mPay" class="mBtn primary" disabled>Paga</button>
+  </div>
+</div>
 
 <script type="module">
-/* ==== Auth ==== */
 import { onUser } from './auth.v2.js?v=6';
 
-/* ==== Costanti prezzi (stesse del checkout) ==== */
 const PRICE = { EB:12, STD:15, FAST:20, VIP:25, NAMECHANGE:1.90, STD3:40 };
 const money = n => (n<0?'-':'') + Math.abs(n).toFixed(2).replace('.00','') + '€';
 
-/* ==== Quantità da querystring ==== */
 const Q = new URLSearchParams(location.search);
 const cart = {
   eb: +(Q.get('eb')||0),
-  std: +(Q.get('std')||0),
+  std:+(Q.get('std')||0),
   fast:+(Q.get('fast')||0),
   vip: +(Q.get('vip')||0),
   nc:  +(Q.get('nc')||0)
 };
 
-/* ==== Snapshot sconto da localStorage ==== */
 function readDiscount(){
   try{ return JSON.parse(localStorage.getItem('trapperreo_discount_applied')||'null'); }catch{ return null; }
 }
-const discountSnap = readDiscount(); // {code,type,value,allowedSkus}
-
-/* ==== Costruzione form nominativi ==== */
-const slots = document.getElementById('slots');
-const kinds = [
-  ['eb','Early Bird'],
-  ['std','Standard'],
-  ['fast','Fast Entry'],
-  ['vip','VIP Entry']
-];
+const discountSnap = readDiscount();
 
 let currentUser = null;
 onUser(u => { currentUser = u || null; });
 
-const slotEls = [];
-kinds.forEach(([key,label])=>{
-  for(let i=0; i<cart[key]; i++){
-    const el = document.createElement('div');
-    el.className = 'slot';
-    el.innerHTML = `
-      <h3>${label} — Biglietto ${i+1}</h3>
-      <div class="field">
-        <div><input placeholder="Nome"  data-field="first"></div>
-        <div><input placeholder="Cognome" data-field="last"></div>
+const slotsWrap = document.getElementById('slots');
+
+const kinds = [
+  ['eb','EB','Early Bird'],
+  ['std','STD','Standard'],
+  ['fast','FAST','Fast Entry'],
+  ['vip','VIP','VIP Entry'],
+];
+
+function kindDotColor(){
+  // lasciamo il dot giallo coerente, senza caos colori
+  return '';
+}
+
+const slotInputs = []; // per validazione
+
+function slotTemplate({label, idxGlobal}){
+  const el = document.createElement('div');
+  el.className = 'slot';
+  el.innerHTML = `
+    <div class="slotHead">
+      <div class="pill"><span class="dot"></span><span>${label}</span></div>
+      <div class="slotNum">Biglietto ${idxGlobal}</div>
+    </div>
+
+    <div class="formGrid two">
+      <div>
+        <label>Nome</label>
+        <input class="input" data-field="first" placeholder="Es. Marco" autocomplete="given-name">
       </div>
-      <div class="field" style="grid-template-columns:1fr">
-        <div><input placeholder="email@email.it" data-field="email" inputmode="email"></div>
+      <div>
+        <label>Cognome</label>
+        <input class="input" data-field="last" placeholder="Es. Rossi" autocomplete="family-name">
       </div>
-      <button class="btn useme" type="button">Usa i miei dati per questo biglietto</button>
-    `;
-    const btn = el.querySelector('.useme');
-    btn.addEventListener('click', ()=>{
+    </div>
+
+    <div class="formGrid" style="margin-top:10px">
+      <div>
+        <label>Email</label>
+        <input class="input" data-field="email" placeholder="email@email.it" inputmode="email" autocomplete="email">
+      </div>
+    </div>
+
+    <div style="display:flex;justify-content:flex-end;margin-top:10px">
+      <button class="miniBtn" type="button" data-action="useme">Usa i miei dati</button>
+    </div>
+  `;
+  return el;
+}
+
+function validEmail(v){
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(v||'').trim());
+}
+function validateAll(){
+  const ok = slotInputs.every(s=>{
+    const f = s.first.value.trim().length>=2;
+    const l = s.last.value.trim().length>=2;
+    const e = validEmail(s.email.value);
+    return f && l && e;
+  });
+  document.getElementById('payBtn').disabled = !ok;
+  document.getElementById('mPay').disabled = !ok;
+}
+
+let idxGlobal = 0;
+kinds.forEach(([key, sku, label])=>{
+  for(let i=0;i<cart[key];i++){
+    idxGlobal++;
+    const el = slotTemplate({label, idxGlobal});
+    const first = el.querySelector('[data-field="first"]');
+    const last  = el.querySelector('[data-field="last"]');
+    const email = el.querySelector('[data-field="email"]');
+    const useMe = el.querySelector('[data-action="useme"]');
+
+    useMe.addEventListener('click', ()=>{
       if(!currentUser) return;
       const [f,l] = (currentUser.displayName||'').split(' ');
-      el.querySelector('[data-field="first"]').value = f || '';
-      el.querySelector('[data-field="last"]').value  = l || '';
-      el.querySelector('[data-field="email"]').value = currentUser.email || '';
+      first.value = f || '';
+      last.value  = l || '';
+      email.value = currentUser.email || '';
+      validateAll();
     });
-    slots.appendChild(el);
-    slotEls.push(el);
+    [first,last,email].forEach(inp=>inp.addEventListener('input', validateAll));
+
+    slotsWrap.appendChild(el);
+    slotInputs.push({ first, last, email, sku });
   }
 });
 
-/* ==== Calcolo subtotali, sconto e totale ==== */
 function stdTotal(q){ const b=Math.floor(q/3), r=q%3; return b*PRICE.STD3 + r*PRICE.STD; }
 function parts(){
   return {
@@ -139,12 +348,14 @@ function computeDiscount(d, p){
 
 const summaryLines = document.getElementById('summaryLines');
 const grand = document.getElementById('grand');
+const mGrand = document.getElementById('mGrand');
 
 function renderSummary(){
   const p = parts();
   const gross = p.EB+p.STD+p.FAST+p.VIP;
   const disc = computeDiscount(discountSnap, p);
-  const prot = cart.nc ? ( (cart.eb+cart.std+cart.fast+cart.vip) * PRICE.NAMECHANGE ) : 0;
+  const tc = cart.eb+cart.std+cart.fast+cart.vip;
+  const prot = cart.nc ? (tc * PRICE.NAMECHANGE) : 0;
   const tot  = Math.max(0, gross - disc) + prot;
 
   const L=[];
@@ -157,20 +368,27 @@ function renderSummary(){
     L.push(`<div class="line save"><span>Sconto (${tag})</span><span>- ${money(disc)}</span></div>`);
   }
   if(prot>0){
-    const tc = cart.eb+cart.std+cart.fast+cart.vip;
     L.push(`<div class="line"><span>Protezione cambio nome × ${tc}</span><span>${money(prot)}</span></div>`);
   }
+
   summaryLines.innerHTML = L.join('');
   grand.textContent = money(tot);
+  mGrand.textContent = money(tot);
 }
 renderSummary();
+validateAll();
 
-/* ==== Bottoni ==== */
-document.getElementById('backBtn').addEventListener('click', ()=>history.back());
-document.getElementById('payBtn').addEventListener('click', ()=>{
-  // TODO: integrare pagamento
+/* Bottoni */
+function goBack(){ history.back(); }
+document.getElementById('backBtn').addEventListener('click', goBack);
+document.getElementById('mBack').addEventListener('click', goBack);
+
+function pay(){
+  if (document.getElementById('payBtn').disabled) return;
   alert('Pagamento: placeholder');
-});
+}
+document.getElementById('payBtn').addEventListener('click', pay);
+document.getElementById('mPay').addEventListener('click', pay);
 </script>
 </body>
 </html>
