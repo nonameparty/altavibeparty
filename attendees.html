@@ -7,327 +7,199 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&display=swap" rel="stylesheet">
 <style>
   :root{
-    --bg:#000;
-    --text:#fff;
-    --muted:rgba(255,255,255,.72);
-    --card:rgba(255,255,255,.06);
-    --border:rgba(255,255,255,.12);
-    --accent:#8b5cf6;
-    --ok:#22c55e;
-    --danger:#ef4444;
-    --flash:#fde047;
+    --bg:#000;--text:#fff;--card:#0c0c0f;--border:rgba(255,255,255,.12);
+    --accent:#8b5cf6;--ok:#22c55e;--muted:rgba(255,255,255,.78);
   }
   *{box-sizing:border-box}
-  html,body{height:100%}
-  body{
-    margin:0;background:var(--bg);color:var(--text);
-    font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
-    padding-bottom:92px;
-  }
+  body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
+  a{color:inherit;text-decoration:none}
 
-  header{
-    position:sticky;top:0;z-index:50;
-    backdrop-filter:saturate(140%) blur(6px);
-    background:rgba(0,0,0,.6);
-    border-bottom:1px solid rgba(255,255,255,.08);
-  }
-  .nav{
-    max-width:1100px;margin:auto;padding:14px 20px;
-    display:flex;align-items:center;justify-content:space-between;gap:14px
-  }
+  header{position:sticky;top:0;z-index:50;backdrop-filter:saturate(140%) blur(6px);background:rgba(0,0,0,.6);border-bottom:1px solid rgba(255,255,255,.08)}
+  .nav{max-width:1200px;margin:auto;padding:14px 20px;display:flex;align-items:center;justify-content:space-between}
   .brand{display:flex;align-items:center;gap:10px;font-weight:900;letter-spacing:-.3px}
   .brand-badge{width:22px;height:22px;background:var(--accent);transform:skew(-6deg);border-radius:3px}
-  nav{display:flex;align-items:center;gap:14px;flex-wrap:wrap;justify-content:flex-end}
-  nav a{color:#fff;text-decoration:none;font-size:14px;opacity:.95}
+  nav a, nav span{color:#fff;text-decoration:none;margin-left:18px;font-size:14px;opacity:.95}
   nav a:hover{color:var(--accent)}
 
-  .wrap{max-width:1100px;margin:auto;padding:20px}
-  h1{font-size:28px;font-weight:900;letter-spacing:-.3px;margin:8px 0 6px}
-  .sub{color:var(--muted);font-size:14px;margin-bottom:14px}
-
-  .grid{display:grid;grid-template-columns:1fr;gap:16px}
-  @media(min-width:900px){.grid{grid-template-columns:2fr 1fr}}
-
-  .card{
-    background:var(--card);
-    border:1px solid var(--border);
-    border-radius:18px;
-    padding:16px;
-  }
-  .meta{color:rgba(255,255,255,.82);font-size:13px;line-height:1.35}
+  .wrap{max-width:1100px;margin:auto;padding:22px}
+  h1{font-size:28px;font-weight:900;letter-spacing:-.2px;margin:8px 0 14px}
+  .grid{display:grid;grid-template-columns:2fr 1fr;gap:16px}
+  @media(max-width:920px){.grid{grid-template-columns:1fr}}
+  .card{background:linear-gradient(180deg,rgba(255,255,255,.04),rgba(255,255,255,.02));border:1px solid var(--border);border-radius:16px;padding:16px}
+  .muted{color:var(--muted);font-size:13px}
   .hr{height:1px;background:rgba(255,255,255,.10);margin:12px 0}
-  .line{display:flex;justify-content:space-between;gap:10px;margin:7px 0;font-size:14px;color:rgba(255,255,255,.88)}
+
+  .slot{border:1px solid rgba(255,255,255,.12);border-radius:14px;padding:14px;margin-top:12px;background:#0b0b0b}
+  .slot h3{margin:0 0 10px 0;font-size:14px;opacity:.92;font-weight:900}
+  .field{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:8px}
+  @media(max-width:520px){.field{grid-template-columns:1fr}}
+  .field input{
+    width:100%;background:#0f0f10;border:1px solid rgba(255,255,255,.14);
+    border-radius:12px;color:#fff;padding:12px;font-weight:700;outline:none;
+  }
+  .field input:focus{border-color:rgba(139,92,246,.65);box-shadow:0 0 0 2px rgba(139,92,246,.18)}
+  .line{display:flex;justify-content:space-between;margin:6px 0;font-size:14px;gap:12px}
   .save{color:var(--ok);font-weight:900}
+  .total{display:flex;justify-content:space-between;align-items:baseline;margin-top:10px;font-size:18px;font-weight:900}
+  .total strong{font-size:22px}
 
-  .totalRow{display:flex;justify-content:space-between;align-items:flex-end;margin-top:8px}
-  .totalRow .k{font-size:13px;color:rgba(255,255,255,.72);font-weight:800}
-  .totalRow .v{font-size:28px;font-weight:900;letter-spacing:-.4px}
-
-  .actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
   .btn{
-    padding:12px 14px;border-radius:14px;
-    border:1px solid rgba(255,255,255,.16);
-    background:#111;color:#fff;font-weight:900;cursor:pointer;
+    background:var(--accent);color:#000;border:none;border-radius:12px;
+    padding:12px 14px;font-weight:900;cursor:pointer;width:100%;
   }
-  .btn.primary{background:var(--accent);color:#000;border-color:rgba(139,92,246,.55)}
-  .btn:disabled{opacity:.5;cursor:not-allowed}
+  .ghost{background:transparent;border:1px solid rgba(255,255,255,.18);color:#fff}
+  .actions{display:flex;gap:10px}
+  @media(max-width:520px){.actions{flex-direction:column}}
 
-  .sticky{position:sticky;top:84px}
-
-  /* Slots */
-  .slots{display:grid;gap:12px}
-  .slot{
-    background:#0b0b0b;
-    border:1px solid rgba(255,255,255,.10);
-    border-radius:16px;
-    padding:14px;
-  }
-  .slotHead{
-    display:flex;align-items:center;justify-content:space-between;gap:12px;
-    margin-bottom:10px;
-  }
-  .pill{
-    display:inline-flex;align-items:center;gap:8px;
-    padding:6px 10px;border-radius:999px;
-    border:1px solid rgba(255,255,255,.14);
-    background:rgba(0,0,0,.25);
-    font-size:12px;font-weight:900;color:rgba(255,255,255,.9);
-    white-space:nowrap;
-  }
-  .pill .dot{width:8px;height:8px;border-radius:50%;background:var(--flash);opacity:.95}
-  .slotNum{color:rgba(255,255,255,.76);font-size:12px;font-weight:900}
-
-  .formGrid{display:grid;grid-template-columns:1fr;gap:10px}
-  @media(min-width:520px){.formGrid.two{grid-template-columns:1fr 1fr}}
-  label{
-    display:block;font-size:12px;color:rgba(255,255,255,.72);font-weight:800;margin:0 0 6px 2px
-  }
-  .input{
-    width:100%;
-    background:#0f0f10;
-    border:1px solid rgba(255,255,255,.16);
-    border-radius:12px;
-    color:#fff;
-    padding:12px 12px;
-    font-weight:800;
-    outline:none;
-  }
-  .input:focus{border-color:rgba(139,92,246,.55); box-shadow:0 0 0 3px rgba(139,92,246,.12)}
+  /* mini button (Use me) */
   .miniBtn{
-    padding:10px 12px;border-radius:12px;
-    border:1px solid rgba(139,92,246,.35);
-    background:rgba(139,92,246,.12);
-    color:#fff;font-weight:900;cursor:pointer;
+    width:100%;
+    margin-top:10px;
+    background:rgba(139,92,246,.14);
+    border:1px solid rgba(139,92,246,.45);
+    color:#fff;
+    padding:10px 12px;
+    border-radius:12px;
+    font-weight:900;
+    cursor:pointer;
   }
-  .miniBtn:disabled{opacity:.5;cursor:not-allowed}
-
-  .hint{
-    margin-top:10px;color:rgba(255,255,255,.72);
-    font-size:13px;line-height:1.45
-  }
-
-  /* barra mobile */
-  .mobileBar{
-    position:fixed;left:14px;right:14px;bottom:14px;z-index:220;
-    background:rgba(10,10,10,.92);
-    border:1px solid rgba(255,255,255,.14);
-    border-radius:18px;
-    padding:12px;
-    display:flex;align-items:center;justify-content:space-between;gap:12px;
-    box-shadow:0 18px 50px rgba(0,0,0,.55);
-  }
-  .mobileBar .t{display:flex;flex-direction:column;line-height:1.1}
-  .mobileBar .t .k{font-size:12px;color:rgba(255,255,255,.72);font-weight:800}
-  .mobileBar .t .v{font-size:24px;font-weight:900;margin-top:6px}
-  .mobileBar .btns{display:flex;gap:10px;align-items:center}
-  .mBtn{padding:12px 14px;border-radius:14px;font-weight:900;border:none;cursor:pointer}
-  .mBtn.ghost{background:transparent;border:1px solid rgba(255,255,255,.18);color:#fff}
-  .mBtn.primary{background:var(--accent);color:#000}
-  .mBtn:disabled{opacity:.5;cursor:not-allowed}
-
-  @media(min-width:900px){
-    body{padding-bottom:0}
-    .mobileBar{display:none}
-  }
+  .miniBtn:active{transform:scale(.99)}
 </style>
 </head>
-<body>
 
+<body>
 <header>
   <div class="nav">
     <div class="brand"><div class="brand-badge"></div><div>TRAPPERREO</div></div>
     <nav>
-      <a href="./index.html">Home</a>
-      <a href="./index.html#tickets">Ticket</a>
+      <a href="./checkout.html">Checkout</a>
       <a href="./index.html#faq">FAQ</a>
     </nav>
   </div>
 </header>
 
 <main class="wrap">
-  <h1>Conferma dati</h1>
-  <div class="sub">Stai acquistando più biglietti: assegna <strong>nome + cognome + email</strong> per ognuno.</div>
+  <h1>Conferma dati — più biglietti</h1>
 
   <div class="grid">
-    <!-- LEFT -->
-    <section class="card">
-      <div class="slots" id="slots"></div>
-
-      <div class="hint">
-        Se un amico non è ancora registrato, potrà farlo dopo l’acquisto: gli invieremo un link e i biglietti saranno già visibili nella sua area personale.
+    <section class="card" id="left">
+      <div class="muted" style="margin-bottom:8px">
+        Inserisci i dati per ogni biglietto. (Se hai la protezione cambio nome, potrai modificare dopo.)
       </div>
+      <div id="slots"></div>
     </section>
 
-    <!-- RIGHT -->
-    <aside class="card sticky">
-      <div class="meta" id="eventMeta">Sab 21 Mar 2026 · 22:30 → 04:30 · Via Italia 38, Biella</div>
+    <aside class="card">
+      <div class="muted" id="eventMeta">Sab 21 Mar 2026 · 22:30 → 04:30 · Via Italia 38, Biella</div>
       <div class="hr"></div>
 
       <div id="summaryLines"></div>
 
       <div class="hr"></div>
-      <div class="totalRow">
-        <div class="k">Totale (IVA inclusa)</div>
-        <div class="v" id="grand">0€</div>
+      <div class="total">
+        <span>Totale (IVA inclusa)</span>
+        <strong id="grand">0€</strong>
       </div>
 
       <div class="hr"></div>
-      <div class="meta" style="color:rgba(255,255,255,.75)">
-        Se hai attivato la <strong>Protezione cambio nome</strong>, potrai fare <strong>1 cambio nome</strong> entro i termini previsti.
+      <div class="muted" style="margin-bottom:12px;line-height:1.45">
+        Se un amico non è ancora registrato, potrà farlo dopo l’acquisto: gli invieremo un link e i biglietti
+        saranno visibili nella sua area personale.
       </div>
 
-      <div class="actions" style="margin-top:14px">
-        <button id="backBtn" class="btn">Indietro</button>
-        <button id="payBtn" class="btn primary" disabled>Paga ora</button>
+      <div class="actions">
+        <button id="backBtn" class="btn ghost" type="button">Indietro</button>
+        <button id="payBtn" class="btn" type="button">Paga ora</button>
       </div>
     </aside>
   </div>
 </main>
 
-<!-- barra mobile -->
-<div class="mobileBar" aria-live="polite">
-  <div class="t">
-    <div class="k">Totale</div>
-    <div class="v" id="mGrand">0€</div>
-  </div>
-  <div class="btns">
-    <button id="mBack" class="mBtn ghost">Indietro</button>
-    <button id="mPay" class="mBtn primary" disabled>Paga</button>
-  </div>
-</div>
-
 <script type="module">
 import { onUser } from './auth.v2.js?v=6';
 
+/* ==== Prezzi ==== */
 const PRICE = { EB:12, STD:15, FAST:20, VIP:25, NAMECHANGE:1.90, STD3:40 };
 const money = n => (n<0?'-':'') + Math.abs(n).toFixed(2).replace('.00','') + '€';
 
+/* ==== Quantità da querystring ==== */
 const Q = new URLSearchParams(location.search);
 const cart = {
   eb: +(Q.get('eb')||0),
-  std:+(Q.get('std')||0),
+  std: +(Q.get('std')||0),
   fast:+(Q.get('fast')||0),
   vip: +(Q.get('vip')||0),
   nc:  +(Q.get('nc')||0)
 };
 
+/* ==== Snapshot sconto da localStorage ==== */
 function readDiscount(){
   try{ return JSON.parse(localStorage.getItem('trapperreo_discount_applied')||'null'); }catch{ return null; }
 }
-const discountSnap = readDiscount();
+const discountSnap = readDiscount(); // {code,type,value,allowedSkus}
 
+/* ==== Stato user ==== */
 let currentUser = null;
-onUser(u => { currentUser = u || null; });
+onUser(u => {
+  currentUser = u || null;
 
-const slotsWrap = document.getElementById('slots');
+  /* OPZIONE A: se non loggato, "Usa i miei dati" NON si vede proprio */
+  document.querySelectorAll('[data-useme-wrap]').forEach(wrap=>{
+    wrap.hidden = !currentUser;
+  });
+});
 
+/* ==== Costruzione form nominativi ==== */
+const slots = document.getElementById('slots');
 const kinds = [
-  ['eb','EB','Early Bird'],
-  ['std','STD','Standard'],
-  ['fast','FAST','Fast Entry'],
-  ['vip','VIP','VIP Entry'],
+  ['eb','Early Bird'],
+  ['std','Standard'],
+  ['fast','Fast Entry'],
+  ['vip','VIP Entry']
 ];
 
-function kindDotColor(){
-  // lasciamo il dot giallo coerente, senza caos colori
-  return '';
-}
+kinds.forEach(([key,label])=>{
+  for(let i=0; i<cart[key]; i++){
+    const el = document.createElement('div');
+    el.className = 'slot';
 
-const slotInputs = []; // per validazione
+    el.innerHTML = `
+      <h3>${label} — Biglietto ${i+1}</h3>
 
-function slotTemplate({label, idxGlobal}){
-  const el = document.createElement('div');
-  el.className = 'slot';
-  el.innerHTML = `
-    <div class="slotHead">
-      <div class="pill"><span class="dot"></span><span>${label}</span></div>
-      <div class="slotNum">Biglietto ${idxGlobal}</div>
-    </div>
-
-    <div class="formGrid two">
-      <div>
-        <label>Nome</label>
-        <input class="input" data-field="first" placeholder="Es. Marco" autocomplete="given-name">
+      <div class="field">
+        <div><input placeholder="Nome" data-field="first" autocomplete="given-name"></div>
+        <div><input placeholder="Cognome" data-field="last" autocomplete="family-name"></div>
       </div>
-      <div>
-        <label>Cognome</label>
-        <input class="input" data-field="last" placeholder="Es. Rossi" autocomplete="family-name">
+
+      <div class="field" style="grid-template-columns:1fr">
+        <div><input placeholder="email@email.it" data-field="email" inputmode="email" autocomplete="email"></div>
       </div>
-    </div>
 
-    <div class="formGrid" style="margin-top:10px">
-      <div>
-        <label>Email</label>
-        <input class="input" data-field="email" placeholder="email@email.it" inputmode="email" autocomplete="email">
+      <!-- OPZIONE A: wrapper hidden di default; appare SOLO se loggato -->
+      <div data-useme-wrap hidden>
+        <button class="miniBtn" type="button" data-action="useme">Usa i miei dati per questo biglietto</button>
       </div>
-    </div>
+    `;
 
-    <div style="display:flex;justify-content:flex-end;margin-top:10px">
-      <button class="miniBtn" type="button" data-action="useme">Usa i miei dati</button>
-    </div>
-  `;
-  return el;
-}
+    const useMeWrap = el.querySelector('[data-useme-wrap]');
+    const btn = el.querySelector('[data-action="useme"]');
 
-function validEmail(v){
-  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(v||'').trim());
-}
-function validateAll(){
-  const ok = slotInputs.every(s=>{
-    const f = s.first.value.trim().length>=2;
-    const l = s.last.value.trim().length>=2;
-    const e = validEmail(s.email.value);
-    return f && l && e;
-  });
-  document.getElementById('payBtn').disabled = !ok;
-  document.getElementById('mPay').disabled = !ok;
-}
+    // stato iniziale (se onUser non ha ancora girato)
+    useMeWrap.hidden = !currentUser;
 
-let idxGlobal = 0;
-kinds.forEach(([key, sku, label])=>{
-  for(let i=0;i<cart[key];i++){
-    idxGlobal++;
-    const el = slotTemplate({label, idxGlobal});
-    const first = el.querySelector('[data-field="first"]');
-    const last  = el.querySelector('[data-field="last"]');
-    const email = el.querySelector('[data-field="email"]');
-    const useMe = el.querySelector('[data-action="useme"]');
-
-    useMe.addEventListener('click', ()=>{
+    btn.addEventListener('click', ()=>{
       if(!currentUser) return;
       const [f,l] = (currentUser.displayName||'').split(' ');
-      first.value = f || '';
-      last.value  = l || '';
-      email.value = currentUser.email || '';
-      validateAll();
+      el.querySelector('[data-field="first"]').value = f || '';
+      el.querySelector('[data-field="last"]').value  = l || '';
+      el.querySelector('[data-field="email"]').value = currentUser.email || '';
     });
-    [first,last,email].forEach(inp=>inp.addEventListener('input', validateAll));
 
-    slotsWrap.appendChild(el);
-    slotInputs.push({ first, last, email, sku });
+    slots.appendChild(el);
   }
 });
 
+/* ==== Calcolo subtotali, sconto e totale ==== */
 function stdTotal(q){ const b=Math.floor(q/3), r=q%3; return b*PRICE.STD3 + r*PRICE.STD; }
 function parts(){
   return {
@@ -339,8 +211,13 @@ function parts(){
 }
 function computeDiscount(d, p){
   if(!d) return 0;
-  const allow = (d.allowedSkus && d.allowedSkus.length? d.allowedSkus : ['EB','STD','FAST','VIP']);
-  const base = (allow.includes('EB')?p.EB:0)+(allow.includes('STD')?p.STD:0)+(allow.includes('FAST')?p.FAST:0)+(allow.includes('VIP')?p.VIP:0);
+  const allow = (d.allowedSkus && d.allowedSkus.length ? d.allowedSkus : ['EB','STD','FAST','VIP']);
+  const base =
+    (allow.includes('EB')   ? p.EB   : 0) +
+    (allow.includes('STD')  ? p.STD  : 0) +
+    (allow.includes('FAST') ? p.FAST : 0) +
+    (allow.includes('VIP')  ? p.VIP  : 0);
+
   if(d.type==='percent') return Math.max(0, +(base*(d.value/100)).toFixed(2));
   if(d.type==='fixed')   return Math.max(0, Math.min(base, d.value));
   return 0;
@@ -348,7 +225,6 @@ function computeDiscount(d, p){
 
 const summaryLines = document.getElementById('summaryLines');
 const grand = document.getElementById('grand');
-const mGrand = document.getElementById('mGrand');
 
 function renderSummary(){
   const p = parts();
@@ -363,32 +239,28 @@ function renderSummary(){
   if(cart.std)  L.push(`<div class="line"><span>Standard × ${cart.std}</span><span>${money(p.STD)}</span></div>`);
   if(cart.fast) L.push(`<div class="line"><span>Fast Entry × ${cart.fast}</span><span>${money(p.FAST)}</span></div>`);
   if(cart.vip)  L.push(`<div class="line"><span>VIP Entry × ${cart.vip}</span><span>${money(p.VIP)}</span></div>`);
+
   if(discountSnap){
-    const tag = `${discountSnap.code} — ${discountSnap.type==='percent' ? '%'+discountSnap.value : '−'+money(discountSnap.value)}`;
+    const tag = `${discountSnap.code} — ${discountSnap.type==='percent' ? discountSnap.value+'%' : '−'+money(discountSnap.value)}`;
     L.push(`<div class="line save"><span>Sconto (${tag})</span><span>- ${money(disc)}</span></div>`);
   }
+
   if(prot>0){
     L.push(`<div class="line"><span>Protezione cambio nome × ${tc}</span><span>${money(prot)}</span></div>`);
   }
 
   summaryLines.innerHTML = L.join('');
   grand.textContent = money(tot);
-  mGrand.textContent = money(tot);
 }
 renderSummary();
-validateAll();
 
-/* Bottoni */
-function goBack(){ history.back(); }
-document.getElementById('backBtn').addEventListener('click', goBack);
-document.getElementById('mBack').addEventListener('click', goBack);
-
-function pay(){
-  if (document.getElementById('payBtn').disabled) return;
+/* ==== Bottoni ==== */
+document.getElementById('backBtn').addEventListener('click', ()=>history.back());
+document.getElementById('payBtn').addEventListener('click', ()=>{
+  // TODO: integrare pagamento
   alert('Pagamento: placeholder');
-}
-document.getElementById('payBtn').addEventListener('click', pay);
-document.getElementById('mPay').addEventListener('click', pay);
+});
 </script>
+
 </body>
 </html>
