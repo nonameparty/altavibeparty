@@ -8,7 +8,14 @@
 :root{
   --bg:#000; --text:#fff; --accent:#8b5cf6; --border:rgba(255,255,255,.12);
   --card:rgba(255,255,255,.06); --ok:#22c55e; --err:#ef4444; --muted:rgba(255,255,255,.78);
-  --c-eb:#8b5cf6; --c-std:#60a5fa; --c-fast:#34d399; --c-vip:#f59e0b;
+
+  --c-eb:#8b5cf6;
+  --c-std:#60a5fa;
+  --c-fast:#34d399;
+  /* VIP: via “oro”, mettiamo fucsia club */
+  --c-vip:#fb7185;
+
+  --flash:#fde047; /* giallo feedback */
 }
 *{box-sizing:border-box;margin:0;padding:0}
 body{background:var(--bg);color:var(--text);font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;line-height:1.5;min-height:100vh;display:grid;grid-template-rows:auto 1fr}
@@ -19,33 +26,54 @@ header{position:sticky;top:0;z-index:50;backdrop-filter:saturate(140%) blur(6px)
 nav a, nav span{color:#fff;text-decoration:none;margin-left:18px;font-size:14px;opacity:.95}
 nav a:hover{color:var(--accent)}
 .wrap{max-width:1100px;margin:auto;padding:20px}
-h1{font-size:26px;font-weight:900;letter-spacing:-.2px}
+h1{font-size:28px;font-weight:900;letter-spacing:-.3px}
 .muted{color:var(--muted)}
 .grid{display:grid;grid-template-columns:1fr;gap:16px;margin-top:18px}
 @media(min-width:900px){.grid{grid-template-columns:2fr 1fr}}
 .card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:18px}
-.badges{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
-.badge{background:#0f0f10;border:1px solid rgba(255,255,255,.15);border-radius:10px;padding:8px 10px;font-size:13px}
 
-.adult-only[hidden]{display:none!important}
+/* Evento lineare (non pill) */
+.eventline{margin-top:10px;color:rgba(255,255,255,.82);font-size:14px}
+.eventline strong{color:#fff}
+.eventline .dot{opacity:.55;margin:0 10px}
 
-/* settimane */
-.weeks{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0 6px}
-.weeks button{background:#0f0f10;border:1px solid var(--border);color:#fff;padding:8px 10px;border-radius:10px;cursor:pointer;font-weight:700}
+/* Admin tools */
+.admin-only[hidden]{display:none!important}
+.weeks{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0 6px}
+.weeks button{background:#0f0f10;border:1px solid var(--border);color:#fff;padding:8px 10px;border-radius:10px;cursor:pointer;font-weight:800;font-size:13px}
 .weeks button.active{border-color:var(--accent);box-shadow:0 0 0 2px rgba(139,92,246,.15)}
 
 /* biglietti */
 .tickets{display:grid;gap:12px;margin-top:8px}
-.row{display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center;background:#0b0b0b;border:1px solid rgba(255,255,255,.1);border-radius:12px;padding:14px;transition:box-shadow .2s}
+.row{display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center;background:#0b0b0b;border:1px solid rgba(255,255,255,.1);border-radius:12px;padding:14px;transition:box-shadow .18s, transform .12s, border-color .18s}
 .title{font-weight:900;display:flex;align-items:center;gap:8px}
-.flag{display:inline-block;padding:3px 8px;border-radius:8px;border:1px solid currentColor;font-size:12px;font-weight:800}
+.flag{display:inline-block;padding:3px 8px;border-radius:8px;border:1px solid currentColor;font-size:12px;font-weight:900}
 .note{font-size:13px;opacity:.95;margin-top:6px}
-.controls{display:flex;align-items:center;gap:8px}
+.controls{display:flex;align-items:center;gap:10px}
 .price{font-weight:900}
-.qty{display:flex;align-items:center;border:1px solid rgba(255,255,255,.2);border-radius:10px;overflow:hidden}
-.qty button{width:36px;height:36px;background:#111;border:none;color:#fff;font-weight:900;cursor:pointer}
-.qty input{width:48px;height:36px;text-align:center;background:#0a0a0a;border:none;color:#fff;font-weight:800}
-.sold{opacity:.5;filter:grayscale(1)}
+
+.qty{display:flex;align-items:center;border:1px solid rgba(255,255,255,.22);border-radius:10px;overflow:hidden}
+.qty button{width:36px;height:36px;background:#111;border:none;color:#fff;font-weight:900;cursor:pointer;transition:filter .15s, transform .08s}
+.qty button:active{transform:scale(.96)}
+.qty button.is-plus{position:relative}
+.qty button.flash{filter:drop-shadow(0 0 14px rgba(253,224,71,.55))}
+.qty button.flash::after{
+  content:"";
+  position:absolute; inset:0;
+  background:rgba(253,224,71,.18);
+}
+.qty input{width:48px;height:36px;text-align:center;background:#0a0a0a;border:none;color:#fff;font-weight:900}
+.qty input.pop{animation:pop .18s ease-out}
+@keyframes pop{from{transform:scale(1)} to{transform:scale(1.08)}}
+
+.row.selected{
+  border-color:rgba(253,224,71,.55);
+  box-shadow:0 0 0 2px rgba(253,224,71,.10), 0 14px 42px rgba(0,0,0,.35);
+}
+.sold{opacity:.45;filter:grayscale(1)}
+.sold .qty button{cursor:not-allowed;opacity:.4}
+.sold .qty input{opacity:.65}
+
 .row[data-type="eb"]  {border-color:color-mix(in srgb, var(--c-eb) 45%, #fff 0%)}
 .row[data-type="std"] {border-color:color-mix(in srgb, var(--c-std)45%, #fff 0%)}
 .row[data-type="fast"]{border-color:color-mix(in srgb, var(--c-fast)45%, #fff 0%)}
@@ -53,15 +81,16 @@ h1{font-size:26px;font-weight:900;letter-spacing:-.2px}
 .flag.eb{color:var(--c-eb)} .flag.std{color:var(--c-std)} .flag.fast{color:var(--c-fast)} .flag.vip{color:var(--c-vip)}
 
 /* Tavolo VIP CTA */
-.viptable{margin-top:12px;display:flex;justify-content:space-between;align-items:center;background:#0b0b0b;border:1px dashed rgba(245,158,11,.6);border-radius:12px;padding:14px}
+.viptable{margin-top:12px;display:flex;justify-content:space-between;align-items:center;background:#0b0b0b;border:1px dashed rgba(251,113,133,.65);border-radius:12px;padding:14px}
 .viptable .title{font-weight:900}
 .viptable .cta{background:transparent;border:1px solid var(--c-vip);color:#fff;padding:10px 14px;border-radius:10px;cursor:pointer;text-decoration:none}
 
 /* riepilogo */
 .small{font-size:13px;opacity:.75}
 .hr{height:1px;background:rgba(255,255,255,.08);margin:14px 0}
-.line{display:flex;justify-content:space-between;font-size:14px;margin:6px 0}
+.line{display:flex;justify-content:space-between;font-size:14px;margin:6px 0;gap:12px}
 .total{font-size:22px;font-weight:900}
+.pill-muted{display:inline-block;padding:4px 10px;border:1px solid rgba(255,255,255,.14);border-radius:999px;font-size:12px;color:rgba(255,255,255,.75)}
 
 /* sticky */
 .sticky{position:sticky;bottom:0;background:linear-gradient(180deg, rgba(0,0,0,.0), rgba(0,0,0,.4) 20%, #000 40%);padding-top:16px;margin-top:16px}
@@ -71,6 +100,16 @@ h1{font-size:26px;font-weight:900;letter-spacing:-.2px}
 /* hint sconto */
 .hint-ok{color:#86efac}
 .hint-err{color:var(--err)}
+
+/* Modal */
+.modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.65);display:none;align-items:center;justify-content:center;z-index:200}
+.modal{width:min(92vw,520px);background:#0b0b0b;border:1px solid rgba(255,255,255,.14);border-radius:18px;padding:18px}
+.modal h3{font-size:18px;font-weight:900;margin-bottom:6px}
+.modal p{color:rgba(255,255,255,.82);font-size:14px;margin-bottom:14px}
+.modal-actions{display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end}
+.btn{padding:11px 14px;border-radius:10px;border:1px solid rgba(255,255,255,.16);background:#111;color:#fff;font-weight:900;cursor:pointer}
+.btn.primary{background:var(--flash);color:#000;border-color:rgba(253,224,71,.55)}
+.btn.ghost{background:transparent}
 </style>
 </head>
 <body>
@@ -83,10 +122,11 @@ h1{font-size:26px;font-weight:900;letter-spacing:-.2px}
 </header>
 
 <main class="wrap">
-  <h1>Blocca la tua notte</h1>
-  <div class="muted" id="hello">Ciao, <strong>ospite</strong></div>
+  <h1>Prendi il tuo ticket</h1>
+  <div class="muted" id="hello">👋 Ciao</div>
 
-  <div class="weeks" aria-label="Simulazione settimane">
+  <!-- Admin only: simulazione settimane (NASCOSTA agli ospiti) -->
+  <div class="weeks admin-only" id="weeksBlock" hidden aria-label="Simulazione settimane (admin)">
     <button data-week="4" class="active">Settimana 4</button>
     <button data-week="3">Settimana 3</button>
     <button data-week="2">Settimana 2</button>
@@ -95,24 +135,31 @@ h1{font-size:26px;font-weight:900;letter-spacing:-.2px}
 
   <div class="grid">
     <div class="card">
-      <div class="badges">
-        <span class="badge">Sab 21 Mar 2026</span>
-        <span class="badge">22:30 → 04:30</span>
-        <span class="badge">Via Italia 38, Biella</span>
+      <!-- Evento in linea -->
+      <div class="eventline">
+        <strong>Sab 21 Mar 2026</strong><span class="dot">•</span>22:30 → 04:30<span class="dot">•</span>Via Italia 38, Biella
       </div>
 
       <h2 style="font-size:20px;font-weight:900;margin:14px 0 8px">Scegli i biglietti</h2>
+
       <div class="tickets">
 
         <!-- EARLY -->
         <div class="row" data-type="eb" id="rowEB">
           <div>
-            <div class="title">Early Bird <span class="flag eb">solo 72h</span></div>
-            <div class="note">Ingresso + <span class="drink-label">1 drink</span>. <span id="ebLeft" class="muted"></span></div>
+            <div class="title">Early Bird <span class="flag eb" id="ebFlag">solo 72h</span></div>
+            <div class="note">
+              Ingresso + <span class="drink-label">1 drink</span>.
+              <span id="ebLeft" class="muted"></span>
+            </div>
           </div>
           <div class="controls">
             <div class="price">12€</div>
-            <div class="qty"><button data-minus="#qEB">−</button><input id="qEB" type="number" min="0" value="0" inputmode="numeric"><button data-plus="#qEB">+</button></div>
+            <div class="qty">
+              <button data-minus="#qEB" aria-label="meno">−</button>
+              <input id="qEB" type="number" min="0" value="0" inputmode="numeric">
+              <button data-plus="#qEB" class="is-plus" aria-label="più">+</button>
+            </div>
           </div>
         </div>
 
@@ -121,11 +168,17 @@ h1{font-size:26px;font-weight:900;letter-spacing:-.2px}
           <div>
             <div class="title">Standard <span class="flag std">consigliato</span></div>
             <div class="note">Ingresso + <span class="drink-label">1 drink</span>.</div>
-            <div class="note" id="crewPromo" style="margin-top:6px;opacity:.95"><strong>🎟️ Acquista 3 prevendite</strong> e ricevi uno <strong>sconto speciale</strong> (3×40€)</div>
+            <div class="note" id="crewPromo" style="margin-top:6px;opacity:.95">
+              <strong>🎟️ Acquista 3 prevendite</strong> e ricevi uno <strong>sconto speciale</strong> (3×40€)
+            </div>
           </div>
           <div class="controls">
             <div class="price">15€</div>
-            <div class="qty"><button data-minus="#qSTD">−</button><input id="qSTD" type="number" min="0" value="0" inputmode="numeric"><button data-plus="#qSTD">+</button></div>
+            <div class="qty">
+              <button data-minus="#qSTD" aria-label="meno">−</button>
+              <input id="qSTD" type="number" min="0" value="0" inputmode="numeric">
+              <button data-plus="#qSTD" class="is-plus" aria-label="più">+</button>
+            </div>
           </div>
         </div>
 
@@ -137,7 +190,11 @@ h1{font-size:26px;font-weight:900;letter-spacing:-.2px}
           </div>
           <div class="controls">
             <div class="price">20€</div>
-            <div class="qty"><button data-minus="#qFAST">−</button><input id="qFAST" type="number" min="0" value="0" inputmode="numeric"><button data-plus="#qFAST">+</button></div>
+            <div class="qty">
+              <button data-minus="#qFAST" aria-label="meno">−</button>
+              <input id="qFAST" type="number" min="0" value="0" inputmode="numeric">
+              <button data-plus="#qFAST" class="is-plus" aria-label="più">+</button>
+            </div>
           </div>
         </div>
 
@@ -149,7 +206,11 @@ h1{font-size:26px;font-weight:900;letter-spacing:-.2px}
           </div>
           <div class="controls">
             <div class="price">25€</div>
-            <div class="qty"><button data-minus="#qVIP">−</button><input id="qVIP" type="number" min="0" value="0" inputmode="numeric"><button data-plus="#qVIP">+</button></div>
+            <div class="qty">
+              <button data-minus="#qVIP" aria-label="meno">−</button>
+              <input id="qVIP" type="number" min="0" value="0" inputmode="numeric">
+              <button data-plus="#qVIP" class="is-plus" aria-label="più">+</button>
+            </div>
           </div>
         </div>
 
@@ -162,6 +223,47 @@ h1{font-size:26px;font-weight:900;letter-spacing:-.2px}
           <a class="cta" id="vipReserve" href="./attendees-tavolo.html">Prenota ora il tuo tavolo</a>
         </div>
 
+        <!-- Founder/Admin: Magazzino Early Bird (solo tool, non obbligatorio) -->
+        <div class="card admin-only" id="ebAdminPanel" hidden style="margin-top:14px;background:#070707">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap">
+            <div>
+              <div style="font-weight:900">Magazzino Early Bird</div>
+              <div class="small muted">Solo staff. Se Stripe è attivo: incrementa “sold” a pagamento completato. Se non è attivo: incrementa alla creazione ordine fittizio.</div>
+            </div>
+            <span class="pill-muted" id="rolePill">STAFF</span>
+          </div>
+
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:12px">
+            <label class="small">Limit
+              <input id="ebLimit" type="number" min="0" style="width:100%;margin-top:6px;background:#0f0f10;border:1px solid rgba(255,255,255,.15);border-radius:10px;color:#fff;padding:10px">
+            </label>
+            <label class="small">Sold
+              <input id="ebSold" type="number" min="0" style="width:100%;margin-top:6px;background:#0f0f10;border:1px solid rgba(255,255,255,.15);border-radius:10px;color:#fff;padding:10px">
+            </label>
+            <label class="small">Manual OFF
+              <select id="ebOff" style="width:100%;margin-top:6px;background:#0f0f10;border:1px solid rgba(255,255,255,.15);border-radius:10px;color:#fff;padding:10px">
+                <option value="0">No</option>
+                <option value="1">Sì</option>
+              </select>
+            </label>
+          </div>
+
+          <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:10px">
+            <label class="small">Start (opzionale)
+              <input id="ebStart" type="datetime-local" style="width:100%;margin-top:6px;background:#0f0f10;border:1px solid rgba(255,255,255,.15);border-radius:10px;color:#fff;padding:10px">
+            </label>
+            <label class="small">End (opzionale)
+              <input id="ebEnd" type="datetime-local" style="width:100%;margin-top:6px;background:#0f0f10;border:1px solid rgba(255,255,255,.15);border-radius:10px;color:#fff;padding:10px">
+            </label>
+          </div>
+
+          <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end;margin-top:12px">
+            <button id="ebResetDates" class="btn ghost" type="button">Annulla date</button>
+            <button id="ebSave" class="btn primary" type="button">Salva</button>
+          </div>
+          <div id="ebAdminHint" class="small muted" style="margin-top:8px"></div>
+        </div>
+
       </div>
     </div>
 
@@ -171,15 +273,21 @@ h1{font-size:26px;font-weight:900;letter-spacing:-.2px}
       <div id="lines"></div>
 
       <div class="hr"></div>
-      <div class="line">
-        <label class="small" style="cursor:pointer">
+
+      <div class="line" style="align-items:flex-start">
+        <label class="small" style="cursor:pointer;max-width:70%">
           <input id="optNameChange" type="checkbox" style="margin-right:8px">
-          Protezione cambio nome <span class="muted">(1,90€ / biglietto)</span>
+          <span style="font-weight:900">Protezione cambio nome</span>
+          <span class="muted">(1,90€ / biglietto)</span>
+          <div class="muted" style="margin-top:6px;font-size:12px;line-height:1.35">
+            Ti permette <strong>1 cambio nome</strong> per ticket fino a <strong>24h prima</strong>.
+          </div>
         </label>
-        <span id="nameChangeLine">0€</span>
+        <span id="nameChangeLine" class="pill-muted">Non inclusa</span>
       </div>
 
       <div class="hr"></div>
+
       <div id="discBlock">
         <div class="line" style="align-items:center;gap:8px">
           <label class="small" style="opacity:.95">Codice sconto</label>
@@ -198,28 +306,53 @@ h1{font-size:26px;font-weight:900;letter-spacing:-.2px}
       <div class="sticky" style="margin-top:10px">
         <button id="payBtn" class="pay" disabled>Procedi</button>
       </div>
-      <div class="small" style="margin-top:10px">Se acquisti più biglietti, assegnerai i nomi nel passaggio successivo.</div>
+
+      <div class="small" style="margin-top:10px">
+        Se acquisti più biglietti, assegnerai i nomi nel passaggio successivo.
+      </div>
     </aside>
   </div>
 </main>
+
+<!-- Modal upsell cambio nome -->
+<div class="modal-backdrop" id="ncModal">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="ncTitle">
+    <h3 id="ncTitle">Aggiungere protezione cambio nome?</h3>
+    <p id="ncText">Con pochi euro in più puoi cambiare il nome dei ticket fino a 24h prima. Utile se compri per amici.</p>
+    <div class="modal-actions">
+      <button class="btn ghost" type="button" id="ncNo">No grazie, continua</button>
+      <button class="btn primary" type="button" id="ncYes">Aggiungi e continua</button>
+    </div>
+  </div>
+</div>
 
 <script type="module">
 /** ================= Auth & Firebase ================= */
 import { onUser, doSignOut, app } from './auth.v2.js?v=6';
 import {
-  getFirestore, doc, getDoc, collection, getDocs, query, where, limit
+  getFirestore, doc, getDoc, setDoc, collection, getDocs, query, where, limit, runTransaction, serverTimestamp
 } from 'https://www.gstatic.com/firebasejs/12.5.0/firebase-firestore.js';
+import {
+  getAuth, signInAnonymously
+} from 'https://www.gstatic.com/firebasejs/12.5.0/firebase-auth.js';
 
 const db = getFirestore(app);
+const auth = getAuth(app);
 
 /** ================= UI base ================= */
 const nav   = document.getElementById('navArea');
 const hello = document.getElementById('hello');
 
+const weeksBlock = document.getElementById('weeksBlock');
+
 const qEB   = document.getElementById('qEB');
 const qSTD  = document.getElementById('qSTD');
 const qFAST = document.getElementById('qFAST');
 const qVIP  = document.getElementById('qVIP');
+
+const rowEB = document.getElementById('rowEB');
+const ebLeft = document.getElementById('ebLeft');
+const ebFlag = document.getElementById('ebFlag');
 
 const lines   = document.getElementById('lines');
 const grandEl = document.getElementById('grandTot');
@@ -227,6 +360,12 @@ const payBtn  = document.getElementById('payBtn');
 
 const optName = document.getElementById('optNameChange');
 const nameLine= document.getElementById('nameChangeLine');
+
+/** ====== Modal cambio nome ====== */
+const ncModal = document.getElementById('ncModal');
+const ncNo = document.getElementById('ncNo');
+const ncYes = document.getElementById('ncYes');
+const ncText = document.getElementById('ncText');
 
 /** ====== Box Codice Sconto ====== */
 const discBlock  = document.getElementById('discBlock');
@@ -238,23 +377,34 @@ const discHint   = document.getElementById('discHint');
 /** ====== VIP/tavolo (NON CAMBIO LA LOGICA 18+) ====== */
 const adultBlocks = Array.from(document.querySelectorAll('.adult-only, #vipTableBlock'));
 adultBlocks.forEach(el => { if(!el) return; el.hidden = true; el.style.display = 'none'; });
-
 const vipNote  = document.getElementById('vipNote');
 const vipBtn   = document.getElementById('vipReserve');
+
+/** ====== Admin panel EB ====== */
+const ebAdminPanel = document.getElementById('ebAdminPanel');
+const rolePill = document.getElementById('rolePill');
+const ebLimitInp = document.getElementById('ebLimit');
+const ebSoldInp  = document.getElementById('ebSold');
+const ebOffSel   = document.getElementById('ebOff');
+const ebStartInp = document.getElementById('ebStart');
+const ebEndInp   = document.getElementById('ebEnd');
+const ebResetDates = document.getElementById('ebResetDates');
+const ebSaveBtn = document.getElementById('ebSave');
+const ebAdminHint = document.getElementById('ebAdminHint');
 
 /** ================= Helpers comuni ================= */
 const OUT = `
   <a href="./index.html">Home</a>
   <a href="./index.html#tickets">Ticket</a>
   <a href="./index.html#faq">FAQ</a>
-  <a href="./login.html?from=./checkout.html" style="color:#8b5cf6;font-weight:800">Accedi (opz.)</a>
+  <a href="./login.html?from=./checkout.html" style="color:#8b5cf6;font-weight:900">Accedi (opz.)</a>
 `;
 const IN  = (u)=>`
   <span>👋 Ciao, <strong>${(u.displayName||u.email||'Utente').split(' ')[0]}</strong></span>
   <a href="./index.html">Home</a>
   <a href="./checkout.html">Checkout</a>
   <a href="./account-2.html">Area personale</a>
-  <a href="#" id="logoutLink" style="color:#8b5cf6">Logout</a>`;
+  <a href="#" id="logoutLink" style="color:#8b5cf6;font-weight:900">Logout</a>`;
 
 const PRICE = { EB:12, STD:15, FAST:20, VIP:25, NAMECHANGE:1.90, STD3:40 };
 const money = n => (n<0?'-':'') + Math.abs(n).toFixed(2).replace('.00','') + '€';
@@ -273,7 +423,21 @@ function drinkLabels(){ return document.querySelectorAll('.drink-label'); }
 const lc=s=>(s||'').toString().trim().toLowerCase();
 const uc=s=>(s||'').toString().trim().toUpperCase();
 
-/** ================= Età (mantengo la tua logica) ================= */
+function flashBtn(btn){
+  if(!btn) return;
+  btn.classList.add('flash');
+  setTimeout(()=>btn.classList.remove('flash'), 140);
+}
+function popInput(inp){
+  if(!inp) return;
+  inp.classList.remove('pop');
+  // force reflow
+  void inp.offsetWidth;
+  inp.classList.add('pop');
+  setTimeout(()=>inp.classList.remove('pop'), 220);
+}
+
+/** ================= Età (tua logica) ================= */
 function parseDob(any){
   if (!any) return null;
   if (typeof any === 'object' && any.seconds != null) return new Date(any.seconds*1000);
@@ -345,9 +509,121 @@ function setAdultUI(isAdult){
   }
 }
 
-/** ================= SCONTI ================= */
+/** ================= Ruoli (admin/founder) =================
+ *  Leggiamo config/admins (schema elastico):
+ *  - founders: [email...]
+ *  - admins:   [email...]
+ */
+async function getStaffRole(user){
+  const email = lc(user?.email || '');
+  if (!email) return { isAdmin:false, isFounder:false };
+
+  try{
+    const snap = await getDoc(doc(db,'config','admins'));
+    if (!snap.exists()) return { isAdmin:false, isFounder:false };
+
+    const d = snap.data() || {};
+    const founders = Array.isArray(d.founders) ? d.founders.map(lc) : [];
+    const admins   = Array.isArray(d.admins) ? d.admins.map(lc) : [];
+    const isFounder = founders.includes(email);
+    const isAdmin = isFounder || admins.includes(email);
+    return { isAdmin, isFounder };
+  }catch{
+    return { isAdmin:false, isFounder:false };
+  }
+}
+
+/** ================= Early Bird: magazzino (config su Firestore) =================
+ * Documento consigliato: events/current
+ * earlyBird: { limit:50, sold:0, manualOff:false, startAt:Timestamp|ISO|null, endAt:... }
+ */
+let EB_CFG = { limit:50, sold:0, manualOff:false, startAt:null, endAt:null };
+
+function toDTLocal(v){
+  if(!v) return '';
+  const d = (v?.seconds!=null) ? new Date(v.seconds*1000) : (v instanceof Date ? v : new Date(v));
+  if (isNaN(d)) return '';
+  const pad=n=>String(n).padStart(2,'0');
+  return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
+function inWindowNow(cfg){
+  const now = new Date();
+  const s = cfg.startAt ? new Date(cfg.startAt?.seconds!=null ? cfg.startAt.seconds*1000 : cfg.startAt) : null;
+  const e = cfg.endAt   ? new Date(cfg.endAt?.seconds!=null ? cfg.endAt.seconds*1000 : cfg.endAt) : null;
+  if (s && !isNaN(s) && now < s) return false;
+  if (e && !isNaN(e) && now > e) return false;
+  return true;
+}
+function ebIsAvailable(){
+  const q = qty();
+  const want = q.EB || 0;
+  const left = Math.max(0, (EB_CFG.limit||0) - (EB_CFG.sold||0));
+  const okWindow = inWindowNow(EB_CFG);
+  const ok = !EB_CFG.manualOff && okWindow && left > 0;
+  // se hanno già selezionato più di quanto resta, non va bene
+  return { ok, left, want };
+}
+function setEbUI(){
+  if(!rowEB) return;
+  const { ok, left } = ebIsAvailable();
+
+  // testo magazzino
+  if (ebLeft){
+    if (!inWindowNow(EB_CFG) && (EB_CFG.startAt || EB_CFG.endAt)){
+      // fuori finestra
+      if (EB_CFG.startAt){
+        const s = new Date(EB_CFG.startAt?.seconds!=null ? EB_CFG.startAt.seconds*1000 : EB_CFG.startAt);
+        ebLeft.textContent = isNaN(s) ? '' : `Disponibile da ${s.toLocaleString('it-IT',{weekday:'short',day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'})}`;
+      } else {
+        ebLeft.textContent = 'Non disponibile al momento';
+      }
+    } else if (EB_CFG.manualOff){
+      ebLeft.textContent = 'Non disponibile (manual OFF)';
+    } else if (left <= 0){
+      ebLeft.textContent = 'Sold out';
+    } else {
+      ebLeft.textContent = `Rimasti ${left}/${EB_CFG.limit}`;
+    }
+  }
+
+  // flag
+  if (ebFlag){
+    ebFlag.textContent = (left <= 0 || EB_CFG.manualOff) ? 'sold out' : 'solo 72h';
+  }
+
+  // disabilita / grigio
+  rowEB.classList.toggle('sold', !ok);
+
+  // blocca controlli se non disponibile
+  const minus = rowEB.querySelector('[data-minus="#qEB"]');
+  const plus  = rowEB.querySelector('[data-plus="#qEB"]');
+  if (minus) minus.disabled = !ok && (+qEB.value<=0);
+  if (plus)  plus.disabled  = !ok;
+  if (!ok && +qEB.value>0){
+    // se non disponibile, forziamo a 0 per non portarsi dietro qty invalida
+    qEB.value = 0;
+  }
+}
+
+/** ================= Pagamenti: Stripe “se esiste” =================
+ * Leggiamo config/payments (schema elastico):
+ * - stripeEnabled: true/false
+ */
+let STRIPE_ENABLED = false;
+async function loadPaymentsConfig(){
+  try{
+    const snap = await getDoc(doc(db,'config','payments'));
+    const d = snap.exists() ? (snap.data()||{}) : {};
+    STRIPE_ENABLED = !!(d.stripeEnabled ?? d.stripe ?? false);
+  }catch{
+    STRIPE_ENABLED = false;
+  }
+}
+
+/** ================= SCONTI (tua logica) ================= */
 let ALL_DISCOUNTS = [];
-let CURRENT_USER = null;
+let CURRENT_USER = null; // può essere anonimo
+let UI_USER = null;      // user reale per UI (no anon)
 
 const readApplied  = () => { try{ return JSON.parse(localStorage.getItem('trapperreo_discount_applied')||'null'); }catch{ return null; } };
 const writeApplied = (s) => { if(!s) localStorage.removeItem('trapperreo_discount_applied'); else localStorage.setItem('trapperreo_discount_applied', JSON.stringify(s)); };
@@ -387,10 +663,10 @@ async function loadDiscounts(){
   ALL_DISCOUNTS = Array.from(map.values());
 }
 
-function eligibleForUser(d, user){
+function eligibleForUser(d, userForEligibility){
   if (!d) return false;
   if (d.applies === 'all') return true;
-  const email = lc(user?.email || '');
+  const email = lc(userForEligibility?.email || '');
   if (!email) return false;
   if (Array.isArray(d.allowedEmails) && d.allowedEmails.length > 0) {
     return d.allowedEmails.includes(email);
@@ -410,9 +686,9 @@ function computeDiscountAmount(d, parts){
   if (d.type === 'fixed')   return Math.max(0, Math.min(base, d.value));
   return 0;
 }
-function findInCacheForUser(code, user){
+function findInCacheForUser(code, userForEligibility){
   const C = uc(code);
-  return ALL_DISCOUNTS.find(d => d.code===C && eligibleForUser(d, user)) || null;
+  return ALL_DISCOUNTS.find(d => d.code===C && eligibleForUser(d, userForEligibility)) || null;
 }
 async function fetchSingleFrom(colName, code){
   try{
@@ -421,7 +697,9 @@ async function fetchSingleFrom(colName, code){
     if (snap.empty) return null;
     const d = normalize(snap.docs[0].data()||{});
     if (!d || !d.active) return null;
-    return eligibleForUser(d, CURRENT_USER) ? d : { __reason:'not-eligible' };
+
+    // eligibilità basata su UI_USER (user reale) non su anon
+    return eligibleForUser(d, UI_USER) ? d : { __reason:'not-eligible' };
   }catch{ return null; }
 }
 async function fetchSingle(code){
@@ -429,9 +707,9 @@ async function fetchSingle(code){
   if (a) return a;
   return await fetchSingleFrom('discountCodes', code);
 }
-function shouldShowDiscountBox(user){
+function shouldShowDiscountBox(userForEligibility){
   if (!Array.isArray(ALL_DISCOUNTS) || ALL_DISCOUNTS.length===0) return false;
-  return ALL_DISCOUNTS.some(d => eligibleForUser(d, user));
+  return ALL_DISCOUNTS.some(d => eligibleForUser(d, userForEligibility));
 }
 function showDiscountUI(yes){
   if (!discBlock) return;
@@ -448,11 +726,22 @@ function setDiscountControlsEnabled(yes){
   }
 }
 
-/** ================== Render riepilogo con sconto ================== */
+/** ================== Render riepilogo con sconto + UI selezione ================== */
 function render(){
   if (!qEB || !qSTD || !qFAST || !qVIP) return;
+
+  // EB UI (magazzino) sempre aggiornata
+  setEbUI();
+
   const parts = subtotalBySku();
   const gross = parts.EB + parts.STD + parts.FAST + parts.VIP;
+
+  // evidenzia righe selezionate
+  const q = qty();
+  rowEB?.classList.toggle('selected', q.EB>0);
+  document.getElementById('rowSTD')?.classList.toggle('selected', q.STD>0);
+  document.getElementById('rowFAST')?.classList.toggle('selected', q.FAST>0);
+  document.getElementById('rowVIP')?.classList.toggle('selected', q.VIP>0);
 
   const snap = readApplied();
   let discAmt = 0, tag=null;
@@ -469,17 +758,21 @@ function render(){
 
   const tCount = ticketsCount();
   const prot   = optName?.checked ? tCount * PRICE.NAMECHANGE : 0;
-  if (nameLine) nameLine.textContent = prot ? money(prot) : '0€';
+
+  // “0€” no: metti “Non inclusa” se off
+  if (nameLine){
+    nameLine.textContent = optName?.checked && tCount>0 ? `+ ${money(prot)}` : 'Non inclusa';
+    nameLine.className = optName?.checked ? '' : 'pill-muted';
+  }
 
   const total  = Math.max(0, gross - discAmt) + prot;
 
   const L=[]; const label = k=>({EB:'Early Bird',STD:'Standard',FAST:'Fast Entry',VIP:'VIP Entry'})[k];
-  const q = qty();
   if(q.EB>0)   L.push(`<div class="line"><span>${label('EB')} × ${q.EB}</span><span>${money(parts.EB)}</span></div>`);
   if(q.STD>0)  L.push(`<div class="line"><span>${label('STD')} × ${q.STD}</span><span>${money(parts.STD)}</span></div>`);
   if(q.FAST>0) L.push(`<div class="line"><span>${label('FAST')} × ${q.FAST}</span><span>${money(parts.FAST)}</span></div>`);
   if(q.VIP>0)  L.push(`<div class="line"><span>${label('VIP')} × ${q.VIP}</span><span>${money(parts.VIP)}</span></div>`);
-  if(tag)      L.push(`<div class="line" style="color:#22c55e;font-weight:800"><span>Sconto (${tag})</span><span>- ${money(discAmt)}</span></div>`);
+  if(tag)      L.push(`<div class="line" style="color:#22c55e;font-weight:900"><span>Sconto (${tag})</span><span>- ${money(discAmt)}</span></div>`);
   if(optName?.checked && tCount>0){
     L.push(`<div class="line"><span>Protezione cambio nome × ${tCount}</span><span>${money(prot)}</span></div>`);
   }
@@ -487,23 +780,46 @@ function render(){
   if (lines)   lines.innerHTML   = L.join('');
   if (grandEl) grandEl.textContent = money(total);
   if (payBtn)  payBtn.disabled = tCount<=0;
+
+  // hint default sconto
+  if (discHint && !snap){
+    discHint.textContent = '';
+    discHint.classList.remove('hint-ok','hint-err');
+  }
 }
 
+/** ================= Qty binding + feedback ================= */
 function bindQty(){
   document.querySelectorAll('[data-plus]').forEach(b=>{
     b.addEventListener('click', ()=>{
       const sel=b.getAttribute('data-plus'); if(!sel) return;
       const t=document.querySelector(sel); if(!t) return;
-      t.value=(parseInt(t.value||0)+1); render();
+
+      // EB: impedisci se sold out/manualOff/finestra
+      if (sel === '#qEB'){
+        const { ok, left } = ebIsAvailable();
+        if (!ok){ flashBtn(b); return; }
+        // non superare left (best effort lato UI)
+        const next = (parseInt(t.value||0)+1);
+        if (next > left){ flashBtn(b); return; }
+      }
+
+      t.value = (parseInt(t.value||0)+1);
+      flashBtn(b);
+      popInput(t);
+      render();
     });
   });
   document.querySelectorAll('[data-minus]').forEach(b=>{
     b.addEventListener('click', ()=>{
       const sel=b.getAttribute('data-minus'); if(!sel) return;
       const t=document.querySelector(sel); if(!t) return;
-      t.value=Math.max(0,parseInt(t.value||0)-1); render();
+      t.value = Math.max(0,parseInt(t.value||0)-1);
+      popInput(t);
+      render();
     });
   });
+
   [qEB,qSTD,qFAST,qVIP,optName].forEach(el=>{
     if(!el) return;
     el.addEventListener(el.type==='checkbox'?'change':'input', render);
@@ -518,7 +834,7 @@ async function handleApply(){
     return;
   }
 
-  let found = findInCacheForUser(code, CURRENT_USER);
+  let found = findInCacheForUser(code, UI_USER);
   if(!found){
     const one = await fetchSingle(code);
     if (one && !one.__reason) found = one;
@@ -549,29 +865,161 @@ function handleRemove(){
   render();
 }
 
-/** ================= Auth Boot ================= */
-bindQty();
-render();
+/** ================= Guest + anon sign-in silenzioso =================
+ *  Serve per fare transazioni Firestore (magazzino) senza chiedere login.
+ *  UI: resta “guest”.
+ */
+async function ensureAnon(){
+  try{
+    const u = auth.currentUser;
+    if (u) return u;
+    const cred = await signInAnonymously(auth);
+    return cred.user;
+  }catch{
+    return null;
+  }
+}
 
-discApply?.addEventListener('click', handleApply);
-discRemove?.addEventListener('click', handleRemove);
+/** ================= Caricamento config evento + payments ================= */
+async function loadEventConfig(){
+  try{
+    const snap = await getDoc(doc(db,'events','current'));
+    if (snap.exists()){
+      const d = snap.data() || {};
+      const eb = d.earlyBird || {};
+      EB_CFG = {
+        limit: Number(eb.limit ?? 50),
+        sold: Number(eb.sold ?? 0),
+        manualOff: !!(eb.manualOff ?? false),
+        startAt: eb.startAt ?? null,
+        endAt: eb.endAt ?? null,
+      };
+    } else {
+      EB_CFG = { limit:50, sold:0, manualOff:false, startAt:null, endAt:null };
+    }
+  }catch{
+    EB_CFG = { limit:50, sold:0, manualOff:false, startAt:null, endAt:null };
+  }
+  setEbUI();
+}
 
-/** ============= UI state helpers (guest vs logged) ============= */
-async function enterGuestMode(){
-  CURRENT_USER = null;
+/** ================= Founder tools EB ================= */
+function showAdminTools(show, roleLabel='STAFF'){
+  if (weeksBlock){ weeksBlock.hidden = !show; }
+  if (ebAdminPanel){ ebAdminPanel.hidden = !show; }
+  if (rolePill){ rolePill.textContent = roleLabel; }
+}
+
+function bindAdminPanel(){
+  if (!ebSaveBtn) return;
+
+  ebSaveBtn.addEventListener('click', async ()=>{
+    try{
+      const lim = Math.max(0, Number(ebLimitInp.value || 0));
+      const sold = Math.max(0, Number(ebSoldInp.value || 0));
+      const manualOff = ebOffSel.value === '1';
+
+      const startAt = ebStartInp.value ? new Date(ebStartInp.value) : null;
+      const endAt   = ebEndInp.value ? new Date(ebEndInp.value) : null;
+
+      const payload = {
+        earlyBird: {
+          limit: lim,
+          sold,
+          manualOff,
+          startAt: startAt ? startAt.toISOString() : null,
+          endAt: endAt ? endAt.toISOString() : null
+        },
+        updatedAt: serverTimestamp()
+      };
+
+      await setDoc(doc(db,'events','current'), payload, { merge:true });
+
+      EB_CFG.limit = lim;
+      EB_CFG.sold = sold;
+      EB_CFG.manualOff = manualOff;
+      EB_CFG.startAt = payload.earlyBird.startAt;
+      EB_CFG.endAt = payload.earlyBird.endAt;
+
+      ebAdminHint.textContent = 'Salvato ✅';
+      setTimeout(()=>ebAdminHint.textContent='', 1400);
+      render();
+    }catch(e){
+      ebAdminHint.textContent = 'Errore salvataggio (controlla permessi Firestore).';
+      console.error(e);
+    }
+  });
+
+  ebResetDates?.addEventListener('click', ()=>{
+    ebStartInp.value = '';
+    ebEndInp.value = '';
+  });
+}
+
+/** ================= Magazzino: increment sold =================
+ * Regola:
+ * - Se Stripe è attivo: incrementa sold a pagamento completato (altrove).
+ * - Se Stripe NON è attivo: incrementa sold quando crei l’ordine fittizio.
+ */
+async function incrementEBSoldAtomic(delta){
+  if (delta <= 0) return { ok:true };
+  const u = await ensureAnon();
+  if (!u) return { ok:false, reason:'no-auth' };
+
+  try{
+    const ref = doc(db,'events','current');
+    const res = await runTransaction(db, async (tx)=>{
+      const snap = await tx.get(ref);
+      const d = snap.exists() ? (snap.data()||{}) : {};
+      const eb = d.earlyBird || {};
+      const limit = Number(eb.limit ?? EB_CFG.limit ?? 50);
+      const sold  = Number(eb.sold ?? EB_CFG.sold ?? 0);
+      const manualOff = !!(eb.manualOff ?? EB_CFG.manualOff ?? false);
+
+      if (manualOff) return { ok:false, reason:'manualOff' };
+      if (sold + delta > limit) return { ok:false, reason:'soldOut' };
+
+      tx.set(ref, {
+        earlyBird: {
+          ...eb,
+          limit,
+          sold: sold + delta
+        },
+        updatedAt: serverTimestamp()
+      }, { merge:true });
+
+      return { ok:true, limit, sold: sold + delta };
+    });
+
+    // aggiorna cache
+    if (res?.ok){
+      EB_CFG.sold = res.sold ?? EB_CFG.sold;
+      EB_CFG.limit = res.limit ?? EB_CFG.limit;
+      setEbUI();
+    }
+    return res || { ok:true };
+  }catch(e){
+    console.error('incrementEBSoldAtomic error', e);
+    return { ok:false, reason:'tx-fail' };
+  }
+}
+
+/** ================= UI state helpers (guest vs logged) ================= */
+async function enterGuestUI(){
   nav.innerHTML = OUT;
-  hello.innerHTML = `Ciao, <strong>ospite</strong>`;
+  hello.textContent = '👋 Ciao';
+  UI_USER = null;
 
-  // Guest: niente features 18+ (non abbiamo DOB)
+  // Guest UI: niente DOB
   setAdultUI(false);
 
-  // Sconti: solo quelli "all" (universali)
+  // Sconti: solo quelli "all"
   await loadDiscounts();
   const show = shouldShowDiscountBox(null);
   showDiscountUI(show);
   setDiscountControlsEnabled(show);
 
-  // Se avevi uno sconto "user", lo togliamo
+  // rimuovi eventuale sconto user-only
   const snap = readApplied();
   if (snap){
     const exists = findInCacheForUser(snap.code, null) || await fetchSingle(snap.code);
@@ -581,61 +1029,194 @@ async function enterGuestMode(){
   render();
 }
 
-async function enterUserMode(u){
-  CURRENT_USER = u;
+async function enterLoggedUI(u){
   nav.innerHTML = IN(u);
-  hello.innerHTML = `Ciao, <strong>${(u.displayName||u.email||'Utente').split(' ')[0]}</strong>`;
+  hello.innerHTML = `👋 Ciao, <strong>${(u.displayName||u.email||'Utente').split(' ')[0]}</strong>`;
+  UI_USER = u;
 
-  // logout: torna guest senza redirect
   document.getElementById('logoutLink')?.addEventListener('click', async (e)=>{
     e.preventDefault();
     await doSignOut();
-    await enterGuestMode();
+    await enterGuestUI();
   });
 
-  // Età (DB -> LS)
   const { dobDate } = await readDobFreshFirst(u.uid);
   const age = ageFrom(dobDate);
   setAdultUI(age >= 18);
 
-  // Sconti (user + all)
   await loadDiscounts();
-  const show = shouldShowDiscountBox(CURRENT_USER);
+  const show = shouldShowDiscountBox(UI_USER);
   showDiscountUI(show);
   setDiscountControlsEnabled(show);
 
-  // Validazione sconto salvato
   const snap = readApplied();
   if (snap){
-    const exists = findInCacheForUser(snap.code, CURRENT_USER) || await fetchSingle(snap.code);
+    const exists = findInCacheForUser(snap.code, UI_USER) || await fetchSingle(snap.code);
     if (!exists || exists.__reason === 'not-eligible') writeApplied(null);
   }
 
   render();
 }
 
+/** ================= Upsell modal “cambio nome” ================= */
+function openNcModal(totalTickets){
+  const extra = totalTickets * PRICE.NAMECHANGE;
+  ncText.textContent = `Con ${money(extra)} in più puoi cambiare il nome dei ticket fino a 24h prima. Utile se compri per amici.`;
+  ncModal.style.display = 'flex';
+}
+function closeNcModal(){
+  ncModal.style.display = 'none';
+}
+function shouldShowNcUpsell(tickets){
+  if (tickets <= 0) return false;
+  // lo mostriamo soprattutto quando è plausibile che compri per altri
+  if (tickets < 2) return false;
+  if (optName?.checked) return false;
+  if (localStorage.getItem('trapperreo_nc_upsell_dismissed') === '1') return false;
+  return true;
+}
+
+/** ================= Boot ================= */
+bindQty();
+discApply?.addEventListener('click', handleApply);
+discRemove?.addEventListener('click', handleRemove);
+
+await loadPaymentsConfig();
+await loadEventConfig();
+
+// inizializza panel EB (valori)
+if (ebLimitInp) ebLimitInp.value = String(EB_CFG.limit ?? 50);
+if (ebSoldInp)  ebSoldInp.value  = String(EB_CFG.sold ?? 0);
+if (ebOffSel)   ebOffSel.value   = EB_CFG.manualOff ? '1' : '0';
+if (ebStartInp) ebStartInp.value = toDTLocal(EB_CFG.startAt);
+if (ebEndInp)   ebEndInp.value   = toDTLocal(EB_CFG.endAt);
+bindAdminPanel();
+
 hello.textContent = 'Caricamento…';
+
 onUser(async (u)=>{
   try{
-    if(!u) await enterGuestMode();
-    else   await enterUserMode(u);
+    // Se è anonimo: UI guest (ma teniamo CURRENT_USER per transazioni)
+    if (u && u.isAnonymous){
+      CURRENT_USER = u;
+      await enterGuestUI();
+      showAdminTools(false);
+      return;
+    }
+
+    if(!u){
+      // nessun user: facciamo UI guest + (facoltativo) anon per transazioni quando serve
+      CURRENT_USER = null;
+      await enterGuestUI();
+      showAdminTools(false);
+      return;
+    }
+
+    // user reale
+    CURRENT_USER = u;
+    await enterLoggedUI(u);
+
+    // staff?
+    const { isAdmin, isFounder } = await getStaffRole(u);
+    showAdminTools(isAdmin, isFounder ? 'FOUNDER' : 'ADMIN');
+
+    // se staff, aggiorna i campi panel in base alla config
+    if (isAdmin && ebAdminPanel){
+      ebLimitInp.value = String(EB_CFG.limit ?? 50);
+      ebSoldInp.value  = String(EB_CFG.sold ?? 0);
+      ebOffSel.value   = EB_CFG.manualOff ? '1' : '0';
+      ebStartInp.value = toDTLocal(EB_CFG.startAt);
+      ebEndInp.value   = toDTLocal(EB_CFG.endAt);
+    }
   }catch(err){
     console.error('onUser fatal:', err);
-    // fallback sicuro
-    await enterGuestMode();
+    CURRENT_USER = null;
+    await enterGuestUI();
+    showAdminTools(false);
   }
 });
 
 /** ================= Procedi ================= */
-payBtn?.addEventListener('click', ()=>{
+function goNext(){
   const q = qty();
   const tickets = q.EB + q.STD + q.FAST + q.VIP;
+
   const qs = new URLSearchParams({
     std:q.STD||0, fast:q.FAST||0, vip:q.VIP||0, eb:q.EB||0, nc: optName?.checked?1:0
   }).toString();
+
   if(tickets > 1) location.href = `./attendees.html?${qs}`;
   else            location.href = `./attendees-single.html?${qs}`;
+}
+
+payBtn?.addEventListener('click', async ()=>{
+  const q = qty();
+  const tickets = q.EB + q.STD + q.FAST + q.VIP;
+  if (tickets <= 0) return;
+
+  // Upsell protezione cambio nome
+  if (shouldShowNcUpsell(tickets)){
+    openNcModal(tickets);
+
+    ncNo.onclick = async ()=>{
+      localStorage.setItem('trapperreo_nc_upsell_dismissed','1');
+      closeNcModal();
+
+      // Magazzino EB: se Stripe NON attivo, incrementiamo sold “a ordine fittizio”
+      if (!STRIPE_ENABLED && q.EB > 0){
+        const res = await incrementEBSoldAtomic(q.EB);
+        if (res && res.ok === false){
+          // se fallisce (sold out), blocca e mostra stato
+          qEB.value = 0;
+          render();
+          return;
+        }
+      }
+
+      goNext();
+    };
+
+    ncYes.onclick = async ()=>{
+      optName.checked = true;
+      closeNcModal();
+      render();
+
+      // Magazzino EB: se Stripe NON attivo, incrementiamo qui
+      if (!STRIPE_ENABLED && q.EB > 0){
+        const res = await incrementEBSoldAtomic(q.EB);
+        if (res && res.ok === false){
+          qEB.value = 0;
+          render();
+          return;
+        }
+      }
+
+      goNext();
+    };
+
+    return;
+  }
+
+  // Magazzino EB: se Stripe NON attivo, incrementiamo sold “a ordine fittizio”
+  if (!STRIPE_ENABLED && q.EB > 0){
+    const res = await incrementEBSoldAtomic(q.EB);
+    if (res && res.ok === false){
+      qEB.value = 0;
+      render();
+      return;
+    }
+  }
+
+  goNext();
 });
+
+// chiudi modal cliccando fuori
+ncModal?.addEventListener('click', (e)=>{
+  if (e.target === ncModal) closeNcModal();
+});
+
+// primo render
+render();
 </script>
 
 </body>
