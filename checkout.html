@@ -202,6 +202,7 @@ h1{font-size:26px;font-weight:900;letter-spacing:-.2px}
     </aside>
   </div>
 </main>
+
 <script type="module">
 /** ================= Auth & Firebase ================= */
 import { onUser, doSignOut, app } from './auth.v2.js?v=6';
@@ -227,7 +228,7 @@ const payBtn  = document.getElementById('payBtn');
 const optName = document.getElementById('optNameChange');
 const nameLine= document.getElementById('nameChangeLine');
 
-/** ====== Box Codice Sconto (già presente nell’HTML) ====== */
+/** ====== Box Codice Sconto ====== */
 const discBlock  = document.getElementById('discBlock');
 const discInput  = document.getElementById('discInput');
 const discApply  = document.getElementById('discApply');
@@ -243,12 +244,16 @@ const vipBtn   = document.getElementById('vipReserve');
 
 /** ================= Helpers comuni ================= */
 const OUT = `
-  <a href="./login.html?from=./checkout.html">Acquista il tuo biglietto</a>
-  <a href="./login.html">Accedi</a>
-  <a href="./signup.html">Registrati</a>`;
+  <a href="./index.html">Home</a>
+  <a href="./index.html#tickets">Ticket</a>
+  <a href="./index.html#faq">FAQ</a>
+  <a href="./login.html?from=./checkout.html" style="color:#8b5cf6;font-weight:800">Accedi (opz.)</a>
+`;
 const IN  = (u)=>`
   <span>👋 Ciao, <strong>${(u.displayName||u.email||'Utente').split(' ')[0]}</strong></span>
-  <a href="./checkout.html">Vai al checkout</a>
+  <a href="./index.html">Home</a>
+  <a href="./checkout.html">Checkout</a>
+  <a href="./account-2.html">Area personale</a>
   <a href="#" id="logoutLink" style="color:#8b5cf6">Logout</a>`;
 
 const PRICE = { EB:12, STD:15, FAST:20, VIP:25, NAMECHANGE:1.90, STD3:40 };
@@ -341,18 +346,15 @@ function setAdultUI(isAdult){
 }
 
 /** ================= SCONTI ================= */
-/* Cache sconti */
 let ALL_DISCOUNTS = [];
 let CURRENT_USER = null;
 
-/* snapshot applicato condiviso tra pagine */
 const readApplied  = () => { try{ return JSON.parse(localStorage.getItem('trapperreo_discount_applied')||'null'); }catch{ return null; } };
 const writeApplied = (s) => { if(!s) localStorage.removeItem('trapperreo_discount_applied'); else localStorage.setItem('trapperreo_discount_applied', JSON.stringify(s)); };
 
-/* normalizzazione compatibile con entrambe le collezioni */
 function normalize(raw){
   const code   = uc(raw.code || raw.name || '');
-  const type   = (raw.type || 'percent').toString().toLowerCase(); // 'percent' | 'fixed'
+  const type   = (raw.type || 'percent').toString().toLowerCase();
   const value  = Number(raw.value ?? raw.amount ?? 0);
   const active = (raw.active ?? raw.enabled ?? true) === true;
 
@@ -380,7 +382,7 @@ async function fetchCol(col){
 async function loadDiscounts(){
   const a = await fetchCol('discounts');
   const b = await fetchCol('discountCodes');
-  const map = new Map(); // preferisce 'discounts'
+  const map = new Map();
   [...b, ...a].forEach(d=> map.set(d.code, d));
   ALL_DISCOUNTS = Array.from(map.values());
 }
@@ -427,8 +429,6 @@ async function fetchSingle(code){
   if (a) return a;
   return await fetchSingleFrom('discountCodes', code);
 }
-
-/* mostra/nascondi box in base alla presenza di sconti rilevanti */
 function shouldShowDiscountBox(user){
   if (!Array.isArray(ALL_DISCOUNTS) || ALL_DISCOUNTS.length===0) return false;
   return ALL_DISCOUNTS.some(d => eligibleForUser(d, user));
@@ -438,6 +438,15 @@ function showDiscountUI(yes){
   discBlock.style.display = yes ? '' : 'none';
   discBlock.hidden = !yes;
 }
+function setDiscountControlsEnabled(yes){
+  if (discApply) discApply.disabled = !yes;
+  if (discInput) discInput.disabled = !yes;
+  if (discRemove) discRemove.disabled = !yes;
+  if (!yes && discHint){
+    discHint.textContent = '';
+    discHint.classList.remove('hint-ok','hint-err');
+  }
+}
 
 /** ================== Render riepilogo con sconto ================== */
 function render(){
@@ -445,7 +454,7 @@ function render(){
   const parts = subtotalBySku();
   const gross = parts.EB + parts.STD + parts.FAST + parts.VIP;
 
-  const snap = readApplied(); // {code,type,value,allowedSkus}
+  const snap = readApplied();
   let discAmt = 0, tag=null;
   if (snap){
     const d = {
@@ -478,16 +487,6 @@ function render(){
   if (lines)   lines.innerHTML   = L.join('');
   if (grandEl) grandEl.textContent = money(total);
   if (payBtn)  payBtn.disabled = tCount<=0;
-
-  if (discHint){
-    if (snap){
-      discHint.textContent = `Applicato: ${tag}.`;
-      discHint.classList.remove('hint-err'); discHint.classList.add('hint-ok');
-    }else{
-      discHint.textContent = `Inserisci un codice valido`;
-      discHint.classList.remove('hint-ok'); discHint.classList.add('hint-err');
-    }
-  }
 }
 
 function bindQty(){
@@ -511,29 +510,27 @@ function bindQty(){
   });
 }
 
-/** ======= Applica / rimuovi sconto (inline, NO popup) ======= */
+/** ======= Applica / rimuovi sconto ======= */
 async function handleApply(){
   const code = uc(discInput?.value||'');
   if(!code){
-    if (discHint){ discHint.textContent='Inserisci un codice'; discHint.classList.add('hint-err'); }
+    if (discHint){ discHint.textContent='Inserisci un codice'; discHint.classList.add('hint-err'); discHint.classList.remove('hint-ok'); }
     return;
   }
 
-  // 1) cache
   let found = findInCacheForUser(code, CURRENT_USER);
-  // 2) query singola
   if(!found){
     const one = await fetchSingle(code);
     if (one && !one.__reason) found = one;
     else if (one && one.__reason === 'not-eligible'){
       writeApplied(null); render();
-      if (discHint){ discHint.textContent='Codice valido ma non assegnato al tuo account.'; discHint.classList.add('hint-err'); }
+      if (discHint){ discHint.textContent='Codice valido ma riservato agli utenti registrati.'; discHint.classList.add('hint-err'); discHint.classList.remove('hint-ok'); }
       return;
     }
   }
   if(!found){
     writeApplied(null); render();
-    if (discHint){ discHint.textContent='Codice sconto non valido'; discHint.classList.add('hint-err'); }
+    if (discHint){ discHint.textContent='Codice sconto non valido'; discHint.classList.add('hint-err'); discHint.classList.remove('hint-ok'); }
     return;
   }
 
@@ -553,54 +550,79 @@ function handleRemove(){
 }
 
 /** ================= Auth Boot ================= */
-hello.textContent = 'Caricamento…';
-bindQty();            // subito: +/− funzionano a prescindere
-render();             // primo render "vuoto"
+bindQty();
+render();
 
+discApply?.addEventListener('click', handleApply);
+discRemove?.addEventListener('click', handleRemove);
+
+/** ============= UI state helpers (guest vs logged) ============= */
+async function enterGuestMode(){
+  CURRENT_USER = null;
+  nav.innerHTML = OUT;
+  hello.innerHTML = `Ciao, <strong>ospite</strong>`;
+
+  // Guest: niente features 18+ (non abbiamo DOB)
+  setAdultUI(false);
+
+  // Sconti: solo quelli "all" (universali)
+  await loadDiscounts();
+  const show = shouldShowDiscountBox(null);
+  showDiscountUI(show);
+  setDiscountControlsEnabled(show);
+
+  // Se avevi uno sconto "user", lo togliamo
+  const snap = readApplied();
+  if (snap){
+    const exists = findInCacheForUser(snap.code, null) || await fetchSingle(snap.code);
+    if (!exists || exists.__reason === 'not-eligible') writeApplied(null);
+  }
+
+  render();
+}
+
+async function enterUserMode(u){
+  CURRENT_USER = u;
+  nav.innerHTML = IN(u);
+  hello.innerHTML = `Ciao, <strong>${(u.displayName||u.email||'Utente').split(' ')[0]}</strong>`;
+
+  // logout: torna guest senza redirect
+  document.getElementById('logoutLink')?.addEventListener('click', async (e)=>{
+    e.preventDefault();
+    await doSignOut();
+    await enterGuestMode();
+  });
+
+  // Età (DB -> LS)
+  const { dobDate } = await readDobFreshFirst(u.uid);
+  const age = ageFrom(dobDate);
+  setAdultUI(age >= 18);
+
+  // Sconti (user + all)
+  await loadDiscounts();
+  const show = shouldShowDiscountBox(CURRENT_USER);
+  showDiscountUI(show);
+  setDiscountControlsEnabled(show);
+
+  // Validazione sconto salvato
+  const snap = readApplied();
+  if (snap){
+    const exists = findInCacheForUser(snap.code, CURRENT_USER) || await fetchSingle(snap.code);
+    if (!exists || exists.__reason === 'not-eligible') writeApplied(null);
+  }
+
+  render();
+}
+
+hello.textContent = 'Caricamento…';
 onUser(async (u)=>{
   try{
-    if(!u){
-      nav.innerHTML=OUT;
-      location.href='./login.html?from=./checkout.html';
-      return;
-    }
-    CURRENT_USER = u;
-
-    // Nav
-    nav.innerHTML = IN(u);
-    document.getElementById('logoutLink')?.addEventListener('click', async (e)=>{
-      e.preventDefault(); await doSignOut(); nav.innerHTML=OUT; location.href='./login.html?from=./checkout.html';
-    });
-    hello.innerHTML = `Ciao, <strong>${(u.displayName||u.email||'Utente').split(' ')[0]}</strong>`;
-
-    // Età (DB -> LS), NON CAMBIO LA TUA LOGICA
-    const { dobDate, source, rawLS, rawDB } = await readDobFreshFirst(u.uid);
-    const age = ageFrom(dobDate);
-    const isAdult = age >= 18;
-    setAdultUI(isAdult);
-
-    // Sconti: carico lista, decido visibilità box
-    await loadDiscounts();
-    showDiscountUI( shouldShowDiscountBox(CURRENT_USER) );
-    if (discApply) discApply.disabled = false;
-
-    // Bind bottoni sconto
-    discApply?.addEventListener('click', handleApply);
-    discRemove?.addEventListener('click', handleRemove);
-
-    // Se c'è già uno sconto salvato, prova a riapplicarlo (solo se esiste e sei idoneo)
-    const snap = readApplied();
-    if (snap){
-      const exists = findInCacheForUser(snap.code, CURRENT_USER) || await fetchSingle(snap.code);
-      if (!exists || exists.__reason === 'not-eligible'){ writeApplied(null); }
-    }
-
-    render();
+    if(!u) await enterGuestMode();
+    else   await enterUserMode(u);
   }catch(err){
     console.error('onUser fatal:', err);
-    // fallback: niente tavoli e nascondi box sconto
-    adultBlocks.forEach(el => { if(!el) return; el.hidden = true; el.style.display = 'none'; });
-    showDiscountUI(false);
+    // fallback sicuro
+    await enterGuestMode();
   }
 });
 
