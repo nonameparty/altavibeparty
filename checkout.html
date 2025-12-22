@@ -530,17 +530,22 @@ async function readDob(uid){
 function drinkLabels(){ return document.querySelectorAll('.drink-label'); }
 function setAdultUI(isAdult){
   drinkLabels().forEach(el=>{
-    el.textContent = isAdult ? '1 drink (alcolico/analcolico)' : '1 drink analcolico';
+    el.textContent = isAdult ? '1 drink alcolico' : '1 drink analcolico';
   });
   if (vipNote){
     vipNote.innerHTML = isAdult
-      ? 'Accesso area VIP • <span class="drink-label">1 drink (alcolico/analcolico)</span> + <strong>guardaroba incluso</strong>.'
+      ? 'Accesso area VIP • <span class="drink-label">1 drink alcolico</span> + <strong>guardaroba incluso</strong>.'
       : 'Accesso area VIP • <strong>2 drink analcolici</strong> + <strong>guardaroba incluso</strong>.';
   }
 }
 
 /** ===== Banner logic ===== */
 function showBanner(type){
+
+  if (localStorage.getItem('tr_hide_banner') === '1') {
+  adultBanner.hidden = true;
+  return;
+}
   // type: 'guest' | 'adult' | 'minor'
   adultBanner.hidden = false;
   adultBannerActions.innerHTML = '';
@@ -567,7 +572,10 @@ function showBanner(type){
     close.className = 'close';
     close.type = 'button';
     close.textContent = 'Chiudi';
-    close.onclick = ()=>{ adultBanner.hidden = true; };
+    close.addEventListener('click', () => {
+  adultBanner.hidden = true;
+  localStorage.setItem('tr_hide_banner', '1');
+});
     adultBannerActions.append(close);
     return;
   }
@@ -578,7 +586,10 @@ function showBanner(type){
   close.className = 'close';
   close.type = 'button';
   close.textContent = 'Chiudi';
-  close.onclick = ()=>{ adultBanner.hidden = true; };
+  close.addEventListener('click', () => {
+  adultBanner.hidden = true;
+  localStorage.setItem('tr_hide_banner', '1');
+});
   adultBannerActions.append(close);
 }
 
