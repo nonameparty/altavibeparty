@@ -9,14 +9,12 @@
 :root{
   --bg:#0a0a0a; --text:#fff; --accent:#8b5cf6; --border:rgba(255,255,255,.12);
   --card:rgba(255,255,255,.06); --muted:rgba(255,255,255,.78);
+  --danger:#ef4444; --ok:#22c55e;
 
   --platinum:#b48bff;
   --gold:#f5c542;
   --silver:#9fb7ff;
   --bronze:#d1a56d;
-
-  --soft:#0e0e0e;
-  --soft2:#101014;
 }
 *{box-sizing:border-box;margin:0;padding:0}
 body{
@@ -25,9 +23,8 @@ body{
   line-height:1.5;min-height:100vh;display:grid;grid-template-rows:auto 1fr
 }
 header{
-  position:sticky;top:0;z-index:30;
-  background:rgba(0,0,0,.7);backdrop-filter:blur(6px);
-  border-bottom:1px solid rgba(255,255,255,.08)
+  position:sticky;top:0;z-index:30;background:rgba(0,0,0,.7);
+  backdrop-filter:blur(6px);border-bottom:1px solid rgba(255,255,255,.08)
 }
 .nav{max-width:1200px;margin:auto;padding:14px 20px;display:flex;align-items:center;justify-content:space-between;gap:14px}
 .brand{display:flex;align-items:center;gap:10px;font-weight:900;letter-spacing:-.3px}
@@ -40,13 +37,13 @@ h1{font-size:28px;font-weight:900;letter-spacing:-.2px}
 h2{font-size:20px;font-weight:900;margin:14px 0 8px}
 .card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:18px;margin-top:14px}
 .grid{display:grid;gap:16px}
-@media(min-width:1020px){.grid-2{grid-template-columns:1.15fr 1fr}}
+@media(min-width:1020px){.grid-2{grid-template-columns:1.2fr 1fr}}
 .hr{height:1px;background:rgba(255,255,255,.08);margin:14px 0}
 
 .btn{
   display:inline-flex;align-items:center;justify-content:center;
   padding:12px 16px;border-radius:12px;font-weight:900;
-  border:1px solid var(--border);background:#161616;color:#fff;cursor:pointer;
+  border:1px solid var(--border);background:#161616;color:#fff;cursor:pointer
 }
 .btn.primary{background:var(--accent);color:#000;border:none}
 .btn.ghost{background:transparent}
@@ -58,67 +55,106 @@ h2{font-size:20px;font-weight:900;margin:14px 0 8px}
   font-size:13px;color:rgba(255,255,255,.92);background:rgba(0,0,0,.22)
 }
 .small{font-size:12px;opacity:.85}
-.muted{color:rgba(255,255,255,.70)}
+.muted{color:rgba(255,255,255,.74)}
 .gray{color:rgba(255,255,255,.55)}
 
-/* contatore persone */
+/* contatore */
 .counter{display:inline-flex;border:1px solid var(--border);border-radius:14px;overflow:hidden}
 .counter button{width:52px;height:52px;background:#161616;border:none;color:#fff;font-weight:900;font-size:20px;cursor:pointer}
 .counter input{
-  width:86px;height:52px;background:#0e0e0e;border:none;
-  border-left:1px solid var(--border);border-right:1px solid var(--border);
+  width:86px;height:52px;background:#0e0e0e;border:none;border-left:1px solid var(--border);border-right:1px solid var(--border);
   color:#fff;text-align:center;font-weight:900;font-size:20px;outline:none
 }
 
 /* MAP */
 .mapWrap{
-  background:#0b0b0b;border:1px solid rgba(255,255,255,.10);
-  border-radius:16px;padding:14px;overflow:hidden;
+  background:#0b0b0b;border:1px solid rgba(255,255,255,.1);
+  border-radius:16px;padding:16px;overflow:hidden;
 }
-.mapFrame{
-  width:100%;
-  max-width:720px;
-  margin:0 auto;
+.map{
+  position:relative;
+  aspect-ratio: 5/3;
   border-radius:14px;
-  background:radial-gradient(75% 65% at 50% 55%, rgba(255,255,255,.06), rgba(0,0,0,0));
-  border:1px solid rgba(255,255,255,.06);
-  padding:10px;
+  background:radial-gradient(70% 60% at 50% 55%, rgba(255,255,255,.06), rgba(0,0,0,.0));
+  isolation:isolate;
 }
-svg{display:block;width:100%;height:auto}
+.dj{
+  position:absolute;top:10px;left:50%;transform:translateX(-50%);
+  padding:6px 10px;border-radius:10px;border:1px dashed rgba(255,255,255,.25);
+  font-size:12px;opacity:.9;
+  pointer-events:none; /* ✅ non blocca click desktop */
+  z-index:1;
+}
+.dance{
+  position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
+  width:56%;height:52%;
+  border:1px dashed rgba(255,255,255,.18);border-radius:14px;
+  display:grid;place-items:center;color:#bdbdbd;font-size:12px;opacity:.9;
+  pointer-events:none; /* ✅ non blocca click desktop */
+  z-index:1;
+}
 
-/* SVG zones */
-.zoneRect{fill:rgba(17,17,17,.92);stroke:rgba(255,255,255,.16);stroke-width:2;pointer-events:all}
-.zoneRect.platinum{stroke:var(--platinum)}
-.zoneRect.gold{stroke:var(--gold)}
-.zoneRect.silver{stroke:var(--silver)}
-.zoneRect.bronze{stroke:var(--bronze)}
+/* tavoli/zone */
+.zone{
+  position:absolute;
+  min-width:132px;max-width:170px;
+  display:grid;place-items:center;
+  border-radius:16px;
+  border:2px solid rgba(255,255,255,.14);
+  padding:10px 12px;
+  background:#111;
+  cursor:pointer;
+  transition:box-shadow .12s, border-color .12s, filter .12s;
+  user-select:none;
+  pointer-events:auto; /* ✅ cliccabile desktop */
+  z-index:3;          /* ✅ sopra overlay */
+}
+/* ✅ tolto transform su :active (su desktop spesso rompe hitbox) */
+.zone:hover{filter:brightness(1.06)}
 
-/* IMPORTANT: pointer-events robust su desktop */
-.zoneGroup{cursor:pointer;user-select:none;pointer-events:bounding-box}
-.zoneGroup text{pointer-events:none}
+.zone .pp{font-weight:900;letter-spacing:.3px}
+.zone .lbl{font-size:12px;opacity:.9;margin-top:3px}
 
-.zoneTextTitle{font-weight:900;letter-spacing:.8px;fill:#fff}
-.zoneTextMin{font-weight:800;fill:rgba(255,255,255,.78)}
-.djText{fill:rgba(255,255,255,.86);font-weight:800}
-.danceText{fill:rgba(255,255,255,.65);font-weight:800;letter-spacing:.8px}
+.zone[data-area="platinum"]{border-color:var(--platinum)}
+.zone[data-area="gold"]{border-color:var(--gold)}
+.zone[data-area="silver"]{border-color:var(--silver)}
+.zone[data-area="bronze"]{border-color:var(--bronze)}
 
-/* busy/mine */
-.zoneGroup.busy .zoneRect{fill:rgba(239,68,68,.10)!important;stroke:rgba(239,68,68,.90)!important}
-.zoneGroup.mine .zoneRect{fill:rgba(34,197,94,.10)!important;stroke:rgba(34,197,94,.95)!important}
-.zoneGroup.busy{cursor:not-allowed}
+.zone.busy{
+  background:rgba(239,68,68,.12);
+  border-color:rgba(239,68,68,.9)!important;
+  filter:saturate(120%);
+  cursor:not-allowed;
+}
+.zone.mine{
+  background:rgba(34,197,94,.10);
+  border-color:rgba(34,197,94,.95)!important;
+  box-shadow:0 0 0 4px rgba(34,197,94,.16);
+}
+
+/* layout (Gold più esterni + platinum sopra DJ) */
+.zone.platinum{top:6px;left:50%;transform:translateX(-50%);min-width:220px}
+.zone.goldL{top:96px;left:4%}   /* ✅ più esterno */
+.zone.goldR{top:96px;right:4%}  /* ✅ più esterno */
+
+.zone.silverLT{top:44%;left:8%}
+.zone.silverLB{top:72%;left:10%}
+.zone.silverRT{top:44%;right:8%}
+.zone.silverRB{top:72%;right:10%}
+
+.zone.bronzeL{bottom:14px;left:30%}
+.zone.bronzeR{bottom:14px;right:30%}
 
 /* panel */
 .panel{display:grid;gap:12px}
-.boxRow{background:var(--soft);border:1px solid rgba(255,255,255,.10);border-radius:14px;padding:14px}
+.boxRow{background:#0e0e0e;border:1px solid rgba(255,255,255,.1);border-radius:14px;padding:14px}
 .kv{display:flex;gap:10px;flex-wrap:wrap}
 .kv .pill{padding:6px 10px;border:1px solid rgba(255,255,255,.14);border-radius:10px;font-size:12px;background:rgba(0,0,0,.22)}
 .line{display:flex;justify-content:space-between;align-items:center;margin:6px 0;gap:14px}
 .total{font-size:20px;font-weight:900}
 
-/* banner */
 .banner{
-  margin-top:8px;
-  padding:12px 14px;border-radius:14px;
+  margin-top:12px;padding:12px 14px;border-radius:14px;
   border:1px solid rgba(255,255,255,.14);
   background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.02));
   display:none;
@@ -132,32 +168,27 @@ svg{display:block;width:100%;height:auto}
 .item{
   display:grid;grid-template-columns:1fr auto;
   gap:12px;align-items:center;
-  border:1px solid rgba(255,255,255,.10);
-  background:var(--soft2);
-  border-radius:14px;padding:12px
+  border:1px solid rgba(255,255,255,.1);background:#0e0e0e;border-radius:14px;padding:12px
 }
 .item h4{font-size:15px}
 .item .inc{font-size:12px;opacity:.85;margin-top:4px}
 .controls{display:flex;gap:10px;align-items:center}
 .controls .qty{
-  min-width:26px;text-align:center;font-weight:900;font-size:14px;
+  min-width:32px;text-align:center;font-weight:900;
   padding:6px 10px;border-radius:10px;border:1px solid rgba(255,255,255,.12);
   background:rgba(0,0,0,.25)
 }
 
 /* overlay regole */
 .gate{position:fixed;inset:0;background:rgba(0,0,0,.92);display:none;align-items:center;justify-content:center;z-index:60;padding:16px}
-.gate .box{width:min(680px, 100%);border:1px solid rgba(255,255,255,.16);background:#0f0f10;border-radius:16px;padding:18px}
+.gate .box{max-width:680px;width:100%;border:1px solid rgba(255,255,255,.16);background:#0f0f10;border-radius:16px;padding:18px}
 .gate h3{font-size:20px;font-weight:900;margin-bottom:8px}
 .gate ul{margin-left:18px}
 
 @media(max-width:520px){
   .wrap{padding:16px}
   .card{padding:14px}
-  .nav{padding:12px 14px}
-  h1{font-size:24px}
   .mapWrap{padding:12px}
-  .mapFrame{padding:8px}
   nav a, nav span{font-size:13px;margin-left:12px}
 }
 </style>
@@ -185,6 +216,7 @@ svg{display:block;width:100%;height:auto}
       </div>
       <div class="badge" id="tablesInfo">Vi verrà riservato 1 tavolo</div>
     </div>
+
     <div class="hr"></div>
     <button class="btn primary" id="toMapBtn" type="button">Successivo</button>
   </section>
@@ -192,79 +224,52 @@ svg{display:block;width:100%;height:auto}
   <!-- STEP B -->
   <section class="card" id="stepMap" style="display:none">
     <h2>Scegli la posizione del tavolo</h2>
-
     <div class="small" style="opacity:.88;margin-top:4px">
       Prezzi min (bottiglie): <b style="color:var(--gold)">Gold</b> 180€ ·
       <b style="color:var(--silver)">Silver</b> 140€ ·
       <b style="color:var(--bronze)">Bronze</b> 120€ ·
-      <b style="color:var(--platinum)">Platinum</b> <span id="platMinText">—</span>
+      <b style="color:var(--platinum)">Platinum</b> <span id="platinumMinTxt">—</span>
     </div>
 
+    <!-- ✅ NIENTE gruppo 1/2: solo hint -->
     <div class="badge" id="selectingHint" style="margin-top:10px;display:none"></div>
 
     <div class="grid grid-2" style="margin-top:12px">
       <div class="mapWrap">
-        <div class="mapFrame">
-          <svg id="clubSvg" viewBox="0 0 1000 600" role="img" aria-label="Mappa tavoli">
-            <!-- Platinum = consolle -->
-            <g class="zoneGroup" data-zone="platinum-center" data-area="platinum">
-              <rect class="zoneRect platinum" x="330" y="28" width="340" height="110" rx="22" />
-              <text x="500" y="70" text-anchor="middle" class="djText" font-size="20">DJ • Consolle</text>
-              <text x="500" y="108" text-anchor="middle" class="zoneTextTitle" font-size="34">PLATINUM</text>
-              <text id="platMinLbl" x="500" y="132" text-anchor="middle" class="zoneTextMin" font-size="18">min —</text>
-            </g>
+        <div class="map" id="clubMap">
+          <div class="dj">DJ • Consolle</div>
+          <div class="dance">PISTA</div>
 
-            <!-- Gold più esterni -->
-            <g class="zoneGroup" data-zone="gold-left" data-area="gold">
-              <rect class="zoneRect gold" x="70" y="145" width="250" height="95" rx="22" />
-              <text x="195" y="185" text-anchor="middle" class="zoneTextTitle" font-size="34">GOLD</text>
-              <text x="195" y="214" text-anchor="middle" class="zoneTextMin" font-size="20">min 180€</text>
-            </g>
-            <g class="zoneGroup" data-zone="gold-right" data-area="gold">
-              <rect class="zoneRect gold" x="680" y="145" width="250" height="95" rx="22" />
-              <text x="805" y="185" text-anchor="middle" class="zoneTextTitle" font-size="34">GOLD</text>
-              <text x="805" y="214" text-anchor="middle" class="zoneTextMin" font-size="20">min 180€</text>
-            </g>
+          <div class="zone platinum" data-area="platinum" data-zone="platinum-center">
+            <div><div class="pp">PLATINUM</div><div class="lbl" id="platinumLbl">min —</div></div>
+          </div>
 
-            <!-- Dancefloor -->
-            <rect x="280" y="190" width="440" height="300" rx="28" ry="28" fill="rgba(0,0,0,.18)" stroke="rgba(255,255,255,.14)" stroke-dasharray="8 10"/>
-            <text x="500" y="350" text-anchor="middle" class="danceText" font-size="26">PISTA</text>
+          <div class="zone goldL" data-area="gold" data-zone="gold-left">
+            <div><div class="pp">GOLD</div><div class="lbl">min 180€</div></div>
+          </div>
+          <div class="zone goldR" data-area="gold" data-zone="gold-right">
+            <div><div class="pp">GOLD</div><div class="lbl">min 180€</div></div>
+          </div>
 
-            <!-- Silver -->
-            <g class="zoneGroup" data-zone="silver-left1" data-area="silver">
-              <rect class="zoneRect silver" x="120" y="270" width="250" height="95" rx="22" />
-              <text x="245" y="310" text-anchor="middle" class="zoneTextTitle" font-size="34">SILVER</text>
-              <text x="245" y="339" text-anchor="middle" class="zoneTextMin" font-size="20">min 140€</text>
-            </g>
-            <g class="zoneGroup" data-zone="silver-left2" data-area="silver">
-              <rect class="zoneRect silver" x="120" y="380" width="250" height="95" rx="22" />
-              <text x="245" y="420" text-anchor="middle" class="zoneTextTitle" font-size="34">SILVER</text>
-              <text x="245" y="449" text-anchor="middle" class="zoneTextMin" font-size="20">min 140€</text>
-            </g>
+          <div class="zone silverLT" data-area="silver" data-zone="silver-left1">
+            <div><div class="pp">SILVER</div><div class="lbl">min 140€</div></div>
+          </div>
+          <div class="zone silverLB" data-area="silver" data-zone="silver-left2">
+            <div><div class="pp">SILVER</div><div class="lbl">min 140€</div></div>
+          </div>
+          <div class="zone silverRT" data-area="silver" data-zone="silver-right1">
+            <div><div class="pp">SILVER</div><div class="lbl">min 140€</div></div>
+          </div>
+          <div class="zone silverRB" data-area="silver" data-zone="silver-right2">
+            <div><div class="pp">SILVER</div><div class="lbl">min 140€</div></div>
+          </div>
 
-            <g class="zoneGroup" data-zone="silver-right1" data-area="silver">
-              <rect class="zoneRect silver" x="630" y="270" width="250" height="95" rx="22" />
-              <text x="755" y="310" text-anchor="middle" class="zoneTextTitle" font-size="34">SILVER</text>
-              <text x="755" y="339" text-anchor="middle" class="zoneTextMin" font-size="20">min 140€</text>
-            </g>
-            <g class="zoneGroup" data-zone="silver-right2" data-area="silver">
-              <rect class="zoneRect silver" x="630" y="380" width="250" height="95" rx="22" />
-              <text x="755" y="420" text-anchor="middle" class="zoneTextTitle" font-size="34">SILVER</text>
-              <text x="755" y="449" text-anchor="middle" class="zoneTextMin" font-size="20">min 140€</text>
-            </g>
-
-            <!-- Bronze -->
-            <g class="zoneGroup" data-zone="bronze-left" data-area="bronze">
-              <rect class="zoneRect bronze" x="275" y="500" width="220" height="90" rx="22" />
-              <text x="385" y="540" text-anchor="middle" class="zoneTextTitle" font-size="34">BRONZE</text>
-              <text x="385" y="569" text-anchor="middle" class="zoneTextMin" font-size="20">min 120€</text>
-            </g>
-            <g class="zoneGroup" data-zone="bronze-right" data-area="bronze">
-              <rect class="zoneRect bronze" x="505" y="500" width="220" height="90" rx="22" />
-              <text x="615" y="540" text-anchor="middle" class="zoneTextTitle" font-size="34">BRONZE</text>
-              <text x="615" y="569" text-anchor="middle" class="zoneTextMin" font-size="20">min 120€</text>
-            </g>
-          </svg>
+          <div class="zone bronzeL" data-area="bronze" data-zone="bronze-left">
+            <div><div class="pp">BRONZE</div><div class="lbl">min 120€</div></div>
+          </div>
+          <div class="zone bronzeR" data-area="bronze" data-zone="bronze-right">
+            <div><div class="pp">BRONZE</div><div class="lbl">min 120€</div></div>
+          </div>
         </div>
       </div>
 
@@ -273,12 +278,12 @@ svg{display:block;width:100%;height:auto}
         <div class="banner" id="recapBanner"></div>
 
         <div style="display:flex;gap:10px;flex-wrap:wrap">
-          <button class="btn ghost" id="backBtn" type="button">Indietro</button>
-          <button class="btn primary" id="nextMapBtn" type="button">Avanti</button>
+          <button class="btn ghost" id="backToPeople" type="button">Indietro</button>
+          <button class="btn primary" id="nextTableOrBottles" type="button">Avanti</button>
         </div>
 
         <div class="small" style="opacity:.78">
-          Nota: la selezione è temporanea. Se non completi l’acquisto, dopo poco il tavolo torna libero.
+          Nota: la selezione è temporanea. Se non completi l’acquisto, dopo pochi secondi il tavolo torna libero.
         </div>
       </div>
     </div>
@@ -292,7 +297,7 @@ svg{display:block;width:100%;height:auto}
         <div class="small" id="bottlesHint" style="opacity:.82;margin-top:4px"></div>
       </div>
       <div style="display:flex;gap:10px;flex-wrap:wrap">
-        <!-- ✅ solo indietro in alto -->
+        <!-- ✅ solo indietro -->
         <button class="btn ghost" id="bPrev" type="button">Indietro</button>
       </div>
     </div>
@@ -306,20 +311,19 @@ svg{display:block;width:100%;height:auto}
         <div class="boxRow" id="summaryBox"></div>
 
         <div class="hr"></div>
+        <div class="badge"><label><input type="radio" name="payMode" value="deposito" checked> Caparra</label></div>
+        <div class="badge"><label><input type="radio" name="payMode" value="full"> Paga tutto ora</label></div>
 
-        <div class="badge"><label style="display:flex;gap:8px;align-items:center"><input type="radio" name="payMode" value="deposito" checked> Caparra</label></div>
-        <div class="badge"><label style="display:flex;gap:8px;align-items:center"><input type="radio" name="payMode" value="full"> Paga tutto ora</label></div>
-
-        <div id="splitWrap" style="margin-top:12px;display:none">
-          <div class="badge"><label style="display:flex;gap:8px;align-items:center"><input type="radio" name="splitMode" value="single" checked> Pagamento unico</label></div>
-          <div class="badge"><label style="display:flex;gap:8px;align-items:center"><input type="radio" name="splitMode" value="split"> Pagamento separato</label></div>
-          <div class="small muted" id="splitExplain" style="margin-top:8px">
-            Pagamento separato: dividiamo l’importo in quote (stimate) per persona, così ognuno paga la sua parte.
+        <!-- ✅ pagamento separato SOLO se full -->
+        <div id="splitWrap" style="display:none;margin-top:12px">
+          <div class="badge"><label><input type="radio" name="splitMode" value="single" checked> Pagamento unico</label></div>
+          <div class="badge"><label><input type="radio" name="splitMode" value="split"> Pagamento separato</label></div>
+          <div class="small muted" style="margin-top:8px">
+            Pagamento separato: dividiamo l’importo in quote stimate per persona, così ognuno paga la sua parte.
           </div>
         </div>
 
         <div class="hr"></div>
-
         <div class="line total">
           <span id="totalLabel">Caparra (ora)</span>
           <strong id="totalValue">0€</strong>
@@ -328,9 +332,8 @@ svg{display:block;width:100%;height:auto}
 
         <div class="hr"></div>
 
-        <!-- ✅ per multi tavolo: passaggio dedicato, non “Successivo” in alto -->
+        <!-- ✅ bottone per passare al tavolo successivo (multi-tavolo) -->
         <button class="btn" id="nextTableBtn" type="button" style="display:none;width:100%">Prossimo tavolo</button>
-
         <div style="height:10px"></div>
 
         <button class="btn primary" id="confirmBtn" disabled type="button" style="width:100%">Procedi</button>
@@ -339,16 +342,12 @@ svg{display:block;width:100%;height:auto}
   </section>
 </main>
 
-<!-- regole -->
+<!-- POPUP regole -->
 <div class="gate" id="legalGate">
   <div class="box">
     <h3>Conferma regole tavoli</h3>
     <div class="small" style="margin-bottom:10px;opacity:.9">
-      <ul>
-        <li>Minimo per area: Bronze 120€ · Silver 140€ · Gold 180€ · Platinum ${PLATINUM_MIN}€.</li>
-        <li>Extra oltre 4 pax: <b>+25€</b> per ogni persona oltre la quarta.</li>
-        <li>I nominativi devono corrispondere ai documenti.</li>
-      </ul>
+      <ul id="rulesList"></ul>
     </div>
     <label style="display:flex;gap:8px;align-items:center"><input id="legalChk" type="checkbox"> Ho letto e accetto</label>
     <div style="display:flex;gap:10px;margin-top:10px;flex-wrap:wrap">
@@ -364,7 +363,7 @@ import { getFirestore, doc, getDoc, setDoc, runTransaction } from 'https://www.g
 
 const db = getFirestore(app);
 
-/** ===== CONFIG ===== */
+/** ====== CONFIG ====== */
 const LOCKS_DOC = doc(db,'locks','tables');
 
 const BRONZE_MIN = 120;
@@ -377,11 +376,11 @@ const EXTRA_PER_PERSON = 25;
 const LOCK_TTL_MS = 45000;
 const POLL_MS = 3500;
 
-/** ===== UI refs ===== */
+/** ====== UI ====== */
 const nav = document.getElementById('navArea');
 
-const stepPeople  = document.getElementById('stepPeople');
-const stepMap     = document.getElementById('stepMap');
+const stepPeople = document.getElementById('stepPeople');
+const stepMap = document.getElementById('stepMap');
 const stepBottles = document.getElementById('stepBottles');
 
 const paxMinus = document.getElementById('paxMinus');
@@ -389,55 +388,59 @@ const paxPlus  = document.getElementById('paxPlus');
 const paxInput = document.getElementById('paxInput');
 const tablesInfo = document.getElementById('tablesInfo');
 
-const toMapBtn   = document.getElementById('toMapBtn');
-const backBtn    = document.getElementById('backBtn');
-const nextMapBtn = document.getElementById('nextMapBtn');
+const toMapBtn = document.getElementById('toMapBtn');
+const backToPeople = document.getElementById('backToPeople');
+const nextTableOrBottles = document.getElementById('nextTableOrBottles');
 
 const selectingHint = document.getElementById('selectingHint');
 
-const svg = document.getElementById('clubSvg');
-const zones = [...svg.querySelectorAll('.zoneGroup')];
+const clubMap = document.getElementById('clubMap');
+const zones = [...clubMap.querySelectorAll('.zone')];
 
-const detailBox   = document.getElementById('detailBox');
+const detailBox = document.getElementById('detailBox');
 const recapBanner = document.getElementById('recapBanner');
 
-const legalGate   = document.getElementById('legalGate');
-const legalChk    = document.getElementById('legalChk');
-const legalOk     = document.getElementById('legalOk');
+const legalGate = document.getElementById('legalGate');
+const legalChk = document.getElementById('legalChk');
+const legalOk = document.getElementById('legalOk');
 const legalCancel = document.getElementById('legalCancel');
+const rulesList = document.getElementById('rulesList');
 
-const platMinLbl  = document.getElementById('platMinLbl');
-const platMinText = document.getElementById('platMinText');
+const platinumLbl = document.getElementById('platinumLbl');
+const platinumMinTxt = document.getElementById('platinumMinTxt');
 
-const listinoBox  = document.getElementById('listino');
-const summaryBox  = document.getElementById('summaryBox');
-const totalLabel  = document.getElementById('totalLabel');
-const totalValue  = document.getElementById('totalValue');
-const splitInfo   = document.getElementById('splitInfo');
-const confirmBtn  = document.getElementById('confirmBtn');
+const listinoBox = document.getElementById('listino');
+const summaryBox = document.getElementById('summaryBox');
+const totalLabel = document.getElementById('totalLabel');
+const totalValue = document.getElementById('totalValue');
+const splitInfo  = document.getElementById('splitInfo');
+const confirmBtn = document.getElementById('confirmBtn');
 const bottlesHint = document.getElementById('bottlesHint');
+const bPrev = document.getElementById('bPrev');
 
-const bPrev       = document.getElementById('bPrev');
-const nextTableBtn= document.getElementById('nextTableBtn');
+const splitWrap = document.getElementById('splitWrap');
+const nextTableBtn = document.getElementById('nextTableBtn');
 
-const splitWrap   = document.getElementById('splitWrap');
-const splitExplain= document.getElementById('splitExplain');
+platinumLbl.textContent = `min ${PLATINUM_MIN}€`;
+platinumMinTxt.textContent = `${PLATINUM_MIN}€`;
 
-platMinLbl.textContent = `min ${PLATINUM_MIN}€`;
-platMinText.textContent = `${PLATINUM_MIN}€`;
+rulesList.innerHTML = `
+  <li>Minimo per area: Bronze 120€ · Silver 140€ · Gold 180€ · Platinum ${PLATINUM_MIN}€.</li>
+  <li>Oltre 4 pax: <b>+25€</b> per ogni persona oltre la quarta.</li>
+  <li>I nominativi devono corrispondere ai documenti.</li>
+`;
 
-/** ===== state ===== */
+/** ====== state ====== */
 const STATE = {
   user:null,
   totalPax:4,
   activeGroup:0,
-  groups:[],     // {index,pax,real, area, zone, bottles:[{id,qty}]}
+  groups:[],        // {index,pax,real, area, zone, bottles:[{id,qty}]}
   locks:{},
-  bottleList:[],
-  zoneMeta:null  // zoneId -> {area, cx, cy}
+  bottleList:[]
 };
 
-/** ===== helpers ===== */
+/** ====== helpers ====== */
 const money = n => (n<0?'-':'') + Math.abs(n).toFixed(2).replace('.00','') + '€';
 
 function areaMin(area){
@@ -471,12 +474,7 @@ function ensureGroups(){
 
   if (STATE.activeGroup >= STATE.groups.length) STATE.activeGroup = 0;
 
-  tablesInfo.textContent = `Vi verrà riservato ${STATE.groups.length===1 ? '1 tavolo' : (STATE.groups.length+' tavoli')}`;
-}
-
-function tableLabel(i){
-  if(STATE.groups.length===1) return 'Tavolo';
-  return `Tavolo ${i+1}`;
+  tablesInfo.textContent = `Vi verrà${STATE.groups.length>1?'nno':''} riservat${STATE.groups.length>1?'i':'o'} ${STATE.groups.length} tavol${STATE.groups.length>1?'i':'o'}.`;
 }
 
 function renderSelectingHint(){
@@ -486,10 +484,10 @@ function renderSelectingHint(){
     return;
   }
   selectingHint.style.display='inline-flex';
-  selectingHint.textContent = `Stai selezionando: ${tableLabel(STATE.activeGroup)} di ${STATE.groups.length}. Premi “Avanti” per il prossimo.`;
+  selectingHint.textContent = `Stai selezionando: Tavolo ${STATE.activeGroup+1} di ${STATE.groups.length}. Premi “Avanti” per il prossimo.`;
 }
 
-/** ===== locks ===== */
+/** ====== locks ====== */
 function isExpired(lock){
   if(!lock) return true;
   return (Date.now() - (lock.heldAt||0)) > LOCK_TTL_MS;
@@ -547,85 +545,77 @@ async function tryHoldZone(zoneId, groupIndex){
   }
 }
 
-function selectedByAnotherGroup(zoneId){
-  return STATE.groups.some((g,idx)=> idx!==STATE.activeGroup && g.zone===zoneId);
+function zoneCenter(zoneEl){
+  const mapRect = clubMap.getBoundingClientRect();
+  const r = zoneEl.getBoundingClientRect();
+  return { x:(r.left+r.right)/2 - mapRect.left, y:(r.top+r.bottom)/2 - mapRect.top };
 }
 
-/** ====== zone meta (per auto-assegnazione) ====== */
-function buildZoneMeta(){
-  const meta = {};
-  zones.forEach(g=>{
-    const zoneId = g.getAttribute('data-zone');
-    const area = g.getAttribute('data-area');
-    const r = g.querySelector('rect');
-    if(!r) return;
-    const bb = r.getBBox();
-    meta[zoneId] = { area, cx: bb.x + bb.width/2, cy: bb.y + bb.height/2 };
-  });
-  STATE.zoneMeta = meta;
-}
+async function autoAssignNext(prevZoneId){
+  // prova ad assegnare automaticamente il più vicino (stessa area se possibile)
+  const g = STATE.groups[STATE.activeGroup];
+  if(!g || g.zone) return;
 
-function dist(a,b){
-  const dx = a.cx-b.cx, dy = a.cy-b.cy;
-  return Math.sqrt(dx*dx+dy*dy);
-}
+  const prevEl = zones.find(z=>z.getAttribute('data-zone')===prevZoneId);
+  if(!prevEl) return;
 
-async function autoAssignNextGroup(fromZoneId){
-  if(STATE.groups.length<=1) return;
-  const nextIdx = STATE.activeGroup;
-  const g = STATE.groups[nextIdx];
-  if(g.zone) return;
-
-  if(!STATE.zoneMeta) buildZoneMeta();
-  const from = STATE.zoneMeta?.[fromZoneId];
-  if(!from) return;
+  const prevArea = prevEl.getAttribute('data-area');
+  const prevC = zoneCenter(prevEl);
 
   const taken = new Set(STATE.groups.map(x=>x.zone).filter(Boolean));
 
-  const candidates = Object.entries(STATE.zoneMeta)
-    .filter(([zoneId, m])=>{
-      if(taken.has(zoneId)) return false;
-      const st = isBusyForMe(zoneId);
+  const candidates = zones
+    .filter(z=>{
+      const zid = z.getAttribute('data-zone');
+      if(taken.has(zid)) return false;
+      const st = isBusyForMe(zid);
       if(st.busy && !st.mine) return false;
       return true;
     })
-    .map(([zoneId,m])=>({zoneId, ...m, d: dist(from,m)}));
+    .map(z=>{
+      const zid = z.getAttribute('data-zone');
+      const area = z.getAttribute('data-area');
+      const c = zoneCenter(z);
+      const d = Math.hypot(prevC.x-c.x, prevC.y-c.y);
+      return {z, zid, area, d};
+    });
 
-  // preferisci stessa area, poi distanza
-  const sameArea = candidates.filter(x=>x.area===from.area).sort((a,b)=>a.d-b.d);
-  const anyArea  = candidates.sort((a,b)=>a.d-b.d);
-
-  const ordered = sameArea.length ? sameArea : anyArea;
+  const same = candidates.filter(x=>x.area===prevArea).sort((a,b)=>a.d-b.d);
+  const any  = candidates.sort((a,b)=>a.d-b.d);
+  const ordered = same.length ? same : any;
 
   for(const c of ordered){
-    const ok = await tryHoldZone(c.zoneId, g.index);
+    const ok = await tryHoldZone(c.zid, g.index);
     if(ok){
-      g.zone = c.zoneId;
+      g.zone = c.zid;
       g.area = c.area;
       return;
     }
   }
 }
 
-/** ===== UI render ===== */
+/** ====== UI render ====== */
 function renderMap(){
   zones.forEach(z=>{
     z.classList.remove('busy','mine');
     const zoneId = z.getAttribute('data-zone');
     const st = isBusyForMe(zoneId);
+
     if(st.busy && !st.mine) z.classList.add('busy');
     if(st.busy && st.mine) z.classList.add('mine');
 
-    if(st.busy && !st.mine){
-      z.onclick = null;
-      return;
-    }
+    // ✅ sempre handler robust (PC + mobile)
+    z.onclick = null;
+    if(st.busy && !st.mine) return;
 
-    // click robust (desktop+mobile)
-    z.onclick = (ev)=>{ ev.preventDefault(); ev.stopPropagation(); handleZoneClick(z); };
+    z.onclick = (ev)=>{
+      ev.preventDefault();
+      ev.stopPropagation();
+      handleZoneClick(z);
+    };
   });
 
-  // se selezione scaduta -> reset
+  // se la selezione del tavolo corrente è scaduta -> reset
   const activeZone = STATE.groups[STATE.activeGroup]?.zone;
   if(activeZone){
     const st = isBusyForMe(activeZone);
@@ -642,6 +632,9 @@ function renderDetail(){
   const extraPeople = Math.max(0, (g.real||0) - 4);
   const extra = extraPeople * EXTRA_PER_PERSON;
 
+  // ✅ Niente “Posizione: —”
+  // ✅ Base in grigio, non sommata qui (è requisito)
+  // ✅ Extra se 0 => 0€
   detailBox.innerHTML = `
     <div style="font-weight:900;font-size:16px">Selezione</div>
     <div class="kv" style="margin-top:10px">
@@ -652,6 +645,7 @@ function renderDetail(){
     <div class="line"><span class="gray">Base (min bottiglie)</span><b class="gray">${money(required)}</b></div>
     <div class="line"><span>Extra oltre 4 pax</span><b>${money(extra)}</b></div>
   `;
+  renderRecapBanner();
 }
 
 function allGroupsSelected(){
@@ -659,27 +653,15 @@ function allGroupsSelected(){
 }
 
 function renderRecapBanner(){
-  if(!allGroupsSelected()){
-    recapBanner.className='banner warn';
-    recapBanner.style.display='block';
-    recapBanner.textContent = (STATE.groups.length<=1)
-      ? 'Seleziona un tavolo.'
-      : 'Seleziona il tavolo corrente, poi premi “Avanti”.';
+  if(STATE.groups.length<=1){
+    recapBanner.style.display = 'none';
     return;
   }
-
-  const requiredAll = STATE.groups.reduce((s,g)=> s + areaMin(g.area), 0);
-  const extraAll = STATE.groups.reduce((s,g)=> s + Math.max(0,(g.real||0)-4)*EXTRA_PER_PERSON, 0);
-
-  recapBanner.className='banner ok';
-  recapBanner.style.display='block';
-  recapBanner.innerHTML = `
-    <div style="font-weight:900">Riepilogo</div>
-    <div class="small" style="margin-top:6px;opacity:.85">
-      Minimo bottiglie richiesto (totale): <b>${money(requiredAll)}</b><br>
-      Extra persone (totale): <b>${money(extraAll)}</b>
-    </div>
-  `;
+  recapBanner.className = allGroupsSelected() ? 'banner ok' : 'banner warn';
+  recapBanner.style.display = 'block';
+  recapBanner.innerHTML = allGroupsSelected()
+    ? `Selezione tavoli completata. Ora passi alle bottiglie.`
+    : `Completa la selezione: Tavolo ${STATE.activeGroup+1} di ${STATE.groups.length}.`;
 }
 
 async function handleZoneClick(el){
@@ -687,27 +669,24 @@ async function handleZoneClick(el){
   const zoneId = el.getAttribute('data-zone');
   const g = STATE.groups[STATE.activeGroup];
 
-  if(selectedByAnotherGroup(zoneId)){
-    alert('Questo tavolo è già stato assegnato a un altro tavolo del tuo gruppo.');
-    return;
-  }
-
-  // toggle deselect
+  // toggle: se clicco stesso -> deseleziona
   if(g.zone === zoneId){
     g.zone = null;
     await releaseZone(zoneId);
     await fetchLocks();
-    renderMap(); renderDetail(); renderRecapBanner();
+    renderMap(); renderDetail();
     return;
   }
 
+  // se occupato da altri -> stop
   const st = isBusyForMe(zoneId);
   if(st.busy && !st.mine) return;
 
+  // prova hold sul nuovo
   const ok = await tryHoldZone(zoneId, g.index);
   if(!ok) return;
 
-  // release vecchio (serve anche per 1 tavolo: se cambi, libera subito il precedente)
+  // ✅ se avevo un altro tavolo selezionato, lo libero SUBITO (anche se 1 tavolo)
   if(g.zone && g.zone !== zoneId){
     await releaseZone(g.zone);
     await fetchLocks();
@@ -718,10 +697,9 @@ async function handleZoneClick(el){
 
   renderMap();
   renderDetail();
-  renderRecapBanner();
 }
 
-/** ===== Bottiglie (da Founder config/bottles) ===== */
+/** ====== Bottiglie (dal founder) ====== */
 function isMoetLike(b){
   const n = String(b?.name||'').toLowerCase();
   const id = String(b?.id||'').toLowerCase();
@@ -735,16 +713,15 @@ async function loadBottleConfig(){
 
     STATE.bottleList = Object.entries(items).map(([id,v])=>({
       id,
-      name: v.name || '—',
-      category: String(v.category||'').toLowerCase(),
-      img: v.img || '',
-      includes: (v.includes||'')+'',
-      cost: Number(v.cost||0),
-      price: Number(v.price||0),
-      visible: v.visible !== false
+      name:v.name||'—',
+      category:String(v.category||'').toLowerCase(),
+      price:Number(v.price||0),
+      cost:Number(v.cost||0),
+      visible:v.visible!==false,
+      includes:(v.includes||'')+''
     }))
     .filter(x=>x.visible)
-    .filter(x=>!isMoetLike(x));
+    .filter(x=>!isMoetLike(x)); // ✅ non mostra Moët
   }catch{
     STATE.bottleList = [];
   }
@@ -768,13 +745,14 @@ function computeGroup(g){
   const requiredMin = g.zone ? areaMin(g.area) : 0;
   const extra = Math.max(0,(g.real||0)-4)*EXTRA_PER_PERSON;
 
-  // totale = bottiglie + extra (base non si somma)
+  // ✅ totale = bottiglie + extra (base è requisito, NON si somma)
   const total = bottlesSum + extra;
 
   const caparra = Math.max(25 * g.pax, cost);
   const meetsMin = bottlesSum >= requiredMin;
+  const missing = Math.max(0, requiredMin - bottlesSum);
 
-  return { requiredMin, bottles:bottlesSum, extra, total, caparra, meetsMin };
+  return {requiredMin, bottlesSum, extra, total, caparra, meetsMin, missing};
 }
 
 function computeAll(){
@@ -787,17 +765,8 @@ function computeAll(){
   return {items,totalAll,depositAll,anyBottle,allMeetMin,totalPeople};
 }
 
-function renderBottlesHint(){
-  if(STATE.groups.length<=1){
-    bottlesHint.textContent = 'Seleziona le bottiglie (devi raggiungere il minimo).';
-    return;
-  }
-  bottlesHint.textContent = `Stai scegliendo le bottiglie per ${tableLabel(STATE.activeGroup)} di ${STATE.groups.length}.`;
-}
-
 function renderListino(){
   const g = STATE.groups[STATE.activeGroup];
-
   const champagne = STATE.bottleList.filter(b=>b.category==='champagne');
   const dist = STATE.bottleList.filter(b=>b.category==='distillati');
 
@@ -808,7 +777,7 @@ function renderListino(){
       return `<div class="item">
         <div>
           <h4>${b.name}</h4>
-          <div class="small">Listino: ${money(b.price)}</div>
+          <div class="small">Listino: ${money(Number(b.price||0))}</div>
           ${b.includes?`<div class="inc">${(b.includes+'').replace(/\n/g,'<br>')}</div>`:''}
         </div>
         <div class="controls">
@@ -841,18 +810,14 @@ function renderListino(){
 
 function updatePayUI(){
   const payMode = document.querySelector('input[name="payMode"]:checked')?.value || 'deposito';
-
-  // ✅ se caparra: nascondi pagamento separato e forza single
   if(payMode==='deposito'){
     splitWrap.style.display='none';
     const single = document.querySelector('input[name="splitMode"][value="single"]');
     if(single) single.checked = true;
     splitInfo.textContent = '';
-    return;
+  }else{
+    splitWrap.style.display='block';
   }
-
-  splitWrap.style.display='block';
-  splitExplain.textContent = 'Pagamento separato: dividiamo l’importo in quote (stimate) per persona, così ognuno paga la sua parte.';
 }
 
 function renderSummaryBox(){
@@ -860,25 +825,20 @@ function renderSummaryBox(){
   const g = STATE.groups[STATE.activeGroup];
   const c = computeGroup(g);
 
-  const missing = Math.max(0, c.requiredMin - c.bottles);
-
   summaryBox.innerHTML = `
-    <div style="font-weight:900;font-size:16px">${STATE.groups.length<=1 ? 'Riepilogo' : `Riepilogo — ${tableLabel(STATE.activeGroup)}`}</div>
+    <div style="font-weight:900;font-size:16px">${STATE.groups.length<=1 ? 'Riepilogo' : `Riepilogo — Tavolo ${STATE.activeGroup+1}/${STATE.groups.length}`}</div>
     <div class="hr"></div>
 
     <div class="line"><span class="gray">Base (min bottiglie)</span><b class="gray">${money(c.requiredMin)}</b></div>
-    <div class="line"><span>Bottiglie</span><b>${money(c.bottles)}</b></div>
+    <div class="line"><span>Bottiglie</span><b>${money(c.bottlesSum)}</b></div>
     <div class="line"><span>Extra persone</span><b>${money(c.extra)}</b></div>
     <div class="line"><span>Totale (bottiglie + extra)</span><b>${money(c.total)}</b></div>
 
-    <div style="margin-top:10px" class="small" ${
-      c.meetsMin ? 'style="color:rgba(34,197,94,.95);font-weight:900"' : 'style="color:rgba(245,197,66,.95);font-weight:900"'
-    }>
-      ${c.meetsMin ? '✅ Minimo raggiunto' : `⚠️ Mancano ${money(missing)} di bottiglie per raggiungere il minimo`}
+    <div style="margin-top:10px" class="small" ${c.meetsMin ? 'style="color:rgba(34,197,94,.95);font-weight:900"' : 'style="color:rgba(245,197,66,.95);font-weight:900"'}>
+      ${c.meetsMin ? '✅ Minimo raggiunto' : `⚠️ Mancano ${money(c.missing)} di bottiglie per raggiungere il minimo`}
     </div>
 
     <div class="hr"></div>
-
     <div class="line"><span class="gray">Totale complessivo</span><b class="gray">${money(totalAll)}</b></div>
   `;
 
@@ -886,7 +846,6 @@ function renderSummaryBox(){
 
   const payMode = document.querySelector('input[name="payMode"]:checked')?.value || 'deposito';
   const splitMode = document.querySelector('input[name="splitMode"]:checked')?.value || 'single';
-
   const amountNow = (payMode==='full') ? totalAll : depositAll;
 
   totalLabel.textContent = (payMode==='full') ? 'Totale (ora)' : 'Caparra (ora)';
@@ -899,18 +858,23 @@ function renderSummaryBox(){
     splitInfo.textContent = '';
   }
 
-  // bottone “Prossimo tavolo” (solo se ci sono più tavoli e non sei all’ultimo)
+  // multi tavolo: bottone “Prossimo tavolo”
   if(STATE.groups.length>1 && STATE.activeGroup < STATE.groups.length-1){
     nextTableBtn.style.display = 'inline-flex';
   }else{
     nextTableBtn.style.display = 'none';
   }
 
-  // procedi solo se:
-  // - almeno 1 bottiglia
-  // - regole accettate
-  // - tutte le basi rispettate
+  // ✅ procedi solo se: almeno 1 bottiglia + regole + tutti i min raggiunti
   confirmBtn.disabled = !(anyBottle && legalChk.checked && allMeetMin);
+}
+
+function renderBottlesHint(){
+  if(STATE.groups.length<=1){
+    bottlesHint.textContent = 'Seleziona le bottiglie (devi raggiungere il minimo).';
+  }else{
+    bottlesHint.textContent = `Stai scegliendo le bottiglie per Tavolo ${STATE.activeGroup+1} di ${STATE.groups.length}.`;
+  }
 }
 
 function renderStepBottles(){
@@ -921,27 +885,22 @@ function renderStepBottles(){
 
 /** ===== navigation ===== */
 function goToPeople(){
-  stepPeople.style.display='block';
-  stepMap.style.display='none';
-  stepBottles.style.display='none';
+  stepPeople.style.display = 'block';
+  stepMap.style.display = 'none';
+  stepBottles.style.display = 'none';
 }
-
 function goToMap(){
-  stepPeople.style.display='none';
-  stepMap.style.display='block';
-  stepBottles.style.display='none';
-
+  stepPeople.style.display = 'none';
+  stepMap.style.display = 'block';
+  stepBottles.style.display = 'none';
   renderSelectingHint();
   renderMap();
   renderDetail();
-  renderRecapBanner();
 }
-
 function goToBottles(){
-  stepPeople.style.display='none';
-  stepMap.style.display='none';
-  stepBottles.style.display='block';
-
+  stepPeople.style.display = 'none';
+  stepMap.style.display = 'none';
+  stepBottles.style.display = 'block';
   renderStepBottles();
 }
 
@@ -956,33 +915,22 @@ paxMinus.onclick = ()=>{ paxInput.value = Math.max(1, Number(paxInput.value||1)-
 paxPlus.onclick  = ()=>{ paxInput.value = Math.min(21, Number(paxInput.value||1)+1); onPaxChange(); };
 paxInput.oninput = onPaxChange;
 
-toMapBtn.onclick = ()=>{
-  STATE.activeGroup = 0;
-  goToMap();
-};
+toMapBtn.onclick = ()=>{ STATE.activeGroup=0; goToMap(); };
+backToPeople.onclick = ()=> goToPeople();
 
-backBtn.onclick = ()=>{
-  if(STATE.groups.length>1 && STATE.activeGroup>0){
-    STATE.activeGroup--;
-    goToMap();
-    return;
-  }
-  goToPeople();
-};
-
-nextMapBtn.onclick = async ()=>{
+nextTableOrBottles.onclick = async ()=>{
   const g = STATE.groups[STATE.activeGroup];
   if(!g.zone){
     alert('Seleziona un tavolo.');
     return;
   }
 
-  // se multi tavolo: vai al prossimo e prova auto-assegnazione
+  // se multi tavolo: vai al prossimo e auto-assegna
   if(STATE.groups.length>1 && STATE.activeGroup < STATE.groups.length-1){
     const prevZone = g.zone;
     STATE.activeGroup++;
     goToMap();
-    await autoAssignNextGroup(prevZone);
+    await autoAssignNext(prevZone);
     goToMap();
     return;
   }
@@ -1002,16 +950,11 @@ legalOk.onclick = ()=>{
   goToBottles();
 };
 
-document.querySelectorAll('input[name="payMode"]').forEach(r=> r.addEventListener('change', ()=>{ updatePayUI(); renderSummaryBox(); }));
+document.querySelectorAll('input[name="payMode"]').forEach(r=> r.addEventListener('change', renderSummaryBox));
 document.querySelectorAll('input[name="splitMode"]').forEach(r=> r.addEventListener('change', renderSummaryBox));
 
 bPrev.onclick = ()=>{
-  // in bottiglie: indietro = tavolo precedente se c’è, altrimenti torna mappa
-  if(STATE.groups.length>1 && STATE.activeGroup>0){
-    STATE.activeGroup--;
-    goToBottles();
-    return;
-  }
+  // in bottiglie: indietro = torna alla mappa del tavolo corrente
   goToMap();
 };
 
@@ -1062,7 +1005,6 @@ onUser(async (u)=>{
   await fetchLocks();
   startPoll();
 
-  buildZoneMeta();
   goToPeople();
 });
 </script>
