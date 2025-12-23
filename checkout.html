@@ -11,7 +11,7 @@
 
   /* pochi colori */
   --c-eb:rgba(139,92,246,.9);
-  --c-std:rgba(139,92,246,.9); /* consigliato in viola */
+  --c-std:rgba(139,92,246,.9);
   --c-fast:rgba(52,211,153,.9);
   --c-vip:rgba(251,113,133,.9);
 
@@ -44,17 +44,25 @@ h1{font-size:28px;font-weight:900;letter-spacing:-.3px}
 .eventline strong{color:#fff}
 .eventline .dot{opacity:.55;margin:0 10px}
 
-/* Banner (adult) */
+/* ===== BANNER 18+ (sempre in alto) ===== */
 .banner{
   margin-top:12px;
   background:linear-gradient(180deg, rgba(253,224,71,.12), rgba(255,255,255,.04));
   border:1px solid rgba(253,224,71,.35);
   border-radius:14px;
   padding:12px 14px;
-  display:none; /* IMPORTANT: default none, così non lascia “vuoto” */
+  display:none; /* show via JS */
   justify-content:space-between;
   align-items:flex-start;
   gap:12px;
+}
+.banner .left{display:flex;gap:10px;align-items:flex-start}
+.banner .i{
+  width:18px;height:18px;border-radius:6px;
+  border:1px solid rgba(253,224,71,.45);
+  display:flex;align-items:center;justify-content:center;
+  font-weight:900;font-size:12px;color:#fff;opacity:.9;
+  margin-top:1px;
 }
 .banner p{color:rgba(255,255,255,.84);font-size:13px;line-height:1.35}
 .banner strong{color:#fff}
@@ -197,7 +205,7 @@ h1{font-size:28px;font-weight:900;letter-spacing:-.3px}
 .pay{display:inline-block;width:100%;padding:12px 16px;border-radius:12px;text-decoration:none;font-weight:900;background:var(--accent);color:#000;cursor:pointer;border:none}
 .pay[disabled]{opacity:.5;cursor:not-allowed}
 
-/* NASCONDI il “Procedi” della card su mobile: usiamo SOLO barra fissa */
+/* NASCONDI il “Procedi” della card su mobile */
 @media(max-width:899px){
   .desktopProceed{display:none!important}
 }
@@ -212,9 +220,7 @@ h1{font-size:28px;font-weight:900;letter-spacing:-.3px}
   display:flex;align-items:center;justify-content:space-between;gap:12px;
   box-shadow:0 18px 50px rgba(0,0,0,.55);
 }
-.mobileBar .t{
-  display:flex;flex-direction:column;line-height:1.1;
-}
+.mobileBar .t{display:flex;flex-direction:column;line-height:1.1}
 .mobileBar .t .k{font-size:12px;color:rgba(255,255,255,.72);font-weight:700}
 .mobileBar .t .v{font-size:26px;font-weight:900;margin-top:6px}
 .mobileBar .btn{
@@ -230,7 +236,7 @@ h1{font-size:28px;font-weight:900;letter-spacing:-.3px}
 
 /* Modal */
 .modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.68);display:none;align-items:center;justify-content:center;z-index:260}
-.modal{width:min(92vw,520px);background:#0b0b0b;border:1px solid rgba(255,255,255,.14);border-radius:18px;padding:18px}
+.modal{width:min(92vw,540px);background:#0b0b0b;border:1px solid rgba(255,255,255,.14);border-radius:18px;padding:18px}
 .modal h3{font-size:18px;font-weight:900;margin-bottom:6px}
 .modal p{color:rgba(255,255,255,.85);font-size:14px;margin-bottom:14px;line-height:1.45}
 .modal-actions{display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end}
@@ -239,8 +245,8 @@ h1{font-size:28px;font-weight:900;letter-spacing:-.3px}
 .btn.ghost{background:transparent}
 </style>
 </head>
-<body>
 
+<body>
 <header>
   <div class="nav">
     <div class="brand"><div class="brand-badge"></div><div>TRAPPERREO</div></div>
@@ -252,10 +258,13 @@ h1{font-size:28px;font-weight:900;letter-spacing:-.3px}
   <h1>Prendi il tuo ticket</h1>
   <div class="muted" id="hello">👋 Ciao</div>
 
-  <!-- Banner (dinamico) -->
-  <div class="banner" id="adultBanner" aria-live="polite">
-    <div><p id="adultBannerText"></p></div>
-    <div class="actions" id="adultBannerActions"></div>
+  <!-- ===== BANNER 18+ (sempre prima dei biglietti) ===== -->
+  <div class="banner" id="ageBanner" aria-live="polite">
+    <div class="left">
+      <div class="i">i</div>
+      <div><p id="ageBannerText"></p></div>
+    </div>
+    <div class="actions" id="ageBannerActions"></div>
   </div>
 
   <!-- Admin only -->
@@ -388,7 +397,6 @@ h1{font-size:28px;font-weight:900;letter-spacing:-.3px}
     <aside class="card">
       <h2 style="font-size:18px;font-weight:900;margin-bottom:8px">Riepilogo</h2>
 
-      <!-- QUI (IN CIMA) multi-ticket note -->
       <div id="multiNote" class="multiBanner" hidden>
         <strong>Stai acquistando più biglietti.</strong><br>
         Nel passaggio successivo assegnerai i <strong>nomi</strong> per ogni ticket.
@@ -413,7 +421,6 @@ h1{font-size:28px;font-weight:900;letter-spacing:-.3px}
       <div class="hr"></div>
       <div class="line total"><span>Totale (IVA inclusa)</span><strong id="grandTot">0€</strong></div>
 
-      <!-- Procedi desktop -->
       <div class="sticky desktopProceed" style="margin-top:10px">
         <button id="payBtn" class="pay" disabled>Procedi</button>
       </div>
@@ -421,7 +428,7 @@ h1{font-size:28px;font-weight:900;letter-spacing:-.3px}
   </div>
 </main>
 
-<!-- Barra fissa mobile (procedi che segue) -->
+<!-- Barra fissa mobile -->
 <div class="mobileBar" aria-live="polite">
   <div class="t">
     <div class="k">Totale</div>
@@ -442,6 +449,22 @@ h1{font-size:28px;font-weight:900;letter-spacing:-.3px}
   </div>
 </div>
 
+<!-- Modal INFO (solo dopo Procedi, per guest) -->
+<div class="modal-backdrop" id="guestInfoModal">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="gTitle">
+    <h3 id="gTitle">Info veloce prima di continuare</h3>
+    <p id="gText">
+      Se non hai un account, puoi acquistare lo stesso: nel prossimo passaggio inserisci <strong>nome</strong>, <strong>cognome</strong> ed <strong>email</strong>.
+      Dopo l’acquisto potrai <strong>registrarti</strong> con la stessa email e vedrai il biglietto comparire nella tua <strong>area personale</strong>.
+    </p>
+    <div class="modal-actions">
+      <button class="btn ghost" type="button" id="gClose">Continua senza account</button>
+      <a class="btn" id="gLogin" href="#">Accedi</a>
+      <a class="btn primary" id="gSignup" href="#">Registrati</a>
+    </div>
+  </div>
+</div>
+
 <script type="module">
 import { onUser, doSignOut, app } from './auth.v2.js?v=6';
 import { getAuth, signInAnonymously } from 'https://www.gstatic.com/firebasejs/12.5.0/firebase-auth.js';
@@ -454,19 +477,19 @@ const auth = getAuth(app);
 const INVENTORY_DOC = doc(db, 'inventory', 'earlybird'); // {cap:50, sold:0, disabled:false}
 const DEFAULT_CAP = 50;
 
-/** Metti qui admin/founder */
+/** Admin */
 const ADMIN_EMAILS = [
   // 'tuoemail@gmail.com',
-  // 'founder@trapperreo.it',
 ];
 
 /** UI */
 const nav   = document.getElementById('navArea');
 const hello = document.getElementById('hello');
 
-const adultBanner = document.getElementById('adultBanner');
-const adultBannerText = document.getElementById('adultBannerText');
-const adultBannerActions = document.getElementById('adultBannerActions');
+/* Banner 18+ */
+const ageBanner = document.getElementById('ageBanner');
+const ageBannerText = document.getElementById('ageBannerText');
+const ageBannerActions = document.getElementById('ageBannerActions');
 
 const weeksBlock = document.getElementById('weeksBlock');
 const adminPanel = document.getElementById('adminPanel');
@@ -496,19 +519,30 @@ const vipReserve = document.getElementById('vipReserve');
 const lines   = document.getElementById('lines');
 const grandEl = document.getElementById('grandTot');
 
-const payBtn  = document.getElementById('payBtn');       // desktop
-const mobilePay = document.getElementById('mobilePay');  // mobile
+const payBtn  = document.getElementById('payBtn');
+const mobilePay = document.getElementById('mobilePay');
 const mobileTotal = document.getElementById('mobileTotal');
 
 const optName = document.getElementById('optNameChange');
 const nameLine= document.getElementById('nameChangeLine');
 const multiNote = document.getElementById('multiNote');
 
-/** Modal */
+/** Modal protezione */
 const ncModal = document.getElementById('ncModal');
 const ncNo = document.getElementById('ncNo');
 const ncYes = document.getElementById('ncYes');
 const ncText = document.getElementById('ncText');
+
+/** Modal guest info (dopo Procedi) */
+const guestInfoModal = document.getElementById('guestInfoModal');
+const gClose = document.getElementById('gClose');
+const gLogin = document.getElementById('gLogin');
+const gSignup = document.getElementById('gSignup');
+
+/** Session state */
+let LOGGED_USER = null;          // firebase user non-anon
+let IS_ADULT = false;
+let DOB_MISSING = true;
 
 const OUT = `
   <a href="./index.html">Home</a>
@@ -526,6 +560,34 @@ const IN  = (u)=>`
 const PRICE = { EB:12, STD:15, FAST:20, VIP:25, NAMECHANGE:1.90, STD3:40 };
 const money = n => (n<0?'-':'') + Math.abs(n).toFixed(2).replace('.00','') + '€';
 
+/** ===== URL cart support (per tornare da login senza perdere selezione) ===== */
+function getCartQS(){
+  const q = qty();
+  const p = new URLSearchParams({
+    eb: q.EB||0, std: q.STD||0, fast: q.FAST||0, vip: q.VIP||0,
+    nc: optName?.checked?1:0
+  });
+  return p.toString();
+}
+function getReturnUrlForAuth(){
+  return `./checkout.html?${getCartQS()}`;
+}
+function applyCartFromQS(){
+  const Q = new URLSearchParams(location.search);
+  const eb = +(Q.get('eb')||0);
+  const std= +(Q.get('std')||0);
+  const fast=+(Q.get('fast')||0);
+  const vip= +(Q.get('vip')||0);
+  const nc = +(Q.get('nc')||0);
+
+  if (qEB) qEB.value = String(Math.max(0, eb));
+  if (qSTD) qSTD.value = String(Math.max(0, std));
+  if (qFAST) qFAST.value = String(Math.max(0, fast));
+  if (qVIP) qVIP.value = String(Math.max(0, vip));
+  if (optName) optName.checked = (nc===1);
+}
+
+/** Qty helpers */
 function qty(){ return {
   EB:+(qEB?.value||0), STD:+(qSTD?.value||0), FAST:+(qFAST?.value||0), VIP:+(qVIP?.value||0)
 };}
@@ -598,59 +660,71 @@ function setAdultUI(isAdult){
   }
 }
 
-/** ===== Banner logic (NON lascia spazi vuoti) ===== */
-function hideBannerForever(){
-  try{ localStorage.setItem('tr_hide_banner','1'); }catch{}
-  adultBanner.style.display = 'none';
+/** ===== Banner 18+ ===== */
+function hideAgeBannerForever(){
+  try{ localStorage.setItem('tr_hide_age_notice','1'); }catch{}
+  ageBanner.style.display = 'none';
 }
-function showBanner(type){
-  // Se l’utente l’ha chiuso: non mostrarlo
-  if (localStorage.getItem('tr_hide_banner') === '1') {
-    adultBanner.style.display = 'none';
+function showAgeBanner(){
+  if (localStorage.getItem('tr_hide_age_notice') === '1'){
+    ageBanner.style.display = 'none';
     return;
   }
 
-  adultBannerActions.innerHTML = '';
-  adultBannerText.innerHTML = ''; // evita “vuoto”
-  adultBanner.style.display = 'flex';
+  ageBannerActions.innerHTML = '';
+  ageBannerText.innerHTML = '';
+  ageBanner.style.display = 'flex';
 
-  const mkClose = ()=>{
-    const close = document.createElement('button');
-    close.className = 'close';
-    close.type = 'button';
-    close.textContent = 'Chiudi';
-    close.addEventListener('click', hideBannerForever);
-    return close;
-  };
+  const close = document.createElement('button');
+  close.className = 'close';
+  close.type = 'button';
+  close.textContent = 'Chiudi';
+  close.addEventListener('click', hideAgeBannerForever);
 
-  if(type === 'guest'){
-    adultBannerText.innerHTML =
-      `<strong>Se sei maggiorenne</strong>: registrati prima di acquistare e avrai <strong>1 drink alcolico omaggio</strong> (invece dell’analcolico).`;
+  // sempre: reg / login per avere drink alcolico
+  const returnUrl = encodeURIComponent(getReturnUrlForAuth());
+  const aLogin = document.createElement('a');
+  aLogin.className = 'secondary';
+  aLogin.href = `./login.html?from=${returnUrl}`;
+  aLogin.textContent = 'Accedi';
 
-    const reg = document.createElement('a');
-    reg.className = 'primary';
-    reg.href = './signup.html?from=./checkout.html';
-    reg.textContent = 'Registrati';
+  const aSignup = document.createElement('a');
+  aSignup.className = 'primary';
+  aSignup.href = `./signup.html?from=${returnUrl}`;
+  aSignup.textContent = 'Registrati';
 
-    const acc = document.createElement('a');
-    acc.className = 'secondary';
-    acc.href = './login.html?from=./checkout.html';
-    acc.textContent = 'Accedi';
-
-    adultBannerActions.append(reg, acc, mkClose());
+  // testo dinamico
+  if(!LOGGED_USER){
+    ageBannerText.innerHTML =
+      `ℹ️ <strong>Drink alcolico disponibile solo 18+</strong>. ` +
+      `Se sei maggiorenne, <strong>accedi o registrati</strong> per avere <strong>1 drink alcolico</strong>. ` +
+      `Altrimenti avrai <strong>analcolico</strong>.`;
+    ageBannerActions.append(aSignup, aLogin, close);
     return;
   }
 
-  if(type === 'adult'){
-    adultBannerText.innerHTML = `✅ <strong>Account maggiorenne</strong>: drink <strong>alcolico</strong> disponibile.`;
-    adultBannerActions.append(mkClose());
+  if(DOB_MISSING){
+    ageBannerText.innerHTML =
+      `ℹ️ <strong>Drink alcolico disponibile solo 18+</strong>. ` +
+      `Completa la <strong>data di nascita</strong> nel profilo: se sei 18+ abiliti il drink alcolico.`;
+    const prof = document.createElement('a');
+    prof.className = 'primary';
+    prof.href = './account-2.html';
+    prof.textContent = 'Completa profilo';
+    ageBannerActions.append(prof, close);
     return;
   }
 
-  // minor
-  adultBannerText.innerHTML =
-    `ℹ️ Drink alcolico disponibile solo <strong>18+</strong>. Con questo ticket hai <strong>analcolico</strong>.`;
-  adultBannerActions.append(mkClose());
+  if(IS_ADULT){
+    ageBannerText.innerHTML =
+      `✅ <strong>Account 18+</strong>. Drink <strong>alcolico</strong> disponibile.`;
+    ageBannerActions.append(close);
+    return;
+  }
+
+  ageBannerText.innerHTML =
+    `ℹ️ <strong>Drink alcolico disponibile solo 18+</strong>. Con questo account avrai <strong>analcolico</strong>.`;
+  ageBannerActions.append(close);
 }
 
 /** ===== VIP table state ===== */
@@ -658,7 +732,7 @@ function setVipTableState({ logged, isAdult, dobMissing }){
   if(!logged){
     vipTableText.textContent = 'Per prenotare serve un account 18+. Se sei maggiorenne, accedi o registrati.';
     vipReserve.textContent = 'Accedi';
-    vipReserve.href = './login.html?from=./checkout.html';
+    vipReserve.href = `./login.html?from=${encodeURIComponent(getReturnUrlForAuth())}`;
     vipReserve.setAttribute('aria-disabled','false');
     return;
   }
@@ -708,9 +782,9 @@ function applyEbUI(){
 
 async function loadEbInventory(){
   try{
-    const snap = await getDoc(INVENTORY_DOC);
+    const snap = await getDoc(doc(db,'inventory','earlybird'));
     if (!snap.exists()){
-      await setDoc(INVENTORY_DOC, { cap: DEFAULT_CAP, sold: 0, disabled: false }, { merge:true });
+      await setDoc(doc(db,'inventory','earlybird'), { cap: DEFAULT_CAP, sold: 0, disabled: false }, { merge:true });
       EB = { cap: DEFAULT_CAP, sold: 0, disabled: false };
     }else{
       const d = snap.data()||{};
@@ -732,13 +806,12 @@ async function loadEbInventory(){
   if (admInfo) admInfo.textContent = `cap=${EB.cap}, sold=${EB.sold}, disabled=${EB.disabled}`;
 }
 
-/** Reserve EB on proceed (transaction) */
 async function reserveEarlyBird(qtyWanted){
   if (!qtyWanted || qtyWanted<=0) return true;
 
   try{
     await runTransaction(db, async (tx)=>{
-      const snap = await tx.get(INVENTORY_DOC);
+      const snap = await tx.get(doc(db,'inventory','earlybird'));
       let cap = DEFAULT_CAP, sold = 0, disabled = false;
       if (snap.exists()){
         const d = snap.data()||{};
@@ -749,7 +822,7 @@ async function reserveEarlyBird(qtyWanted){
       const left = Math.max(0, cap - sold);
       if (disabled) throw new Error('EARLY_DISABLED');
       if (qtyWanted > left) throw new Error('EARLY_SOLD_OUT');
-      tx.set(INVENTORY_DOC, { cap, sold: sold + qtyWanted, disabled }, { merge:true });
+      tx.set(doc(db,'inventory','earlybird'), { cap, sold: sold + qtyWanted, disabled }, { merge:true });
     });
     await loadEbInventory();
     return true;
@@ -773,6 +846,21 @@ function openNcModal(totalTickets){
 }
 function closeNcModal(){ ncModal.style.display = 'none'; }
 
+/** ===== Modal guest info (dopo Procedi) ===== */
+function openGuestInfoModal(){
+  // non rompere le scatole ogni volta: una volta per sessione basta
+  if (sessionStorage.getItem('tr_guest_info_seen') === '1') return false;
+  sessionStorage.setItem('tr_guest_info_seen', '1');
+
+  const returnUrl = encodeURIComponent(getReturnUrlForAuth());
+  gLogin.href  = `./login.html?from=${returnUrl}`;
+  gSignup.href = `./signup.html?from=${returnUrl}`;
+
+  guestInfoModal.style.display = 'flex';
+  return true;
+}
+function closeGuestInfoModal(){ guestInfoModal.style.display = 'none'; }
+
 /** ===== Render ===== */
 function setProceedEnabled(enabled){
   if (payBtn) payBtn.disabled = !enabled;
@@ -791,7 +879,6 @@ function render(){
   const tCount = ticketsCount();
   const prot   = optName?.checked ? tCount * PRICE.NAMECHANGE : 0;
 
-  // pill NON cambia forma, cambia solo testo
   if (nameLine){
     if (optName?.checked && tCount>0) nameLine.textContent = `+ ${money(prot)}`;
     else if (optName?.checked && tCount===0) nameLine.textContent = `Selezionata`;
@@ -815,8 +902,10 @@ function render(){
   if (mobileTotal) mobileTotal.textContent = money(total);
 
   setProceedEnabled(tCount>0);
-
   if (multiNote) multiNote.hidden = !(tCount>1);
+
+  // aggiorna link banner (se clicchi accedi/registrati non perdi selezione)
+  showAgeBanner();
 }
 
 /** Qty binding + feedback */
@@ -857,14 +946,14 @@ function goNext(){
   else            location.href = `./attendees-single.html?${qs}`;
 }
 
-/** Procedi handler (usato sia desktop che mobile) */
+/** Procedi handler */
 async function handleProceed(){
   const tCount = ticketsCount();
   if (tCount<=0) return;
 
-  await ensureAnon(); // guest ok
+  await ensureAnon(); // guest ok (anon)
 
-  // magazzino EB
+  // Early Bird reserve
   const q = qty();
   if (q.EB>0){
     const ok = await reserveEarlyBird(q.EB);
@@ -876,7 +965,22 @@ async function handleProceed(){
     }
   }
 
-  // modal upsell
+  // Se NON sei loggato (utente vero), mostra avviso SOLO dopo Procedi
+  if (!LOGGED_USER){
+    const shown = openGuestInfoModal();
+    if (shown){
+      gClose.onclick = ()=>{ closeGuestInfoModal(); continueAfterGuestInfo(); };
+      guestInfoModal.onclick = (e)=>{ if(e.target===guestInfoModal){ closeGuestInfoModal(); continueAfterGuestInfo(); } };
+      return; // aspetta la scelta
+    }
+  }
+
+  continueAfterGuestInfo();
+}
+
+function continueAfterGuestInfo(){
+  // modal protezione
+  const tCount = ticketsCount();
   if (!optName.checked){
     openNcModal(tCount);
     ncNo.onclick = ()=>{
@@ -891,37 +995,43 @@ async function handleProceed(){
     };
     return;
   }
-
   goNext();
 }
 
 payBtn?.addEventListener('click', handleProceed);
 mobilePay?.addEventListener('click', handleProceed);
 
-ncModal?.addEventListener('click', (e)=>{
-  if (e.target === ncModal) closeNcModal();
-});
+ncModal?.addEventListener('click', (e)=>{ if (e.target === ncModal) closeNcModal(); });
 
 /** Admin check */
 function isAdminUser(u){
   const email = (u?.email || '').toLowerCase();
-  const local = localStorage.getItem('tr_admin') === '1'; // override test
+  const local = localStorage.getItem('tr_admin') === '1';
   return local || (email && ADMIN_EMAILS.map(x=>x.toLowerCase()).includes(email));
 }
 
+/** UI modes */
 async function enterGuestUI(){
+  LOGGED_USER = null;
+  IS_ADULT = false;
+  DOB_MISSING = true;
+
   nav.innerHTML = OUT;
   hello.textContent = '👋 Ciao';
+
   setAdultUI(false);
-  showBanner('guest');
   setVipTableState({ logged:false, isAdult:false, dobMissing:true });
+
   weeksBlock.hidden = true;
   adminPanel.hidden = true;
+
   await loadEbInventory();
+  showAgeBanner(); // sempre in alto
   render();
 }
 
 async function enterLoggedUI(u){
+  LOGGED_USER = u;
   nav.innerHTML = IN(u);
   hello.innerHTML = `👋 Ciao, <strong>${(u.displayName||u.email||'Utente').split(' ')[0]}</strong>`;
 
@@ -932,16 +1042,11 @@ async function enterLoggedUI(u){
   });
 
   const dob = await readDob(u.uid);
-  const dobMissing = !dob;
-  const isAdult = dob ? (ageFrom(dob) >= 18) : false;
+  DOB_MISSING = !dob;
+  IS_ADULT = dob ? (ageFrom(dob) >= 18) : false;
 
-  setAdultUI(isAdult);
-
-  // banner: adulto/minor chiudibile
-  showBanner(isAdult ? 'adult' : 'minor');
-
-  // tavolo VIP
-  setVipTableState({ logged:true, isAdult, dobMissing });
+  setAdultUI(IS_ADULT);
+  setVipTableState({ logged:true, isAdult:IS_ADULT, dobMissing:DOB_MISSING });
 
   // admin tools
   const admin = isAdminUser(u);
@@ -957,7 +1062,7 @@ async function enterLoggedUI(u){
         const cap = Math.max(1, Number(admCap.value||DEFAULT_CAP));
         const sold = Math.max(0, Number(admSold.value||0));
         const disabled = String(admDisabled.value||'false').trim().toLowerCase() === 'true';
-        await setDoc(INVENTORY_DOC, { cap, sold, disabled }, { merge:true });
+        await setDoc(doc(db,'inventory','earlybird'), { cap, sold, disabled }, { merge:true });
         await loadEbInventory();
         alert('Salvato ✅');
       }catch(e){
@@ -967,13 +1072,15 @@ async function enterLoggedUI(u){
     };
   }
 
+  showAgeBanner(); // sempre in alto, con stato account
   render();
 }
 
 /** Boot */
+applyCartFromQS();  // <-- così se torni da login non perdi selezione
 bindQty();
-render();
 hello.textContent = 'Caricamento…';
+render();
 
 onUser(async (u)=>{
   try{
@@ -986,6 +1093,5 @@ onUser(async (u)=>{
   }
 });
 </script>
-
 </body>
 </html>
