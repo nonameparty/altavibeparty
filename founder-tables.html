@@ -9,8 +9,8 @@
 :root{
   --bg:#0a0a0a; --text:#fff; --accent:#8b5cf6; --border:rgba(255,255,255,.12);
   --card:rgba(255,255,255,.06); --muted:rgba(255,255,255,.78);
-  --danger:#ef4444; --ok:#22c55e;
 
+  --danger:#ef4444; --ok:#22c55e;
   --platinum:#b48bff;
   --gold:#f5c542;
   --silver:#9fb7ff;
@@ -79,25 +79,25 @@ h2{font-size:20px;font-weight:900;margin:14px 0 8px}
   isolation:isolate;
 }
 .dj{
-  position:absolute;top:10px;left:50%;transform:translateX(-50%);
+  position:absolute;top:58px;left:50%;transform:translateX(-50%);
   padding:6px 10px;border-radius:10px;border:1px dashed rgba(255,255,255,.25);
   font-size:12px;opacity:.9;
-  pointer-events:none; /* ✅ non blocca click desktop */
+  pointer-events:none; /* ✅ NON blocca click */
   z-index:1;
 }
 .dance{
-  position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
+  position:absolute;left:50%;top:52%;transform:translate(-50%,-50%);
   width:56%;height:52%;
   border:1px dashed rgba(255,255,255,.18);border-radius:14px;
   display:grid;place-items:center;color:#bdbdbd;font-size:12px;opacity:.9;
-  pointer-events:none; /* ✅ non blocca click desktop */
+  pointer-events:none; /* ✅ NON blocca click */
   z-index:1;
 }
 
-/* tavoli/zone */
+/* tavoli */
 .zone{
   position:absolute;
-  min-width:132px;max-width:170px;
+  min-width:132px;max-width:190px;
   display:grid;place-items:center;
   border-radius:16px;
   border:2px solid rgba(255,255,255,.14);
@@ -106,11 +106,12 @@ h2{font-size:20px;font-weight:900;margin:14px 0 8px}
   cursor:pointer;
   transition:box-shadow .12s, border-color .12s, filter .12s;
   user-select:none;
-  pointer-events:auto; /* ✅ cliccabile desktop */
-  z-index:3;          /* ✅ sopra overlay */
+  z-index:5;
+  touch-action:manipulation;
 }
-/* ✅ tolto transform su :active (su desktop spesso rompe hitbox) */
 .zone:hover{filter:brightness(1.06)}
+.zone:focus{outline:none}
+.zone *{pointer-events:none;} /* ✅ click sempre al box (PC fix) */
 
 .zone .pp{font-weight:900;letter-spacing:.3px}
 .zone .lbl{font-size:12px;opacity:.9;margin-top:3px}
@@ -132,10 +133,13 @@ h2{font-size:20px;font-weight:900;margin:14px 0 8px}
   box-shadow:0 0 0 4px rgba(34,197,94,.16);
 }
 
-/* layout (Gold più esterni + platinum sopra DJ) */
-.zone.platinum{top:6px;left:50%;transform:translateX(-50%);min-width:220px}
-.zone.goldL{top:96px;left:4%}   /* ✅ più esterno */
-.zone.goldR{top:96px;right:4%}  /* ✅ più esterno */
+/* layout richiesto:
+   - Platinum in consolle (SOPRA DJ)
+   - Gold più esterni (meno accavallamento)
+*/
+.zone.platinum{top:8px;left:50%;transform:translateX(-50%);min-width:230px}
+.zone.goldL{top:106px;left:2%}   /* ✅ più esterno */
+.zone.goldR{top:106px;right:2%}  /* ✅ più esterno */
 
 .zone.silverLT{top:44%;left:8%}
 .zone.silverLB{top:72%;left:10%}
@@ -154,13 +158,12 @@ h2{font-size:20px;font-weight:900;margin:14px 0 8px}
 .total{font-size:20px;font-weight:900}
 
 .banner{
-  margin-top:12px;padding:12px 14px;border-radius:14px;
-  border:1px solid rgba(255,255,255,.14);
+  padding:12px 14px;border-radius:14px;border:1px solid rgba(255,255,255,.14);
   background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.02));
   display:none;
 }
-.banner.ok{border-color:rgba(34,197,94,.35);background:linear-gradient(180deg, rgba(34,197,94,.10), rgba(255,255,255,.02))}
 .banner.warn{border-color:rgba(245,197,66,.35);background:linear-gradient(180deg, rgba(245,197,66,.10), rgba(255,255,255,.02))}
+.banner.ok{border-color:rgba(34,197,94,.35);background:linear-gradient(180deg, rgba(34,197,94,.10), rgba(255,255,255,.02))}
 
 /* listino */
 .listino{display:grid;gap:12px}
@@ -173,8 +176,8 @@ h2{font-size:20px;font-weight:900;margin:14px 0 8px}
 .item h4{font-size:15px}
 .item .inc{font-size:12px;opacity:.85;margin-top:4px}
 .controls{display:flex;gap:10px;align-items:center}
-.controls .qty{
-  min-width:32px;text-align:center;font-weight:900;
+.qty{
+  min-width:34px;text-align:center;font-weight:900;
   padding:6px 10px;border-radius:10px;border:1px solid rgba(255,255,255,.12);
   background:rgba(0,0,0,.25)
 }
@@ -228,10 +231,10 @@ h2{font-size:20px;font-weight:900;margin:14px 0 8px}
       Prezzi min (bottiglie): <b style="color:var(--gold)">Gold</b> 180€ ·
       <b style="color:var(--silver)">Silver</b> 140€ ·
       <b style="color:var(--bronze)">Bronze</b> 120€ ·
-      <b style="color:var(--platinum)">Platinum</b> <span id="platinumMinTxt">—</span>
+      <b style="color:var(--platinum)">Platinum</b> <span id="platinumMinTxt">220€</span>
     </div>
 
-    <!-- ✅ NIENTE gruppo 1/2: solo hint -->
+    <!-- ✅ al posto di “Gruppo 1/2” -->
     <div class="badge" id="selectingHint" style="margin-top:10px;display:none"></div>
 
     <div class="grid grid-2" style="margin-top:12px">
@@ -240,34 +243,34 @@ h2{font-size:20px;font-weight:900;margin:14px 0 8px}
           <div class="dj">DJ • Consolle</div>
           <div class="dance">PISTA</div>
 
-          <div class="zone platinum" data-area="platinum" data-zone="platinum-center">
-            <div><div class="pp">PLATINUM</div><div class="lbl" id="platinumLbl">min —</div></div>
+          <div class="zone platinum" tabindex="0" data-area="platinum" data-zone="platinum-center">
+            <div><div class="pp">PLATINUM</div><div class="lbl">min 220€</div></div>
           </div>
 
-          <div class="zone goldL" data-area="gold" data-zone="gold-left">
+          <div class="zone goldL" tabindex="0" data-area="gold" data-zone="gold-left">
             <div><div class="pp">GOLD</div><div class="lbl">min 180€</div></div>
           </div>
-          <div class="zone goldR" data-area="gold" data-zone="gold-right">
+          <div class="zone goldR" tabindex="0" data-area="gold" data-zone="gold-right">
             <div><div class="pp">GOLD</div><div class="lbl">min 180€</div></div>
           </div>
 
-          <div class="zone silverLT" data-area="silver" data-zone="silver-left1">
+          <div class="zone silverLT" tabindex="0" data-area="silver" data-zone="silver-left1">
             <div><div class="pp">SILVER</div><div class="lbl">min 140€</div></div>
           </div>
-          <div class="zone silverLB" data-area="silver" data-zone="silver-left2">
+          <div class="zone silverLB" tabindex="0" data-area="silver" data-zone="silver-left2">
             <div><div class="pp">SILVER</div><div class="lbl">min 140€</div></div>
           </div>
-          <div class="zone silverRT" data-area="silver" data-zone="silver-right1">
+          <div class="zone silverRT" tabindex="0" data-area="silver" data-zone="silver-right1">
             <div><div class="pp">SILVER</div><div class="lbl">min 140€</div></div>
           </div>
-          <div class="zone silverRB" data-area="silver" data-zone="silver-right2">
+          <div class="zone silverRB" tabindex="0" data-area="silver" data-zone="silver-right2">
             <div><div class="pp">SILVER</div><div class="lbl">min 140€</div></div>
           </div>
 
-          <div class="zone bronzeL" data-area="bronze" data-zone="bronze-left">
+          <div class="zone bronzeL" tabindex="0" data-area="bronze" data-zone="bronze-left">
             <div><div class="pp">BRONZE</div><div class="lbl">min 120€</div></div>
           </div>
-          <div class="zone bronzeR" data-area="bronze" data-zone="bronze-right">
+          <div class="zone bronzeR" tabindex="0" data-area="bronze" data-zone="bronze-right">
             <div><div class="pp">BRONZE</div><div class="lbl">min 120€</div></div>
           </div>
         </div>
@@ -296,8 +299,8 @@ h2{font-size:20px;font-weight:900;margin:14px 0 8px}
         <h2>Scegli le bottiglie</h2>
         <div class="small" id="bottlesHint" style="opacity:.82;margin-top:4px"></div>
       </div>
+      <!-- ✅ SOLO indietro -->
       <div style="display:flex;gap:10px;flex-wrap:wrap">
-        <!-- ✅ solo indietro -->
         <button class="btn ghost" id="bPrev" type="button">Indietro</button>
       </div>
     </div>
@@ -319,7 +322,7 @@ h2{font-size:20px;font-weight:900;margin:14px 0 8px}
           <div class="badge"><label><input type="radio" name="splitMode" value="single" checked> Pagamento unico</label></div>
           <div class="badge"><label><input type="radio" name="splitMode" value="split"> Pagamento separato</label></div>
           <div class="small muted" style="margin-top:8px">
-            Pagamento separato: dividiamo l’importo in quote stimate per persona, così ognuno paga la sua parte.
+            Pagamento separato: dividiamo l’importo totale in quote stimate per persona, così ognuno paga la sua parte.
           </div>
         </div>
 
@@ -332,7 +335,7 @@ h2{font-size:20px;font-weight:900;margin:14px 0 8px}
 
         <div class="hr"></div>
 
-        <!-- ✅ bottone per passare al tavolo successivo (multi-tavolo) -->
+        <!-- multi tavolo: vai al prossimo -->
         <button class="btn" id="nextTableBtn" type="button" style="display:none;width:100%">Prossimo tavolo</button>
         <div style="height:10px"></div>
 
@@ -347,7 +350,11 @@ h2{font-size:20px;font-weight:900;margin:14px 0 8px}
   <div class="box">
     <h3>Conferma regole tavoli</h3>
     <div class="small" style="margin-bottom:10px;opacity:.9">
-      <ul id="rulesList"></ul>
+      <ul>
+        <li>Minimo per area: Bronze 120€ · Silver 140€ · Gold 180€ · Platinum 220€.</li>
+        <li>Oltre 4 pax: <b>+25€</b> per ogni persona oltre la quarta.</li>
+        <li>I nominativi devono corrispondere ai documenti.</li>
+      </ul>
     </div>
     <label style="display:flex;gap:8px;align-items:center"><input id="legalChk" type="checkbox"> Ho letto e accetto</label>
     <div style="display:flex;gap:10px;margin-top:10px;flex-wrap:wrap">
@@ -404,10 +411,6 @@ const legalGate = document.getElementById('legalGate');
 const legalChk = document.getElementById('legalChk');
 const legalOk = document.getElementById('legalOk');
 const legalCancel = document.getElementById('legalCancel');
-const rulesList = document.getElementById('rulesList');
-
-const platinumLbl = document.getElementById('platinumLbl');
-const platinumMinTxt = document.getElementById('platinumMinTxt');
 
 const listinoBox = document.getElementById('listino');
 const summaryBox = document.getElementById('summaryBox');
@@ -420,15 +423,6 @@ const bPrev = document.getElementById('bPrev');
 
 const splitWrap = document.getElementById('splitWrap');
 const nextTableBtn = document.getElementById('nextTableBtn');
-
-platinumLbl.textContent = `min ${PLATINUM_MIN}€`;
-platinumMinTxt.textContent = `${PLATINUM_MIN}€`;
-
-rulesList.innerHTML = `
-  <li>Minimo per area: Bronze 120€ · Silver 140€ · Gold 180€ · Platinum ${PLATINUM_MIN}€.</li>
-  <li>Oltre 4 pax: <b>+25€</b> per ogni persona oltre la quarta.</li>
-  <li>I nominativi devono corrispondere ai documenti.</li>
-`;
 
 /** ====== state ====== */
 const STATE = {
@@ -450,6 +444,7 @@ function areaMin(area){
   return BRONZE_MIN;
 }
 
+/* split tavoli: come tuo (<=7 -> 1 tavolo) */
 function splitGroups(total){
   const res=[];
   if (total<=7){ res.push({pax:Math.max(4,total), real:total}); return res; }
@@ -475,6 +470,7 @@ function ensureGroups(){
   if (STATE.activeGroup >= STATE.groups.length) STATE.activeGroup = 0;
 
   tablesInfo.textContent = `Vi verrà${STATE.groups.length>1?'nno':''} riservat${STATE.groups.length>1?'i':'o'} ${STATE.groups.length} tavol${STATE.groups.length>1?'i':'o'}.`;
+  renderSelectingHint();
 }
 
 function renderSelectingHint(){
@@ -484,7 +480,7 @@ function renderSelectingHint(){
     return;
   }
   selectingHint.style.display='inline-flex';
-  selectingHint.textContent = `Stai selezionando: Tavolo ${STATE.activeGroup+1} di ${STATE.groups.length}. Premi “Avanti” per il prossimo.`;
+  selectingHint.textContent = `Stai selezionando il Tavolo ${STATE.activeGroup+1} di ${STATE.groups.length}. Premi “Avanti” per scegliere il successivo.`;
 }
 
 /** ====== locks ====== */
@@ -512,13 +508,11 @@ async function fetchLocks(){
     STATE.locks = snap.exists() ? (snap.data()||{}) : {};
   }catch{ STATE.locks = {}; }
 }
-
 async function releaseZone(zoneId){
   try{
     await setDoc(LOCKS_DOC, { [zoneId]: { ...(STATE.locks[zoneId]||{}), status:'released', heldAt:Date.now() } }, { merge:true });
   }catch{}
 }
-
 async function tryHoldZone(zoneId, groupIndex){
   const uid = STATE.user?.uid;
   if(!uid) return false;
@@ -545,6 +539,7 @@ async function tryHoldZone(zoneId, groupIndex){
   }
 }
 
+/** ====== auto-assegnazione tavolo successivo ====== */
 function zoneCenter(zoneEl){
   const mapRect = clubMap.getBoundingClientRect();
   const r = zoneEl.getBoundingClientRect();
@@ -552,7 +547,6 @@ function zoneCenter(zoneEl){
 }
 
 async function autoAssignNext(prevZoneId){
-  // prova ad assegnare automaticamente il più vicino (stessa area se possibile)
   const g = STATE.groups[STATE.activeGroup];
   if(!g || g.zone) return;
 
@@ -577,12 +571,12 @@ async function autoAssignNext(prevZoneId){
       const area = z.getAttribute('data-area');
       const c = zoneCenter(z);
       const d = Math.hypot(prevC.x-c.x, prevC.y-c.y);
-      return {z, zid, area, d};
+      return {zid, area, d};
     });
 
-  const same = candidates.filter(x=>x.area===prevArea).sort((a,b)=>a.d-b.d);
-  const any  = candidates.sort((a,b)=>a.d-b.d);
-  const ordered = same.length ? same : any;
+  const sameArea = candidates.filter(x=>x.area===prevArea).sort((a,b)=>a.d-b.d);
+  const anyArea  = candidates.sort((a,b)=>a.d-b.d);
+  const ordered = sameArea.length ? sameArea : anyArea;
 
   for(const c of ordered){
     const ok = await tryHoldZone(c.zid, g.index);
@@ -598,24 +592,35 @@ async function autoAssignNext(prevZoneId){
 function renderMap(){
   zones.forEach(z=>{
     z.classList.remove('busy','mine');
+
     const zoneId = z.getAttribute('data-zone');
     const st = isBusyForMe(zoneId);
 
     if(st.busy && !st.mine) z.classList.add('busy');
     if(st.busy && st.mine) z.classList.add('mine');
 
-    // ✅ sempre handler robust (PC + mobile)
+    // reset listener
+    z.onpointerup = null;
     z.onclick = null;
+
     if(st.busy && !st.mine) return;
 
+    // ✅ FIX PC: pointerup (non click), stopPropagation, target sempre box
+    z.onpointerup = (ev)=>{
+      ev.preventDefault();
+      ev.stopPropagation();
+      handleZonePick(zoneId, z.getAttribute('data-area'));
+    };
+
+    // fallback per browser vecchi
     z.onclick = (ev)=>{
       ev.preventDefault();
       ev.stopPropagation();
-      handleZoneClick(z);
+      handleZonePick(zoneId, z.getAttribute('data-area'));
     };
   });
 
-  // se la selezione del tavolo corrente è scaduta -> reset
+  // se selezione scaduta -> reset
   const activeZone = STATE.groups[STATE.activeGroup]?.zone;
   if(activeZone){
     const st = isBusyForMe(activeZone);
@@ -628,13 +633,13 @@ function renderMap(){
 
 function renderDetail(){
   const g = STATE.groups[STATE.activeGroup];
-  const required = g.zone ? areaMin(g.area) : 0;
+  const baseReq = g.zone ? areaMin(g.area) : 0;
+
   const extraPeople = Math.max(0, (g.real||0) - 4);
   const extra = extraPeople * EXTRA_PER_PERSON;
 
-  // ✅ Niente “Posizione: —”
-  // ✅ Base in grigio, non sommata qui (è requisito)
-  // ✅ Extra se 0 => 0€
+  // ✅ niente “Posizione”
+  // ✅ extra se 0 => 0€
   detailBox.innerHTML = `
     <div style="font-weight:900;font-size:16px">Selezione</div>
     <div class="kv" style="margin-top:10px">
@@ -642,34 +647,36 @@ function renderDetail(){
       <span class="pill">Area: <b>${g.zone ? g.area.toUpperCase() : 'Seleziona'}</b></span>
     </div>
     <div class="hr"></div>
-    <div class="line"><span class="gray">Base (min bottiglie)</span><b class="gray">${money(required)}</b></div>
+    <div class="line"><span class="gray">Base (min bottiglie)</span><b class="gray">${money(baseReq)}</b></div>
     <div class="line"><span>Extra oltre 4 pax</span><b>${money(extra)}</b></div>
   `;
-  renderRecapBanner();
+
+  renderBanner();
 }
 
-function allGroupsSelected(){
-  return STATE.groups.every(g=>!!g.zone);
-}
-
-function renderRecapBanner(){
+function renderBanner(){
   if(STATE.groups.length<=1){
-    recapBanner.style.display = 'none';
+    recapBanner.style.display='none';
     return;
   }
-  recapBanner.className = allGroupsSelected() ? 'banner ok' : 'banner warn';
-  recapBanner.style.display = 'block';
-  recapBanner.innerHTML = allGroupsSelected()
-    ? `Selezione tavoli completata. Ora passi alle bottiglie.`
-    : `Completa la selezione: Tavolo ${STATE.activeGroup+1} di ${STATE.groups.length}.`;
+  const g = STATE.groups[STATE.activeGroup];
+  const ok = !!g.zone;
+  recapBanner.className = 'banner ' + (ok ? 'ok' : 'warn');
+  recapBanner.style.display='block';
+  recapBanner.textContent = ok
+    ? `Ok. Premi “Avanti” per scegliere il prossimo tavolo.`
+    : `Seleziona un tavolo per continuare.`;
 }
 
-async function handleZoneClick(el){
-  const area = el.getAttribute('data-area');
-  const zoneId = el.getAttribute('data-zone');
+/** ✅ selezione tavolo: se 1 tavolo e scegli un altro -> libera subito il primo e prende il secondo */
+async function handleZonePick(zoneId, area){
   const g = STATE.groups[STATE.activeGroup];
 
-  // toggle: se clicco stesso -> deseleziona
+  // se occupato da altri -> stop
+  const st = isBusyForMe(zoneId);
+  if(st.busy && !st.mine) return;
+
+  // se stesso -> toggle off
   if(g.zone === zoneId){
     g.zone = null;
     await releaseZone(zoneId);
@@ -678,31 +685,31 @@ async function handleZoneClick(el){
     return;
   }
 
-  // se occupato da altri -> stop
-  const st = isBusyForMe(zoneId);
-  if(st.busy && !st.mine) return;
-
-  // prova hold sul nuovo
+  // prova hold nuovo
   const ok = await tryHoldZone(zoneId, g.index);
   if(!ok) return;
 
-  // ✅ se avevo un altro tavolo selezionato, lo libero SUBITO (anche se 1 tavolo)
-  if(g.zone && g.zone !== zoneId){
-    await releaseZone(g.zone);
+  // se avevo un altro tavolo selezionato, lo libero subito (come chiedi)
+  const prev = g.zone;
+  g.zone = zoneId;
+  g.area = area;
+
+  if(prev && prev !== zoneId){
+    await releaseZone(prev);
     await fetchLocks();
   }
 
-  g.area = area;
-  g.zone = zoneId;
-
-  renderMap();
-  renderDetail();
+  renderMap(); renderDetail();
 }
 
-/** ====== Bottiglie (dal founder) ====== */
-function isMoetLike(b){
-  const n = String(b?.name||'').toLowerCase();
-  const id = String(b?.id||'').toLowerCase();
+function allGroupsSelected(){
+  return STATE.groups.every(g=>!!g.zone);
+}
+
+/** ====== Bottiglie: da config/bottles (Founder) ====== */
+function isMoetLike(item){
+  const n = String(item?.name||'').toLowerCase();
+  const id = String(item?.id||'').toLowerCase();
   return n.includes('moet') || n.includes('moët') || id.includes('moet');
 }
 
@@ -721,7 +728,7 @@ async function loadBottleConfig(){
       includes:(v.includes||'')+''
     }))
     .filter(x=>x.visible)
-    .filter(x=>!isMoetLike(x)); // ✅ non mostra Moët
+    .filter(x=>!isMoetLike(x)); // ✅ NO Moet
   }catch{
     STATE.bottleList = [];
   }
@@ -734,25 +741,31 @@ function ensureBottleSlot(g,id){
 }
 
 function computeGroup(g){
+  const baseReq = g.zone ? areaMin(g.area) : 0;
+  const extraPeople = Math.max(0, (g.real||0) - 4);
+  const extra = extraPeople * EXTRA_PER_PERSON;
+
   let bottlesSum=0, cost=0;
   g.bottles.forEach(sel=>{
-    const meta=STATE.bottleList.find(b=>b.id===sel.id); if(!meta) return;
-    const q=Number(sel.qty||0); if(q<=0) return;
+    const meta = STATE.bottleList.find(b=>b.id===sel.id);
+    if(!meta) return;
+    const q = Number(sel.qty||0);
+    if(q<=0) return;
     bottlesSum += meta.price*q;
     cost += meta.cost*q;
   });
 
-  const requiredMin = g.zone ? areaMin(g.area) : 0;
-  const extra = Math.max(0,(g.real||0)-4)*EXTRA_PER_PERSON;
+  // ✅ base NON si somma: serve solo come requisito
+  const meetsMin = bottlesSum >= baseReq;
+  const missing = Math.max(0, baseReq - bottlesSum);
 
-  // ✅ totale = bottiglie + extra (base è requisito, NON si somma)
+  // ✅ totale = bottiglie + extra
   const total = bottlesSum + extra;
 
+  // caparra come tuo vecchio
   const caparra = Math.max(25 * g.pax, cost);
-  const meetsMin = bottlesSum >= requiredMin;
-  const missing = Math.max(0, requiredMin - bottlesSum);
 
-  return {requiredMin, bottlesSum, extra, total, caparra, meetsMin, missing};
+  return { baseReq, extra, bottlesSum, total, meetsMin, missing, caparra };
 }
 
 function computeAll(){
@@ -767,6 +780,7 @@ function computeAll(){
 
 function renderListino(){
   const g = STATE.groups[STATE.activeGroup];
+
   const champagne = STATE.bottleList.filter(b=>b.category==='champagne');
   const dist = STATE.bottleList.filter(b=>b.category==='distillati');
 
@@ -821,17 +835,18 @@ function updatePayUI(){
 }
 
 function renderSummaryBox(){
-  const {items,totalAll,depositAll,anyBottle,allMeetMin,totalPeople} = computeAll();
   const g = STATE.groups[STATE.activeGroup];
   const c = computeGroup(g);
+  const {totalAll,depositAll,anyBottle,allMeetMin,totalPeople} = computeAll();
 
+  // ✅ tolto testo “La Base è un requisito…”
   summaryBox.innerHTML = `
     <div style="font-weight:900;font-size:16px">${STATE.groups.length<=1 ? 'Riepilogo' : `Riepilogo — Tavolo ${STATE.activeGroup+1}/${STATE.groups.length}`}</div>
     <div class="hr"></div>
 
-    <div class="line"><span class="gray">Base (min bottiglie)</span><b class="gray">${money(c.requiredMin)}</b></div>
+    <div class="line"><span class="gray">Base (min bottiglie)</span><b class="gray">${money(c.baseReq)}</b></div>
     <div class="line"><span>Bottiglie</span><b>${money(c.bottlesSum)}</b></div>
-    <div class="line"><span>Extra persone</span><b>${money(c.extra)}</b></div>
+    <div class="line"><span>Extra oltre 4 pax</span><b>${money(c.extra)}</b></div>
     <div class="line"><span>Totale (bottiglie + extra)</span><b>${money(c.total)}</b></div>
 
     <div style="margin-top:10px" class="small" ${c.meetsMin ? 'style="color:rgba(34,197,94,.95);font-weight:900"' : 'style="color:rgba(245,197,66,.95);font-weight:900"'}>
@@ -858,14 +873,14 @@ function renderSummaryBox(){
     splitInfo.textContent = '';
   }
 
-  // multi tavolo: bottone “Prossimo tavolo”
+  // bottone “prossimo tavolo” in bottiglie
   if(STATE.groups.length>1 && STATE.activeGroup < STATE.groups.length-1){
     nextTableBtn.style.display = 'inline-flex';
   }else{
     nextTableBtn.style.display = 'none';
   }
 
-  // ✅ procedi solo se: almeno 1 bottiglia + regole + tutti i min raggiunti
+  // ✅ procedi SOLO se: almeno 1 bottiglia + regole + tutti i min raggiunti
   confirmBtn.disabled = !(anyBottle && legalChk.checked && allMeetMin);
 }
 
@@ -873,7 +888,7 @@ function renderBottlesHint(){
   if(STATE.groups.length<=1){
     bottlesHint.textContent = 'Seleziona le bottiglie (devi raggiungere il minimo).';
   }else{
-    bottlesHint.textContent = `Stai scegliendo le bottiglie per Tavolo ${STATE.activeGroup+1} di ${STATE.groups.length}.`;
+    bottlesHint.textContent = `Stai scegliendo le bottiglie per il Tavolo ${STATE.activeGroup+1} di ${STATE.groups.length}.`;
   }
 }
 
@@ -920,12 +935,9 @@ backToPeople.onclick = ()=> goToPeople();
 
 nextTableOrBottles.onclick = async ()=>{
   const g = STATE.groups[STATE.activeGroup];
-  if(!g.zone){
-    alert('Seleziona un tavolo.');
-    return;
-  }
+  if(!g.zone){ alert('Seleziona un tavolo.'); return; }
 
-  // se multi tavolo: vai al prossimo e auto-assegna
+  // multi tavolo: vai al prossimo + auto-assegna vicino (stessa area -> altrimenti vicino)
   if(STATE.groups.length>1 && STATE.activeGroup < STATE.groups.length-1){
     const prevZone = g.zone;
     STATE.activeGroup++;
@@ -935,7 +947,7 @@ nextTableOrBottles.onclick = async ()=>{
     return;
   }
 
-  // ultimo tavolo -> gate regole
+  // ultimo tavolo: gate regole
   if(!allGroupsSelected()){
     alert('Completa la selezione di tutti i tavoli.');
     return;
@@ -953,10 +965,7 @@ legalOk.onclick = ()=>{
 document.querySelectorAll('input[name="payMode"]').forEach(r=> r.addEventListener('change', renderSummaryBox));
 document.querySelectorAll('input[name="splitMode"]').forEach(r=> r.addEventListener('change', renderSummaryBox));
 
-bPrev.onclick = ()=>{
-  // in bottiglie: indietro = torna alla mappa del tavolo corrente
-  goToMap();
-};
+bPrev.onclick = ()=> goToMap();
 
 nextTableBtn.onclick = ()=>{
   if(STATE.activeGroup < STATE.groups.length-1){
