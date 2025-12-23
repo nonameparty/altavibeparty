@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Conferma dati — più biglietti</title>
+<title>Inserisci i dati</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&display=swap" rel="stylesheet">
 <style>
   :root{
@@ -51,7 +51,6 @@
   .actions{display:flex;gap:10px}
   @media(max-width:520px){.actions{flex-direction:column}}
 
-  /* mini button (Use me) */
   .miniBtn{
     width:100%;
     margin-top:10px;
@@ -79,7 +78,7 @@
 </header>
 
 <main class="wrap">
-  <h1>Conferma dati — più biglietti</h1>
+  <h1>Inserisci i dati</h1>
 
   <div class="grid">
     <section class="card" id="left">
@@ -116,7 +115,10 @@
 </main>
 
 <script type="module">
-import { onUser } from './auth.v2.js?v=6';
+import { onUser, app } from './auth.v2.js?v=6';
+import { getFirestore, doc, getDoc } from 'https://www.gstatic.com/firebasejs/12.5.0/firebase-firestore.js';
+
+const db = getFirestore(app);
 
 /* ==== Prezzi ==== */
 const PRICE = { EB:12, STD:15, FAST:20, VIP:25, NAMECHANGE:1.90, STD3:40 };
@@ -132,22 +134,50 @@ const cart = {
   nc:  +(Q.get('nc')||0)
 };
 
-/* ==== Snapshot sconto da localStorage ==== */
+/* ==== Snapshot sconto ==== */
 function readDiscount(){
   try{ return JSON.parse(localStorage.getItem('trapperreo_discount_applied')||'null'); }catch{ return null; }
 }
-const discountSnap = readDiscount(); // {code,type,value,allowedSkus}
+const discountSnap = readDiscount();
 
 /* ==== Stato user ==== */
 let currentUser = null;
-onUser(u => {
-  currentUser = u || null;
 
-  /* OPZIONE A: se non loggato, "Usa i miei dati" NON si vede proprio */
-  document.querySelectorAll('[data-useme-wrap]').forEach(wrap=>{
-    wrap.hidden = !currentUser;
-  });
-});
+/* profilo da Firestore (se c’è) */
+async function getProfileFromDb(u){
+  if(!u || u.isAnonymous) return null;
+
+  try{
+    const snap = await getDoc(doc(db,'users',u.uid));
+    if(snap.exists()){
+      const d = snap.data() || {};
+      const prof = d.profile || {};
+
+      const fullName =
+        d.name || prof.name || d.fullName || prof.fullName || u.displayName || '';
+
+      const firstName =
+        d.firstName || prof.firstName || d.first || prof.first ||
+        (fullName.split(' ')[0] || '');
+
+      const lastName =
+        d.lastName || prof.lastName || d.last || prof.last ||
+        (fullName.split(' ').slice(1).join(' ') || '');
+
+      const em =
+        d.email || prof.email || u.email || '';
+
+      return { first:firstName, last:lastName, email:em };
+    }
+  }catch{}
+
+  const parts = (u.displayName||'').trim().split(' ');
+  return {
+    first: parts[0] || '',
+    last:  parts.slice(1).join(' ') || '',
+    email: u.email || ''
+  };
+}
 
 /* ==== Costruzione form nominativi ==== */
 const slots = document.getElementById('slots');
@@ -157,6 +187,8 @@ const kinds = [
   ['fast','Fast Entry'],
   ['vip','VIP Entry']
 ];
+
+let FIRST_SLOT_EL = null; // << primo biglietto globale
 
 kinds.forEach(([key,label])=>{
   for(let i=0; i<cart[key]; i++){
@@ -181,21 +213,52 @@ kinds.forEach(([key,label])=>{
       </div>
     `;
 
+    if(!FIRST_SLOT_EL) FIRST_SLOT_EL = el;
+
     const useMeWrap = el.querySelector('[data-useme-wrap]');
     const btn = el.querySelector('[data-action="useme"]');
 
     // stato iniziale (se onUser non ha ancora girato)
-    useMeWrap.hidden = !currentUser;
+    useMeWrap.hidden = true;
 
-    btn.addEventListener('click', ()=>{
-      if(!currentUser) return;
-      const [f,l] = (currentUser.displayName||'').split(' ');
-      el.querySelector('[data-field="first"]').value = f || '';
-      el.querySelector('[data-field="last"]').value  = l || '';
-      el.querySelector('[data-field="email"]').value = currentUser.email || '';
+    btn.addEventListener('click', async ()=>{
+      if(!currentUser || currentUser.isAnonymous) return;
+      const p = await getProfileFromDb(currentUser);
+      if(!p) return;
+
+      el.querySelector('[data-field="first"]').value = p.first || '';
+      el.querySelector('[data-field="last"]').value  = p.last  || '';
+      el.querySelector('[data-field="email"]').value = p.email || '';
     });
 
     slots.appendChild(el);
+  }
+});
+
+/* ==== onUser: mostra bottoni + AUTOFILL primo biglietto ==== */
+onUser(async (u) => {
+  currentUser = u || null;
+
+  const logged = !!(currentUser && !currentUser.isAnonymous);
+
+  // OPZIONE A: se non loggato, "Usa i miei dati" NON si vede
+  document.querySelectorAll('[data-useme-wrap]').forEach(wrap=>{
+    wrap.hidden = !logged;
+  });
+
+  // AUTOFILL del PRIMO biglietto (solo se loggato)
+  if(logged && FIRST_SLOT_EL){
+    const p = await getProfileFromDb(currentUser);
+    if(p){
+      const f = FIRST_SLOT_EL.querySelector('[data-field="first"]');
+      const l = FIRST_SLOT_EL.querySelector('[data-field="last"]');
+      const e = FIRST_SLOT_EL.querySelector('[data-field="email"]');
+
+      // Non sovrascrivere se già compilato
+      if(f && !f.value.trim()) f.value = p.first || '';
+      if(l && !l.value.trim()) l.value = p.last  || '';
+      if(e && !e.value.trim()) e.value = p.email || '';
+    }
   }
 });
 
@@ -257,7 +320,6 @@ renderSummary();
 /* ==== Bottoni ==== */
 document.getElementById('backBtn').addEventListener('click', ()=>history.back());
 document.getElementById('payBtn').addEventListener('click', ()=>{
-  // TODO: integrare pagamento
   alert('Pagamento: placeholder');
 });
 </script>
