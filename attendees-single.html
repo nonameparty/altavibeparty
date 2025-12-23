@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Conferma dati — 1 biglietto</title>
+<title>Inserisci i dati</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&display=swap" rel="stylesheet">
 <style>
   :root{
@@ -25,7 +25,6 @@
     padding-bottom:92px; /* spazio barra mobile */
   }
 
-  /* Header minimal coerente */
   header{
     position:sticky;top:0;z-index:50;
     backdrop-filter:saturate(140%) blur(6px);
@@ -111,10 +110,8 @@
   .btn.primary{background:var(--accent);color:#000;border-color:rgba(139,92,246,.55)}
   .btn:disabled{opacity:.5;cursor:not-allowed}
 
-  /* Sidebar sticky su desktop */
   .sticky{position:sticky;top:84px}
 
-  /* Barra mobile */
   .mobileBar{
     position:fixed;left:14px;right:14px;bottom:14px;z-index:220;
     background:rgba(10,10,10,.92);
@@ -155,11 +152,10 @@
 </header>
 
 <main class="wrap">
-  <h1>Conferma dati</h1>
+  <h1>Inserisci i dati</h1>
   <div class="sub">Compila i dati per <strong>1 biglietto</strong>. Li useremo per intestare l’ingresso.</div>
 
   <div class="grid">
-    <!-- LEFT -->
     <section class="card">
       <div class="ticketHeader">
         <div class="pill" id="ticketPill"><span class="dot"></span><span id="ticketLabel">Biglietto</span></div>
@@ -189,7 +185,6 @@
       </div>
     </section>
 
-    <!-- RIGHT -->
     <aside class="card sticky">
       <div class="meta" id="eventMeta">Sab 21 Mar 2026 · 22:30 → 04:30 · Via Italia 38, Biella</div>
       <div class="hr"></div>
@@ -210,7 +205,6 @@
   </div>
 </main>
 
-<!-- barra mobile -->
 <div class="mobileBar" aria-live="polite">
   <div class="t">
     <div class="k">Totale</div>
@@ -223,7 +217,10 @@
 </div>
 
 <script type="module">
-import { onUser } from './auth.v2.js?v=6';
+import { onUser, app } from './auth.v2.js?v=6';
+import { getFirestore, doc, getDoc } from 'https://www.gstatic.com/firebasejs/12.5.0/firebase-firestore.js';
+
+const db = getFirestore(app);
 
 const PRICE = { EB:12, STD:15, FAST:20, VIP:25, NAMECHANGE:1.90, STD3:40 };
 const money = n => (n<0?'-':'') + Math.abs(n).toFixed(2).replace('.00','') + '€';
@@ -237,29 +234,73 @@ const qty = {
   nc: +(Q.get('nc')||0)
 };
 const kind = qty.eb? 'EB' : qty.std? 'STD' : qty.fast? 'FAST' : 'VIP';
-
 const kindLabel =
   (kind==='EB'?'Early Bird':kind==='STD'?'Standard':kind==='FAST'?'Fast Entry':'VIP Entry');
 
 document.getElementById('ticketLabel').textContent = `${kindLabel} × 1`;
 
-/* === sconto da localStorage === */
 function readDiscount(){
   try{ return JSON.parse(localStorage.getItem('trapperreo_discount_applied')||'null'); }catch{ return null; }
 }
 const discountSnap = readDiscount();
 
-/* === precompila con i dati dell'utente loggato === */
-onUser(u=>{
-  if(!u) return;
-  const [f,l] = (u.displayName||'').split(' ');
-  document.getElementById('first').value = f || '';
-  document.getElementById('last').value  = l || '';
-  document.getElementById('email').value = u.email || '';
+const first = document.getElementById('first');
+const last  = document.getElementById('last');
+const email = document.getElementById('email');
+
+async function getProfileFromDb(u){
+  if(!u || u.isAnonymous) return null;
+
+  // 1) prova Firestore users/{uid}
+  try{
+    const snap = await getDoc(doc(db,'users',u.uid));
+    if(snap.exists()){
+      const d = snap.data() || {};
+      const prof = d.profile || {};
+
+      const fullName =
+        d.name || prof.name || d.fullName || prof.fullName || u.displayName || '';
+
+      const firstName =
+        d.firstName || prof.firstName || d.first || prof.first ||
+        (fullName.split(' ')[0] || '');
+
+      const lastName =
+        d.lastName || prof.lastName || d.last || prof.last ||
+        (fullName.split(' ').slice(1).join(' ') || '');
+
+      const em =
+        d.email || prof.email || u.email || '';
+
+      return { first:firstName, last:lastName, email:em };
+    }
+  }catch{}
+
+  // 2) fallback displayName/email
+  const parts = (u.displayName||'').trim().split(' ');
+  return {
+    first: parts[0] || '',
+    last:  parts.slice(1).join(' ') || '',
+    email: u.email || ''
+  };
+}
+
+/* precompila SEMPRE (se loggato) */
+onUser(async (u)=>{
+  if(!u || u.isAnonymous) return;
+
+  const p = await getProfileFromDb(u);
+  if(!p) return;
+
+  // Non sovrascrivere se l’utente ha già scritto qualcosa
+  if(!first.value.trim()) first.value = p.first || '';
+  if(!last.value.trim())  last.value  = p.last  || '';
+  if(!email.value.trim()) email.value = p.email || '';
+
   validate();
 });
 
-/* === calcolo totale + sconto === */
+/* calcolo totale + sconto */
 function parts(){
   return {
     EB: qty.eb ? PRICE.EB : 0,
@@ -305,11 +346,7 @@ function render(){
 }
 render();
 
-/* === Validazione (abilita paga) === */
-const first = document.getElementById('first');
-const last  = document.getElementById('last');
-const email = document.getElementById('email');
-
+/* validazione */
 const payBtn = document.getElementById('payBtn');
 const mPay   = document.getElementById('mPay');
 
@@ -324,7 +361,7 @@ function validate(){
 [first,last,email].forEach(el=>el.addEventListener('input', validate));
 validate();
 
-/* === Bottoni === */
+/* bottoni */
 function goBack(){ history.back(); }
 document.getElementById('backBtn').addEventListener('click', goBack);
 document.getElementById('mBack').addEventListener('click', goBack);
