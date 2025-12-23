@@ -51,6 +51,7 @@
   .actions{display:flex;gap:10px}
   @media(max-width:520px){.actions{flex-direction:column}}
 
+  /* mini button (Use me) */
   .miniBtn{
     width:100%;
     margin-top:10px;
@@ -63,6 +64,11 @@
     cursor:pointer;
   }
   .miniBtn:active{transform:scale(.99)}
+  .miniBtn.danger{
+    background:rgba(239,68,68,.18);
+    border-color:rgba(239,68,68,.55);
+    color:#fff;
+  }
 </style>
 </head>
 
@@ -134,6 +140,11 @@ const cart = {
   nc:  +(Q.get('nc')||0)
 };
 
+/* ==== mixed types? (serve per mostrare i bottoni) ==== */
+const typeCount =
+  (cart.eb>0?1:0) + (cart.std>0?1:0) + (cart.fast>0?1:0) + (cart.vip>0?1:0);
+const HAS_MIXED_TYPES = typeCount > 1;
+
 /* ==== Snapshot sconto ==== */
 function readDiscount(){
   try{ return JSON.parse(localStorage.getItem('trapperreo_discount_applied')||'null'); }catch{ return null; }
@@ -142,6 +153,7 @@ const discountSnap = readDiscount();
 
 /* ==== Stato user ==== */
 let currentUser = null;
+let myProfile = null;
 
 /* profilo da Firestore (se c’è) */
 async function getProfileFromDb(u){
@@ -188,7 +200,67 @@ const kinds = [
   ['vip','VIP Entry']
 ];
 
-let FIRST_SLOT_EL = null; // << primo biglietto globale
+const slotModels = []; // { el, first, last, email, wrap, btn }
+let FIRST_SLOT_EL = null;
+let SELECTED_INDEX = null; // quando clicchi "usa i miei dati" su un ticket
+
+function setButtonMode(model, mode){
+  // mode: 'use' | 'remove'
+  if(!model.btn) return;
+
+  if(mode === 'remove'){
+    model.btn.textContent = 'Rimuovi i miei dati da questo biglietto';
+    model.btn.classList.add('danger');
+  }else{
+    model.btn.textContent = 'Usa i miei dati per questo biglietto';
+    model.btn.classList.remove('danger');
+  }
+}
+
+function backupValues(model){
+  model.el.dataset.bFirst = model.first.value || '';
+  model.el.dataset.bLast  = model.last.value  || '';
+  model.el.dataset.bEmail = model.email.value || '';
+}
+
+function restoreBackup(model){
+  model.first.value = model.el.dataset.bFirst || '';
+  model.last.value  = model.el.dataset.bLast  || '';
+  model.email.value = model.el.dataset.bEmail || '';
+}
+
+function applyProfileTo(model){
+  if(!myProfile) return;
+  model.first.value = myProfile.first || '';
+  model.last.value  = myProfile.last  || '';
+  model.email.value = myProfile.email || '';
+}
+
+function showAllUseButtons(){
+  // Mostra tutti i bottoni solo se:
+  // - loggato
+  // - mixed types
+  const logged = !!(currentUser && !currentUser.isAnonymous);
+  slotModels.forEach((m)=>{
+    m.wrap.hidden = !(logged && HAS_MIXED_TYPES);
+    setButtonMode(m, 'use');
+  });
+  SELECTED_INDEX = null;
+}
+
+function lockToSelected(index){
+  // Dopo click: spariscono gli altri bottoni, quello selezionato diventa "rimuovi"
+  slotModels.forEach((m, i)=>{
+    if(i === index){
+      m.wrap.hidden = false;
+      setButtonMode(m, 'remove');
+    }else{
+      m.wrap.hidden = true;
+      setButtonMode(m, 'use');
+    }
+  });
+  SELECTED_INDEX = index;
+}
 
 kinds.forEach(([key,label])=>{
   for(let i=0; i<cart[key]; i++){
@@ -207,7 +279,6 @@ kinds.forEach(([key,label])=>{
         <div><input placeholder="email@email.it" data-field="email" inputmode="email" autocomplete="email"></div>
       </div>
 
-      <!-- OPZIONE A: wrapper hidden di default; appare SOLO se loggato -->
       <div data-useme-wrap hidden>
         <button class="miniBtn" type="button" data-action="useme">Usa i miei dati per questo biglietto</button>
       </div>
@@ -215,50 +286,71 @@ kinds.forEach(([key,label])=>{
 
     if(!FIRST_SLOT_EL) FIRST_SLOT_EL = el;
 
-    const useMeWrap = el.querySelector('[data-useme-wrap]');
-    const btn = el.querySelector('[data-action="useme"]');
+    const model = {
+      el,
+      first: el.querySelector('[data-field="first"]'),
+      last:  el.querySelector('[data-field="last"]'),
+      email: el.querySelector('[data-field="email"]'),
+      wrap:  el.querySelector('[data-useme-wrap]'),
+      btn:   el.querySelector('[data-action="useme"]'),
+    };
 
-    // stato iniziale (se onUser non ha ancora girato)
-    useMeWrap.hidden = true;
+    // di default nascosto (si abilita in onUser se serve)
+    model.wrap.hidden = true;
 
-    btn.addEventListener('click', async ()=>{
-      if(!currentUser || currentUser.isAnonymous) return;
-      const p = await getProfileFromDb(currentUser);
-      if(!p) return;
+    model.btn.addEventListener('click', async ()=>{
+      const logged = !!(currentUser && !currentUser.isAnonymous);
+      if(!logged) return;
 
-      el.querySelector('[data-field="first"]').value = p.first || '';
-      el.querySelector('[data-field="last"]').value  = p.last  || '';
-      el.querySelector('[data-field="email"]').value = p.email || '';
+      // se non ci sono biglietti mixed, questo bottone non dovrebbe nemmeno vedersi.
+      if(!HAS_MIXED_TYPES) return;
+
+      // toggle: se è già selezionato -> rimuovi e ri-mostri tutti
+      const idx = slotModels.indexOf(model);
+      if(SELECTED_INDEX === idx){
+        restoreBackup(model);
+        showAllUseButtons();
+        return;
+      }
+
+      // prima volta: backup dei valori di QUEL biglietto, poi apply profilo
+      backupValues(model);
+      applyProfileTo(model);
+
+      // nascondi tutti gli altri bottoni, e metti remove su questo
+      lockToSelected(idx);
     });
 
     slots.appendChild(el);
+    slotModels.push(model);
   }
 });
 
-/* ==== onUser: mostra bottoni + AUTOFILL primo biglietto ==== */
+/* ==== onUser: mostra bottoni (solo mixed) + AUTOFILL primo biglietto ==== */
 onUser(async (u) => {
   currentUser = u || null;
-
   const logged = !!(currentUser && !currentUser.isAnonymous);
 
-  // OPZIONE A: se non loggato, "Usa i miei dati" NON si vede
-  document.querySelectorAll('[data-useme-wrap]').forEach(wrap=>{
-    wrap.hidden = !logged;
-  });
+  myProfile = logged ? await getProfileFromDb(currentUser) : null;
 
-  // AUTOFILL del PRIMO biglietto (solo se loggato)
-  if(logged && FIRST_SLOT_EL){
-    const p = await getProfileFromDb(currentUser);
-    if(p){
-      const f = FIRST_SLOT_EL.querySelector('[data-field="first"]');
-      const l = FIRST_SLOT_EL.querySelector('[data-field="last"]');
-      const e = FIRST_SLOT_EL.querySelector('[data-field="email"]');
+  // AUTOFILL del PRIMO biglietto (sempre, se loggato)
+  if(logged && myProfile && slotModels[0]){
+    const m0 = slotModels[0];
+    if(m0.first && !m0.first.value.trim()) m0.first.value = myProfile.first || '';
+    if(m0.last  && !m0.last.value.trim())  m0.last.value  = myProfile.last  || '';
+    if(m0.email && !m0.email.value.trim()) m0.email.value = myProfile.email || '';
+  }
 
-      // Non sovrascrivere se già compilato
-      if(f && !f.value.trim()) f.value = p.first || '';
-      if(l && !l.value.trim()) l.value = p.last  || '';
-      if(e && !e.value.trim()) e.value = p.email || '';
-    }
+  // BOTTONI:
+  // - se NON loggato: mai
+  // - se loggato ma NON mixed types: mai (perché "lo metti nel primo disponibile")
+  // - se loggato + mixed types: si vedono tutti (finché non clicchi uno)
+  if(!logged || !HAS_MIXED_TYPES){
+    slotModels.forEach(m => m.wrap.hidden = true);
+    SELECTED_INDEX = null;
+  }else{
+    // mostra tutti (stato base)
+    showAllUseButtons();
   }
 });
 
