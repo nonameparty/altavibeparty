@@ -44,6 +44,16 @@ body{background:var(--bg);color:var(--text);font-family:Inter,system-ui,-apple-s
 
 .kbtn{padding:6px 8px;border-radius:10px;border:1px solid rgba(255,255,255,.16);background:transparent;color:#fff;font-weight:900;cursor:pointer;font-size:12px}
 .kbtn:hover{border-color:rgba(255,255,255,.26)}
+
+/* ✅ rotella LIVE */
+.spin{
+  width:12px;height:12px;border-radius:999px;
+  border:2px solid rgba(255,255,255,.25);
+  border-top-color: rgba(139,92,246,.95);
+  animation: sp 0.9s linear infinite;
+  display:none;
+}
+@keyframes sp{to{transform:rotate(360deg)}}
 </style>
 </head>
 <body>
@@ -54,7 +64,9 @@ body{background:var(--bg);color:var(--text);font-family:Inter,system-ui,-apple-s
     <div class="row">
       <a class="badge accent" href="./founder.html">← Founder</a>
       <a class="badge" href="./scanner.html">📷 Scanner</a>
-      <span class="badge ok">LIVE</span>
+
+      <!-- ✅ LIVE badge + rotellina -->
+      <span class="badge ok">LIVE <span id="spin" class="spin"></span></span>
     </div>
   </div>
 </header>
@@ -69,6 +81,7 @@ body{background:var(--bg);color:var(--text);font-family:Inter,system-ui,-apple-s
     <div class="small muted" style="margin-top:10px">
       Questa lista si aggiorna in tempo reale appena lo scanner conferma un biglietto.
     </div>
+    <div class="small muted" id="liveHint" style="margin-top:8px"></div>
   </div>
 
   <div class="card">
@@ -93,7 +106,8 @@ body{background:var(--bg);color:var(--text);font-family:Inter,system-ui,-apple-s
 <script type="module">
 import { app, onUser } from './auth.v2.js?v=6';
 import {
-  getFirestore, collection, query, orderBy, limit, onSnapshot, doc, updateDoc, increment
+  getFirestore, collection, query, orderBy, limit, onSnapshot, doc, updateDoc,
+  getDoc, setDoc, serverTimestamp
 } from 'https://www.gstatic.com/firebasejs/12.5.0/firebase-firestore.js';
 
 const db = getFirestore(app);
@@ -104,23 +118,29 @@ const countEl = document.getElementById('count');
 const tbody = document.getElementById('tbody');
 const empty = document.getElementById('empty');
 
-let ALL = []; // array di checkins
+const spin = document.getElementById('spin');
+const liveHint = document.getElementById('liveHint');
+
+let ALL = [];
 let UNSUB = null;
+let LIVE_UNSUB = null;
+let HB_T = null;
 
 function lc(s){ return (s||'').toString().toLowerCase().trim(); }
 
 function fmtTime(ts){
   try{
     if(!ts) return '—';
-    // Firestore Timestamp
     const d = ts.toDate ? ts.toDate() : new Date(ts);
     return d.toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
   }catch{ return '—'; }
 }
 
-function statusPill(s){
+function statusPill(s, docMatch){
   const v = lc(s);
-  if(v === 'confirmed') return `<span class="pill ok">confirmed</span>`;
+  const dm = (docMatch === false);
+  if(v === 'verified' || v === 'confirmed') return `<span class="pill ok">verified</span>`;
+  if(v === 'flagged' && dm) return `<span class="pill warn">doc mismatch</span>`;
   if(v === 'flagged') return `<span class="pill warn">flagged</span>`;
   return `<span class="pill">${v||'—'}</span>`;
 }
@@ -154,7 +174,7 @@ function render(arr){
       <td><b>${x.name || '—'}</b><div class="small muted">${x.email || ''}</div></td>
       <td>${(x.dob||'').toString().slice(0,10) || '—'}</td>
       <td>${x.ticketType || '—'}<div class="small muted">#${x.ticketId || '—'}</div></td>
-      <td>${statusPill(x.status)}</td>
+      <td>${statusPill(x.status, x.docMatch)}</td>
       <td><b>${alco}</b> / <b>${soft}</b></td>
       <td>
         <div class="row">
@@ -170,7 +190,6 @@ function render(arr){
 
   tbody.appendChild(frag);
 
-  // bind drink buttons
   tbody.querySelectorAll('[data-a-plus]').forEach(b=>{
     b.onclick = ()=> bump(b.getAttribute('data-a-plus'), 'drinksAlcoholic', +1);
   });
@@ -188,7 +207,7 @@ function render(arr){
 async function bump(id, field, delta){
   if(!id) return;
   const ref = doc(db, 'checkins', id);
-  // evitare negativi: facciamo clamp lato client (poi se vuoi lo blindiamo anche con rules)
+
   const cur = ALL.find(x=>x.id===id);
   const now = Math.max(0, Number(cur?.[field]||0) + delta);
   const patch = {};
@@ -196,8 +215,48 @@ async function bump(id, field, delta){
   await updateDoc(ref, patch);
 }
 
+/* ✅ Heartbeat checkins + stato LIVE basato su 3 heartbeat */
+async function touchLive(){
+  try{
+    await setDoc(doc(db,'system','live'), {
+      checkinsLastSeen: serverTimestamp()
+    }, { merge:true });
+  }catch{}
+}
+function startHB(){
+  stopHB();
+  touchLive();
+  HB_T = setInterval(touchLive, 15000);
+}
+function stopHB(){
+  if(HB_T){ clearInterval(HB_T); HB_T=null; }
+}
+
+function isRecent(ts, maxMs){
+  try{
+    if(!ts) return false;
+    const d = ts.toDate ? ts.toDate() : new Date(ts);
+    return (Date.now() - d.getTime()) <= maxMs;
+  }catch{ return false; }
+}
+
+function startLiveIndicator(){
+  LIVE_UNSUB = onSnapshot(doc(db,'system','live'), (snap)=>{
+    const v = snap.data() || {};
+    const scannerOk  = isRecent(v.scannerLastSeen, 25000) && v.scannerActive === true;
+    const accountOk  = isRecent(v.accountLastSeen, 25000);
+    const checkinsOk = isRecent(v.checkinsLastSeen, 25000);
+
+    const allOk = scannerOk && accountOk && checkinsOk;
+
+    spin.style.display = allOk ? 'inline-block' : 'none';
+    liveHint.textContent = allOk
+      ? '✅ Sistema LIVE: scanner + account + checkins attivi.'
+      : '⏸️ In attesa: lo scanner (o account) non è attivo in questo momento.';
+  });
+}
+
 function startRealtime(){
-  // ultimi 500 check-in, realtime
   const q = query(collection(db,'checkins'), orderBy('checkedInAt','desc'), limit(500));
   UNSUB = onSnapshot(q, (snap)=>{
     const arr = [];
@@ -211,18 +270,22 @@ function startRealtime(){
 
 onUser(async(u)=>{
   if(!u){ location.href='./login.html?from=./founder-checkins.html'; return; }
-  // (qui puoi anche mettere gate founder come nelle altre pagine, se vuoi)
   startRealtime();
+  startHB();
+  startLiveIndicator();
 });
 
 qInput.addEventListener('input', ()=>{
-  // micro debounce
   clearTimeout(applyFilter._t);
   applyFilter._t = setTimeout(applyFilter, 120);
 });
 clearBtn.onclick = ()=>{ qInput.value=''; applyFilter(); };
 
-window.addEventListener('beforeunload', ()=>{ try{ UNSUB && UNSUB(); }catch{} });
+window.addEventListener('beforeunload', ()=>{
+  try{ UNSUB && UNSUB(); }catch{}
+  try{ LIVE_UNSUB && LIVE_UNSUB(); }catch{}
+  try{ stopHB(); }catch{}
+});
 </script>
 </body>
 </html>
