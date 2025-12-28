@@ -17,16 +17,18 @@ body{background:var(--bg);color:var(--text);font-family:Inter,system-ui,-apple-s
 .wrap{max-width:1200px;margin:auto;padding:18px}
 .top{position:sticky;top:0;z-index:50;background:rgba(0,0,0,.7);backdrop-filter:blur(6px);border-bottom:1px solid rgba(255,255,255,.08)}
 .topin{max-width:1200px;margin:auto;padding:14px 18px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
-.brand{font-weight:900}
-.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:10px;font-weight:900}
 .badge{display:inline-flex;align-items:center;gap:8px;border:1px solid rgba(255,255,255,.14);border-radius:999px;padding:8px 10px;font-weight:900}
 .badge.ok{border-color:rgba(34,197,94,.40)}
 .badge.bad{border-color:rgba(239,68,68,.45)}
 .badge.accent{border-color:rgba(139,92,246,.45)}
+.badge.warn{border-color:rgba(253,224,71,.40)}
 .muted{color:var(--muted)}
 .card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:16px;margin-top:14px}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
 .input{flex:1;min-width:220px;background:#0f0f10;border:1px solid rgba(255,255,255,.15);border-radius:12px;color:#fff;padding:10px 12px;font-weight:800}
-.btn{padding:10px 12px;border-radius:12px;border:1px solid rgba(255,255,255,.16);background:#111;color:#fff;font-weight:900;cursor:pointer}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:10px 12px;border-radius:12px;border:1px solid rgba(255,255,255,.16);background:#111;color:#fff;font-weight:900;cursor:pointer}
+.small{font-size:12px}
 
 .table{width:100%;border-collapse:separate;border-spacing:0 10px}
 .table th{font-size:12px;color:rgba(255,255,255,.65);text-align:left;padding:0 10px}
@@ -37,28 +39,29 @@ body{background:var(--bg);color:var(--text);font-family:Inter,system-ui,-apple-s
 .pill{display:inline-flex;gap:8px;align-items:center;border:1px solid rgba(255,255,255,.14);border-radius:999px;padding:6px 10px;font-size:12px;font-weight:900}
 .pill.ok{border-color:rgba(34,197,94,.40)}
 .pill.warn{border-color:rgba(253,224,71,.40)}
+.pill.bad{border-color:rgba(239,68,68,.45)}
+
+.kbtn{padding:6px 8px;border-radius:10px;border:1px solid rgba(255,255,255,.16);background:transparent;color:#fff;font-weight:900;cursor:pointer;font-size:12px}
+.kbtn:hover{border-color:rgba(255,255,255,.26)}
 
 .spin{
   width:14px;height:14px;border-radius:999px;
-  border:2px solid rgba(255,255,255,.22);
-  border-top-color:rgba(34,197,94,.95);
-  animation:rot 0.9s linear infinite;
+  border:2px solid rgba(255,255,255,.25);
+  border-top-color:#fff;
+  animation:spin .8s linear infinite;
 }
-@keyframes rot{to{transform:rotate(360deg)}}
+@keyframes spin{to{transform:rotate(360deg)}}
 </style>
 </head>
 <body>
+
 <header class="top">
   <div class="topin">
     <div class="brand">TRAPPERREO — Check-in realtime</div>
     <div class="row">
       <a class="badge accent" href="./founder.html">← Founder</a>
       <a class="badge" href="./scanner.html">📷 Scanner</a>
-
-      <span id="liveBadge" class="badge bad">⏸️ In attesa</span>
-      <span id="liveSpin" class="spin" style="display:none"></span>
-
-      <span class="badge">Ultimo write: <b id="lastWrite">—</b></span>
+      <span id="liveBadge" class="badge warn"><span class="spin"></span> ⏸️ In attesa</span>
     </div>
   </div>
 </header>
@@ -70,8 +73,8 @@ body{background:var(--bg);color:var(--text);font-family:Inter,system-ui,-apple-s
       <button id="clear" class="btn">Reset</button>
       <span class="badge">Totale: <b id="count">—</b></span>
     </div>
-    <div class="muted" style="margin-top:10px;font-size:12px">
-      LIVE si accende solo quando lo scanner è aperto e scrive l’heartbeat su <b>system/live</b>.
+    <div id="liveText" class="small muted" style="margin-top:10px">
+      ⏸️ In attesa: lo scanner non è attivo in questo momento.
     </div>
   </div>
 
@@ -79,19 +82,25 @@ body{background:var(--bg);color:var(--text);font-family:Inter,system-ui,-apple-s
     <table class="table">
       <thead>
         <tr>
-          <th>Ora</th><th>Nome</th><th>DOB</th><th>Tipo</th><th>Stato</th>
+          <th>Ora</th>
+          <th>Nome</th>
+          <th>DOB</th>
+          <th>Tipo</th>
+          <th>Stato</th>
+          <th>Drink (A / NA)</th>
+          <th>Azioni</th>
         </tr>
       </thead>
       <tbody id="tbody"></tbody>
     </table>
-    <div id="empty" class="muted" style="display:none;margin-top:10px;font-size:12px">Nessun check-in.</div>
+    <div id="empty" class="muted small" style="display:none;margin-top:10px">Nessun check-in.</div>
   </div>
 </main>
 
 <script type="module">
 import { app, onUser } from './auth.v2.js?v=6';
 import {
-  getFirestore, collection, query, orderBy, limit, onSnapshot, doc
+  getFirestore, collection, query, orderBy, limit, onSnapshot, doc, updateDoc, getDoc
 } from 'https://www.gstatic.com/firebasejs/12.5.0/firebase-firestore.js';
 
 const db = getFirestore(app);
@@ -101,14 +110,12 @@ const clearBtn = document.getElementById('clear');
 const countEl = document.getElementById('count');
 const tbody = document.getElementById('tbody');
 const empty = document.getElementById('empty');
-
 const liveBadge = document.getElementById('liveBadge');
-const liveSpin  = document.getElementById('liveSpin');
-const lastWriteEl = document.getElementById('lastWrite');
+const liveText = document.getElementById('liveText');
 
 let ALL = [];
-let UNSUB_CHECKINS = null;
-let UNSUB_LIVE = null;
+let unsubCheckins = null;
+let unsubLive = null;
 
 function lc(s){ return (s||'').toString().toLowerCase().trim(); }
 function fmtTime(ts){
@@ -118,11 +125,23 @@ function fmtTime(ts){
     return d.toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
   }catch{ return '—'; }
 }
-function pill(x){
-  if(x.mismatch) return `<span class="pill warn">mismatch</span>`;
-  const st = lc(x.status);
-  if(st==='verified') return `<span class="pill ok">verified</span>`;
-  return `<span class="pill warn">${st||'—'}</span>`;
+function statusPill(x){
+  const s = lc(x.status);
+  if(s === 'verified') return `<span class="pill ok">verified</span>`;
+  if(s === 'mismatch') return `<span class="pill warn">mismatch</span>`;
+  if(s === 'flagged')  return `<span class="pill warn">flagged</span>`;
+  return `<span class="pill">${s||'—'}</span>`;
+}
+
+function applyFilter(){
+  const term = lc(qInput.value);
+  const filtered = !term ? ALL : ALL.filter(x=>{
+    return lc(x.name).includes(term)
+      || lc(x.email).includes(term)
+      || lc(x.ticketId).includes(term)
+      || lc(x.ticketType).includes(term);
+  });
+  render(filtered);
 }
 
 function render(arr){
@@ -130,63 +149,97 @@ function render(arr){
   countEl.textContent = String(arr.length);
   empty.style.display = arr.length ? 'none' : 'block';
 
-  const term = lc(qInput.value);
-  const filtered = !term ? arr : arr.filter(x=>
-    lc(x.name).includes(term) || lc(x.email).includes(term) || lc(x.ticketId).includes(term) || lc(x.ticketType).includes(term)
-  );
-
-  filtered.forEach(x=>{
+  const frag = document.createDocumentFragment();
+  arr.forEach(x=>{
     const tr = document.createElement('tr');
+
+    const alco = Number(x.drinksAlcoholic||0);
+    const soft = Number(x.drinksSoft||0);
+
     tr.innerHTML = `
       <td>${fmtTime(x.checkedInAt)}</td>
-      <td><b>${x.name||'—'}</b><div style="font-size:12px;color:rgba(255,255,255,.65)">${x.email||''}</div></td>
+      <td><b>${x.name || '—'}</b><div class="small muted">${x.email || ''}</div></td>
       <td>${(x.dob||'').toString().slice(0,10) || '—'}</td>
-      <td>${x.ticketType || '—'}<div style="font-size:12px;color:rgba(255,255,255,.65)">#${x.ticketId||'—'}</div></td>
-      <td>${pill(x)}</td>
+      <td>${x.ticketType || '—'}<div class="small muted">#${x.ticketId || '—'}</div></td>
+      <td>${statusPill(x)} ${x.docMismatch ? '<span class="pill warn">DOC</span>' : x.docMatch ? '<span class="pill ok">DOC</span>' : ''}</td>
+      <td><b>${alco}</b> / <b>${soft}</b></td>
+      <td>
+        <div class="row">
+          <button class="kbtn" data-a-plus="${x.id}">A +</button>
+          <button class="kbtn" data-a-minus="${x.id}">A -</button>
+          <button class="kbtn" data-s-plus="${x.id}">NA +</button>
+          <button class="kbtn" data-s-minus="${x.id}">NA -</button>
+        </div>
+      </td>
     `;
-    tbody.appendChild(tr);
+    frag.appendChild(tr);
   });
+  tbody.appendChild(frag);
+
+  tbody.querySelectorAll('[data-a-plus]').forEach(b=> b.onclick = ()=> bump(b.dataset.aPlus, 'drinksAlcoholic', +1));
+  tbody.querySelectorAll('[data-a-minus]').forEach(b=> b.onclick = ()=> bump(b.dataset.aMinus, 'drinksAlcoholic', -1));
+  tbody.querySelectorAll('[data-s-plus]').forEach(b=> b.onclick = ()=> bump(b.dataset.sPlus, 'drinksSoft', +1));
+  tbody.querySelectorAll('[data-s-minus]').forEach(b=> b.onclick = ()=> bump(b.dataset.sMinus, 'drinksSoft', -1));
 }
 
-function start(){
-  const qy = query(collection(db,'checkins'), orderBy('checkedInAt','desc'), limit(500));
-  UNSUB_CHECKINS = onSnapshot(qy, (snap)=>{
+async function bump(id, field, delta){
+  if(!id) return;
+  const cur = ALL.find(x=>x.id===id);
+  const now = Math.max(0, Number(cur?.[field]||0) + delta);
+  await updateDoc(doc(db,'checkins',id), { [field]: now });
+}
+
+function startRealtimeCheckins(){
+  const q = query(collection(db,'checkins'), orderBy('checkedInAt','desc'), limit(500));
+  unsubCheckins = onSnapshot(q, (snap)=>{
     const arr = [];
     snap.forEach(d=> arr.push({ id:d.id, ...(d.data()||{}) }));
     ALL = arr;
-    render(ALL);
+    applyFilter();
+  }, (err)=>{
+    console.error(err);
+    liveText.textContent = 'Errore lettura checkins: ' + (err.message||err.name);
   });
+}
 
-  UNSUB_LIVE = onSnapshot(doc(db,'system','live'), (snap)=>{
-    const v = snap.exists()? (snap.data()||{}) : {};
-    const ts = v.updatedAt;
-    const last = v.lastWriteAt;
+function startRealtimeLive(){
+  const ref = doc(db,'system','live');
+  unsubLive = onSnapshot(ref, (snap)=>{
+    const v = snap.data()||{};
+    const ts = v.updatedAt?.toDate ? v.updatedAt.toDate() : null;
+    const age = ts ? (Date.now() - ts.getTime()) : 999999;
 
-    const now = Date.now();
-    const updatedMs = ts?.toDate ? ts.toDate().getTime() : 0;
-    const on = v.scannerActive && updatedMs && (now - updatedMs) < 15000;
-
-    liveSpin.style.display = on ? '' : 'none';
-    liveBadge.className = 'badge ' + (on ? 'ok' : 'bad');
-    liveBadge.textContent = on ? '🟢 LIVE' : '⏸️ In attesa';
-
-    if(last?.toDate){
-      lastWriteEl.textContent = last.toDate().toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
-    }else lastWriteEl.textContent = '—';
+    const on = age < 10000; // 10s
+    if(on){
+      liveBadge.className = 'badge ok';
+      liveBadge.innerHTML = '<span class="spin"></span> ✅ LIVE';
+      liveText.textContent = `✅ LIVE: scanner attivo (ultimo ping ${Math.round(age/1000)}s fa)`;
+    }else{
+      liveBadge.className = 'badge warn';
+      liveBadge.innerHTML = '<span class="spin"></span> ⏸️ In attesa';
+      liveText.textContent = '⏸️ In attesa: lo scanner non è attivo in questo momento.';
+    }
+  }, (err)=>{
+    console.error(err);
+    liveText.textContent = 'Errore lettura system/live: ' + (err.message||err.name);
   });
 }
 
 onUser(async(u)=>{
   if(!u){ location.href='./login.html?from=./founder-checkins.html'; return; }
-  start();
+  startRealtimeLive();
+  startRealtimeCheckins();
 });
 
-qInput.addEventListener('input', ()=> render(ALL));
-clearBtn.onclick = ()=>{ qInput.value=''; render(ALL); };
+qInput.addEventListener('input', ()=>{
+  clearTimeout(applyFilter._t);
+  applyFilter._t = setTimeout(applyFilter, 120);
+});
+clearBtn.onclick = ()=>{ qInput.value=''; applyFilter(); };
 
 window.addEventListener('beforeunload', ()=>{
-  try{ UNSUB_CHECKINS && UNSUB_CHECKINS(); }catch{}
-  try{ UNSUB_LIVE && UNSUB_LIVE(); }catch{}
+  try{ unsubCheckins && unsubCheckins(); }catch{}
+  try{ unsubLive && unsubLive(); }catch{}
 });
 </script>
 </body>
