@@ -15,27 +15,14 @@
   --ok:#22c55e;
   --warn:#fde047;
   --danger:#ef4444;
-  --bg:#000;
 }
 *{box-sizing:border-box;margin:0;padding:0}
-body{
-  background:var(--bg);color:#fff;
-  font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
-  line-height:1.5;min-height:100vh;display:grid;grid-template-rows:auto 1fr
-}
+body{background:#000;color:#fff;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;line-height:1.5;min-height:100vh;display:grid;grid-template-rows:auto 1fr}
 a{color:inherit;text-decoration:none}
 .hidden{display:none}
 
-header{
-  position:sticky;top:0;z-index:40;
-  backdrop-filter:saturate(140%) blur(6px);
-  background:rgba(0,0,0,.6);
-  border-bottom:1px solid rgba(255,255,255,.08)
-}
-.nav{
-  max-width:1200px;margin:auto;padding:14px 20px;
-  display:flex;align-items:center;justify-content:space-between
-}
+header{position:sticky;top:0;z-index:40;backdrop-filter:saturate(140%) blur(6px);background:rgba(0,0,0,.6);border-bottom:1px solid rgba(255,255,255,.08)}
+.nav{max-width:1200px;margin:auto;padding:14px 20px;display:flex;align-items:center;justify-content:space-between}
 .brand{display:flex;align-items:center;gap:10px;font-weight:900}
 .brand-badge{width:22px;height:22px;background:var(--accent);transform:skew(-6deg);border-radius:3px}
 nav a, nav span{margin-left:18px;opacity:.95}
@@ -51,89 +38,93 @@ h1{font-size:34px;font-weight:900;letter-spacing:-.3px;margin-bottom:6px}
 .grid{display:grid;grid-template-columns:2fr 1fr;gap:16px}
 @media(max-width:900px){.grid{grid-template-columns:1fr}}
 
-.card{
-  background:rgba(255,255,255,.06);
-  border:1px solid var(--border);
-  border-radius:16px;padding:18px;margin-bottom:20px
-}
+.card{background:rgba(255,255,255,.06);border:1px solid var(--border);border-radius:16px;padding:18px;margin-bottom:20px}
 .card h2{font-size:20px;font-weight:900;margin-bottom:10px}
 .muted{color:var(--muted)}
-.small{font-size:12px}
 
 .ticket-list{display:grid;gap:10px}
 .ticket{
-  background:#0b0b0b;border:1px solid rgba(255,255,255,.1);
-  border-radius:12px;padding:12px;
-  transition:background .15s,border-color .15s;
+  background:#0b0b0b;
+  border:1px solid rgba(255,255,255,.1);
+  border-radius:12px;
+  padding:12px;
+  position:relative;
+  overflow:hidden;
 }
-.ticketTop{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;flex-wrap:wrap}
-.state{
-  padding:4px 8px;border-radius:999px;font-size:12px;
-  border:1px solid rgba(255,255,255,.18);
-  font-weight:900;
+.ticket.ok{
+  border-color: rgba(34,197,94,.7);
+  background: rgba(34,197,94,.08);
 }
-.state.ok{border-color:rgba(34,197,94,.55);color:var(--ok)}
-.state.warn{border-color:rgba(253,224,71,.55);color:var(--warn)}
-.state.bad{border-color:rgba(239,68,68,.55);color:var(--danger)}
+.ticket.warn{
+  border-color: rgba(253,224,71,.75);
+  background: rgba(253,224,71,.08);
+}
+.ticket.bad{
+  border-color: rgba(239,68,68,.7);
+  background: rgba(239,68,68,.08);
+}
+.ticket .line{display:flex;justify-content:space-between;align-items:center;gap:12px}
+.ticket .row{display:flex;gap:12px;align-items:center;margin-top:10px;flex-wrap:wrap}
 
-.ticketRow{display:flex;gap:12px;align-items:center;margin-top:10px;flex-wrap:wrap}
-.qrWrap{
-  width:130px;height:130px;border-radius:10px;background:#fff;
-  display:grid;place-items:center;position:relative;overflow:hidden;
-}
-.qrBlur{
-  position:absolute;inset:0;
-  backdrop-filter: blur(10px);
-  background:rgba(0,0,0,.35);
-  display:none;
-}
-.qrBlur.show{display:block}
-.qrBadge{
-  position:absolute;bottom:8px;left:50%;transform:translateX(-50%);
-  font-size:11px;font-weight:900;
-  padding:6px 10px;border-radius:999px;
-  border:1px solid rgba(255,255,255,.2);
-  background:rgba(0,0,0,.55);color:#fff;
-  display:none;
-}
-.qrBadge.show{display:inline-flex}
+.empty{display:grid;place-items:center;min-height:160px;border:1px dashed rgba(255,255,255,.25);border-radius:12px}
 
-.noticeBox{
-  margin-top:8px;
-  padding:8px 10px;border-radius:10px;
-  border:1px dashed rgba(255,255,255,.25);
-  font-size:12px;opacity:.95;
-}
-.noticeBox.warn{
-  border-color:rgba(253,224,71,.55);
-  background:rgba(253,224,71,.10);
-  color:#fff9c2;
-}
-.noticeBox.ok{
-  border-color:rgba(34,197,94,.55);
-  background:rgba(34,197,94,.10);
-  color:#d7ffe4;
-}
-
-.empty{
-  display:grid;place-items:center;min-height:160px;
-  border:1px dashed rgba(255,255,255,.25);
-  border-radius:12px
-}
-
-.btn{
-  display:inline-block;padding:12px 16px;border-radius:10px;
-  background:var(--accent);color:#000;font-weight:900;border:none;cursor:pointer
-}
+.btn{display:inline-block;padding:12px 16px;border-radius:10px;background:var(--accent);color:#000;font-weight:900;border:none;cursor:pointer}
 .btn.ghost{background:transparent;border:1px solid var(--border);color:#fff}
 .btn[disabled]{opacity:.5;cursor:not-allowed}
 
+.small{font-size:12px}
 .modal-bd{display:flex;gap:10px;flex-wrap:wrap;margin-top:8px}
 input{background:#0f0f10;border:1px solid var(--border);border-radius:10px;color:#fff;padding:10px}
+
 .backdrop{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;align-items:center;justify-content:center;z-index:60}
 .modal{background:#0f0f10;border:1px solid var(--border);border-radius:14px;padding:18px;width:min(520px,92vw)}
 .modal h3{font-size:18px;font-weight:900;margin-bottom:10px}
 .modal-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:12px}
+
+.state{padding:4px 8px;border-radius:999px;font-size:12px;border:1px solid var(--border);font-weight:900}
+.state.ok{border-color:var(--ok);color:var(--ok)}
+.state.warn{border-color:var(--warn);color:var(--warn)}
+.state.bad{border-color:var(--danger);color:var(--danger)}
+
+.notice{margin-top:6px;font-size:12px;opacity:.85}
+
+/* ALERT sopra ticket */
+.alertbar{
+  margin:-12px -12px 10px -12px;
+  padding:10px 12px;
+  font-weight:900;
+  border-bottom:1px solid rgba(255,255,255,.10);
+}
+.alertbar.warn{
+  background:rgba(253,224,71,.16);
+  color:#fff;
+}
+.alertbar.ok{
+  background:rgba(34,197,94,.16);
+  color:#fff;
+}
+
+/* QR wrap + censura */
+.qrwrap{
+  width:120px;height:120px;border-radius:10px;
+  background:#fff;
+  display:grid;place-items:center;
+  position:relative;
+  overflow:hidden;
+}
+.qrwrap.censored #qrCanvas{
+  filter: blur(10px);
+  transform: scale(1.05);
+}
+.qrwrap.censored::after{
+  content:"USATO";
+  position:absolute;inset:0;
+  display:grid;place-items:center;
+  background:rgba(0,0,0,.55);
+  color:#fff;
+  font-weight:900;
+  letter-spacing:1px;
+}
 </style>
 </head>
 
@@ -158,9 +149,7 @@ input{background:#0f0f10;border:1px solid var(--border);border-radius:10px;color
   <div class="grid">
     <section class="card">
       <h2>I tuoi biglietti</h2>
-
       <div id="tickets" class="ticket-list"></div>
-
       <div id="ticketsEmpty" class="empty hidden">
         <div style="text-align:center">
           <div class="muted" style="margin-bottom:10px">Non risultano biglietti attivi.</div>
@@ -171,33 +160,27 @@ input{background:#0f0f10;border:1px solid var(--border);border-radius:10px;color
 
     <aside class="card">
       <h2>Profilo</h2>
-      <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px dashed rgba(255,255,255,.12)">
-        <div style="opacity:.8">Nome e cognome</div><div id="vName">—</div>
+      <div class="row" style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px dashed rgba(255,255,255,.12)">
+        <div class="lab" style="opacity:.8">Nome e cognome</div><div class="val" id="vName">—</div>
       </div>
-      <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px dashed rgba(255,255,255,.12)">
-        <div style="opacity:.8">Data di nascita</div><div id="vDob">—</div>
+      <div class="row" style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px dashed rgba(255,255,255,.12)">
+        <div class="lab" style="opacity:.8">Data di nascita</div><div class="val" id="vDob">—</div>
       </div>
-      <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px dashed rgba(255,255,255,.12)">
-        <div style="opacity:.8">Email</div><div id="vEmail">—</div>
+      <div class="row" style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px dashed rgba(255,255,255,.12)">
+        <div class="lab" style="opacity:.8">Email</div><div class="val" id="vEmail">—</div>
       </div>
       <div class="modal-bd">
         <button id="btnEdit" class="btn">Modifica profilo</button>
         <a class="btn ghost hidden" id="btnScannerProfile" href="./scanner.html">Area scanner (staff)</a>
       </div>
-      <div class="small muted" style="margin-top:10px">
-        Il nominativo del biglietto si blocca alla generazione del QR.
-      </div>
+      <div class="notice">Il nominativo del biglietto si blocca alla generazione del QR. Puoi sbloccarlo una sola volta (4€) per rigenerare il QR.</div>
     </aside>
   </div>
 
-  <!-- Role panels -->
-  <aside id="prPanel" class="card hidden"><h2>Pannello PR</h2><p class="muted">Accesso riservato ai PR.</p></aside>
-  <aside id="capoPrPanel" class="card hidden"><h2>Pannello Capo PR</h2><p class="muted">Gestione team, ammonizioni e statistiche.</p></aside>
-  <aside id="adminPanel" class="card hidden"><h2>Pannello Admin</h2><p class="muted">Controllo completo vendite, categorie e sistema.</p></aside>
-
+  <!-- Founder -->
   <aside id="founderBox" class="card hidden">
     <span class="state ok">Founder</span>
-    <h2 style="margin-top:10px">Pannello Founder</h2>
+    <h2>Pannello Founder</h2>
     <div id="founderHello" class="muted" style="margin-bottom:12px"></div>
     <div style="display:grid;gap:10px;grid-template-columns:repeat(3, minmax(200px, 1fr))">
       <a class="btn" href="./founder.html" style="text-align:center">Pannello Founder</a>
@@ -205,6 +188,7 @@ input{background:#0f0f10;border:1px solid var(--border);border-radius:10px;color
       <a class="btn" href="./scanner.html" style="text-align:center">Scanner</a>
     </div>
   </aside>
+
 </main>
 
 <!-- MODAL profilo -->
@@ -232,42 +216,16 @@ input{background:#0f0f10;border:1px solid var(--border);border-radius:10px;color
 <script type="module">
 import { app, onUser, doSignOut, requireActiveUser } from './auth.v2.js?v=6';
 import {
-  getFirestore,
-  doc, getDoc, setDoc,
-  collection,
-  serverTimestamp,
-  onSnapshot
+  getFirestore, doc, setDoc, getDoc,
+  collection, onSnapshot, serverTimestamp
 } from 'https://www.gstatic.com/firebasejs/12.5.0/firebase-firestore.js';
 
 await requireActiveUser('./login.html');
 
 const db = getFirestore(app);
 
-/* ===== UI ===== */
+/* NAV */
 const nav  = document.getElementById('navArea');
-const vName = document.getElementById('vName');
-const vDob  = document.getElementById('vDob');
-const vEmail= document.getElementById('vEmail');
-
-const ticketsWrap = document.getElementById('tickets');
-const ticketsEmpty= document.getElementById('ticketsEmpty');
-
-const prPanel      = document.getElementById('prPanel');
-const capoPrPanel  = document.getElementById('capoPrPanel');
-const adminPanel   = document.getElementById('adminPanel');
-const founderBox   = document.getElementById('founderBox');
-const founderHello = document.getElementById('founderHello');
-const btnScannerProfile = document.getElementById('btnScannerProfile');
-
-/* Modal */
-const modal   = document.getElementById('modal');
-const btnEdit = document.getElementById('btnEdit');
-const mCancel = document.getElementById('mCancel');
-const mSave   = document.getElementById('mSave');
-const inpName = document.getElementById('inpName');
-const inpDob  = document.getElementById('inpDob');
-const inpEmail= document.getElementById('inpEmail');
-
 const OUT  = `
   <a href="./login.html?from=./account-2.html">Acquista il tuo biglietto</a>
   <a href="./login.html">Accedi</a>
@@ -279,71 +237,37 @@ const IN = (u)=>`
   <a href="#" id="logoutLink" style="color:#8b5cf6">Logout</a>
 `;
 
-/* ===== helpers ===== */
-function lc(s){ return (s||'').toString().trim().toLowerCase(); }
-function openModal(){ modal.style.display='flex'; modal.setAttribute('aria-hidden','false'); }
-function closeModal(){ modal.style.display='none'; modal.setAttribute('aria-hidden','true'); }
+/* UI refs */
+const vName = document.getElementById('vName');
+const vDob  = document.getElementById('vDob');
+const vEmail= document.getElementById('vEmail');
+const ticketsWrap = document.getElementById('tickets');
+const ticketsEmpty= document.getElementById('ticketsEmpty');
 
+const founderBox   = document.getElementById('founderBox');
+const founderHello = document.getElementById('founderHello');
+const btnScannerProfile = document.getElementById('btnScannerProfile');
+
+const modal   = document.getElementById('modal');
+const btnEdit = document.getElementById('btnEdit');
+const mCancel = document.getElementById('mCancel');
+const mSave   = document.getElementById('mSave');
+const inpName = document.getElementById('inpName');
+const inpDob  = document.getElementById('inpDob');
+const inpEmail= document.getElementById('inpEmail');
+
+/* helpers */
+function lc(s){ return (s||'').toString().trim().toLowerCase(); }
 function asDateStr(dob){
   try{
     if(!dob) return '—';
-    if (typeof dob === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(dob)) return dob;
-    const d = (dob?.toDate) ? dob.toDate() : new Date(dob);
-    if (isNaN(d)) return '—';
+    if (/^\d{4}-\d{2}-\d{2}$/.test(dob)) return dob;
+    const d = new Date(dob); if (isNaN(d)) return '—';
     return d.toISOString().slice(0,10);
   }catch{ return '—'; }
 }
-
-/* Supporta sia schema "vecchio" (t.name/t.dob/t.status/t.qr)
-   sia schema "rules" (t.holder.name, t.qr.code, t.qr.status, t.qr.locked) */
-function getTicketName(t){
-  return t?.name || t?.holder?.name || '—';
-}
-function getTicketDob(t){
-  return asDateStr(t?.dob || t?.holder?.dob || '');
-}
-function getTicketType(t){
-  return t?.type || t?.ticketType || 'Biglietto';
-}
-function getTicketStatus(t){
-  return lc(t?.status || t?.qr?.status || 'pending');
-}
-function isLocked(t){
-  return !!(t?.locked || t?.qr?.locked);
-}
-function getQrPayload(uid, tid, t){
-  // prova più formati possibili
-  if (t?.qr?.code) return t.qr.code;
-  if (typeof t?.qr === 'string' && t.qr) return t.qr;
-  return JSON.stringify({ uid, tid, v:1 });
-}
-function isDocMismatch(t){
-  // tu puoi decidere come lo scrivi dallo scanner:
-  // - t.docMismatch === true
-  // - oppure status === 'flagged'
-  return (t?.docMismatch === true) || (getTicketStatus(t) === 'flagged');
-}
-function isUsed(t){
-  // consideriamo "usato" quando confirmed/verified (supporta entrambe)
-  const s = getTicketStatus(t);
-  return (s === 'confirmed' || s === 'verified');
-}
-
-/* ===== role panels ===== */
-function showRolePanels(role){
-  const r = lc(role || '');
-  if (!r) return;
-
-  if (r === 'pr')       prPanel.classList.remove('hidden');
-  if (r === 'capo_pr')  capoPrPanel.classList.remove('hidden');
-  if (r === 'admin')    adminPanel.classList.remove('hidden');
-  if (r === 'founder')  founderBox.classList.remove('hidden');
-
-  const canScan = ['founder','admin','checker','scanner'].includes(r);
-  if (btnScannerProfile){
-    btnScannerProfile.classList.toggle('hidden', !canScan);
-  }
-}
+function openModal(){ modal.style.display='flex'; modal.setAttribute('aria-hidden','false'); }
+function closeModal(){ modal.style.display='none'; modal.setAttribute('aria-hidden','true'); }
 
 async function isFounderOrAdmin(email, uid){
   try{
@@ -352,85 +276,93 @@ async function isFounderOrAdmin(email, uid){
       getDoc(doc(db,'users',uid)).catch(()=>null)
     ]);
     const m = admins && admins.exists()? (admins.data()||{}) : {};
-    const founders = m.founders || {};
-    const adminsMap= m.admins   || {};
+    const founders=m.founders||{}, adminsMap=m.admins||{};
     const role = me && me.exists()? (me.data().role||'') : '';
     return !!( founders[lc(email)] || adminsMap[lc(email)] || role==='founder' || role==='admin' );
   }catch{ return false; }
 }
 
-/* ===== realtime: user doc + tickets ===== */
-let UNSUB_USER = null;
-let UNSUB_TICKETS = null;
+/* Role panels */
+function showRolePanels(role){
+  const r = (role||'').toLowerCase();
+  const canScan = ['founder','admin','checker','scanner'].includes(r);
+  if(btnScannerProfile){
+    if(canScan) btnScannerProfile.classList.remove('hidden');
+    else btnScannerProfile.classList.add('hidden');
+  }
+}
 
-function renderTickets(uid, tickets){
-  ticketsWrap.innerHTML = '';
+async function mountFounder(u){
+  const ok = await isFounderOrAdmin(u.email||'', u.uid);
+  if(!ok){ founderBox.classList.add('hidden'); return; }
+  founderBox.classList.remove('hidden');
+  founderHello.textContent = `Accesso staff abilitato per ${u.email}.`;
+}
 
-  ticketsEmpty.classList.toggle('hidden', tickets.length !== 0);
+/* ===== REALTIME TICKETS RENDER ===== */
+function ticketState(t){
+  const st = (t.status||'pending').toLowerCase();
+  const mismatch = !!t.docMismatch || st === 'mismatch';
+  const ok = !!t.docMatch || st === 'verified';
+  const used = ok || mismatch || st === 'confirmed'; // se vuoi considerare anche confirmed usato
+  return { st, mismatch, ok, used };
+}
 
-  for (const t of tickets){
-    const tid = t.id;
+function clearNode(el){ while(el.firstChild) el.removeChild(el.firstChild); }
 
-    const status = getTicketStatus(t);
-    const mismatch = isDocMismatch(t);
-    const used = isUsed(t);
+function renderTickets(uid, ticketsArr){
+  clearNode(ticketsWrap);
+
+  ticketsEmpty.classList.toggle('hidden', ticketsArr.length !== 0);
+
+  ticketsArr.forEach(t=>{
+    const { st, mismatch, ok, used } = ticketState(t);
 
     const box = document.createElement('div');
-    box.className = 'ticket';
+    box.className = 'ticket ' + (mismatch ? 'warn' : ok ? 'ok' : '');
 
-    // colore card
-    if (mismatch){
-      box.style.borderColor = 'rgba(253,224,71,.70)';
-      box.style.background = 'rgba(253,224,71,.06)';
-    } else if (used){
-      box.style.borderColor = 'rgba(34,197,94,.70)';
-      box.style.background = 'rgba(34,197,94,.06)';
+    // banner mismatch/ok
+    let banner = '';
+    if(mismatch){
+      banner = `<div class="alertbar warn">⚠️ BIGLIETTO NON CORRISPONDENTE AL DOCUMENTO</div>`;
+    }else if(ok){
+      banner = `<div class="alertbar ok">✅ BIGLIETTO VERIFICATO</div>`;
     }
 
     const stateClass =
-      mismatch ? 'warn'
-      : used ? 'ok'
-      : (status === 'pending' ? 'warn' : '');
-
-    const stateLabel =
-      mismatch ? 'NON CORRISPONDE'
-      : used ? 'USATO'
-      : (status || 'pending').toUpperCase();
-
-    const qrId = `qr_${tid}`;
+      mismatch ? 'warn' :
+      ok ? 'ok' :
+      st==='flagged' ? 'warn' :
+      st==='pending' ? '' :
+      '';
 
     box.innerHTML = `
-      <div class="ticketTop">
-        <div>
-          <strong>${getTicketType(t)}</strong>
-          <div class="small muted" style="margin-top:4px">ID: ${tid}</div>
-        </div>
-        <span class="state ${stateClass}">${stateLabel}</span>
+      ${banner}
+      <div class="line">
+        <strong>${t.type||'Biglietto'}</strong>
+        <span class="state ${stateClass}">${st}</span>
       </div>
 
-      ${mismatch ? `
-        <div class="noticeBox warn">⚠️ BIGLIETTO NON CORRISPONDENTE AL DOCUMENTO</div>
-      ` : used ? `
-        <div class="noticeBox ok">✅ Biglietto verificato / usato</div>
-      ` : ''}
-
-      <div class="ticketRow">
-        <div class="qrWrap">
-          <div id="${qrId}"></div>
-          <div class="qrBlur ${used ? 'show':''}"></div>
-          <div class="qrBadge ${used ? 'show':''}">QR BLOCCATO</div>
+      <div class="row">
+        <div class="qrwrap ${used ? 'censored' : ''}">
+          <div id="qr_${t.id}" style="width:110px;height:110px" aria-label="QR"></div>
+          <div id="qrCanvas" style="display:none"></div>
         </div>
 
-        <div class="small muted" style="flex:1;min-width:220px">
-          <div><b>Nome</b>: ${getTicketName(t)}</div>
-          <div><b>Nascita</b>: ${getTicketDob(t)}</div>
-          <div><b>Stato</b>: ${status || 'pending'}</div>
-          <div class="small muted" style="margin-top:6px">${isLocked(t) ? 'Nominativo bloccato' : 'Nominativo modificabile'}</div>
+        <div class="small muted" style="min-width:220px">
+          <div><b>Nome</b>: ${t.name || '—'}</div>
+          <div><b>Nascita</b>: ${asDateStr(t.dob)}</div>
+          <div><b>ID</b>: ${t.id}</div>
 
-          <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap">
-            ${ (t?.qr?.code || typeof t?.qr === 'string') ? '' : `<button class="btn" data-gen="${tid}">Genera QR e blocca</button>`}
-            <button class="btn ghost" data-requnl="${tid}">Sblocca nominativo (4€)</button>
-            <button class="btn" data-edit="${tid}">Cambia nominativo</button>
+          <div class="notice">
+            ${t.locked ? 'Nominativo bloccato' : 'Nominativo modificabile'}
+            ${mismatch ? ' • <b>DOC NON OK</b>' : ok ? ' • <b>DOC OK</b>' : ''}
+          </div>
+
+          <div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap">
+            ${t.qr ? '' : `<button class="btn" data-gen="${t.id}">Genera QR e blocca</button>`}
+            <button class="btn ghost" data-requnl="${t.id}">Sblocca nominativo (4€)</button>
+            <button class="btn" data-edit="${t.id}">Cambia nominativo</button>
           </div>
         </div>
       </div>
@@ -438,32 +370,24 @@ function renderTickets(uid, tickets){
 
     ticketsWrap.appendChild(box);
 
-    // QR render (ricrea sempre, così è coerente)
-    const payload = getQrPayload(uid, tid, t);
-    const qrNode = document.getElementById(qrId);
-    qrNode.innerHTML = '';
-    new QRCode(qrNode, { text: payload, width:110, height:110 });
-  }
+    // genera QR (se usato lo "censuriamo" via CSS)
+    const payload = t.qr ? t.qr : JSON.stringify({ uid, tid: t.id, v:1 });
+    const qrEl = document.getElementById(`qr_${t.id}`);
+    if(qrEl){
+      // reset del container (QRCodeJS non ama re-render nello stesso div)
+      qrEl.innerHTML = '';
+      new QRCode(qrEl, { text: payload, width:110, height:110 });
+    }
+  });
 
-  // bind actions (NO reload: aspettiamo che lo snapshot aggiorni)
+  // Bind azioni (nessun reload: le snapshot aggiornano)
   ticketsWrap.querySelectorAll('[data-gen]').forEach(btn=>{
     btn.onclick = async ()=>{
       const tid = btn.getAttribute('data-gen');
-      btn.disabled = true; btn.textContent = 'Creo…';
-      const ref = doc(db,'users',uid,'tickets',tid);
-
+      btn.disabled=true; btn.textContent='Creo…';
       const qr = JSON.stringify({ uid, tid, v:1 });
-
-      // prova a scrivere nel formato "semplice" (t.qr string, t.locked true)
-      // e in parallelo compatibilità con schema "qr.code/qr.locked" se già lo usi.
-      await setDoc(ref, {
-        qr, locked:true,
-        // compat schema rules
-        qr: { code: qr, locked:true, status: 'pending' },
-        updatedAt: serverTimestamp()
-      }, { merge:true });
-
-      btn.disabled = false; btn.textContent = 'Genera QR e blocca';
+      await setDoc(doc(db,'users',uid,'tickets',tid), { qr, locked:true, updatedAt: serverTimestamp() }, { merge:true });
+      btn.disabled=false; btn.textContent='Genera QR e blocca';
     };
   });
 
@@ -471,17 +395,8 @@ function renderTickets(uid, tickets){
     btn.onclick = async ()=>{
       const tid = btn.getAttribute('data-requnl');
       if(!confirm('Confermi lo sblocco del nominativo (4€)?')) return;
-
-      const ref = doc(db,'users',uid,'tickets',tid);
-
-      await setDoc(ref, {
-        unlockCredits: 1,
-        // compat schema rules (se lo usi)
-        unlock: { allowed: true, used: false },
-        updatedAt: serverTimestamp()
-      }, { merge:true });
-
-      alert('Sblocco registrato. Ora premi "Cambia nominativo".');
+      await setDoc(doc(db,'users',uid,'tickets',tid), { unlockCredits: 1, updatedAt: serverTimestamp() }, { merge:true });
+      alert('Sblocco effettuato. Ora premi "Cambia nominativo".');
     };
   });
 
@@ -489,102 +404,38 @@ function renderTickets(uid, tickets){
     btn.onclick = async ()=>{
       const tid = btn.getAttribute('data-edit');
       const ref = doc(db,'users',uid,'tickets',tid);
-      const snap = await new Promise((resolve)=>{
-        // lettura “one-shot” semplice via getDoc
-        import('https://www.gstatic.com/firebasejs/12.5.0/firebase-firestore.js').then(async m=>{
-          const s = await m.getDoc(ref);
-          resolve(s);
-        });
-      });
+      const snap = await getDoc(ref); if(!snap.exists()) return;
+      const t = snap.data()||{};
 
-      if(!snap?.exists()) return;
-      const t = snap.data() || {};
-
-      const lockedNow = isLocked(t);
-      const credits = Number(t.unlockCredits || 0);
-      const unlockAllowed = !!t?.unlock?.allowed;
-
-      if (lockedNow && !(credits > 0) && !unlockAllowed){
+      if (t.locked && !(t.unlockCredits>0)){
         alert('Nominativo bloccato. Sbloccalo prima (4€).');
         return;
       }
 
-      const name = prompt('Nome e cognome come da documento:', getTicketName(t))?.trim();
+      const name = prompt('Nome e cognome come da documento:', t.name||'')?.trim();
       if(!name){ alert('Nome non valido'); return; }
 
-      const dob  = prompt('Data di nascita (YYYY-MM-DD):', getTicketDob(t))?.trim();
+      const dob  = prompt('Data di nascita (YYYY-MM-DD):', (t.dob||'').toString().slice(0,10))?.trim();
       if(!dob || !/^\d{4}-\d{2}-\d{2}$/.test(dob)){ alert('Data non valida'); return; }
 
-      if(!confirm('Confermi che i dati corrispondono al documento?')) return;
+      if(!confirm('Confermi che i dati corrispondono al documento? Dopo non potrai cambiare senza pagare di nuovo.')) return;
 
       const qr = JSON.stringify({ uid, tid, v:1 });
-
       await setDoc(ref, {
-        // formato semplice
         name, dob, qr, locked:true,
-
-        // compat schema rules
-        holder: { name, dob },
-        qr: { code: qr, locked:true, status: (t?.qr?.status || t?.status || 'pending') },
-
-        // consuma credito se presente
-        unlockCredits: Math.max(credits - 1, 0),
-        unlock: (unlockAllowed ? { allowed:false, used:true } : (t.unlock || undefined)),
-
+        unlockCredits: Math.max((t.unlockCredits||0)-1,0),
         updatedAt: serverTimestamp()
       }, { merge:true });
 
-      alert('Dati aggiornati. (Realtime: la card si aggiorna da sola)');
+      alert('Dati aggiornati e QR rigenerato.');
     };
   });
 }
 
-function startRealtime(uid){
-  // user doc
-  const userRef = doc(db,'users',uid);
-  UNSUB_USER = onSnapshot(userRef, async (snap)=>{
-    if(!snap.exists()) return;
-    const me = snap.data()||{};
-    vName.textContent  = me.name || '—';
-    vDob.textContent   = asDateStr(me.dob || '');
-    vEmail.textContent = me.email || '—';
+/* ===== REALTIME BOOT ===== */
+let unsubMe = null;
+let unsubTickets = null;
 
-    inpName.value  = me.name || '';
-    inpDob.value   = asDateStr(me.dob || '');
-    inpEmail.value = me.email || '';
-
-    showRolePanels(me.role || 'customer');
-
-    // founder box
-    const u = await new Promise(res=>onUser(res));
-    const ok = await isFounderOrAdmin(u.email||'', u.uid);
-    if(ok){
-      founderBox.classList.remove('hidden');
-      founderHello.textContent = `Accesso staff abilitato per ${u.email}.`;
-    }else{
-      founderBox.classList.add('hidden');
-    }
-  });
-
-  // tickets realtime
-  const ticketsRef = collection(db,'users',uid,'tickets');
-  UNSUB_TICKETS = onSnapshot(ticketsRef, (qsnap)=>{
-    const arr = [];
-    qsnap.forEach(d=>arr.push({ id:d.id, ...(d.data()||{}) }));
-    // ordina: usati sopra, poi recenti
-    arr.sort((a,b)=>{
-      const au = isUsed(a) ? 0 : 1;
-      const bu = isUsed(b) ? 0 : 1;
-      if (au !== bu) return au - bu;
-      const at = (a.updatedAt?.seconds || 0);
-      const bt = (b.updatedAt?.seconds || 0);
-      return bt - at;
-    });
-    renderTickets(uid, arr);
-  });
-}
-
-/* ===== boot ===== */
 onUser(async (u)=>{
   if(!u){
     nav.innerHTML = OUT;
@@ -601,7 +452,9 @@ onUser(async (u)=>{
   });
 
   const userRef = doc(db,'users',u.uid);
-  const snap = await getDoc(userRef);
+
+  // crea doc user se manca
+  let snap = await getDoc(userRef);
   if(!snap.exists()){
     await setDoc(userRef, {
       uid:u.uid,
@@ -616,37 +469,61 @@ onUser(async (u)=>{
     }, { merge:true });
   }
 
-  document.getElementById('title').textContent = 'Il tuo account';
-  document.getElementById('hello').innerHTML = `Ciao, <strong>${(u.displayName || u.email || 'Utente').split(' ')[0]}</strong>`;
+  // realtime user profile
+  unsubMe && unsubMe();
+  unsubMe = onSnapshot(userRef, async (docSnap)=>{
+    const me = docSnap.data()||{};
+    document.getElementById('title').textContent = 'Il tuo account';
+    document.getElementById('hello').innerHTML = `Ciao, <strong>${(me.name || u.displayName || u.email || 'Utente').split(' ')[0]}</strong>`;
 
-  // ✅ realtime ON
-  startRealtime(u.uid);
+    vName.textContent  = me.name || (u.displayName || '—');
+    vDob.textContent   = asDateStr(me.dob || '');
+    vEmail.textContent = me.email || u.email || '—';
+
+    inpName.value  = me.name  || (u.displayName || '');
+    inpDob.value   = asDateStr(me.dob || '');
+    inpEmail.value = me.email || u.email || '';
+
+    showRolePanels(me.role || 'customer');
+    await mountFounder(u);
+  });
+
+  // realtime tickets
+  unsubTickets && unsubTickets();
+  unsubTickets = onSnapshot(collection(db,'users',u.uid,'tickets'), (qSnap)=>{
+    const arr = [];
+    qSnap.forEach(d=> arr.push({ id:d.id, ...(d.data()||{}) }));
+    // se vuoi: ordina per createdAt/updatedAt; qui “stabile” per id
+    arr.sort((a,b)=> (a.id||'').localeCompare(b.id||''));
+    renderTickets(u.uid, arr);
+  }, (err)=>{
+    console.error(err);
+    ticketsWrap.innerHTML = `<div class="ticket bad"><b>Errore tickets:</b> ${(err.message||err.name)}</div>`;
+  });
+
 });
 
-/* modal profile */
-btnEdit.addEventListener('click', openModal);
-mCancel.addEventListener('click', closeModal);
+/* MODAL profilo */
+btnEdit.addEventListener('click', ()=> openModal());
+mCancel.addEventListener('click', ()=> closeModal());
 mSave.addEventListener('click', async ()=>{
   const name = inpName.value.trim();
   const dob  = inpDob.value;
-
   if(!name){ alert('Inserisci nome e cognome.'); return; }
 
   const u = await new Promise(res=>onUser(res));
   await setDoc(doc(db,'users',u.uid), {
-    name,
-    name_lc: name.toLowerCase(),
-    dob: dob || '',
-    updatedAt: serverTimestamp()
+    name, name_lc:name.toLowerCase(), dob:dob||'', updatedAt: serverTimestamp()
   }, { merge:true });
 
   closeModal();
 });
 
 window.addEventListener('beforeunload', ()=>{
-  try{ UNSUB_USER && UNSUB_USER(); }catch{}
-  try{ UNSUB_TICKETS && UNSUB_TICKETS(); }catch{}
+  try{ unsubMe && unsubMe(); }catch{}
+  try{ unsubTickets && unsubTickets(); }catch{}
 });
 </script>
+
 </body>
 </html>
