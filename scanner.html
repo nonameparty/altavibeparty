@@ -22,7 +22,7 @@ h1{margin:0;font-size:20px}
 .btn.primary{background:var(--accent);color:#000;border:none}
 .btn.ok{background:var(--ok);color:#000;border:none}
 .btn.warn{background:var(--warn);color:#000;border:none}
-.btn.danger{background:var(--err);color:#000;border:none}
+.btn.stop{background:#fff;color:#000;border:none}
 .btn:disabled{opacity:.55;cursor:not-allowed}
 .pill{display:inline-flex;align-items:center;gap:8px;border:1px solid #333;border-radius:999px;padding:6px 10px}
 .muted{color:var(--muted)}
@@ -37,7 +37,7 @@ h1{margin:0;font-size:20px}
   border-radius:12px;
   border:1px solid #111;
   display:block;
-  object-fit:contain;
+  object-fit:contain; /* NO zoom iPhone */
 }
 .qrbox::after{
   content:"";
@@ -49,26 +49,43 @@ h1{margin:0;font-size:20px}
 }
 .notice{padding:8px 10px;border-radius:10px;border:1px dashed rgba(255,255,255,.25);font-size:12px}
 .notice.err{border-color:#ef4444;color:#ffdede;background:#2a0e0e}
-.result-card{background:#0b0b0b;border:1px solid #1b1b1b;border-radius:12px;padding:12px}
-.result-card.ok{border-color:rgba(34,197,94,.55);background:rgba(34,197,94,.08)}
-.result-card.warn{border-color:rgba(253,224,71,.55);background:rgba(253,224,71,.08)}
-.result-card.bad{border-color:rgba(239,68,68,.55);background:rgba(239,68,68,.08)}
-.result-card .row{justify-content:space-between}
+
+.result-card{
+  background:#0b0b0b;border:1px solid #1b1b1b;border-radius:12px;padding:12px;
+  transition:background .2s, border-color .2s;
+}
+.result-card.ok{
+  background:rgba(34,197,94,.14);
+  border-color:rgba(34,197,94,.55);
+}
+.result-card.warn{
+  background:rgba(253,224,71,.14);
+  border-color:rgba(253,224,71,.55);
+}
+.result-card.bad{
+  background:rgba(239,68,68,.14);
+  border-color:rgba(239,68,68,.55);
+}
 
 .toast{
   position:fixed;left:50%;top:18px;transform:translateX(-50%);
-  z-index:999;padding:12px 14px;border-radius:14px;
+  z-index:999;
+  padding:12px 14px;border-radius:14px;
   background:rgba(34,197,94,.18);
   border:1px solid rgba(34,197,94,.55);
-  color:#d7ffe4;font-weight:900;display:none;
+  color:#d7ffe4;font-weight:900;
+  display:none;
   box-shadow:0 10px 30px rgba(0,0,0,.4);
 }
 .toast.show{display:block}
 
-.footerActions{
-  position:sticky;bottom:0;z-index:5;
-  padding:12px 0;background:linear-gradient(to top, rgba(0,0,0,.75), rgba(0,0,0,0));
+.spinner{
+  width:16px;height:16px;border-radius:999px;
+  border:2px solid rgba(255,255,255,.25);
+  border-top-color:#fff;
+  animation:spin .8s linear infinite;
 }
+@keyframes spin{to{transform:rotate(360deg)}}
 </style>
 </head>
 <body>
@@ -77,6 +94,8 @@ h1{margin:0;font-size:20px}
 <div id="toast" class="toast">✅ QR letto</div>
 
 <main class="wrap">
+
+  <!-- STEP: gruppo -->
   <section id="grpCard" class="card">
     <div class="row">
       <span class="pill">È un gruppo?</span>
@@ -85,45 +104,49 @@ h1{margin:0;font-size:20px}
       <span class="pill">Gruppo: <b id="gMode">—</b></span>
     </div>
     <div class="notice" style="margin-top:8px">
-      iPhone richiede <b>HTTPS</b> (o <b>localhost</b>) e un <b>tap</b> per avviare la camera.
+      iPhone richiede <b>HTTPS</b> e un <b>tap</b> per avviare la camera.
     </div>
   </section>
 
-  <section id="scanCard" class="card hidden">
+  <!-- STEP: controlli -->
+  <section id="ctrlCard" class="card hidden">
     <div class="row">
-      <button id="stopBtn" class="btn">✋ Ferma camera</button>
-      <button id="flashBtn" class="btn" disabled>💡 Flash</button>
+      <button id="startBtn" class="btn primary">🎥 Avvia fotocamera</button>
+      <button id="stopBtn"  class="btn stop" disabled>✋ Ferma camera</button>
+      <button id="flashBtn" class="btn hidden">💡 Flash OFF</button>
       <span id="status" class="muted"></span>
+      <span id="hb" class="muted small hidden"><span class="spinner"></span>&nbsp;LIVE</span>
     </div>
+    <div id="err" class="notice err hidden"></div>
+    <div class="small muted" style="margin-top:8px">
+      Tip: QR nel riquadro, 15–30cm, luce alta.
+    </div>
+  </section>
 
-    <div id="err" class="notice err hidden" style="margin-top:10px"></div>
-
-    <div class="qrbox" style="margin-top:10px">
+  <!-- STEP: preview -->
+  <section id="scanCard" class="card hidden">
+    <div class="qrbox">
       <video id="video" playsinline muted></video>
     </div>
-
-    <div class="footerActions">
-      <div class="row">
-        <button id="endGroupBtn" class="btn warn hidden">⛔ Termina gruppo</button>
-        <span class="small muted">Tip: QR nel riquadro, 15–30cm, luce alta.</span>
-      </div>
+    <div class="row" style="margin-top:10px;justify-content:space-between">
+      <button id="endGroupBtn" class="btn hidden">⛔ Termina gruppo</button>
+      <span class="muted small">Scansione automatica attiva</span>
     </div>
   </section>
 
+  <!-- STEP: risultato -->
   <section id="resCard" class="card hidden">
     <div id="resultBox" class="result-card"></div>
-    <div id="alreadyUsed" class="notice err hidden" style="margin-top:10px">
-      ⛔ Biglietto già usato.
-    </div>
-    <div class="row" style="margin-top:12px">
-      <button id="okBtn" class="btn ok">✅ Corrisponde</button>
-      <button id="misBtn" class="btn warn">⚠️ Non corrisponde</button>
+    <div class="row" style="margin-top:10px">
+      <button id="matchBtn" class="btn ok">✅ Corrisponde</button>
+      <button id="mismatchBtn" class="btn warn">⚠️ Non corrisponde</button>
       <button id="cancelBtn" class="btn">↩️ Annulla</button>
     </div>
-    <div class="small muted" style="margin-top:10px">
-      Torno allo scanner automaticamente dopo <b>10 secondi</b>.
+    <div class="small muted" style="margin-top:8px">
+      Dopo la scelta, torna allo scanner in automatico.
     </div>
   </section>
+
 </main>
 
 <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
@@ -131,145 +154,166 @@ h1{margin:0;font-size:20px}
 <script type="module">
 import { app, onUser } from './auth.v2.js?v=6';
 import {
-  getFirestore, doc, getDoc, setDoc, serverTimestamp, runTransaction
+  getFirestore, doc, getDoc, setDoc, serverTimestamp
 } from 'https://www.gstatic.com/firebasejs/12.5.0/firebase-firestore.js';
 
 const db = getFirestore(app);
 
 /* UI */
-const grpCard = document.getElementById('grpCard');
-const scanCard= document.getElementById('scanCard');
-const resCard = document.getElementById('resCard');
+const grpCard   = document.getElementById('grpCard');
+const ctrlCard  = document.getElementById('ctrlCard');
+const scanCard  = document.getElementById('scanCard');
+const resCard   = document.getElementById('resCard');
 
 const gYes = document.getElementById('gYes');
 const gNo  = document.getElementById('gNo');
 const gMode= document.getElementById('gMode');
 
-const stopBtn = document.getElementById('stopBtn');
-const flashBtn= document.getElementById('flashBtn');
+const startBtn = document.getElementById('startBtn');
+const stopBtn  = document.getElementById('stopBtn');
+const flashBtn = document.getElementById('flashBtn');
 const endGroupBtn = document.getElementById('endGroupBtn');
 
 const statusEl = document.getElementById('status');
-const errEl = document.getElementById('err');
-const toastEl = document.getElementById('toast');
+const errEl    = document.getElementById('err');
+const toastEl  = document.getElementById('toast');
+const hbEl     = document.getElementById('hb');
 
-const video = document.getElementById('video');
-
-const resultBox = document.getElementById('resultBox');
-const alreadyUsed = document.getElementById('alreadyUsed');
-const okBtn = document.getElementById('okBtn');
-const misBtn= document.getElementById('misBtn');
+const video    = document.getElementById('video');
+const resultBox= document.getElementById('resultBox');
+const matchBtn = document.getElementById('matchBtn');
+const mismatchBtn = document.getElementById('mismatchBtn');
 const cancelBtn = document.getElementById('cancelBtn');
 
 let CURRENT_USER = null;
 
+/* State */
 let isGroup = null;
 let stream = null;
-let track = null;
-let detector = null;
 let scanning = false;
+let detector = null;
 let scanTimer = null;
 
+let lastPayload = null;
+let lastAt = 0;
+
+let track = null;
 let torchSupported = false;
 let torchOn = false;
 
-let resAutoTimer = null;
-let hbTimer = null;
+let heartbeatTimer = null;
 
 const canvas = document.createElement('canvas');
 const ctx = canvas.getContext('2d', { willReadFrequently:true });
 
-function show(step){
+function showStep(step){
   grpCard.classList.toggle('hidden', step!=='grp');
+  ctrlCard.classList.toggle('hidden', step!=='ctrl');
   scanCard.classList.toggle('hidden', step!=='scan');
   resCard.classList.toggle('hidden', step!=='res');
 }
-function setStatus(t){ statusEl.textContent = t || ''; }
-function showErr(t){ errEl.textContent = t || ''; errEl.classList.toggle('hidden', !t); }
-function toast(msg, ms=900){
+function setStatus(t){ statusEl.textContent=t||''; }
+function showErr(t){ errEl.textContent=t||''; errEl.classList.toggle('hidden', !t); }
+function toast(msg='✅ QR letto', ms=1200){
   toastEl.textContent = msg;
   toastEl.classList.add('show');
   clearTimeout(toast._t);
   toast._t = setTimeout(()=>toastEl.classList.remove('show'), ms);
 }
-function isHttpsOk(){
-  return location.protocol==='https:' || location.hostname==='localhost';
-}
+function isHttpsOk(){ return location.protocol === 'https:' || location.hostname === 'localhost'; }
 
-/* heartbeat: ON solo mentre camera+scan attivi */
+/* Heartbeat: attivo SOLO mentre scanner aperto + camera on */
+async function writeHeartbeat(){
+  try{
+    if(!CURRENT_USER) return;
+    await setDoc(doc(db,'system','live'), {
+      active: true,
+      byUid: CURRENT_USER.uid,
+      byEmail: CURRENT_USER.email || '',
+      updatedAt: serverTimestamp()
+    }, { merge:true });
+  }catch(e){
+    // se fallisce, mostrala (ti serve per capire rules)
+    showErr('Errore LIVE: ' + (e.message||e.name));
+  }
+}
 function startHeartbeat(){
-  stopHeartbeat();
-  hbTimer = setInterval(async ()=>{
-    try{
-      await setDoc(doc(db,'system','live'), {
-        scannerActive:true,
-        updatedAt: serverTimestamp(),
-        byUid: CURRENT_USER?.uid || null
-      }, { merge:true });
-    }catch{}
-  }, 5000);
+  hbEl.classList.remove('hidden');
+  writeHeartbeat();
+  clearInterval(heartbeatTimer);
+  heartbeatTimer = setInterval(writeHeartbeat, 4000);
 }
 function stopHeartbeat(){
-  if(hbTimer){ clearInterval(hbTimer); hbTimer=null; }
+  hbEl.classList.add('hidden');
+  clearInterval(heartbeatTimer);
+  heartbeatTimer = null;
 }
 
-/* Torch */
-async function detectTorch(){
-  torchSupported = false;
-  try{
-    const caps = track?.getCapabilities?.();
-    torchSupported = !!caps?.torch;
-  }catch{}
-  flashBtn.disabled = !torchSupported;
-  flashBtn.textContent = torchSupported ? (torchOn ? '💡 Flash ON' : '💡 Flash OFF') : '💡 Flash';
-}
-async function setTorch(on){
-  if(!torchSupported || !track) return;
-  try{
-    await track.applyConstraints({ advanced:[{ torch: !!on }] });
-    torchOn = !!on;
-    flashBtn.textContent = torchOn ? '💡 Flash ON' : '💡 Flash OFF';
-  }catch{}
-}
-
-/* camera */
+/* Camera */
 async function startCamera(){
   showErr('');
   if(!isHttpsOk()){
-    showErr('Safari iOS blocca la camera su HTTP. Usa HTTPS o localhost.');
+    showErr('Safari iOS blocca la camera su HTTP. Usa HTTPS.');
     return;
   }
+
+  startBtn.disabled = true;
+  stopBtn.disabled = false;
   setStatus('Apro la fotocamera…');
 
   try{
     const constraints = {
-      video: { facingMode:{ ideal:'environment' }, width:{ ideal:1280 }, height:{ ideal:720 } },
+      video: {
+        facingMode: { ideal: 'environment' },
+        width: { ideal: 1280 },
+        height:{ ideal: 720 }
+      },
       audio:false
     };
+
     stream = await navigator.mediaDevices.getUserMedia(constraints);
     video.srcObject = stream;
     video.setAttribute('playsinline','');
     await video.play();
 
-    track = stream.getVideoTracks()[0] || null;
-    torchOn = false;
-    await detectTorch();
+    track = stream.getVideoTracks()[0];
 
+    // BarcodeDetector
     detector = null;
-    if('BarcodeDetector' in window){
-      try{ detector = new window.BarcodeDetector({ formats:['qr_code'] }); }catch{}
+    if ('BarcodeDetector' in window){
+      try{ detector = new window.BarcodeDetector({ formats:['qr_code'] }); }
+      catch{ detector = null; }
+    }
+
+    // Torch support
+    torchSupported = false;
+    torchOn = false;
+    try{
+      const caps = track.getCapabilities?.() || {};
+      torchSupported = !!caps.torch;
+    }catch{}
+    if(torchSupported){
+      flashBtn.classList.remove('hidden');
+      flashBtn.textContent = '💡 Flash OFF';
+    }else{
+      flashBtn.classList.add('hidden');
     }
 
     scanning = true;
-    show('scan');
-    endGroupBtn.classList.toggle('hidden', !isGroup);
+    showStep('scan');
     setStatus('Inquadrando…');
+    endGroupBtn.classList.toggle('hidden', !isGroup);
+
     startHeartbeat();
     startScanLoop();
   }catch(e){
-    console.error(e);
-    showErr('Camera non disponibile: ' + (e.message||e.name));
+    console.error('camera error', e);
+    if (e.name === 'NotAllowedError') showErr('Permesso negato alla camera.');
+    else if (e.name === 'NotReadableError' || e.name === 'AbortError') showErr('Camera in uso da un’altra app.');
+    else showErr('Impossibile aprire la camera: ' + (e.message||e.name));
     setStatus('Errore');
+    startBtn.disabled = false;
+    stopBtn.disabled = true;
   }
 }
 
@@ -277,45 +321,72 @@ async function stopCamera(){
   stopScanLoop();
   scanning = false;
   stopHeartbeat();
-  clearTimeout(resAutoTimer);
 
-  try{ await setTorch(false); }catch{}
   try{ video.pause(); }catch{}
   if(stream){ stream.getTracks().forEach(t=>t.stop()); stream=null; }
-  track=null; detector=null;
-  flashBtn.disabled = true;
+  track = null;
+
+  startBtn.disabled = false;
+  stopBtn.disabled = true;
   setStatus('Fermato');
 }
 
-/* scan loop 12fps */
+async function toggleTorch(){
+  if(!track || !torchSupported) return;
+  torchOn = !torchOn;
+  try{
+    await track.applyConstraints({ advanced: [{ torch: torchOn }] });
+    flashBtn.textContent = torchOn ? '💡 Flash ON' : '💡 Flash OFF';
+  }catch(e){
+    torchOn = false;
+    flashBtn.textContent = '💡 Flash OFF';
+    showErr('Torch non disponibile su questo iPhone.');
+  }
+}
+
+/* Scan loop 12fps */
 function startScanLoop(){
   stopScanLoop();
   scanTimer = setInterval(async ()=>{
     if(!scanning) return;
     if(!video.videoWidth || !video.videoHeight) return;
-    const payload = await decodeFrame();
-    if(!payload) return;
 
-    scanning = false;
-    stopScanLoop();
-    toast('✅ QR letto', 700);
-    await onQr(payload);
+    const payload = await tryDecodeFrame();
+    if(payload){
+      const now = Date.now();
+      // anti-double-read (stesso QR letto 2 volte di fila)
+      if(payload === lastPayload && (now - lastAt) < 1500) return;
+      lastPayload = payload; lastAt = now;
+
+      scanning = false;
+      stopScanLoop();
+      toast('✅ QR letto', 900);
+      await onQrFound(payload);
+    }
   }, 85);
 }
 function stopScanLoop(){
   if(scanTimer){ clearInterval(scanTimer); scanTimer=null; }
 }
 
-async function decodeFrame(){
+/* Decode */
+async function tryDecodeFrame(){
+  // 1) BarcodeDetector
   if(detector){
     try{
       const codes = await detector.detect(video);
       if(codes && codes.length) return codes[0].rawValue || '';
     }catch{}
   }
+
+  // 2) jsQR crop aligned to inset 10% 18%
   try{
-    const vw = video.videoWidth, vh = video.videoHeight;
-    const insetTop = 0.10, insetSide = 0.18;
+    const vw = video.videoWidth;
+    const vh = video.videoHeight;
+
+    const insetTop = 0.10;
+    const insetSide = 0.18;
+
     const sx = Math.floor(vw * insetSide);
     const sy = Math.floor(vh * insetTop);
     const sw = Math.floor(vw * (1 - insetSide*2));
@@ -324,189 +395,230 @@ async function decodeFrame(){
     const targetW = 720;
     const scale = targetW / sw;
     const targetH = Math.max(360, Math.floor(sh * scale));
-    canvas.width = targetW; canvas.height = targetH;
+
+    canvas.width = targetW;
+    canvas.height = targetH;
 
     ctx.drawImage(video, sx, sy, sw, sh, 0, 0, targetW, targetH);
     const img = ctx.getImageData(0,0,targetW,targetH);
 
-    const code = window.jsQR && window.jsQR(img.data, targetW, targetH, { inversionAttempts:"attemptBoth" });
+    const code = window.jsQR && window.jsQR(img.data, targetW, targetH, {
+      inversionAttempts: "attemptBoth"
+    });
+
     return code?.data || null;
-  }catch{ return null; }
+  }catch{
+    return null;
+  }
 }
 
-/* ticket */
+/* Ticket helpers */
 function parseQR(text){
   try{
     const j = JSON.parse(text);
-    return { uid:j.uid||'', ticketId:j.ticketId||j.tid||j.id||'', name:j.name||'', dob:j.dob||'' };
+    return {
+      uid: j.uid || '',
+      ticketId: j.ticketId || j.tid || j.id || '',
+    };
   }catch{
-    const p = String(text).split('|');
-    return { uid:p[0]||'', ticketId:p[1]||'', name:'', dob:'' };
+    const parts = String(text).split('|');
+    return { uid: parts[0]||'', ticketId: parts[1]||'' };
   }
 }
-async function fetchMeta(uid, ticketId){
-  if(!uid || !ticketId) return null;
-  const ref = doc(db,'users',uid,'tickets',ticketId);
-  const snap = await getDoc(ref);
-  return snap.exists()? { id:ticketId, ...snap.data() } : null;
-}
-const safe = (v)=> (v==null||v==='') ? '—' : String(v);
 
-async function onQr(raw){
-  clearTimeout(resAutoTimer);
-  show('res');
-  alreadyUsed.classList.add('hidden');
+async function fetchTicketMeta(uid, ticketId){
+  if(!uid || !ticketId) return null;
+  const ref = doc(db, 'users', uid, 'tickets', ticketId);
+  const snap = await getDoc(ref);
+  return snap.exists()? { id: ticketId, ...snap.data() } : null;
+}
+
+function safe(v){ return (v==null||v==='') ? '—' : String(v); }
+
+/* On found */
+async function onQrFound(raw){
+  showErr('');
+  showStep('res');
   resultBox.className = 'result-card';
 
   const q = parseQR(raw);
-  const meta = await fetchMeta(q.uid, q.ticketId);
+  const meta = await fetchTicketMeta(q.uid, q.ticketId);
 
-  const st = String(meta?.status||'pending').toLowerCase();
-  const used = !!meta?.used || ['verified','flagged','mismatch'].includes(st);
-
-  resultBox.innerHTML = `
-    <div class="row">
-      <div><strong>${safe(meta?.type||'Biglietto')}</strong> <span class="muted">#${safe(q.ticketId)}</span></div>
-      <div class="pill">Stato: <b>${safe(meta?.status||'pending')}</b></div>
-    </div>
-    <div class="row"><div class="muted">Nome</div><div><b>${safe(meta?.name||q.name)}</b></div></div>
-    <div class="row"><div class="muted">Data di nascita</div><div><b>${safe(meta?.dob||q.dob)}</b></div></div>
-    <div class="row"><div class="muted">Tipo</div><div><b>${safe(meta?.type)}</b></div></div>
-  `;
-
-  if(used){
+  if(!meta){
     resultBox.classList.add('bad');
-    alreadyUsed.classList.remove('hidden');
-    okBtn.disabled = true;
-    misBtn.disabled = true;
-  }else{
-    okBtn.disabled = false;
-    misBtn.disabled = false;
+    resultBox.innerHTML = `<b>Ticket non trovato</b><div class="small muted">UID o TicketId invalidi.</div>`;
+    // torna allo scanner dopo 2s
+    return resumeAfter(2000);
   }
 
-  okBtn.onclick = ()=> finalize(q, meta, { status:'verified', mismatch:false });
-  misBtn.onclick= ()=> finalize(q, meta, { status:'mismatch', mismatch:true });
-  cancelBtn.onclick = ()=> resumeScan();
+  // blocca doppio utilizzo
+  const st = (meta.status||'pending').toLowerCase();
+  const alreadyUsed = (st === 'verified' || st === 'confirmed');
+  if(alreadyUsed){
+    resultBox.classList.add('bad');
+    resultBox.innerHTML = `
+      <div class="row" style="justify-content:space-between">
+        <div><b>${safe(meta.type||'Biglietto')}</b> <span class="muted">#${safe(q.ticketId)}</span></div>
+        <span class="pill" style="border-color:rgba(239,68,68,.55)">GIÀ USATO</span>
+      </div>
+      <div class="small muted" style="margin-top:8px">
+        Nome: <b>${safe(meta.name)}</b><br/>
+        Nascita: <b>${safe((meta.dob||'').toString().slice(0,10))}</b>
+      </div>
+    `;
+    // torna allo scanner dopo 2s
+    return resumeAfter(2000);
+  }
 
-  // auto ritorno dopo 10s (come vuoi tu)
-  resAutoTimer = setTimeout(()=> resumeScan(), 10000);
+  resultBox.innerHTML = `
+    <div class="row" style="justify-content:space-between">
+      <div><b>${safe(meta.type||'Biglietto')}</b> <span class="muted">#${safe(q.ticketId)}</span></div>
+      <span class="pill">Stato: <b>${safe(meta.status||'pending')}</b></span>
+    </div>
+    <div class="row"><div class="muted">Nome</div><div><b>${safe(meta.name)}</b></div></div>
+    <div class="row"><div class="muted">Data di nascita</div><div><b>${safe((meta.dob||'').toString().slice(0,10))}</b></div></div>
+    <div class="row"><div class="muted">Email</div><div>${safe(meta.email)}</div></div>
+    <div class="small muted" style="margin-top:8px">Confronta col documento e scegli.</div>
+  `;
+
+  matchBtn.onclick = ()=> finalizeTicket(q, meta, { docMatch:true, docMismatch:false, status:'verified' });
+  mismatchBtn.onclick = ()=> finalizeTicket(q, meta, { docMatch:false, docMismatch:true, status:'mismatch' });
+  cancelBtn.onclick = ()=> {
+    // annulla = non scrive nulla
+    toast('↩️ Annullato', 900);
+    resumeAfter(300);
+  };
 }
 
-function resumeScan(){
-  clearTimeout(resAutoTimer);
-  show('scan');
-  endGroupBtn.classList.toggle('hidden', !isGroup);
-  scanning = true;
-  startScanLoop();
-}
-
-async function finalize(q, meta, {status, mismatch}){
+/* finalize */
+async function finalizeTicket(q, meta, action){
   try{
-    clearTimeout(resAutoTimer);
-    const ticketRef = doc(db,'users',q.uid,'tickets',q.ticketId);
-    const checkinId = `${q.uid}_${q.ticketId}`;
-    const checkinRef= doc(db,'checkins',checkinId);
+    const uid = q.uid, ticketId = q.ticketId;
+    if(!uid || !ticketId) throw new Error('Dati QR incompleti');
 
-    await runTransaction(db, async (tx)=>{
-      const snap = await tx.get(ticketRef);
-      if(!snap.exists()) throw new Error('Ticket non trovato');
-      const t = snap.data()||{};
-      const st = String(t.status||'pending').toLowerCase();
-      const used = !!t.used || ['verified','flagged','mismatch'].includes(st);
-      if(used) throw new Error('Ticket già usato');
+    // UI immediate
+    if(action.docMismatch){
+      resultBox.classList.remove('ok'); resultBox.classList.add('warn');
+      toast('⚠️ Non corrisponde', 1200);
+    }else{
+      resultBox.classList.remove('warn'); resultBox.classList.add('ok');
+      toast('✅ Corrisponde', 1200);
+    }
 
-      tx.set(ticketRef, {
-        status,
-        mismatch: !!mismatch,
-        used: true,
-        usedAt: serverTimestamp(),
-        checkedInAt: serverTimestamp(),
-        checkedInBy: CURRENT_USER?.uid || null,
-        updatedAt: serverTimestamp()
-      }, { merge:true });
+    // 1) update ticket utente
+    await setDoc(doc(db,'users',uid,'tickets',ticketId), {
+      status: action.status,              // 'verified' oppure 'mismatch'
+      docMatch: !!action.docMatch,
+      docMismatch: !!action.docMismatch,
+      checkedInAt: serverTimestamp(),
+      checkedInBy: CURRENT_USER?.uid || null,
+      updatedAt: serverTimestamp()
+    }, { merge:true });
 
-      tx.set(checkinRef, {
-        uid: q.uid,
-        ticketId: q.ticketId,
-        status,
-        mismatch: !!mismatch,
-        checkedInAt: serverTimestamp(),
-        checkedInBy: CURRENT_USER?.uid || null,
-        name: meta?.name || q.name || '',
-        dob:  meta?.dob  || q.dob  || '',
-        email: meta?.email || '',
-        ticketType: meta?.type || ''
-      }, { merge:true });
+    // 2) scrivi checkin centrale
+    const checkinId = `${uid}_${ticketId}`;
+    await setDoc(doc(db,'checkins',checkinId), {
+      uid, ticketId,
+      status: action.status,
+      docMatch: !!action.docMatch,
+      docMismatch: !!action.docMismatch,
+      checkedInAt: serverTimestamp(),
+      checkedInBy: CURRENT_USER?.uid || null,
 
-      tx.set(doc(db,'system','live'), {
-        scannerActive:true,
-        updatedAt: serverTimestamp(),
-        lastWriteAt: serverTimestamp(),
-        byUid: CURRENT_USER?.uid || null
-      }, { merge:true });
-    });
+      name: meta.name || '',
+      dob:  (meta.dob||'').toString().slice(0,10) || '',
+      email: meta.email || '',
+      ticketType: meta.type || '',
 
-    resultBox.classList.add(mismatch ? 'warn' : 'ok');
-    toast(mismatch ? '⚠️ NON CORRISPONDE' : '✅ CORRISPONDE', 900);
+      drinksAlcoholic: meta.drinksAlcoholic ?? 0,
+      drinksSoft: meta.drinksSoft ?? 0,
 
-    // resta visibile 10s e poi torna
-    resAutoTimer = setTimeout(()=>{
-      if(isGroup){
-        resumeScan();
-      }else{
-        // torna all’inizio e stop camera (privacy)
-        isGroup=null; gMode.textContent='—';
-        show('grp');
-        stopCamera();
-      }
-    }, 10000);
+      updatedAt: serverTimestamp()
+    }, { merge:true });
 
+    // resta visibile 10s e poi riparte
+    resumeAfter(10000);
   }catch(e){
     console.error(e);
     showErr('Errore: ' + (e.message||e.name));
-    // torna a scan
-    resAutoTimer = setTimeout(()=> resumeScan(), 1200);
+    // torna al controllo
+    resumeAfter(1200);
   }
 }
 
-/* UI binds */
-gYes.onclick = async ()=>{
-  isGroup = true; gMode.textContent='sì';
-  // auto start camera con lo stesso tap (iOS)
-  await startCamera();
+function resumeAfter(ms){
+  setTimeout(()=>{
+    // se la camera è ancora accesa, riprendi
+    if(stream){
+      showStep('scan');
+      scanning = true;
+      endGroupBtn.classList.toggle('hidden', !isGroup);
+      startScanLoop();
+    }else{
+      // fallback
+      showStep('ctrl');
+      startBtn.disabled = false;
+      stopBtn.disabled = true;
+    }
+  }, ms);
+}
+
+/* Group flow: dopo la prima volta NON riavvia la camera */
+function goToGroupQuestion(){
+  isGroup = null;
+  gMode.textContent = '—';
+  showStep('grp');
+  // non fermo la camera: così “va da sola”
+  // appena scegli sì/no riparte la scansione
+}
+
+gYes.onclick = ()=>{
+  isGroup = true;
+  gMode.textContent = 'sì';
+  // se camera già aperta, vai diretto a scan
+  if(stream){
+    showStep('scan');
+    scanning = true;
+    endGroupBtn.classList.remove('hidden');
+    startScanLoop();
+  }else{
+    showStep('ctrl');
+  }
 };
-gNo.onclick = async ()=>{
-  isGroup = false; gMode.textContent='no';
-  await startCamera();
+gNo.onclick = ()=>{
+  isGroup = false;
+  gMode.textContent = 'no';
+  if(stream){
+    showStep('scan');
+    scanning = true;
+    endGroupBtn.classList.add('hidden');
+    startScanLoop();
+  }else{
+    showStep('ctrl');
+  }
 };
 
-stopBtn.onclick = async ()=>{
-  await stopCamera();
-  // torna a scelta gruppo
-  isGroup=null; gMode.textContent='—';
-  show('grp');
-};
-
-flashBtn.onclick = ()=> setTorch(!torchOn);
+startBtn.onclick = startCamera;
+stopBtn.onclick  = stopCamera;
+flashBtn.onclick = toggleTorch;
 
 endGroupBtn.onclick = ()=>{
-  // termina gruppo: torna a "è un gruppo?" ma camera resta accesa e continua scan
-  isGroup = null;
-  gMode.textContent='—';
-  show('grp');
-  // NON stop camera, così “va da sola”
-  // riprendo a scansionare in background
-  scanning = true;
-  startScanLoop();
+  // termina gruppo senza riavviare camera
+  scanning = false;
+  stopScanLoop();
+  goToGroupQuestion();
 };
 
+// iOS: se cambi tab, stop camera (evita blocchi)
 document.addEventListener('visibilitychange', ()=>{
   if(document.hidden) stopCamera();
 });
 
+/* Boot */
 onUser(async(u)=>{
   if(!u){ location.href='./login.html?from=./scanner.html'; return; }
   CURRENT_USER = u;
+  showStep('grp');
 });
 </script>
 </body>
