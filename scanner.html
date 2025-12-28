@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
 <title>TRAPPERREO — Scanner QR</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet" />
-<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes" />
 <style>
 :root{
   --bg:#000;--text:#fff;--muted:#bdbdbd;--card:#0f0f10;--b:#191919;--accent:#8b5cf6;
@@ -27,24 +27,56 @@ h1{margin:0;font-size:20px}
 .pill{display:inline-flex;align-items:center;gap:8px;border:1px solid #333;border-radius:999px;padding:6px 10px}
 .muted{color:var(--muted)}
 .hidden{display:none}
-#video{width:100%;max-height:62vh;background:#000;border-radius:12px;border:1px solid #111}
-#canvas{display:none}
+.small{font-size:12px}
+
 .qrbox{position:relative;margin-top:8px}
-.qrbox::after{content:"";position:absolute;inset:8% 20%;border:2px solid rgba(255,255,255,.35);border-radius:12px;pointer-events:none}
+#video{
+  width:100%;
+  max-height:62vh;
+  background:#000;
+  border-radius:12px;
+  border:1px solid #111;
+  display:block;
+  /* ✅ IMPORTANTISSIMO: niente zoom/tagli su iPhone */
+  object-fit:contain;
+}
+.qrbox::after{
+  content:"";
+  position:absolute;
+  /* ✅ QUESTE PERCENTUALI DEVONO combaciare col crop JS */
+  inset:10% 18%;
+  border:2px solid rgba(255,255,255,.35);
+  border-radius:14px;
+  pointer-events:none;
+}
 .notice{padding:8px 10px;border-radius:10px;border:1px dashed rgba(255,255,255,.25);font-size:12px}
 .notice.err{border-color:#ef4444;color:#ffdede;background:#2a0e0e}
 .result-card{background:#0b0b0b;border:1px solid #1b1b1b;border-radius:12px;padding:12px}
 .result-card .row{justify-content:space-between}
 .big-cassa{font-size:40px;font-weight:900;background:#fff;color:#000;border-radius:16px;padding:16px 22px;display:inline-block}
 .center{display:grid;place-items:center}
+
+/* ✅ popup "letto" */
+.toast{
+  position:fixed;left:50%;top:18px;transform:translateX(-50%);
+  z-index:999;
+  padding:12px 14px;border-radius:14px;
+  background:rgba(34,197,94,.18);
+  border:1px solid rgba(34,197,94,.55);
+  color:#d7ffe4;font-weight:900;
+  display:none;
+  box-shadow:0 10px 30px rgba(0,0,0,.4);
+}
+.toast.show{display:block}
 </style>
 </head>
 <body>
 <header><div class="wrap"><h1>TRAPPERREO — Scanner QR</h1></div></header>
 
+<div id="toast" class="toast">✅ QR letto</div>
+
 <main class="wrap">
 
-  <!-- STEP 0: domanda gruppo -->
   <section id="grpCard" class="card">
     <div class="row">
       <span class="pill">È un gruppo?</span>
@@ -53,11 +85,11 @@ h1{margin:0;font-size:20px}
       <span class="pill">Gruppo: <b id="gMode">—</b></span>
     </div>
     <div class="notice" style="margin-top:8px">
-      iPhone richiede <b>HTTPS</b> (o <b>localhost</b>) e una <b>azione utente</b> per attivare la camera.
+      iPhone richiede <b>HTTPS</b> (o <b>localhost</b>) e un <b>tap</b> per avviare la camera.
+      Se non va: Impostazioni → Safari → Fotocamera → Consenti.
     </div>
   </section>
 
-  <!-- STEP 1: controlli camera -->
   <section id="ctrlCard" class="card hidden">
     <div class="row">
       <button id="startBtn" class="btn primary">🎥 Avvia fotocamera (posteriore)</button>
@@ -65,15 +97,17 @@ h1{margin:0;font-size:20px}
       <span id="status" class="muted"></span>
     </div>
     <div id="err" class="notice err hidden"></div>
+    <div class="small muted" style="margin-top:8px">
+      Tieni il QR dentro il riquadro, distanza ~15–30cm, luminosità alta.
+    </div>
   </section>
 
-  <!-- STEP 2: preview + scan -->
   <section id="scanCard" class="card hidden">
-    <video id="video" playsinline muted></video>
-    <div class="qrbox"></div>
+    <div class="qrbox">
+      <video id="video" playsinline muted></video>
+    </div>
   </section>
 
-  <!-- STEP 3: risultato e azioni -->
   <section id="resCard" class="card hidden">
     <div id="resultBox" class="result-card"></div>
     <div class="row" style="margin-top:10px">
@@ -82,7 +116,6 @@ h1{margin:0;font-size:20px}
     </div>
   </section>
 
-  <!-- STEP 4: cassa -->
   <section id="cassaCard" class="card hidden center">
     <div>
       <div class="muted" style="margin-bottom:8px">Vai alla</div>
@@ -91,16 +124,17 @@ h1{margin:0;font-size:20px}
   </section>
 </main>
 
-<!-- Decoder: usa BarcodeDetector se disponibile; fallback jsQR -->
 <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
 
 <script type="module">
-/* Firebase auth & DB */
 import { app, onUser } from './auth.v2.js?v=6';
-import { getFirestore, doc, getDoc, setDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/12.5.0/firebase-firestore.js';
+import {
+  getFirestore, doc, getDoc, setDoc, serverTimestamp
+} from 'https://www.gstatic.com/firebasejs/12.5.0/firebase-firestore.js';
+
 const db = getFirestore(app);
 
-/* ======= UI REFS ======= */
+/* UI */
 const grpCard   = document.getElementById('grpCard');
 const ctrlCard  = document.getElementById('ctrlCard');
 const scanCard  = document.getElementById('scanCard');
@@ -116,6 +150,8 @@ const stopBtn  = document.getElementById('stopBtn');
 const statusEl = document.getElementById('status');
 const errEl    = document.getElementById('err');
 
+const toastEl  = document.getElementById('toast');
+
 const video    = document.getElementById('video');
 const okBtn    = document.getElementById('okBtn');
 const flagBtn  = document.getElementById('flagBtn');
@@ -124,17 +160,17 @@ const cassaBox = document.getElementById('cassaBox');
 
 let CURRENT_USER = null;
 
-/* ======= STATE ======= */
-let isGroup = null;   // true/false
-let groupScans = 0;
+/* State */
+let isGroup = null;
 let stream = null;
-let currentDeviceId = null;
 let scanning = false;
-let detector = null;  // BarcodeDetector se disponibile
-const canvas = document.createElement('canvas');
-const ctx = canvas.getContext('2d',{willReadFrequently:true});
+let detector = null;
+let scanTimer = null;
 
-/* ======= STEP FLOW HELPERS ======= */
+/* canvas per jsQR */
+const canvas = document.createElement('canvas');
+const ctx = canvas.getContext('2d', { willReadFrequently:true });
+
 function showStep(step){
   grpCard.classList.toggle('hidden', step!=='grp');
   ctrlCard.classList.toggle('hidden', step!=='ctrl');
@@ -145,132 +181,159 @@ function showStep(step){
 function setStatus(t){ statusEl.textContent=t||''; }
 function showErr(t){ errEl.textContent=t||''; errEl.classList.toggle('hidden', !t); }
 
-/* ======= CAMERA SELECTION (posteriore) ======= */
-async function pickBackCamera(){
-  try{
-    const tmp = await navigator.mediaDevices.getUserMedia({ video:{ facingMode:{ ideal:'environment' } }, audio:false });
-    tmp.getTracks().forEach(t=>t.stop());
-  }catch(_){}
-  const devices = await navigator.mediaDevices.enumerateDevices();
-  const videos  = devices.filter(d=>d.kind==='videoinput');
-  if(!videos.length) return null;
-  const pick=(kw)=>videos.find(d=>(d.label||'').toLowerCase().includes(kw));
-  const back = pick('back') || pick('rear') || pick('environment') || pick('tele') || pick('triple') || pick('wide');
-  return (back||videos[videos.length-1]).deviceId;
+function toast(msg='✅ QR letto', ms=3000){
+  toastEl.textContent = msg;
+  toastEl.classList.add('show');
+  clearTimeout(toast._t);
+  toast._t = setTimeout(()=>toastEl.classList.remove('show'), ms);
 }
 
+function isHttpsOk(){
+  return location.protocol === 'https:' || location.hostname === 'localhost';
+}
+
+/* Camera */
 async function startCamera(){
   showErr('');
-  setStatus('Richiesta permesso…');
-  startBtn.disabled = true; stopBtn.disabled = false;
+  if(!isHttpsOk()){
+    showErr('Safari iOS blocca la camera su HTTP. Usa HTTPS o localhost.');
+    return;
+  }
+
+  startBtn.disabled = true;
+  stopBtn.disabled = false;
+  setStatus('Apro la fotocamera…');
 
   try{
-    currentDeviceId = await pickBackCamera();
-    const constraints = currentDeviceId
-      ? { video:{
-            deviceId:{ exact: currentDeviceId },
-            width:{ ideal:1920 }, height:{ ideal:1080 }, frameRate:{ ideal:30 },
-            advanced:[ { focusMode:'continuous' } ]
-          }, audio:false }
-      : { video:{ facingMode:{ exact:'environment' }, width:{ ideal:1920 }, height:{ ideal:1080 } }, audio:false };
+    const constraints = {
+      video: {
+        facingMode: { ideal: 'environment' },
+        width: { ideal: 1280 },
+        height:{ ideal: 720 }
+      },
+      audio:false
+    };
 
     stream = await navigator.mediaDevices.getUserMedia(constraints);
     video.srcObject = stream;
+    video.setAttribute('playsinline','');
     await video.play();
 
-    // tenta focus continuo / zoom leggero per aiutare iPhone a non sfuocare
-    try{
-      const [track] = stream.getVideoTracks();
-      await track.applyConstraints({ advanced:[ { focusMode:'continuous' } ] });
-      // opzionale: un filo di zoom per dare fuoco più stabile
-      const caps = track.getCapabilities?.() || {};
-      if (caps.zoom){
-        const z = Math.min(caps.zoom.max, Math.max(caps.zoom.min, (caps.zoom.min + 0.25*(caps.zoom.max-caps.zoom.min))));
-        await track.applyConstraints({ advanced:[ { zoom:z } ] });
-      }
-    }catch(_){}
-
-    // prepara detector
+    // BarcodeDetector (se c'è)
+    detector = null;
     if ('BarcodeDetector' in window){
-      detector = new window.BarcodeDetector({ formats:['qr_code'] });
-    } else {
-      detector = null; // useremo jsQR
+      try{ detector = new window.BarcodeDetector({ formats:['qr_code'] }); }
+      catch{ detector = null; }
     }
 
     scanning = true;
-    setStatus('Fotocamera attiva (posteriore)');
     showStep('scan');
-    tick();
+    setStatus('Inquadrando…');
+    startScanLoop();
   }catch(e){
     console.error('camera error', e);
-    if (location.protocol !== 'https:' && location.hostname !== 'localhost'){
-      showErr('Safari iOS blocca la camera su HTTP. Usa HTTPS o localhost.');
-    } else if (e.name === 'NotAllowedError'){
-      showErr('Permesso negato. Impostazioni → Safari → Fotocamera → Consenti.');
-    } else if (e.name === 'OverconstrainedError'){
-      showErr('La camera posteriore non è disponibile. Chiudi altre app e riprova.');
-    } else if (e.name === 'NotReadableError' || e.name === 'AbortError'){
-      showErr('La fotocamera è in uso da un’altra app.');
-    } else {
+    if (e.name === 'NotAllowedError'){
+      showErr('Permesso negato. Abilita la camera nelle impostazioni del browser.');
+    }else if (e.name === 'NotReadableError' || e.name === 'AbortError'){
+      showErr('La fotocamera è in uso da un’altra app. Chiudila e riprova.');
+    }else{
       showErr('Impossibile aprire la camera: ' + (e.message||e.name));
     }
-    setStatus('Errore apertura');
-    startBtn.disabled = false; stopBtn.disabled = true;
+    setStatus('Errore');
+    startBtn.disabled = false;
+    stopBtn.disabled = true;
   }
 }
+
 async function stopCamera(){
+  stopScanLoop();
   scanning = false;
-  try{ video.pause(); }catch(_){}
-  if (stream){ stream.getTracks().forEach(t=>t.stop()); stream=null; }
-  startBtn.disabled=false; stopBtn.disabled=true;
+  try{ video.pause(); }catch{}
+  if(stream){ stream.getTracks().forEach(t=>t.stop()); stream=null; }
+  startBtn.disabled = false;
+  stopBtn.disabled = true;
   setStatus('Fermato');
 }
 
-/* ======= SCAN LOOP ======= */
-async function tick(){
-  if (!scanning || !video.videoWidth){ requestAnimationFrame(tick); return; }
+/* Loop 12fps (fluido + leggero iPhone) */
+function startScanLoop(){
+  stopScanLoop();
+  scanTimer = setInterval(async ()=>{
+    if(!scanning) return;
+    if(!video.videoWidth || !video.videoHeight) return;
 
-  const w = video.videoWidth, h = video.videoHeight;
-  canvas.width = w; canvas.height = h;
-  ctx.drawImage(video, 0, 0, w, h);
-
-  try{
-    let payload = null;
-
-    if (detector){
-      const bitmap = await createImageBitmap(canvas);
-      const codes = await detector.detect(bitmap).catch(()=>[]);
-      if (codes && codes.length){
-        payload = codes[0].rawValue || codes[0].rawValueText || '';
-      }
-    }else{
-      const img = ctx.getImageData(0,0,w,h);
-      const code = window.jsQR && window.jsQR(img.data, w, h);
-      if (code && code.data) payload = code.data;
-    }
-
-    if (payload){
+    const payload = await tryDecodeFrame();
+    if(payload){
       scanning = false;
+      stopScanLoop();
+      toast('✅ QR letto', 3000);
       await onQrFound(payload);
-      return;
     }
-  }catch(_){}
-
-  requestAnimationFrame(tick);
+  }, 85); // ~12 fps
+}
+function stopScanLoop(){
+  if(scanTimer){ clearInterval(scanTimer); scanTimer=null; }
 }
 
-/* ======= QR HANDLER ======= */
+/* Decode:
+   1) BarcodeDetector.detect(video)
+   2) jsQR su crop ALLINEATO al riquadro CSS (inset: 10% 18%)
+*/
+async function tryDecodeFrame(){
+  // 1) BarcodeDetector (se disponibile)
+  if(detector){
+    try{
+      const codes = await detector.detect(video);
+      if(codes && codes.length) return codes[0].rawValue || '';
+    }catch{/* fallback */}
+  }
+
+  // 2) jsQR crop allineato al box (10% top/bot, 18% left/right)
+  try{
+    const vw = video.videoWidth;
+    const vh = video.videoHeight;
+
+    const insetTop = 0.10;
+    const insetSide = 0.18;
+
+    const sx = Math.floor(vw * insetSide);
+    const sy = Math.floor(vh * insetTop);
+    const sw = Math.floor(vw * (1 - insetSide*2));
+    const sh = Math.floor(vh * (1 - insetTop*2));
+
+    // downscale per performance
+    const targetW = 720;
+    const scale = targetW / sw;
+    const targetH = Math.max(360, Math.floor(sh * scale));
+
+    canvas.width = targetW;
+    canvas.height = targetH;
+
+    ctx.drawImage(video, sx, sy, sw, sh, 0, 0, targetW, targetH);
+    const img = ctx.getImageData(0,0,targetW,targetH);
+
+    const code = window.jsQR && window.jsQR(img.data, targetW, targetH, {
+      inversionAttempts: "attemptBoth"
+    });
+
+    return code?.data || null;
+  }catch{
+    return null;
+  }
+}
+
+/* Ticket */
 function parseQR(text){
-  // Accettiamo JSON o forma "uid|ticketId"
+  // JSON o "uid|ticketId"
   try{
     const j = JSON.parse(text);
     return {
       uid: j.uid || '',
-      ticketId: j.ticketId || j.id || '',
+      ticketId: j.ticketId || j.tid || j.id || '',
       name: j.name || '',
       dob: j.dob || j.date_of_birth || ''
     };
-  }catch(_){
+  }catch{
     const parts = String(text).split('|');
     return { uid: parts[0]||'', ticketId: parts[1]||'', name:'', dob:'' };
   }
@@ -278,22 +341,21 @@ function parseQR(text){
 
 async function fetchTicketMeta(uid, ticketId){
   try{
-    if (!uid || !ticketId) return null;
+    if(!uid || !ticketId) return null;
     const ref = doc(db, 'users', uid, 'tickets', ticketId);
     const snap = await getDoc(ref);
     return snap.exists()? { id: ticketId, ...snap.data() } : null;
-  }catch(_){ return null; }
+  }catch{ return null; }
 }
 
 async function onQrFound(raw){
   showStep('res');
 
-  // parsing
   const q = parseQR(raw);
   const meta = await fetchTicketMeta(q.uid, q.ticketId);
 
-  // render scheda
   const safe = (v)=> (v==null||v==='') ? '—' : String(v);
+
   resultBox.innerHTML = `
     <div class="row">
       <div><strong>${safe(meta?.type||'Biglietto')}</strong> <span class="muted">#${safe(q.ticketId)}</span></div>
@@ -304,60 +366,88 @@ async function onQrFound(raw){
     <div class="row"><div class="muted">Email</div><div>${safe(meta?.email)}</div></div>
   `;
 
-  // bind conferma/flag
-  okBtn.onclick = ()=> finalizeTicket(q.uid, q.ticketId, 'confirmed');
-  flagBtn.onclick= ()=> finalizeTicket(q.uid, q.ticketId, 'flagged');
+  okBtn.onclick   = ()=> finalizeTicket(q, meta, 'confirmed');
+  flagBtn.onclick = ()=> finalizeTicket(q, meta, 'flagged');
 }
 
 function pickCassa(){
-  // Per ora casuale; poi lo sostituiremo con “cassa libera”.
   const n = [1,2,3][Math.floor(Math.random()*3)];
   return 'CASSA ' + n;
 }
 
-async function finalizeTicket(uid, ticketId, newStatus){
+async function finalizeTicket(q, meta, newStatus){
   try{
-    if (!uid || !ticketId){ throw new Error('Dati QR incompleti'); }
-    await setDoc(doc(db,'users',uid,'tickets',ticketId), {
+    if(!q?.uid || !q?.ticketId) throw new Error('Dati QR incompleti');
+
+    // 1) aggiorna ticket utente
+    await setDoc(doc(db,'users',q.uid,'tickets',q.ticketId), {
       status: newStatus,
-      updatedAt: serverTimestamp(),
-      verifiedBy: CURRENT_USER?.uid || null
+      checkedInAt: serverTimestamp(),
+      checkedInBy: CURRENT_USER?.uid || null,
+      updatedAt: serverTimestamp()
     }, { merge:true });
 
-    // mostra cassa per 5s
+    // 2) checkins centrale (per realtime founder)
+    const checkinId = `${q.uid}_${q.ticketId}`;
+    await setDoc(doc(db,'checkins',checkinId), {
+      uid: q.uid,
+      ticketId: q.ticketId,
+      status: newStatus,
+      checkedInAt: serverTimestamp(),
+      checkedInBy: CURRENT_USER?.uid || null,
+
+      name: meta?.name || q.name || '',
+      dob:  meta?.dob  || q.dob  || '',
+      email: meta?.email || '',
+      ticketType: meta?.type || '',
+
+      drinksAlcoholic: meta?.drinksAlcoholic ?? 0,
+      drinksSoft: meta?.drinksSoft ?? 0
+    }, { merge:true });
+
+    // UI
     cassaBox.textContent = pickCassa();
     showStep('cassa');
-    setTimeout(()=>{
-      if (isGroup){            // riparte direttamente la scansione
-        showStep('ctrl');      // mostra controlli per chiarezza (stop disponibile)
-        startBtn.disabled=false;
-        startCamera();         // riapre la camera e va in loop
+
+    setTimeout(async ()=>{
+      if(isGroup){
+        // riparti subito (camera già accesa)
+        showStep('scan');
+        scanning = true;
+        startScanLoop();
       }else{
-        // torna alla domanda gruppo
         isGroup = null;
-        groupScans = 0;
         gMode.textContent = '—';
-        stopCamera();
         showStep('grp');
+        await stopCamera(); // privacy + iOS stability
       }
-    }, 5000);
+    }, 2200);
 
   }catch(e){
+    console.error(e);
     showErr('Errore aggiornamento: ' + (e.message||e.name));
+    showStep('ctrl');
+    startBtn.disabled = false;
+    stopBtn.disabled = true;
   }
 }
 
-/* ======= BIND UI ======= */
+/* UI binds */
 gYes.onclick = ()=>{ isGroup = true;  gMode.textContent='sì'; showStep('ctrl'); };
 gNo.onclick  = ()=>{ isGroup = false; gMode.textContent='no'; showStep('ctrl'); };
 
 startBtn.onclick = startCamera;
 stopBtn.onclick  = stopCamera;
 
-/* ======= BOOT ======= */
+// iOS: se cambi tab, stop (evita camera “bloccata” al ritorno)
+document.addEventListener('visibilitychange', ()=>{
+  if(document.hidden) stopCamera();
+});
+
+/* Boot */
 onUser(async(u)=>{
   if(!u){ location.href='./login.html?from=./scanner.html'; return; }
-  CURRENT_USER = u; // chi sta scannerizzando (founder/admin/checker)
+  CURRENT_USER = u;
 });
 </script>
 </body>
