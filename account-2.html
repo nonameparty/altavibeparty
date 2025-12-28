@@ -7,7 +7,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&display=swap" rel="stylesheet" />
 <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
 <style>
-:root{--accent:#8b5cf6;--border:rgba(255,255,255,.12);--muted:rgba(255,255,255,.78);--ok:#22c55e;--danger:#ef4444}
+:root{--accent:#8b5cf6;--border:rgba(255,255,255,.12);--muted:rgba(255,255,255,.78);--ok:#22c55e;--danger:#ef4444;--warn:#fde047}
 *{box-sizing:border-box;margin:0;padding:0}
 body{background:#000;color:#fff;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;line-height:1.5;min-height:100vh;display:grid;grid-template-rows:auto 1fr}
 a{color:inherit;text-decoration:none}
@@ -29,7 +29,7 @@ h1{font-size:34px;font-weight:900;letter-spacing:-.3px;margin-bottom:6px}
 .card h2{font-size:20px;font-weight:900;margin-bottom:10px}
 .muted{color:var(--muted)}
 .ticket-list{display:grid;gap:10px}
-.ticket{background:#0b0b0b;border:1px solid rgba(255,255,255,.1);border-radius:12px;padding:12px}
+.ticket{background:#0b0b0b;border:1px solid rgba(255,255,255,.1);border-radius:12px;padding:12px;position:relative}
 .ticket .line{display:flex;justify-content:space-between;align-items:center}
 .ticket .row{display:flex;gap:12px;align-items:center;margin-top:8px}
 .empty{display:grid;place-items:center;min-height:160px;border:1px dashed rgba(255,255,255,.25);border-radius:12px}
@@ -47,6 +47,34 @@ input{background:#0f0f10;border:1px solid var(--border);border-radius:10px;color
 .state.ok{border-color:var(--ok);color:var(--ok)}
 .state.bad{border-color:var(--danger);color:var(--danger)}
 .notice{margin-top:6px;font-size:12px;opacity:.85}
+
+/* ✅ aggiunte UI */
+.ticket.okEdge{border-color: rgba(34,197,94,.6); background: rgba(34,197,94,.06)}
+.ticket.warnEdge{border-color: rgba(253,224,71,.7); background: rgba(253,224,71,.08)}
+.alertDoc{
+  margin-top:10px;
+  padding:8px 10px;
+  border-radius:10px;
+  border:1px dashed rgba(253,224,71,.65);
+  background: rgba(253,224,71,.10);
+  color:#fff;
+  font-size:12px;
+  font-weight:900;
+}
+.qrWrap{width:120px;height:120px;border-radius:10px;background:#fff;display:grid;place-items:center;position:relative;overflow:hidden}
+.qrWrap.blurred{filter: blur(7px); opacity:.55}
+.qrOverlay{
+  position:absolute; inset:0;
+  display:none;
+  place-items:center;
+  background: rgba(0,0,0,.55);
+  color:#fff;
+  font-weight:900;
+  font-size:12px;
+  text-align:center;
+  padding:8px;
+}
+.qrOverlay.show{display:grid}
 </style>
 </head>
 <body>
@@ -98,7 +126,6 @@ input{background:#0f0f10;border:1px solid var(--border);border-radius:10px;color
     </aside>
   </div>
 
-  <!-- 🔥 SEZIONI PR / CAPO PR / ADMIN -->
   <aside id="prPanel" class="card hidden">
     <h2>Pannello PR</h2>
     <p>Accesso riservato ai PR.</p>
@@ -114,7 +141,6 @@ input{background:#0f0f10;border:1px solid var(--border);border-radius:10px;color
     <p>Controllo completo vendite, categorie e sistema.</p>
   </aside>
 
-  <!-- Founder -->
   <aside id="founderBox" class="card hidden">
     <span class="state ok">Founder</span>
     <h2>Pannello Founder</h2>
@@ -128,7 +154,6 @@ input{background:#0f0f10;border:1px solid var(--border);border-radius:10px;color
 
 </main>
 
-<!-- MODAL profilo -->
 <div id="modal" class="backdrop" aria-hidden="true">
   <div class="modal">
     <h3>Modifica profilo</h3>
@@ -152,7 +177,10 @@ input{background:#0f0f10;border:1px solid var(--border);border-radius:10px;color
 
 <script type="module">
   import { app, onUser, doSignOut, requireActiveUser } from './auth.v2.js?v=6';
-  import { getFirestore, doc, getDoc, setDoc, collection, getDocs, serverTimestamp } from 'https://www.gstatic.com/firebasejs/12.5.0/firebase-firestore.js';
+  import {
+    getFirestore, doc, getDoc, setDoc, collection, serverTimestamp,
+    onSnapshot, query
+  } from 'https://www.gstatic.com/firebasejs/12.5.0/firebase-firestore.js';
 
   await requireActiveUser('./login.html');
 
@@ -216,29 +244,75 @@ input{background:#0f0f10;border:1px solid var(--border);border-radius:10px;color
     }catch{ return false; }
   }
 
-  async function loadTickets(uid){
-    const qSnap = await getDocs(collection(db,'users',uid,'tickets'));
-    const count = qSnap.size;
+  // ✅ heartbeat account-2 (per rotella LIVE su founder-checkins)
+  let HB_ACC = null;
+  async function touchAccountLive(){
+    try{
+      await setDoc(doc(db,'system','live'), {
+        accountLastSeen: serverTimestamp()
+      }, { merge:true });
+    }catch{}
+  }
+  function startAccHB(){
+    stopAccHB();
+    touchAccountLive();
+    HB_ACC = setInterval(touchAccountLive, 15000);
+  }
+  function stopAccHB(){
+    if(HB_ACC){ clearInterval(HB_ACC); HB_ACC=null; }
+  }
+
+  // ✅ RENDER tickets (uguale al tuo, ma supporta realtime + docMismatch + blur)
+  function renderTickets(uid, docs){
+    const count = docs.length;
     ticketsWrap.innerHTML = '';
-    qSnap.forEach(d=>{
+
+    docs.forEach(d=>{
       const t = { id:d.id, ...(d.data()||{}) };
+
       const state = (t.status||'pending').toLowerCase();
+
+      // bordo come tuo
       const color = state==='verified' ? '#22c55e' : state==='flagged' ? '#ef4444' : '#ffffff22';
+
       const box = document.createElement('div');
       box.className = 'ticket';
       box.style.border = `1px solid ${color}`;
+
+      // ✅ doc mismatch: giallo + banner
+      const docMismatch = (t.docMatch === false) || (t.docMismatch === true);
+      if(docMismatch){
+        box.classList.add('warnEdge');
+      }else if(state==='verified'){
+        box.classList.add('okEdge');
+      }
+
+      const qrId = `qr_${t.id}`;
+      const qrPayload = t.qr ? t.qr : JSON.stringify({ uid, tid: t.id, v:1 });
+
+      const used = (state === 'verified' || state === 'confirmed');
+
       box.innerHTML = `
         <div class="line">
           <strong>${t.type||'Biglietto'}</strong>
           <span class="state ${state==='verified'?'ok':state==='flagged'?'bad':''}">${state}</span>
         </div>
+
+        ${docMismatch ? `<div class="alertDoc">⚠️ BIGLIETTO NON CORRISPONDENTE AL DOCUMENTO</div>` : ``}
+
         <div class="row">
-          <div id="qr_${t.id}" style="width:120px;height:120px;border-radius:10px;background:#fff;display:grid;place-items:center"></div>
+          <div style="width:120px;height:120px;position:relative">
+            <div id="${qrId}" class="qrWrap ${used ? 'blurred' : ''}"></div>
+            <div class="qrOverlay ${used ? 'show' : ''}">BIGLIETTO USATO<br>(QR oscurato)</div>
+          </div>
+
           <div class="small muted">
             <div><b>Nome</b>: ${t.name || '—'}</div>
             <div><b>Nascita</b>: ${asDateStr(t.dob)}</div>
             <div><b>ID</b>: ${t.id}</div>
             <div class="notice">${t.locked ? 'Nominativo bloccato' : 'Nominativo modificabile'}</div>
+
+            <!-- ✅ BOTTONI ORIGINALI: NON TOCCATI -->
             <div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap">
               ${t.qr ? '' : `<button class="btn" data-gen="${t.id}">Genera QR e blocca</button>`}
               <button class="btn ghost" data-requnl="${t.id}">Sblocca nominativo (4€)</button>
@@ -247,23 +321,27 @@ input{background:#0f0f10;border:1px solid var(--border);border-radius:10px;color
           </div>
         </div>
       `;
+
       ticketsWrap.appendChild(box);
-      const payload = t.qr ? t.qr : JSON.stringify({ uid, tid: t.id, v:1 });
-      new QRCode(document.getElementById(`qr_${t.id}`), { text: payload, width:110, height:110 });
+
+      // QR render (pulisco prima per evitare duplicati)
+      const qrEl = document.getElementById(qrId);
+      qrEl.innerHTML = '';
+      new QRCode(qrEl, { text: qrPayload, width:110, height:110 });
     });
-    // **Fix empty-state**: mostra solo se non c’è nessun ticket
+
     ticketsEmpty.classList.toggle('hidden', count !== 0);
 
-    // Bind azioni
+    // Bind azioni (identiche alle tue)
     ticketsWrap.querySelectorAll('[data-gen]').forEach(btn=>{
       btn.onclick = async ()=>{
         const tid = btn.getAttribute('data-gen');
         btn.disabled=true; btn.textContent='Creo…';
         const qr = JSON.stringify({ uid, tid, v:1 });
         await setDoc(doc(db,'users',uid,'tickets',tid), { qr, locked:true, updatedAt: serverTimestamp() }, { merge:true });
-        location.reload();
       };
     });
+
     ticketsWrap.querySelectorAll('[data-requnl]').forEach(btn=>{
       btn.onclick = async ()=>{
         const tid = btn.getAttribute('data-requnl');
@@ -272,6 +350,7 @@ input{background:#0f0f10;border:1px solid var(--border);border-radius:10px;color
         alert('Sblocco effettuato. Ora premi "Cambia nominativo".');
       };
     });
+
     ticketsWrap.querySelectorAll('[data-edit]').forEach(btn=>{
       btn.onclick = async ()=>{
         const tid = btn.getAttribute('data-edit');
@@ -290,7 +369,7 @@ input{background:#0f0f10;border:1px solid var(--border);border-radius:10px;color
           unlockCredits: Math.max((t.unlockCredits||0)-1,0),
           updatedAt: serverTimestamp()
         }, { merge:true });
-        alert('Dati aggiornati e QR rigenerato.'); location.reload();
+        alert('Dati aggiornati e QR rigenerato.');
       };
     });
   }
@@ -303,11 +382,10 @@ input{background:#0f0f10;border:1px solid var(--border);border-radius:10px;color
     if (r === 'capo_pr')  capoPrPanel.classList.remove('hidden');
     if (r === 'admin')    adminPanel.classList.remove('hidden');
     if (r === 'founder') {
-      adminPanel.classList.remove('hidden'); // se vuoi, l'admin può vedere anche questo
+      adminPanel.classList.remove('hidden');
       founderBox.classList.remove('hidden');
     }
 
-    // Area scanner visibile solo per founder / admin / checker / scanner
     const canScan = ['founder','admin','checker','scanner'].includes(r);
     if (btnScannerProfile) {
       if (canScan) btnScannerProfile.classList.remove('hidden');
@@ -321,6 +399,9 @@ input{background:#0f0f10;border:1px solid var(--border);border-radius:10px;color
     founderBox.classList.remove('hidden');
     founderHello.textContent = `Accesso staff abilitato per ${u.email}.`;
   }
+
+  // ✅ realtime tickets subscription
+  let T_UNSUB = null;
 
   onUser(async (u)=>{
     if(!u){ nav.innerHTML = OUT; location.href='./login.html?from=./account-2.html'; return; }
@@ -340,6 +421,7 @@ input{background:#0f0f10;border:1px solid var(--border);border-radius:10px;color
       snap = await getDoc(userRef);
     }
     const me = snap.data()||{};
+
     document.getElementById('title').textContent = 'Il tuo account';
     document.getElementById('hello').innerHTML = `Ciao, <strong>${(me.name || u.displayName || u.email || 'Utente').split(' ')[0]}</strong>`;
     vName.textContent  = me.name || (u.displayName || '—');
@@ -349,9 +431,18 @@ input{background:#0f0f10;border:1px solid var(--border);border-radius:10px;color
     inpDob.value   = asDateStr(me.dob || '');
     inpEmail.value = me.email || u.email || '';
 
-    await loadTickets(u.uid);
     showRolePanels(me.role || 'customer');
     await mountFounder(u);
+
+    // ✅ avvia heartbeat account
+    startAccHB();
+
+    // ✅ realtime tickets (NO refresh)
+    try{ T_UNSUB && T_UNSUB(); }catch{}
+    const tcol = collection(db,'users',u.uid,'tickets');
+    T_UNSUB = onSnapshot(query(tcol), (qs)=>{
+      renderTickets(u.uid, qs.docs);
+    });
   });
 
   btnEdit.addEventListener('click', ()=> openModal());
@@ -365,6 +456,11 @@ input{background:#0f0f10;border:1px solid var(--border);border-radius:10px;color
       name, name_lc:name.toLowerCase(), dob:dob||'', updatedAt: serverTimestamp()
     }, { merge:true });
     vName.textContent = name; vDob.textContent = dob||'—'; closeModal();
+  });
+
+  window.addEventListener('beforeunload', ()=>{
+    try{ T_UNSUB && T_UNSUB(); }catch{}
+    try{ stopAccHB(); }catch{}
   });
 </script>
 
