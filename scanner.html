@@ -22,7 +22,7 @@ h1{margin:0;font-size:20px}
 .btn.primary{background:var(--accent);color:#000;border:none}
 .btn.ok{background:var(--ok);color:#000;border:none}
 .btn.warn{background:var(--warn);color:#000;border:none}
-.btn.stop{background:#fff;color:#000;border:none;font-size:18px;padding:14px 18px}
+.btn.danger{background:var(--err);color:#000;border:none}
 .btn:disabled{opacity:.55;cursor:not-allowed}
 .pill{display:inline-flex;align-items:center;gap:8px;border:1px solid #333;border-radius:999px;padding:6px 10px}
 .muted{color:var(--muted)}
@@ -49,28 +49,26 @@ h1{margin:0;font-size:20px}
 }
 .notice{padding:8px 10px;border-radius:10px;border:1px dashed rgba(255,255,255,.25);font-size:12px}
 .notice.err{border-color:#ef4444;color:#ffdede;background:#2a0e0e}
-
 .result-card{background:#0b0b0b;border:1px solid #1b1b1b;border-radius:12px;padding:12px}
+.result-card.ok{border-color:rgba(34,197,94,.55);background:rgba(34,197,94,.08)}
+.result-card.warn{border-color:rgba(253,224,71,.55);background:rgba(253,224,71,.08)}
+.result-card.bad{border-color:rgba(239,68,68,.55);background:rgba(239,68,68,.08)}
 .result-card .row{justify-content:space-between}
-.center{display:grid;place-items:center}
 
-/* ✅ popup "letto" */
 .toast{
   position:fixed;left:50%;top:18px;transform:translateX(-50%);
-  z-index:999;
-  padding:12px 14px;border-radius:14px;
+  z-index:999;padding:12px 14px;border-radius:14px;
   background:rgba(34,197,94,.18);
   border:1px solid rgba(34,197,94,.55);
-  color:#d7ffe4;font-weight:900;
-  display:none;
+  color:#d7ffe4;font-weight:900;display:none;
   box-shadow:0 10px 30px rgba(0,0,0,.4);
 }
 .toast.show{display:block}
 
-/* ✅ evidenzia verifica documento */
-.result-card.ok{border-color:rgba(34,197,94,.55); background:rgba(34,197,94,.08)}
-.result-card.warn{border-color:rgba(253,224,71,.55); background:rgba(253,224,71,.10)}
-.result-card.used{border-color:rgba(239,68,68,.55); background:rgba(239,68,68,.10)}
+.footerActions{
+  position:sticky;bottom:0;z-index:5;
+  padding:12px 0;background:linear-gradient(to top, rgba(0,0,0,.75), rgba(0,0,0,0));
+}
 </style>
 </head>
 <body>
@@ -79,7 +77,6 @@ h1{margin:0;font-size:20px}
 <div id="toast" class="toast">✅ QR letto</div>
 
 <main class="wrap">
-
   <section id="grpCard" class="card">
     <div class="row">
       <span class="pill">È un gruppo?</span>
@@ -89,48 +86,42 @@ h1{margin:0;font-size:20px}
     </div>
     <div class="notice" style="margin-top:8px">
       iPhone richiede <b>HTTPS</b> (o <b>localhost</b>) e un <b>tap</b> per avviare la camera.
-      Se non va: Impostazioni → Safari → Fotocamera → Consenti.
-    </div>
-  </section>
-
-  <section id="ctrlCard" class="card hidden">
-    <div class="row">
-      <button id="startBtn" class="btn primary">🎥 Avvia fotocamera (posteriore)</button>
-
-      <!-- ✅ AGGIUNTO: flash toggle -->
-      <button id="flashBtn" class="btn" disabled>🔦 Flash</button>
-
-      <button id="stopBtn"  class="btn stop" disabled>✋ STOP</button>
-      <span id="status" class="muted"></span>
-    </div>
-    <div id="err" class="notice err hidden"></div>
-    <div class="small muted" style="margin-top:8px">
-      Tieni il QR dentro il riquadro, distanza ~15–30cm, luminosità alta.
     </div>
   </section>
 
   <section id="scanCard" class="card hidden">
-    <div class="qrbox">
+    <div class="row">
+      <button id="stopBtn" class="btn">✋ Ferma camera</button>
+      <button id="flashBtn" class="btn" disabled>💡 Flash</button>
+      <span id="status" class="muted"></span>
+    </div>
+
+    <div id="err" class="notice err hidden" style="margin-top:10px"></div>
+
+    <div class="qrbox" style="margin-top:10px">
       <video id="video" playsinline muted></video>
+    </div>
+
+    <div class="footerActions">
+      <div class="row">
+        <button id="endGroupBtn" class="btn warn hidden">⛔ Termina gruppo</button>
+        <span class="small muted">Tip: QR nel riquadro, 15–30cm, luce alta.</span>
+      </div>
     </div>
   </section>
 
   <section id="resCard" class="card hidden">
     <div id="resultBox" class="result-card"></div>
-
-    <!-- ✅ NON HO TOLTO i tuoi bottoni: ho aggiunto “Annulla” e cambiato la logica -->
-    <div class="row" style="margin-top:10px">
+    <div id="alreadyUsed" class="notice err hidden" style="margin-top:10px">
+      ⛔ Biglietto già usato.
+    </div>
+    <div class="row" style="margin-top:12px">
       <button id="okBtn" class="btn ok">✅ Corrisponde</button>
-      <button id="flagBtn" class="btn warn">⚠️ Non corrisponde</button>
+      <button id="misBtn" class="btn warn">⚠️ Non corrisponde</button>
       <button id="cancelBtn" class="btn">↩️ Annulla</button>
     </div>
-  </section>
-
-  <!-- ✅ lasciato il tuo step cassa esattamente com’era -->
-  <section id="cassaCard" class="card hidden center">
-    <div>
-      <div class="muted" style="margin-bottom:8px">Vai alla</div>
-      <div id="cassaBox" class="big-cassa" style="font-size:40px;font-weight:900;background:#fff;color:#000;border-radius:16px;padding:16px 22px;display:inline-block">CASSA 2</div>
+    <div class="small muted" style="margin-top:10px">
+      Torno allo scanner automaticamente dopo <b>10 secondi</b>.
     </div>
   </section>
 </main>
@@ -140,251 +131,191 @@ h1{margin:0;font-size:20px}
 <script type="module">
 import { app, onUser } from './auth.v2.js?v=6';
 import {
-  getFirestore, doc, getDoc, setDoc, serverTimestamp,
-  runTransaction
+  getFirestore, doc, getDoc, setDoc, serverTimestamp, runTransaction
 } from 'https://www.gstatic.com/firebasejs/12.5.0/firebase-firestore.js';
 
 const db = getFirestore(app);
 
 /* UI */
-const grpCard   = document.getElementById('grpCard');
-const ctrlCard  = document.getElementById('ctrlCard');
-const scanCard  = document.getElementById('scanCard');
-const resCard   = document.getElementById('resCard');
-const cassaCard = document.getElementById('cassaCard');
+const grpCard = document.getElementById('grpCard');
+const scanCard= document.getElementById('scanCard');
+const resCard = document.getElementById('resCard');
 
 const gYes = document.getElementById('gYes');
 const gNo  = document.getElementById('gNo');
 const gMode= document.getElementById('gMode');
 
-const startBtn = document.getElementById('startBtn');
-const flashBtn = document.getElementById('flashBtn');
-const stopBtn  = document.getElementById('stopBtn');
+const stopBtn = document.getElementById('stopBtn');
+const flashBtn= document.getElementById('flashBtn');
+const endGroupBtn = document.getElementById('endGroupBtn');
+
 const statusEl = document.getElementById('status');
-const errEl    = document.getElementById('err');
+const errEl = document.getElementById('err');
+const toastEl = document.getElementById('toast');
 
-const toastEl  = document.getElementById('toast');
+const video = document.getElementById('video');
 
-const video    = document.getElementById('video');
-const okBtn    = document.getElementById('okBtn');
-const flagBtn  = document.getElementById('flagBtn');
-const cancelBtn= document.getElementById('cancelBtn');
-const resultBox= document.getElementById('resultBox');
-const cassaBox = document.getElementById('cassaBox');
+const resultBox = document.getElementById('resultBox');
+const alreadyUsed = document.getElementById('alreadyUsed');
+const okBtn = document.getElementById('okBtn');
+const misBtn= document.getElementById('misBtn');
+const cancelBtn = document.getElementById('cancelBtn');
 
 let CURRENT_USER = null;
 
-/* State */
 let isGroup = null;
 let stream = null;
-let scanning = false;
+let track = null;
 let detector = null;
+let scanning = false;
 let scanTimer = null;
 
-let LAST_SCAN_KEY = '';   // anti doppio “beep” locale
-let FLASH_ON = false;
+let torchSupported = false;
+let torchOn = false;
 
-/* canvas per jsQR */
+let resAutoTimer = null;
+let hbTimer = null;
+
 const canvas = document.createElement('canvas');
 const ctx = canvas.getContext('2d', { willReadFrequently:true });
 
-function showStep(step){
+function show(step){
   grpCard.classList.toggle('hidden', step!=='grp');
-  ctrlCard.classList.toggle('hidden', step!=='ctrl');
   scanCard.classList.toggle('hidden', step!=='scan');
   resCard.classList.toggle('hidden', step!=='res');
-  cassaCard.classList.toggle('hidden', step!=='cassa');
 }
-function setStatus(t){ statusEl.textContent=t||''; }
-function showErr(t){ errEl.textContent=t||''; errEl.classList.toggle('hidden', !t); }
-
-function toast(msg='✅ QR letto', ms=3000){
+function setStatus(t){ statusEl.textContent = t || ''; }
+function showErr(t){ errEl.textContent = t || ''; errEl.classList.toggle('hidden', !t); }
+function toast(msg, ms=900){
   toastEl.textContent = msg;
   toastEl.classList.add('show');
   clearTimeout(toast._t);
   toast._t = setTimeout(()=>toastEl.classList.remove('show'), ms);
 }
-
 function isHttpsOk(){
-  return location.protocol === 'https:' || location.hostname === 'localhost';
+  return location.protocol==='https:' || location.hostname==='localhost';
 }
 
-/* ===== Heartbeat: meccanismo attivo SOLO quando qualcuno è nello scanner ===== */
-let HB_T = null;
-async function setScannerLive(active){
-  try{
-    await setDoc(doc(db,'system','live'), {
-      scannerActive: !!active,
-      scannerLastSeen: serverTimestamp(),
-      scannerBy: CURRENT_USER?.uid || null
-    }, { merge:true });
-  }catch{}
-}
+/* heartbeat: ON solo mentre camera+scan attivi */
 function startHeartbeat(){
   stopHeartbeat();
-  setScannerLive(true);
-  HB_T = setInterval(()=> setScannerLive(true), 15000);
+  hbTimer = setInterval(async ()=>{
+    try{
+      await setDoc(doc(db,'system','live'), {
+        scannerActive:true,
+        updatedAt: serverTimestamp(),
+        byUid: CURRENT_USER?.uid || null
+      }, { merge:true });
+    }catch{}
+  }, 5000);
 }
 function stopHeartbeat(){
-  if(HB_T){ clearInterval(HB_T); HB_T=null; }
-  setScannerLive(false);
+  if(hbTimer){ clearInterval(hbTimer); hbTimer=null; }
 }
 
-/* ===== Flash toggle (se supportato) ===== */
-async function updateFlashButton(){
+/* Torch */
+async function detectTorch(){
+  torchSupported = false;
   try{
-    if(!stream){ flashBtn.disabled = true; flashBtn.textContent = '🔦 Flash'; return; }
-    const [track] = stream.getVideoTracks();
-    const caps = track.getCapabilities?.() || {};
-    const hasTorch = !!caps.torch;
-    flashBtn.disabled = !hasTorch;
-    flashBtn.textContent = FLASH_ON ? '🔦 Flash ON' : '🔦 Flash';
-  }catch{
-    flashBtn.disabled = true;
-    flashBtn.textContent = '🔦 Flash';
-  }
+    const caps = track?.getCapabilities?.();
+    torchSupported = !!caps?.torch;
+  }catch{}
+  flashBtn.disabled = !torchSupported;
+  flashBtn.textContent = torchSupported ? (torchOn ? '💡 Flash ON' : '💡 Flash OFF') : '💡 Flash';
 }
-async function toggleFlash(){
+async function setTorch(on){
+  if(!torchSupported || !track) return;
   try{
-    if(!stream) return;
-    const [track] = stream.getVideoTracks();
-    const caps = track.getCapabilities?.() || {};
-    if(!caps.torch) return;
-    FLASH_ON = !FLASH_ON;
-    await track.applyConstraints({ advanced:[{ torch: FLASH_ON }] });
-    updateFlashButton();
+    await track.applyConstraints({ advanced:[{ torch: !!on }] });
+    torchOn = !!on;
+    flashBtn.textContent = torchOn ? '💡 Flash ON' : '💡 Flash OFF';
   }catch{}
 }
 
-/* Camera */
+/* camera */
 async function startCamera(){
   showErr('');
   if(!isHttpsOk()){
     showErr('Safari iOS blocca la camera su HTTP. Usa HTTPS o localhost.');
     return;
   }
-
-  startBtn.disabled = true;
-  stopBtn.disabled = false;
   setStatus('Apro la fotocamera…');
 
   try{
     const constraints = {
-      video: {
-        facingMode: { ideal: 'environment' },
-        width: { ideal: 1280 },
-        height:{ ideal: 720 }
-      },
+      video: { facingMode:{ ideal:'environment' }, width:{ ideal:1280 }, height:{ ideal:720 } },
       audio:false
     };
-
     stream = await navigator.mediaDevices.getUserMedia(constraints);
     video.srcObject = stream;
     video.setAttribute('playsinline','');
     await video.play();
 
-    // BarcodeDetector (se c'è)
-    detector = null;
-    if ('BarcodeDetector' in window){
-      try{ detector = new window.BarcodeDetector({ formats:['qr_code'] }); }
-      catch{ detector = null; }
-    }
+    track = stream.getVideoTracks()[0] || null;
+    torchOn = false;
+    await detectTorch();
 
-    FLASH_ON = false;
-    await updateFlashButton();
+    detector = null;
+    if('BarcodeDetector' in window){
+      try{ detector = new window.BarcodeDetector({ formats:['qr_code'] }); }catch{}
+    }
 
     scanning = true;
-    showStep('scan');
+    show('scan');
+    endGroupBtn.classList.toggle('hidden', !isGroup);
     setStatus('Inquadrando…');
-
-    // ✅ attiva heartbeat SOLO quando lo scanner è aperto
     startHeartbeat();
-
     startScanLoop();
   }catch(e){
-    console.error('camera error', e);
-    if (e.name === 'NotAllowedError'){
-      showErr('Permesso negato. Abilita la camera nelle impostazioni del browser.');
-    }else if (e.name === 'NotReadableError' || e.name === 'AbortError'){
-      showErr('La fotocamera è in uso da un’altra app. Chiudila e riprova.');
-    }else{
-      showErr('Impossibile aprire la camera: ' + (e.message||e.name));
-    }
+    console.error(e);
+    showErr('Camera non disponibile: ' + (e.message||e.name));
     setStatus('Errore');
-    startBtn.disabled = false;
-    stopBtn.disabled = true;
   }
 }
 
 async function stopCamera(){
   stopScanLoop();
   scanning = false;
-
-  // ✅ stop heartbeat quando esci
   stopHeartbeat();
+  clearTimeout(resAutoTimer);
 
+  try{ await setTorch(false); }catch{}
   try{ video.pause(); }catch{}
-  if(stream){
-    try{
-      const [track] = stream.getVideoTracks();
-      const caps = track.getCapabilities?.() || {};
-      if(caps.torch && FLASH_ON){
-        FLASH_ON = false;
-        await track.applyConstraints({ advanced:[{ torch:false }] });
-      }
-    }catch{}
-    stream.getTracks().forEach(t=>t.stop());
-    stream=null;
-  }
-  await updateFlashButton();
-  startBtn.disabled = false;
-  stopBtn.disabled = true;
+  if(stream){ stream.getTracks().forEach(t=>t.stop()); stream=null; }
+  track=null; detector=null;
+  flashBtn.disabled = true;
   setStatus('Fermato');
 }
 
-/* Loop 12fps */
+/* scan loop 12fps */
 function startScanLoop(){
   stopScanLoop();
   scanTimer = setInterval(async ()=>{
     if(!scanning) return;
     if(!video.videoWidth || !video.videoHeight) return;
+    const payload = await decodeFrame();
+    if(!payload) return;
 
-    const payload = await tryDecodeFrame();
-    if(payload){
-      // anti-doppio locale
-      if(payload === LAST_SCAN_KEY) return;
-      LAST_SCAN_KEY = payload;
-      setTimeout(()=>{ if(LAST_SCAN_KEY===payload) LAST_SCAN_KEY=''; }, 1200);
-
-      scanning = false;
-      stopScanLoop();
-      toast('✅ QR letto', 1500);
-      await onQrFound(payload);
-    }
+    scanning = false;
+    stopScanLoop();
+    toast('✅ QR letto', 700);
+    await onQr(payload);
   }, 85);
 }
 function stopScanLoop(){
   if(scanTimer){ clearInterval(scanTimer); scanTimer=null; }
 }
 
-/* Decode */
-async function tryDecodeFrame(){
-  // 1) BarcodeDetector
+async function decodeFrame(){
   if(detector){
     try{
       const codes = await detector.detect(video);
       if(codes && codes.length) return codes[0].rawValue || '';
     }catch{}
   }
-
-  // 2) jsQR crop allineato al box (10% top/bot, 18% left/right)
   try{
-    const vw = video.videoWidth;
-    const vh = video.videoHeight;
-
-    const insetTop = 0.10;
-    const insetSide = 0.18;
-
+    const vw = video.videoWidth, vh = video.videoHeight;
+    const insetTop = 0.10, insetSide = 0.18;
     const sx = Math.floor(vw * insetSide);
     const sy = Math.floor(vh * insetTop);
     const sw = Math.floor(vw * (1 - insetSide*2));
@@ -393,67 +324,46 @@ async function tryDecodeFrame(){
     const targetW = 720;
     const scale = targetW / sw;
     const targetH = Math.max(360, Math.floor(sh * scale));
-
-    canvas.width = targetW;
-    canvas.height = targetH;
+    canvas.width = targetW; canvas.height = targetH;
 
     ctx.drawImage(video, sx, sy, sw, sh, 0, 0, targetW, targetH);
     const img = ctx.getImageData(0,0,targetW,targetH);
 
-    const code = window.jsQR && window.jsQR(img.data, targetW, targetH, {
-      inversionAttempts: "attemptBoth"
-    });
-
+    const code = window.jsQR && window.jsQR(img.data, targetW, targetH, { inversionAttempts:"attemptBoth" });
     return code?.data || null;
-  }catch{
-    return null;
-  }
-}
-
-/* Ticket */
-function parseQR(text){
-  try{
-    const j = JSON.parse(text);
-    return {
-      uid: j.uid || '',
-      ticketId: j.ticketId || j.tid || j.id || '',
-      name: j.name || '',
-      dob: j.dob || j.date_of_birth || ''
-    };
-  }catch{
-    const parts = String(text).split('|');
-    return { uid: parts[0]||'', ticketId: parts[1]||'', name:'', dob:'' };
-  }
-}
-
-async function fetchTicketMeta(uid, ticketId){
-  try{
-    if(!uid || !ticketId) return null;
-    const ref = doc(db, 'users', uid, 'tickets', ticketId);
-    const snap = await getDoc(ref);
-    return snap.exists()? { id: ticketId, ...snap.data() } : null;
   }catch{ return null; }
 }
 
-function pickCassa(){
-  const n = [1,2,3][Math.floor(Math.random()*3)];
-  return 'CASSA ' + n;
+/* ticket */
+function parseQR(text){
+  try{
+    const j = JSON.parse(text);
+    return { uid:j.uid||'', ticketId:j.ticketId||j.tid||j.id||'', name:j.name||'', dob:j.dob||'' };
+  }catch{
+    const p = String(text).split('|');
+    return { uid:p[0]||'', ticketId:p[1]||'', name:'', dob:'' };
+  }
 }
+async function fetchMeta(uid, ticketId){
+  if(!uid || !ticketId) return null;
+  const ref = doc(db,'users',uid,'tickets',ticketId);
+  const snap = await getDoc(ref);
+  return snap.exists()? { id:ticketId, ...snap.data() } : null;
+}
+const safe = (v)=> (v==null||v==='') ? '—' : String(v);
 
-function safe(v){ return (v==null||v==='') ? '—' : String(v); }
-
-async function onQrFound(raw){
-  showStep('res');
+async function onQr(raw){
+  clearTimeout(resAutoTimer);
+  show('res');
+  alreadyUsed.classList.add('hidden');
+  resultBox.className = 'result-card';
 
   const q = parseQR(raw);
-  const meta = await fetchTicketMeta(q.uid, q.ticketId);
+  const meta = await fetchMeta(q.uid, q.ticketId);
 
-  // ✅ blocco biglietto già usato (doppia scansione)
-  const st = (meta?.status || 'pending').toString().toLowerCase();
-  const alreadyUsed = (st === 'verified' || st === 'confirmed');
+  const st = String(meta?.status||'pending').toLowerCase();
+  const used = !!meta?.used || ['verified','flagged','mismatch'].includes(st);
 
-  // render
-  resultBox.className = 'result-card' + (alreadyUsed ? ' used' : '');
   resultBox.innerHTML = `
     <div class="row">
       <div><strong>${safe(meta?.type||'Biglietto')}</strong> <span class="muted">#${safe(q.ticketId)}</span></div>
@@ -461,119 +371,139 @@ async function onQrFound(raw){
     </div>
     <div class="row"><div class="muted">Nome</div><div><b>${safe(meta?.name||q.name)}</b></div></div>
     <div class="row"><div class="muted">Data di nascita</div><div><b>${safe(meta?.dob||q.dob)}</b></div></div>
-    <div class="row"><div class="muted">Email</div><div>${safe(meta?.email)}</div></div>
-    ${alreadyUsed ? `<div class="notice err" style="margin-top:10px">⚠️ BIGLIETTO GIÀ UTILIZZATO — non puoi riconfermare.</div>` : ``}
+    <div class="row"><div class="muted">Tipo</div><div><b>${safe(meta?.type)}</b></div></div>
   `;
 
-  okBtn.disabled = alreadyUsed;
-  flagBtn.disabled = alreadyUsed;
+  if(used){
+    resultBox.classList.add('bad');
+    alreadyUsed.classList.remove('hidden');
+    okBtn.disabled = true;
+    misBtn.disabled = true;
+  }else{
+    okBtn.disabled = false;
+    misBtn.disabled = false;
+  }
 
-  okBtn.onclick   = ()=> finalizeTicket(q, meta, { status:'verified', docMatch:true });
-  flagBtn.onclick = ()=> finalizeTicket(q, meta, { status:'flagged', docMatch:false });
+  okBtn.onclick = ()=> finalize(q, meta, { status:'verified', mismatch:false });
+  misBtn.onclick= ()=> finalize(q, meta, { status:'mismatch', mismatch:true });
+  cancelBtn.onclick = ()=> resumeScan();
 
-  cancelBtn.onclick = ()=> {
-    // ✅ annulla = non scrive nulla e riparte
-    showStep('scan');
-    scanning = true;
-    startScanLoop();
-  };
+  // auto ritorno dopo 10s (come vuoi tu)
+  resAutoTimer = setTimeout(()=> resumeScan(), 10000);
 }
 
-async function finalizeTicket(q, meta, { status, docMatch }){
+function resumeScan(){
+  clearTimeout(resAutoTimer);
+  show('scan');
+  endGroupBtn.classList.toggle('hidden', !isGroup);
+  scanning = true;
+  startScanLoop();
+}
+
+async function finalize(q, meta, {status, mismatch}){
   try{
-    if(!q?.uid || !q?.ticketId) throw new Error('Dati QR incompleti');
-
-    // evidenzia subito UI (senza refresh)
-    resultBox.classList.remove('ok','warn','used');
-    resultBox.classList.add(docMatch ? 'ok' : 'warn');
-
-    // ✅ BLOCCO DOPPIA SCANSIONE: transaction
+    clearTimeout(resAutoTimer);
     const ticketRef = doc(db,'users',q.uid,'tickets',q.ticketId);
     const checkinId = `${q.uid}_${q.ticketId}`;
-    const checkinRef = doc(db,'checkins',checkinId);
+    const checkinRef= doc(db,'checkins',checkinId);
 
     await runTransaction(db, async (tx)=>{
       const snap = await tx.get(ticketRef);
-      if(!snap.exists()) throw new Error('Ticket inesistente');
+      if(!snap.exists()) throw new Error('Ticket non trovato');
+      const t = snap.data()||{};
+      const st = String(t.status||'pending').toLowerCase();
+      const used = !!t.used || ['verified','flagged','mismatch'].includes(st);
+      if(used) throw new Error('Ticket già usato');
 
-      const cur = (snap.data()?.status || 'pending').toString().toLowerCase();
-      if(cur === 'verified' || cur === 'confirmed'){
-        throw new Error('Biglietto già utilizzato');
-      }
-
-      // 1) aggiorna ticket utente
       tx.set(ticketRef, {
         status,
-        docMatch: !!docMatch,
-        docMismatch: !docMatch,
+        mismatch: !!mismatch,
+        used: true,
+        usedAt: serverTimestamp(),
         checkedInAt: serverTimestamp(),
         checkedInBy: CURRENT_USER?.uid || null,
         updatedAt: serverTimestamp()
       }, { merge:true });
 
-      // 2) checkins centrale (per realtime founder)
       tx.set(checkinRef, {
         uid: q.uid,
         ticketId: q.ticketId,
         status,
-        docMatch: !!docMatch,
+        mismatch: !!mismatch,
         checkedInAt: serverTimestamp(),
         checkedInBy: CURRENT_USER?.uid || null,
-
         name: meta?.name || q.name || '',
         dob:  meta?.dob  || q.dob  || '',
         email: meta?.email || '',
-        ticketType: meta?.type || '',
+        ticketType: meta?.type || ''
+      }, { merge:true });
 
-        drinksAlcoholic: meta?.drinksAlcoholic ?? 0,
-        drinksSoft: meta?.drinksSoft ?? 0
+      tx.set(doc(db,'system','live'), {
+        scannerActive:true,
+        updatedAt: serverTimestamp(),
+        lastWriteAt: serverTimestamp(),
+        byUid: CURRENT_USER?.uid || null
       }, { merge:true });
     });
 
-    // UI cassa (come avevi tu)
-    cassaBox.textContent = pickCassa();
-    showStep('cassa');
+    resultBox.classList.add(mismatch ? 'warn' : 'ok');
+    toast(mismatch ? '⚠️ NON CORRISPONDE' : '✅ CORRISPONDE', 900);
 
-    setTimeout(async ()=>{
+    // resta visibile 10s e poi torna
+    resAutoTimer = setTimeout(()=>{
       if(isGroup){
-        showStep('scan');
-        scanning = true;
-        startScanLoop();
+        resumeScan();
       }else{
-        isGroup = null;
-        gMode.textContent = '—';
-        showStep('grp');
-        await stopCamera();
+        // torna all’inizio e stop camera (privacy)
+        isGroup=null; gMode.textContent='—';
+        show('grp');
+        stopCamera();
       }
-    }, 2200);
+    }, 10000);
 
   }catch(e){
     console.error(e);
     showErr('Errore: ' + (e.message||e.name));
-    // torna a scan senza scrivere nulla
-    showStep('scan');
-    scanning = true;
-    startScanLoop();
+    // torna a scan
+    resAutoTimer = setTimeout(()=> resumeScan(), 1200);
   }
 }
 
 /* UI binds */
-gYes.onclick = ()=>{ isGroup = true;  gMode.textContent='sì'; showStep('ctrl'); };
-gNo.onclick  = ()=>{ isGroup = false; gMode.textContent='no'; showStep('ctrl'); };
+gYes.onclick = async ()=>{
+  isGroup = true; gMode.textContent='sì';
+  // auto start camera con lo stesso tap (iOS)
+  await startCamera();
+};
+gNo.onclick = async ()=>{
+  isGroup = false; gMode.textContent='no';
+  await startCamera();
+};
 
-startBtn.onclick = startCamera;
-stopBtn.onclick  = stopCamera;
-flashBtn.onclick = toggleFlash;
+stopBtn.onclick = async ()=>{
+  await stopCamera();
+  // torna a scelta gruppo
+  isGroup=null; gMode.textContent='—';
+  show('grp');
+};
 
-// iOS: se cambi tab, stop (evita camera “bloccata” al ritorno)
+flashBtn.onclick = ()=> setTorch(!torchOn);
+
+endGroupBtn.onclick = ()=>{
+  // termina gruppo: torna a "è un gruppo?" ma camera resta accesa e continua scan
+  isGroup = null;
+  gMode.textContent='—';
+  show('grp');
+  // NON stop camera, così “va da sola”
+  // riprendo a scansionare in background
+  scanning = true;
+  startScanLoop();
+};
+
 document.addEventListener('visibilitychange', ()=>{
   if(document.hidden) stopCamera();
 });
 
-// ✅ se chiudi la pagina scanner: spegni heartbeat
-window.addEventListener('beforeunload', ()=>{ try{ stopHeartbeat(); }catch{} });
-
-/* Boot */
 onUser(async(u)=>{
   if(!u){ location.href='./login.html?from=./scanner.html'; return; }
   CURRENT_USER = u;
