@@ -17,19 +17,16 @@ body{background:var(--bg);color:var(--text);font-family:Inter,system-ui,-apple-s
 .wrap{max-width:1200px;margin:auto;padding:18px}
 .top{position:sticky;top:0;z-index:50;background:rgba(0,0,0,.7);backdrop-filter:blur(6px);border-bottom:1px solid rgba(255,255,255,.08)}
 .topin{max-width:1200px;margin:auto;padding:14px 18px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
-.brand{display:flex;align-items:center;gap:10px;font-weight:900}
+.brand{font-weight:900}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
 .badge{display:inline-flex;align-items:center;gap:8px;border:1px solid rgba(255,255,255,.14);border-radius:999px;padding:8px 10px;font-weight:900}
 .badge.ok{border-color:rgba(34,197,94,.40)}
 .badge.bad{border-color:rgba(239,68,68,.45)}
 .badge.accent{border-color:rgba(139,92,246,.45)}
 .muted{color:var(--muted)}
 .card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:16px;margin-top:14px}
-.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
 .input{flex:1;min-width:220px;background:#0f0f10;border:1px solid rgba(255,255,255,.15);border-radius:12px;color:#fff;padding:10px 12px;font-weight:800}
-.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:10px 12px;border-radius:12px;border:1px solid rgba(255,255,255,.16);background:#111;color:#fff;font-weight:900;cursor:pointer}
-.btn.primary{background:var(--accent);border-color:rgba(139,92,246,.6);color:#000}
-.small{font-size:12px}
-.hr{height:1px;background:rgba(255,255,255,.08);margin:12px 0}
+.btn{padding:10px 12px;border-radius:12px;border:1px solid rgba(255,255,255,.16);background:#111;color:#fff;font-weight:900;cursor:pointer}
 
 .table{width:100%;border-collapse:separate;border-spacing:0 10px}
 .table th{font-size:12px;color:rgba(255,255,255,.65);text-align:left;padding:0 10px}
@@ -40,24 +37,17 @@ body{background:var(--bg);color:var(--text);font-family:Inter,system-ui,-apple-s
 .pill{display:inline-flex;gap:8px;align-items:center;border:1px solid rgba(255,255,255,.14);border-radius:999px;padding:6px 10px;font-size:12px;font-weight:900}
 .pill.ok{border-color:rgba(34,197,94,.40)}
 .pill.warn{border-color:rgba(253,224,71,.40)}
-.pill.bad{border-color:rgba(239,68,68,.45)}
 
-.kbtn{padding:6px 8px;border-radius:10px;border:1px solid rgba(255,255,255,.16);background:transparent;color:#fff;font-weight:900;cursor:pointer;font-size:12px}
-.kbtn:hover{border-color:rgba(255,255,255,.26)}
-
-/* ✅ rotella LIVE */
 .spin{
-  width:12px;height:12px;border-radius:999px;
-  border:2px solid rgba(255,255,255,.25);
-  border-top-color: rgba(139,92,246,.95);
-  animation: sp 0.9s linear infinite;
-  display:none;
+  width:14px;height:14px;border-radius:999px;
+  border:2px solid rgba(255,255,255,.22);
+  border-top-color:rgba(34,197,94,.95);
+  animation:rot 0.9s linear infinite;
 }
-@keyframes sp{to{transform:rotate(360deg)}}
+@keyframes rot{to{transform:rotate(360deg)}}
 </style>
 </head>
 <body>
-
 <header class="top">
   <div class="topin">
     <div class="brand">TRAPPERREO — Check-in realtime</div>
@@ -65,8 +55,10 @@ body{background:var(--bg);color:var(--text);font-family:Inter,system-ui,-apple-s
       <a class="badge accent" href="./founder.html">← Founder</a>
       <a class="badge" href="./scanner.html">📷 Scanner</a>
 
-      <!-- ✅ LIVE badge + rotellina -->
-      <span class="badge ok">LIVE <span id="spin" class="spin"></span></span>
+      <span id="liveBadge" class="badge bad">⏸️ In attesa</span>
+      <span id="liveSpin" class="spin" style="display:none"></span>
+
+      <span class="badge">Ultimo write: <b id="lastWrite">—</b></span>
     </div>
   </div>
 </header>
@@ -78,36 +70,28 @@ body{background:var(--bg);color:var(--text);font-family:Inter,system-ui,-apple-s
       <button id="clear" class="btn">Reset</button>
       <span class="badge">Totale: <b id="count">—</b></span>
     </div>
-    <div class="small muted" style="margin-top:10px">
-      Questa lista si aggiorna in tempo reale appena lo scanner conferma un biglietto.
+    <div class="muted" style="margin-top:10px;font-size:12px">
+      LIVE si accende solo quando lo scanner è aperto e scrive l’heartbeat su <b>system/live</b>.
     </div>
-    <div class="small muted" id="liveHint" style="margin-top:8px"></div>
   </div>
 
   <div class="card">
     <table class="table">
       <thead>
         <tr>
-          <th>Ora</th>
-          <th>Nome</th>
-          <th>DOB</th>
-          <th>Tipo</th>
-          <th>Stato</th>
-          <th>Drink (A / NA)</th>
-          <th>Azioni</th>
+          <th>Ora</th><th>Nome</th><th>DOB</th><th>Tipo</th><th>Stato</th>
         </tr>
       </thead>
       <tbody id="tbody"></tbody>
     </table>
-    <div id="empty" class="muted small" style="display:none;margin-top:10px">Nessun check-in.</div>
+    <div id="empty" class="muted" style="display:none;margin-top:10px;font-size:12px">Nessun check-in.</div>
   </div>
 </main>
 
 <script type="module">
 import { app, onUser } from './auth.v2.js?v=6';
 import {
-  getFirestore, collection, query, orderBy, limit, onSnapshot, doc, updateDoc,
-  getDoc, setDoc, serverTimestamp
+  getFirestore, collection, query, orderBy, limit, onSnapshot, doc
 } from 'https://www.gstatic.com/firebasejs/12.5.0/firebase-firestore.js';
 
 const db = getFirestore(app);
@@ -118,16 +102,15 @@ const countEl = document.getElementById('count');
 const tbody = document.getElementById('tbody');
 const empty = document.getElementById('empty');
 
-const spin = document.getElementById('spin');
-const liveHint = document.getElementById('liveHint');
+const liveBadge = document.getElementById('liveBadge');
+const liveSpin  = document.getElementById('liveSpin');
+const lastWriteEl = document.getElementById('lastWrite');
 
 let ALL = [];
-let UNSUB = null;
-let LIVE_UNSUB = null;
-let HB_T = null;
+let UNSUB_CHECKINS = null;
+let UNSUB_LIVE = null;
 
 function lc(s){ return (s||'').toString().toLowerCase().trim(); }
-
 function fmtTime(ts){
   try{
     if(!ts) return '—';
@@ -135,25 +118,11 @@ function fmtTime(ts){
     return d.toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
   }catch{ return '—'; }
 }
-
-function statusPill(s, docMatch){
-  const v = lc(s);
-  const dm = (docMatch === false);
-  if(v === 'verified' || v === 'confirmed') return `<span class="pill ok">verified</span>`;
-  if(v === 'flagged' && dm) return `<span class="pill warn">doc mismatch</span>`;
-  if(v === 'flagged') return `<span class="pill warn">flagged</span>`;
-  return `<span class="pill">${v||'—'}</span>`;
-}
-
-function applyFilter(){
-  const term = lc(qInput.value);
-  const filtered = !term ? ALL : ALL.filter(x=>{
-    return lc(x.name).includes(term)
-      || lc(x.email).includes(term)
-      || lc(x.ticketId).includes(term)
-      || lc(x.ticketType).includes(term);
-  });
-  render(filtered);
+function pill(x){
+  if(x.mismatch) return `<span class="pill warn">mismatch</span>`;
+  const st = lc(x.status);
+  if(st==='verified') return `<span class="pill ok">verified</span>`;
+  return `<span class="pill warn">${st||'—'}</span>`;
 }
 
 function render(arr){
@@ -161,130 +130,63 @@ function render(arr){
   countEl.textContent = String(arr.length);
   empty.style.display = arr.length ? 'none' : 'block';
 
-  const frag = document.createDocumentFragment();
+  const term = lc(qInput.value);
+  const filtered = !term ? arr : arr.filter(x=>
+    lc(x.name).includes(term) || lc(x.email).includes(term) || lc(x.ticketId).includes(term) || lc(x.ticketType).includes(term)
+  );
 
-  arr.forEach(x=>{
+  filtered.forEach(x=>{
     const tr = document.createElement('tr');
-
-    const alco = Number(x.drinksAlcoholic||0);
-    const soft = Number(x.drinksSoft||0);
-
     tr.innerHTML = `
       <td>${fmtTime(x.checkedInAt)}</td>
-      <td><b>${x.name || '—'}</b><div class="small muted">${x.email || ''}</div></td>
+      <td><b>${x.name||'—'}</b><div style="font-size:12px;color:rgba(255,255,255,.65)">${x.email||''}</div></td>
       <td>${(x.dob||'').toString().slice(0,10) || '—'}</td>
-      <td>${x.ticketType || '—'}<div class="small muted">#${x.ticketId || '—'}</div></td>
-      <td>${statusPill(x.status, x.docMatch)}</td>
-      <td><b>${alco}</b> / <b>${soft}</b></td>
-      <td>
-        <div class="row">
-          <button class="kbtn" data-a-plus="${x.id}">A +</button>
-          <button class="kbtn" data-a-minus="${x.id}">A -</button>
-          <button class="kbtn" data-s-plus="${x.id}">NA +</button>
-          <button class="kbtn" data-s-minus="${x.id}">NA -</button>
-        </div>
-      </td>
+      <td>${x.ticketType || '—'}<div style="font-size:12px;color:rgba(255,255,255,.65)">#${x.ticketId||'—'}</div></td>
+      <td>${pill(x)}</td>
     `;
-    frag.appendChild(tr);
-  });
-
-  tbody.appendChild(frag);
-
-  tbody.querySelectorAll('[data-a-plus]').forEach(b=>{
-    b.onclick = ()=> bump(b.getAttribute('data-a-plus'), 'drinksAlcoholic', +1);
-  });
-  tbody.querySelectorAll('[data-a-minus]').forEach(b=>{
-    b.onclick = ()=> bump(b.getAttribute('data-a-minus'), 'drinksAlcoholic', -1);
-  });
-  tbody.querySelectorAll('[data-s-plus]').forEach(b=>{
-    b.onclick = ()=> bump(b.getAttribute('data-s-plus'), 'drinksSoft', +1);
-  });
-  tbody.querySelectorAll('[data-s-minus]').forEach(b=>{
-    b.onclick = ()=> bump(b.getAttribute('data-s-minus'), 'drinksSoft', -1);
+    tbody.appendChild(tr);
   });
 }
 
-async function bump(id, field, delta){
-  if(!id) return;
-  const ref = doc(db, 'checkins', id);
-
-  const cur = ALL.find(x=>x.id===id);
-  const now = Math.max(0, Number(cur?.[field]||0) + delta);
-  const patch = {};
-  patch[field] = now;
-  await updateDoc(ref, patch);
-}
-
-/* ✅ Heartbeat checkins + stato LIVE basato su 3 heartbeat */
-async function touchLive(){
-  try{
-    await setDoc(doc(db,'system','live'), {
-      checkinsLastSeen: serverTimestamp()
-    }, { merge:true });
-  }catch{}
-}
-function startHB(){
-  stopHB();
-  touchLive();
-  HB_T = setInterval(touchLive, 15000);
-}
-function stopHB(){
-  if(HB_T){ clearInterval(HB_T); HB_T=null; }
-}
-
-function isRecent(ts, maxMs){
-  try{
-    if(!ts) return false;
-    const d = ts.toDate ? ts.toDate() : new Date(ts);
-    return (Date.now() - d.getTime()) <= maxMs;
-  }catch{ return false; }
-}
-
-function startLiveIndicator(){
-  LIVE_UNSUB = onSnapshot(doc(db,'system','live'), (snap)=>{
-    const v = snap.data() || {};
-    const scannerOk  = isRecent(v.scannerLastSeen, 25000) && v.scannerActive === true;
-    const accountOk  = isRecent(v.accountLastSeen, 25000);
-    const checkinsOk = isRecent(v.checkinsLastSeen, 25000);
-
-    const allOk = scannerOk && accountOk && checkinsOk;
-
-    spin.style.display = allOk ? 'inline-block' : 'none';
-    liveHint.textContent = allOk
-      ? '✅ Sistema LIVE: scanner + account + checkins attivi.'
-      : '⏸️ In attesa: lo scanner (o account) non è attivo in questo momento.';
-  });
-}
-
-function startRealtime(){
-  const q = query(collection(db,'checkins'), orderBy('checkedInAt','desc'), limit(500));
-  UNSUB = onSnapshot(q, (snap)=>{
+function start(){
+  const qy = query(collection(db,'checkins'), orderBy('checkedInAt','desc'), limit(500));
+  UNSUB_CHECKINS = onSnapshot(qy, (snap)=>{
     const arr = [];
-    snap.forEach(d=>{
-      arr.push({ id:d.id, ...(d.data()||{}) });
-    });
+    snap.forEach(d=> arr.push({ id:d.id, ...(d.data()||{}) }));
     ALL = arr;
-    applyFilter();
+    render(ALL);
+  });
+
+  UNSUB_LIVE = onSnapshot(doc(db,'system','live'), (snap)=>{
+    const v = snap.exists()? (snap.data()||{}) : {};
+    const ts = v.updatedAt;
+    const last = v.lastWriteAt;
+
+    const now = Date.now();
+    const updatedMs = ts?.toDate ? ts.toDate().getTime() : 0;
+    const on = v.scannerActive && updatedMs && (now - updatedMs) < 15000;
+
+    liveSpin.style.display = on ? '' : 'none';
+    liveBadge.className = 'badge ' + (on ? 'ok' : 'bad');
+    liveBadge.textContent = on ? '🟢 LIVE' : '⏸️ In attesa';
+
+    if(last?.toDate){
+      lastWriteEl.textContent = last.toDate().toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+    }else lastWriteEl.textContent = '—';
   });
 }
 
 onUser(async(u)=>{
   if(!u){ location.href='./login.html?from=./founder-checkins.html'; return; }
-  startRealtime();
-  startHB();
-  startLiveIndicator();
+  start();
 });
 
-qInput.addEventListener('input', ()=>{
-  clearTimeout(applyFilter._t);
-  applyFilter._t = setTimeout(applyFilter, 120);
-});
-clearBtn.onclick = ()=>{ qInput.value=''; applyFilter(); };
+qInput.addEventListener('input', ()=> render(ALL));
+clearBtn.onclick = ()=>{ qInput.value=''; render(ALL); };
 
 window.addEventListener('beforeunload', ()=>{
-  try{ UNSUB && UNSUB(); }catch{}
-  try{ LIVE_UNSUB && LIVE_UNSUB(); }catch{}
-  try{ stopHB(); }catch{}
+  try{ UNSUB_CHECKINS && UNSUB_CHECKINS(); }catch{}
+  try{ UNSUB_LIVE && UNSUB_LIVE(); }catch{}
 });
 </script>
 </body>
