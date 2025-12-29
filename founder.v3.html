@@ -1248,9 +1248,18 @@ btnLogout.addEventListener('click', async ()=>{
 /* ===== Boot ===== */
 onUser(async (u)=>{
   try{
-    if(!u){ location.href='./login.html?from=./founder.html'; return; }
+    console.log('[BOOT] onUser fired:', u);
 
+    if(!u){
+      console.warn('[BOOT] no user -> redirect login');
+      location.href='./login.html?from=./founder.html';
+      return;
+    }
+
+    console.log('[BOOT] checking founder permissions…');
     const ok = await isFounder(u.email||'', u.uid);
+    console.log('[BOOT] isFounder result:', ok);
+
     who.textContent = ok
       ? `Ciao ${u.email} — permessi Founder/Admin attivi.`
       : 'Accesso negato.';
@@ -1261,16 +1270,21 @@ onUser(async (u)=>{
       return;
     }
 
+    console.log('[BOOT] setTab init…');
     setTab(tabFromHash());
 
-    clearError();
+    console.log('[BOOT] loadUsers…');
     await loadUsers();
-    runStats().catch(e=>console.warn('stats failed', e));
+
+    console.log('[BOOT] runStats…');
+    runStats().catch(e=>console.warn('[BOOT] stats failed', e));
 
     pillLive.classList.remove('hidden');
+    console.log('[BOOT] done ✅');
+
   }catch(err){
-    console.error(err);
-    showError('Errore inizializzazione pannello. Controlla console.');
+    console.error('🔥 [BOOT] init failed:', err);
+    showError('Errore inizializzazione pannello: ' + (err?.message || err));
   }
 });
 </script>
