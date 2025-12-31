@@ -58,11 +58,18 @@ a{color:inherit;text-decoration:none}
     border-right:1px solid rgba(255,255,255,.12);
   }
   .sidebar.open{transform:translateX(0)}
-  .scrim{
-    position:fixed; inset:0; background:rgba(0,0,0,.55);
-    z-index:79; display:none;
-  }
-  .scrim.show{display:block}
+  /* ✅ SCRIM globale (evita overlay strani che bloccano i click) */
+.scrim{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.55);
+  z-index:79;
+  display:none;
+  pointer-events:none; /* IMPORTANTISSIMO: non blocca i click quando è nascosto */
+}
+.scrim.show{
+  display:block;
+  pointer-events:auto; /* blocca solo quando è aperto il menu */
 }
 
 .brand{
@@ -685,7 +692,17 @@ function tabFromHash(){
   return views[h] ? h : 'dash';
 }
 window.addEventListener('hashchange', ()=> setTab(tabFromHash()));
-
+// ✅ click handler hard per i tab (non dipende solo dall'hashchange)
+document.querySelectorAll('a[data-tab]').forEach(a=>{
+  a.addEventListener('click', (e)=>{
+    const t = a.getAttribute('data-tab');
+    if(!t) return;
+    if(!views[t]) return; // tab non esiste
+    e.preventDefault();
+    location.hash = '#'+t;
+    setTab(t);
+  });
+});
 /* ===== Mobile sidebar ===== */
 hamb?.addEventListener('click', ()=>{
   sidebar.classList.toggle('open');
