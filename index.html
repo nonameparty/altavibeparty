@@ -4,212 +4,176 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>TRAPPERREO — Biglietti</title>
-  <meta name="description" content="Evento privato. Prevendita online fino a esaurimento posti." />
-
-  <!-- Font pulito (come “prima” / classico moderno) -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <meta name="description" content="TRAPPERREO • Trap & Reggaeton • Evento privato • Prevendita online fino a esaurimento posti." />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&display=swap" rel="stylesheet">
 
   <style>
     :root{
-      --bg:#050507;
-      --text:#ffffff;
-      --muted:rgba(255,255,255,.70);
-      --muted2:rgba(255,255,255,.55);
+      --accent:#B6FF4A; /* lime trap */
+      --bg:#000;
+      --text:#fff;
 
-      --panel:rgba(255,255,255,.06);
-      --panel2:rgba(255,255,255,.04);
-      --border:rgba(255,255,255,.12);
-      --border2:rgba(255,255,255,.18);
+      --card: rgba(255,255,255,.04);
+      --border: rgba(255,255,255,.14);
+      --muted: rgba(255,255,255,.78);
+      --muted2: rgba(255,255,255,.62);
 
-      /* lime trap */
-      --accent:#B6FF4A;
-      --accentInk:#071006;
-
-      --shadow: 0 18px 70px rgba(0,0,0,.60);
-      --radius:18px;
+      /* ✅ il tuo sfondo dentro ai ticket */
+      --ticketBgUrl: url("./assets/bg/trapperreo-bg.png");
     }
 
     *{box-sizing:border-box;margin:0;padding:0}
-    html,body{height:100%}
-
-    /* ✅ NIENTE gradientoni grandi sotto: il lime resta solo in piccoli dettagli */
+    html,body{
+      height:100%;
+      background:#000; /* ✅ importantissimo per iOS */
+    }
     body{
-      font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      background:#000; /* ✅ niente gradient = addio fasce */
       color:var(--text);
-      background:
-        radial-gradient(900px 520px at 15% -10%, rgba(182,255,74,.09), transparent 62%),
-        linear-gradient(180deg, #050507 0%, #04040a 70%, #050507 100%);
-      line-height:1.35;
+      font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+      line-height:1.5;
+      overflow-x:hidden;
+      -webkit-font-smoothing: antialiased;
       padding-bottom:120px;
     }
-
     a{color:inherit;text-decoration:none}
-    .wrap{max-width:980px;margin:0 auto;padding:18px}
 
-    /* ✅ iOS fix: niente backdrop-filter -> addio bande */
+    /* ===== NAV (stile simile al tuo originale) ===== */
     header{
       position:sticky;top:0;z-index:50;
-      background:rgba(5,5,7,.92);
-      border-bottom:1px solid rgba(255,255,255,.10);
+      background:rgba(0,0,0,.88); /* ✅ niente blur */
+      border-bottom:1px solid rgba(255,255,255,.08);
     }
-    .topbar{display:flex;align-items:center;justify-content:space-between;gap:14px}
-    .brand{display:flex;align-items:center;gap:10px}
-    .mark{
-      width:18px;height:18px;border-radius:6px;
-      background:var(--accent);
-      box-shadow:0 0 0 1px rgba(182,255,74,.22);
-      transform:skew(-10deg);
-      flex:0 0 auto;
+    .nav{
+      max-width:1200px;margin:auto;
+      padding:14px 20px;
+      display:flex;align-items:center;justify-content:space-between;gap:12px;
     }
-    .brandName{
-      font-weight:900;
-      letter-spacing:.2px;
-      font-size:18px;
-    }
-
-    nav{display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:flex-end}
+    .brand{display:flex;align-items:center;gap:10px;font-weight:900;letter-spacing:-.3px}
+    .brand-badge{width:22px;height:22px;background:var(--accent);transform:skew(-6deg);border-radius:3px}
+    nav{display:flex;align-items:center;gap:12px;flex-wrap:wrap;justify-content:flex-end}
     .pill{
-      font-size:13px;font-weight:900;
-      padding:9px 12px;border-radius:999px;
-      border:1px solid rgba(255,255,255,.12);
-      background:rgba(255,255,255,.03);
-      color:rgba(255,255,255,.92);
-      cursor:pointer;
-    }
-    .pill:hover{border-color:rgba(255,255,255,.20);background:rgba(255,255,255,.05)}
-    .hello{border-color:transparent;background:transparent;padding:9px 6px;cursor:default}
-    .action{
-      border-color:rgba(182,255,74,.28);
-      background:rgba(182,255,74,.12);
-    }
-
-    /* Hero */
-    .hero{padding:16px 0 10px}
-    .poster{
-      position:relative;
-      border-radius:22px;
-      border:1px solid rgba(255,255,255,.12);
-      background:linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.03));
-      box-shadow:var(--shadow);
-      overflow:hidden;
-      padding:18px;
-    }
-    /* ✅ niente overlay che crea bande */
-    .poster::before{
-      content:"";
-      position:absolute;inset:0;
-      background:
-        radial-gradient(1200px 640px at 50% 0%, rgba(0,0,0,.16), transparent 60%),
-        radial-gradient(980px 520px at 50% 120%, rgba(0,0,0,.40), transparent 60%);
-      opacity:.85;
-      pointer-events:none;
-    }
-    .poster > *{position:relative;z-index:1}
-
-    .kicker{
-      font-size:12px;
-      letter-spacing:.8px;
-      text-transform:uppercase;
-      color:var(--muted2);
-      display:flex;
-      justify-content:space-between;
-      gap:10px;
-      flex-wrap:wrap;
-      align-items:center;
-    }
-    .stamp{
-      display:inline-flex;
-      align-items:center;
-      padding:7px 10px;
-      border-radius:999px;
-      border:1px solid rgba(182,255,74,.40);
-      background:rgba(182,255,74,.10);
-      color:rgba(255,255,255,.95);
-      font-size:11px;
+      padding:10px 14px;border-radius:999px;
+      border:1px solid rgba(255,255,255,.14);
+      background:rgba(255,255,255,.04);
       font-weight:900;
+      font-size:14px;
+      opacity:.95;
+    }
+    .pill.action{
+      border-color:rgba(182,255,74,.35);
+      background:rgba(182,255,74,.10);
+    }
+    .pill.ghost{
+      border-color:transparent;
+      background:transparent;
+      padding:10px 8px;
+      cursor:default;
+      opacity:.9;
+    }
+    .pill:hover{border-color:rgba(255,255,255,.22)}
+    .pill.action:hover{border-color:rgba(182,255,74,.45)}
+
+    main{max-width:1100px;margin:auto;padding:18px 20px}
+
+    /* ===== TOP INFO (semplice, vendibile) ===== */
+    .top{
+      border:1px solid rgba(255,255,255,.10);
+      background:rgba(255,255,255,.03);
+      border-radius:18px;
+      padding:16px;
+      margin-top:10px;
+    }
+    .kicker{
+      opacity:.9;
+      font-size:13px;
       letter-spacing:.6px;
       text-transform:uppercase;
-      white-space:nowrap;
+      color:rgba(255,255,255,.70);
     }
-
     h1{
-      margin-top:10px;
+      margin-top:6px;
+      font-size:28px;
+      line-height:1.12;
       font-weight:900;
-      font-size:40px;
-      line-height:1.02;
-      letter-spacing:-.6px;
-      text-transform:uppercase;
+      letter-spacing:-.3px;
     }
-
     .sub{
-      margin-top:10px;
+      margin-top:8px;
+      color:rgba(255,255,255,.82);
+      font-weight:700;
       font-size:14px;
-      font-weight:800;
-      color:rgba(255,255,255,.88);
-      display:flex;
-      flex-wrap:wrap;
-      gap:10px;
-      align-items:center;
     }
-    .sub .dot{width:5px;height:5px;border-radius:999px;background:rgba(255,255,255,.35);display:inline-block}
-
-    .chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+    .chips{display:flex;flex-wrap:wrap;gap:10px;margin-top:12px}
     .chip{
-      font-size:12px;
+      font-size:13px;
       padding:8px 10px;
       border-radius:999px;
-      border:1px solid rgba(255,255,255,.12);
-      background:rgba(0,0,0,.16);
-      color:rgba(255,255,255,.86);
-      white-space:nowrap;
-    }
-    .chip.accent{
-      border-color:rgba(182,255,74,.35);
-      background:rgba(182,255,74,.08);
-      font-weight:900;
+      background:rgba(0,0,0,.45);
+      border:1px solid rgba(255,255,255,.14);
     }
 
-    .metaRow{margin-top:14px;display:grid;grid-template-columns:1.2fr .8fr;gap:10px}
-    .meta{
-      border:1px solid rgba(255,255,255,.12);
-      border-radius:16px;
-      padding:12px;
-      background:rgba(0,0,0,.14);
+    .sectionTitle{
+      display:flex;align-items:flex-end;justify-content:space-between;gap:12px;
+      margin:18px 0 12px;
     }
-    .metaK{font-size:11px;letter-spacing:.6px;text-transform:uppercase;color:var(--muted2)}
-    .metaV{margin-top:7px;font-weight:900}
-    .metaV a{text-decoration:underline;text-underline-offset:3px}
-    @media(max-width:720px){
-      .metaRow{grid-template-columns:1fr}
-      h1{font-size:34px}
-      .chip{white-space:normal}
-    }
+    .sectionTitle h2{font-size:22px;font-weight:900}
+    .hint{color:rgba(255,255,255,.65);font-size:13px}
 
-    /* Sections */
-    section{padding:14px 0 22px}
-    .sectionTitle{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;margin:10px 0 12px}
-    h2{font-size:18px;font-weight:900}
-    .hint{font-size:13px;color:var(--muted)}
+    /* ===== TICKETS ===== */
+    .ticket-list{display:grid;gap:12px}
 
-    /* Tickets */
-    .list{display:grid;gap:10px}
     .ticket{
-      border:1px solid rgba(255,255,255,.12);
-      border-radius:var(--radius);
-      background:rgba(255,255,255,.05);
-      padding:14px;
-      display:flex;align-items:center;justify-content:space-between;gap:14px;
-      box-shadow:0 14px 44px rgba(0,0,0,.30);
+      position:relative;
+      border:1px solid var(--border);
+      border-radius:18px;
+      overflow:hidden;
+      background:var(--card);
+      padding:16px;
+      transform: translateZ(0); /* ✅ iOS stability */
     }
-    .ticket.disabled{opacity:.55;background:rgba(255,255,255,.035);box-shadow:none}
-    .tLeft{min-width:0}
-    .tName{font-weight:900;font-size:16px}
-    .tDesc{margin-top:4px;font-size:13px;color:var(--muted)}
 
-    /* ✅ tag NON “pill giganti”: label compatte */
-    .badges{
+    /* ✅ clipper: lo sfondo sta DENTRO il ticket */
+    .ticket::before{
+      content:"";
+      position:absolute;inset:0;
+      background-image: var(--ticketBgUrl);
+      background-size: cover;
+      background-position: center;
+      background-repeat:no-repeat;
+      opacity:.24;
+      pointer-events:none;
+      transform: translateZ(0);
+    }
+    /* ✅ overlay SOLIDO (NO gradient) -> niente fasce */
+    .ticket::after{
+      content:"";
+      position:absolute;inset:0;
+      background: rgba(0,0,0,.70);
+      pointer-events:none;
+    }
+    .ticket > *{position:relative;z-index:2}
+
+    .ticket.disabled{opacity:.55}
+    .ticket.disabled::before{opacity:.16}
+
+    .row{
+      display:flex;
+      justify-content:space-between;
+      gap:14px;
+      align-items:center;
+    }
+    .left{min-width:0}
+    .name{font-weight:900;font-size:16px}
+    .desc{
+      margin-top:4px;
+      color:rgba(255,255,255,.78);
+      font-size:13px;
+      max-width:520px;
+    }
+
+    /* ✅ tag belli su mobile: compatti, una riga, niente “schiacciamento” */
+    .tags{
       display:flex;
       gap:8px;
       flex-wrap:wrap;
@@ -217,37 +181,36 @@
       align-items:center;
     }
     .tag{
-      font-size:11px;
-      font-weight:900;
-      letter-spacing:.4px;
-      text-transform:uppercase;
-      padding:6px 9px;
-      border-radius:10px;
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding:8px 10px;
+      border-radius:12px;
       border:1px solid rgba(255,255,255,.14);
-      background:rgba(0,0,0,.18);
-      color:rgba(255,255,255,.88);
-      line-height:1.1;
-      max-width: 260px;
-      white-space:normal;
+      background:rgba(0,0,0,.35);
+      font-size:12px;
+      font-weight:900;
+      letter-spacing:.25px;
+      text-transform:uppercase;
+      line-height:1;
+      white-space:nowrap; /* ✅ non va a capo */
     }
     .tag.lime{
-      border-color:rgba(182,255,74,.38);
-      background:rgba(182,255,74,.10);
-      color:rgba(255,255,255,.95);
+      border-color:rgba(182,255,74,.40);
+      background:rgba(182,255,74,.12);
     }
     .tag.soldout{
+      background:rgba(255,255,255,.06);
       border-color:rgba(255,255,255,.18);
-      background:rgba(255,255,255,.05);
-      color:rgba(255,255,255,.72);
+      color:rgba(255,255,255,.80);
     }
 
-    /* tooltip info */
-    .infoWrap{position:relative;display:inline-flex;align-items:center;gap:8px}
+    .tipWrap{position:relative;display:inline-flex}
     .infoBtn{
       width:18px;height:18px;border-radius:999px;
-      border:1px solid rgba(255,255,255,.18);
-      background:rgba(255,255,255,.05);
-      color:rgba(255,255,255,.90);
+      border:1px solid rgba(255,255,255,.22);
+      background:rgba(255,255,255,.08);
+      color:#fff;
       display:inline-flex;align-items:center;justify-content:center;
       font-size:12px;font-weight:900;
       cursor:pointer;
@@ -255,29 +218,22 @@
     }
     .tooltip{
       position:absolute;
-      left:0; top: calc(100% + 8px);
-      min-width:240px;
-      max-width:360px;
-      padding:10px 10px;
+      left:0; top:calc(100% + 8px);
+      min-width:240px; max-width:340px;
+      padding:10px;
       border-radius:12px;
       border:1px solid rgba(255,255,255,.14);
       background:rgba(10,10,14,.94);
       color:rgba(255,255,255,.88);
       font-size:12px;
-      box-shadow:0 22px 60px rgba(0,0,0,.60);
       display:none;
-      z-index:20;
+      box-shadow:0 22px 60px rgba(0,0,0,.60);
     }
-    @media(hover:hover){
-      .infoWrap:hover .tooltip{display:block}
-    }
-    .infoWrap.open .tooltip{display:block}
+    .tipWrap.open .tooltip{display:block}
 
-    .tRight{display:flex;align-items:center;gap:12px;flex-shrink:0}
-    /* ✅ prezzi “come prima”: grandi e puliti */
     .price{
-      font-size:22px;
       font-weight:900;
+      font-size:26px;
       letter-spacing:-.2px;
       min-width:92px;
       text-align:right;
@@ -285,222 +241,130 @@
 
     .stepper{
       display:flex;align-items:center;gap:8px;
-      border:1px solid rgba(255,255,255,.12);
+      border:1px solid rgba(255,255,255,.14);
       border-radius:999px;
       padding:8px 10px;
-      background:rgba(0,0,0,.14);
+      background:rgba(0,0,0,.35);
     }
     .stepBtn{
       width:36px;height:36px;border-radius:999px;
       border:1px solid rgba(255,255,255,.12);
-      background:rgba(255,255,255,.04);
+      background:rgba(255,255,255,.05);
       color:#fff;font-weight:900;
-      cursor:pointer;
       display:flex;align-items:center;justify-content:center;
-      user-select:none;
     }
-    .stepBtn:disabled{opacity:.45;cursor:not-allowed}
-    .qty{width:30px;text-align:center;font-weight:900;font-variant-numeric:tabular-nums}
+    .stepBtn:disabled{opacity:.45}
+    .qty{
+      width:30px;text-align:center;
+      font-weight:900;
+      font-variant-numeric:tabular-nums
+    }
 
-    .mutedLine{margin-top:10px;color:var(--muted2);font-size:12px}
+    .note{margin-top:10px;color:rgba(255,255,255,.55);font-size:12px}
 
-    /* FAQ */
-    .faq{
-      margin-top:12px;
+    /* ===== STICKY TOTAL (NO blur, NO gradient) ===== */
+    .sticky{
+      position:fixed;left:16px;right:16px;bottom:16px;z-index:80;
+      max-width:1100px;margin:0 auto;
+      background:rgba(0,0,0,.92);
       border:1px solid rgba(255,255,255,.12);
       border-radius:18px;
-      overflow:hidden;
-      background:rgba(255,255,255,.04);
-      box-shadow:0 14px 44px rgba(0,0,0,.26);
-    }
-    details{border-top:1px solid rgba(255,255,255,.08)}
-    details:first-child{border-top:none}
-    summary{list-style:none;cursor:pointer;padding:14px 14px;font-weight:900}
-    summary::-webkit-details-marker{display:none}
-    .faqBody{padding:0 14px 14px 14px;color:var(--muted);font-size:13px}
-
-    footer{
-      border-top:1px solid rgba(255,255,255,.10);
-      margin-top:18px;
-      padding:18px 0 0;
-      color:var(--muted2);
-      font-size:12px;
-    }
-
-    /* ✅ bottom bar iOS fix: niente blur */
-    .sticky{
-      position:fixed;left:14px;right:14px;bottom:14px;z-index:80;
-      max-width:980px;margin:0 auto;
-      border-radius:20px;
-      border:1px solid rgba(255,255,255,.12);
-      background:rgba(10,10,14,.92);
-      box-shadow:0 28px 90px rgba(0,0,0,.62);
-      padding:12px 12px;
+      padding:12px 14px;
       display:flex;align-items:center;justify-content:space-between;gap:12px;
+      box-shadow:0 10px 30px rgba(0,0,0,.55);
+      transform: translateZ(0); /* ✅ iOS stability */
     }
-    .sLeft{min-width:0;display:flex;flex-direction:column;gap:4px}
-    /* ✅ totale “come prima”: grosso */
-    .sTotal{
-      font-size:34px;
+    .total{
       font-weight:900;
-      letter-spacing:-.4px;
-      line-height:1.05;
-      text-transform:uppercase;
+      font-size:42px;
+      letter-spacing:-.6px;
+      line-height:1.02;
     }
-    .sItems{font-size:12px;color:var(--muted);font-weight:800}
-
-    .sRight{display:flex;align-items:center;gap:8px;flex-shrink:0}
-    .ghostBtn{
-      padding:12px 12px;border-radius:999px;
-      border:1px solid rgba(255,255,255,.12);
-      background:rgba(255,255,255,.04);
-      color:#fff;font-weight:900;font-size:13px;
-      cursor:pointer;
+    .small{
+      font-size:12px;
+      color:rgba(255,255,255,.65);
+      font-weight:800;
+      margin-top:4px;
     }
-    .primaryBtn{
-      padding:12px 14px;border-radius:999px;
-      border:1px solid rgba(182,255,74,.34);
+    .btn{
+      padding:12px 14px;border-radius:12px;
+      font-weight:900;border:1px solid rgba(255,255,255,.12);
+      background:rgba(255,255,255,.06);
+      color:#fff;
+    }
+    .btn.primary{
       background:var(--accent);
-      color:var(--accentInk);
-      font-weight:900;font-size:13px;
-      cursor:pointer;
-      white-space:nowrap;
+      border-color:rgba(182,255,74,.45);
+      color:#000;
     }
-    .primaryBtn:disabled{
-      background:rgba(255,255,255,.10);
-      color:rgba(255,255,255,.45);
-      border-color:rgba(255,255,255,.12);
-      cursor:not-allowed;
+    .btn:disabled{opacity:.45}
+
+    @media(max-width:560px){
+      .price{font-size:24px}
+      .total{font-size:38px}
+      .tag{font-size:11px;padding:8px 9px}
+      .desc{max-width:240px}
     }
   </style>
 </head>
 
 <body>
 <header>
-  <div class="wrap">
-    <div class="topbar">
-      <div class="brand">
-        <div class="mark"></div>
-        <div class="brandName">TRAPPERREO</div>
-      </div>
-      <nav id="navArea" aria-label="Navigazione"></nav>
-    </div>
+  <div class="nav">
+    <div class="brand"><div class="brand-badge"></div><div>TRAPPERREO</div></div>
+    <nav id="navArea"></nav>
   </div>
 </header>
 
-<main class="wrap">
-  <div class="hero">
-    <div class="poster">
-      <div class="kicker">
-        <span>Biella • Trap & Reggaeton</span>
-        <span class="stamp">EVENTO PRIVATO</span>
-      </div>
-
-      <h1 id="eventTitle">TRAPPERREO</h1>
-
-      <div class="sub" id="eventSubtitle">
-        <span><strong>Sab 21 Marzo 2026</strong></span>
-        <span class="dot"></span>
-        <span>22:30–04:30</span>
-        <span class="dot"></span>
-        <span>Solo prevendita</span>
-      </div>
-
-      <div class="chips">
-        <div class="chip">Ingresso <strong><span id="minAge">—</span>+</strong> con documento</div>
-        <div class="chip">Alcol <strong><span id="alcAge">—</span>+</strong></div>
-        <div class="chip">Ticket QR digitale</div>
-        <div class="chip accent">ONLINE FINO A ESAURIMENTO POSTI</div>
-      </div>
-
-      <div class="metaRow">
-        <div class="meta">
-          <div class="metaK">Location</div>
-          <div class="metaV">
-            <span id="venueName">Via Italia 38, Biella</span>
-            · <a id="mapsLink" href="https://maps.google.com/?q=Via%20Italia%2038%20Biella" target="_blank" rel="noopener">Apri mappa</a>
-          </div>
-        </div>
-        <div class="meta">
-          <div class="metaK">Info</div>
-          <div class="metaV" id="policyLine">Documento richiesto all’ingresso</div>
-        </div>
-      </div>
+<main>
+  <div class="top">
+    <div class="kicker">Biella • Trap & Reggaeton</div>
+    <h1>TRAPPERREO</h1>
+    <div class="sub">
+      <strong>Sab 21 Marzo 2026</strong> · 22:30–04:30 · Ingresso <span id="minAgeTxt">16+</span> con documento · Alcol <span id="alcAgeTxt">18+</span> · Ticket QR digitale · Prevendita online · <strong>Evento privato</strong>
+    </div>
+    <div class="chips">
+      <span class="chip">Solo online fino a <strong>esaurimento posti</strong></span>
+      <span class="chip">Niente biglietto in cassa</span>
     </div>
   </div>
 
-  <section id="tickets">
-    <div class="sectionTitle">
-      <h2>Biglietti</h2>
-      <div class="hint" id="ticketsHint">Caricamento…</div>
-    </div>
+  <div class="sectionTitle">
+    <h2>Biglietti</h2>
+    <div class="hint" id="ticketsHint">Caricamento…</div>
+  </div>
 
-    <div class="list" id="ticketsList" aria-live="polite"></div>
+  <div class="ticket-list" id="ticketsList"></div>
 
-    <div class="mutedLine">
-      * Se un ticket è “Sold out”, la disponibilità online è finita.
-    </div>
-  </section>
-
-  <section id="faq">
-    <div class="sectionTitle">
-      <h2>FAQ</h2>
-      <div class="hint">Risposte rapide</div>
-    </div>
-
-    <div class="faq">
-      <details open>
-        <summary>Età minima</summary>
-        <div class="faqBody">
-          Ingresso dai <strong><span id="minAgeFaq">—</span>+</strong> con documento valido.
-          Per consumare alcolici: <strong><span id="alcAgeFaq">—</span>+</strong>.
-        </div>
-      </details>
-
-      <details>
-        <summary>Posso acquistare il biglietto in cassa?</summary>
-        <div class="faqBody">
-          No. Essendo un <strong>evento privato</strong>, il biglietto è disponibile <strong>solo online</strong> fino a <strong>esaurimento posti</strong>.
-        </div>
-      </details>
-
-      <details>
-        <summary>Cosa serve all’ingresso?</summary>
-        <div class="faqBody">
-          Documento valido + QR del ticket sul telefono.
-        </div>
-      </details>
-    </div>
-  </section>
-
-  <footer>
-    TRAPPERREO — <strong>evento privato</strong> · Ingresso <strong><span id="minAgeFoot">—</span>+</strong> con documento · Ticket QR digitale
-  </footer>
+  <div class="note">* Se un ticket è “Sold out”, la disponibilità online è finita.</div>
 </main>
 
 <div class="sticky" role="region" aria-label="Riepilogo carrello">
-  <div class="sLeft">
-    <div class="sTotal" id="cartTotalText">TOTALE: €0,00</div>
-    <div class="sItems" id="cartItemsText">Seleziona i biglietti</div>
+  <div>
+    <div class="total" id="cartTotalText">0,00 €</div>
+    <div class="small" id="cartItemsText">Seleziona i biglietti</div>
   </div>
-  <div class="sRight">
-    <button class="ghostBtn" id="clearBtn" type="button" style="display:none;">Svuota</button>
-    <button class="primaryBtn" id="goCheckoutBtn" type="button" disabled>Vai al pagamento</button>
+  <div style="display:flex;gap:10px;align-items:center;">
+    <button class="btn" id="clearBtn" type="button" style="display:none;">Svuota</button>
+    <button class="btn primary" id="goCheckoutBtn" type="button" disabled>Vai al pagamento</button>
   </div>
 </div>
 
 <script type="module">
-  import { onUser, doSignOut, db } from './auth.v2.js?v=13';
+  import { onUser, doSignOut, db } from './auth.v2.js?v=30';
   import { doc, getDoc, collection, getDocs, query, orderBy } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-firestore.js";
 
-  // ---- IDs ticket (modifica qui se i tuoi ID sono diversi) ----
+  // IDs
   const ID_EARLY = "earlybird";
   const ID_STD1  = "standard1";
   const ID_STD2  = "standard2";
-  const ID_FAST  = "fast";
+  const ID_FAST  = "fast";  // ✅ corretto
   const ID_VIP   = "vip";
 
   const CART_KEY = "cart_v1";
+
+  const euro = (cents) => new Intl.NumberFormat('it-IT', { style:'currency', currency:'EUR' })
+    .format((Number(cents || 0) / 100));
 
   function escapeHtml(s){
     return String(s ?? '')
@@ -510,9 +374,6 @@
       .replaceAll('"','&quot;')
       .replaceAll("'","&#039;");
   }
-
-  const euro = (cents) => new Intl.NumberFormat('it-IT', { style:'currency', currency:'EUR' })
-    .format((Number(cents || 0) / 100));
 
   function readCart(){
     try{
@@ -532,7 +393,7 @@
   let TICKETS = [];
   let CART = readCart();
 
-  // NAV: sempre Cambio nome, se loggato aggiungi (Ciao + nome, Area personale, Logout)
+  // NAV: solo Cambio nome + (se loggato) Ciao, Area personale, Logout
   const nav = document.getElementById('navArea');
   function renderNav(user){
     const changeName = `<a class="pill action" href="./account-2.html#change-name">Cambio nome</a>`;
@@ -543,7 +404,7 @@
     const name = (user.displayName || (user.email ? user.email.split('@')[0] : 'Utente')).split(' ')[0];
     nav.innerHTML = `
       ${changeName}
-      <span class="pill hello">👋 Ciao ${escapeHtml(name)}</span>
+      <span class="pill ghost">👋 Ciao ${escapeHtml(name)}</span>
       <a class="pill" href="./account-2.html">Area personale</a>
       <a class="pill" href="#" id="logoutLink">Logout</a>
     `;
@@ -562,16 +423,9 @@
       const cfg = snap.exists() ? (snap.data() || {}) : {};
       const minA = Number(cfg.minEntryAge || 16);
       const alcA = Number(cfg.alcoholAge || 18);
-      for (const id of ['minAge','minAgeFaq','minAgeFoot']) document.getElementById(id).textContent = String(minA);
-      for (const id of ['alcAge','alcAgeFaq']) document.getElementById(id).textContent = String(alcA);
-    }catch(e){
-      console.error('config load error', e);
-      document.getElementById('minAge').textContent = '16';
-      document.getElementById('alcAge').textContent = '18';
-      document.getElementById('minAgeFaq').textContent = '16';
-      document.getElementById('alcAgeFaq').textContent = '18';
-      document.getElementById('minAgeFoot').textContent = '16';
-    }
+      document.getElementById('minAgeTxt').textContent = `${minA}+`;
+      document.getElementById('alcAgeTxt').textContent = `${alcA}+`;
+    }catch{}
   }
 
   const listEl = document.getElementById('ticketsList');
@@ -642,9 +496,9 @@
     const s2 = TICKETS.find(t => t.id === ID_STD2);
     if(!early || !s1) return null;
 
-    if(!soldOut(early)) return null;
-    if(!soldOut(s1)) return ID_STD1;
-    if(s2 && !soldOut(s2)) return ID_STD2;
+    if(!soldOut(early)) return null;     // finché early è disponibile, niente “più venduto”
+    if(!soldOut(s1)) return ID_STD1;     // early sold out -> standard è “più venduto”
+    if(s2 && !soldOut(s2)) return ID_STD2; // standard sold out -> passa a standard2
     return ID_STD2;
   }
 
@@ -654,7 +508,7 @@
 
     if(so) tags.push(`<span class="tag soldout">Sold out</span>`);
 
-    // Earlybird: SOLO X DISPONIBILI (più corto e bello su mobile)
+    // Earlybird: SOLO X DISPONIBILI (X = capacity, come hai chiesto)
     if(t.id === ID_EARLY && !so){
       const cap = Number(t.capacity ?? 0);
       if(Number.isFinite(cap) && cap > 0){
@@ -662,19 +516,20 @@
       }
     }
 
+    // “IL PIÙ VENDUTO”
     const target = bestSellerTarget();
     if(target && t.id === target){
       tags.push(`<span class="tag lime">IL PIÙ VENDUTO</span>`);
     }
 
-    // Fast + VIP: cambio nome incluso + tooltip testo da Firestore
+    // fast + vip: cambio nome incluso + tooltip
     if(t.id === ID_FAST || t.id === ID_VIP){
-      const info = (t.nameChangeProtectionInfo || "").trim();
-      const tooltipText = info || "Imposta in Firestore il campo nameChangeProtectionInfo.";
+      const info =
+        (t.nameChangeInfo || t.nameChangeProtectionInfo || "").trim();
+      const tooltipText = info || "Imposta in Firestore: nameChangeInfo";
       tags.push(`
-        <span class="infoWrap" data-tooltip-wrap>
-          <span class="tag lime">CAMBIO NOME INCLUSO</span>
-          <button class="infoBtn" type="button" aria-label="Info">i</button>
+        <span class="tipWrap" data-tip>
+          <span class="tag lime">CAMBIO NOME INCLUSO <button class="infoBtn" type="button" aria-label="Info">i</button></span>
           <span class="tooltip" role="tooltip">${escapeHtml(tooltipText)}</span>
         </span>
       `);
@@ -685,13 +540,7 @@
 
   function renderTickets(){
     if(!TICKETS.length){
-      listEl.innerHTML = `
-        <div class="ticket disabled">
-          <div class="tLeft">
-            <div class="tName">Nessun biglietto disponibile</div>
-            <div class="tDesc">Aggiungi documenti in Firestore: config/events/tickets</div>
-          </div>
-        </div>`;
+      listEl.innerHTML = `<div class="ticket disabled"><div class="name">Nessun biglietto disponibile</div></div>`;
       return;
     }
 
@@ -703,18 +552,20 @@
 
       return `
         <div class="ticket ${so ? 'disabled':''}" data-ticket-row="${escapeHtml(t.id)}">
-          <div class="tLeft">
-            <div class="tName">${escapeHtml(t.name || t.id)}</div>
-            ${desc ? `<div class="tDesc">${escapeHtml(desc)}</div>` : `<div class="tDesc">Ticket QR digitale</div>`}
-            <div class="badges">${renderTags(t)}</div>
-          </div>
+          <div class="row">
+            <div class="left">
+              <div class="name">${escapeHtml(t.name || t.id)}</div>
+              <div class="desc">${escapeHtml(desc || 'Ticket QR digitale')}</div>
+              <div class="tags">${renderTags(t)}</div>
+            </div>
 
-          <div class="tRight">
-            <div class="price">${euro(t.priceCents)}</div>
-            <div class="stepper" aria-label="Quantità ${escapeHtml(t.name || t.id)}">
-              <button class="stepBtn" type="button" data-minus="${escapeHtml(t.id)}" ${so || qty<=0 ? 'disabled':''} aria-label="Diminuisci">−</button>
-              <div class="qty" data-qty="${escapeHtml(t.id)}">${qty}</div>
-              <button class="stepBtn" type="button" data-plus="${escapeHtml(t.id)}" ${so || qty>=rem ? 'disabled':''} aria-label="Aumenta">+</button>
+            <div style="display:flex;align-items:center;gap:14px;flex-shrink:0">
+              <div class="price">${euro(t.priceCents)}</div>
+              <div class="stepper" aria-label="Quantità ${escapeHtml(t.name || t.id)}">
+                <button class="stepBtn" type="button" data-minus="${escapeHtml(t.id)}" ${so || qty<=0 ? 'disabled':''}>−</button>
+                <div class="qty" data-qty="${escapeHtml(t.id)}">${qty}</div>
+                <button class="stepBtn" type="button" data-plus="${escapeHtml(t.id)}" ${so || qty>=rem ? 'disabled':''}>+</button>
+              </div>
             </div>
           </div>
         </div>
@@ -727,8 +578,8 @@
       syncRow(t.id);
     }
 
-    // tooltip click (mobile)
-    for(const wrap of document.querySelectorAll('[data-tooltip-wrap]')){
+    // tooltip open/close (mobile)
+    for(const wrap of document.querySelectorAll('[data-tip]')){
       const btn = wrap.querySelector('.infoBtn');
       btn?.addEventListener('click', (e)=>{
         e.preventDefault();
@@ -739,9 +590,7 @@
   }
 
   document.addEventListener('click', ()=>{
-    for(const wrap of document.querySelectorAll('[data-tooltip-wrap].open')){
-      wrap.classList.remove('open');
-    }
+    for(const w of document.querySelectorAll('[data-tip].open')) w.classList.remove('open');
   });
 
   async function loadTickets(){
@@ -753,7 +602,7 @@
       snap.forEach(d => items.push({ id:d.id, ...(d.data()||{}) }));
       TICKETS = items;
 
-      // pulisci carrello
+      // pulizia carrello
       const valid = new Set(items.map(x => x.id));
       let changed = false;
       for(const id of Object.keys(CART)){
@@ -763,17 +612,11 @@
 
       renderTickets();
       updateSticky();
-      hintEl.textContent = items.length ? 'Seleziona quantità e vai al pagamento' : 'Nessun ticket caricato';
+      hintEl.textContent = 'Seleziona quantità e vai al pagamento';
     }catch(e){
       console.error('tickets load error', e);
       hintEl.textContent = 'Errore nel caricamento biglietti';
-      listEl.innerHTML = `
-        <div class="ticket disabled">
-          <div class="tLeft">
-            <div class="tName">Non riesco a caricare i biglietti</div>
-            <div class="tDesc">Controlla le regole Firestore (read) e riprova.</div>
-          </div>
-        </div>`;
+      listEl.innerHTML = `<div class="ticket disabled"><div class="name">Non riesco a caricare i biglietti</div><div class="desc">Controlla le regole Firestore (read).</div></div>`;
     }
   }
 
@@ -785,7 +628,7 @@
 
   function updateSticky(){
     const { items, totalCents } = cartTotals();
-    cartTotalEl.textContent = `TOTALE: ${euro(totalCents)}`;
+    cartTotalEl.textContent = new Intl.NumberFormat('it-IT', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(totalCents/100) + " €";
 
     if(items <= 0){
       cartItemsEl.textContent = 'Seleziona i biglietti';
@@ -794,7 +637,7 @@
     }else{
       cartItemsEl.textContent = `${items} bigliett${items===1?'o':'i'} nel carrello`;
       goBtn.disabled = false;
-      clearBtn.style.display = 'inline-flex';
+      clearBtn.style.display = 'inline-block';
     }
   }
 
