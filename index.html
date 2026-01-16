@@ -6,24 +6,24 @@
   <title>TRAPPERREO — Biglietti</title>
   <meta name="description" content="Evento privato. Prevendita online fino a esaurimento posti." />
 
-  <!-- Clean premium fonts (original vibe) -->
+  <!-- Font pulito (come “prima” / classico moderno) -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&display=swap" rel="stylesheet">
 
   <style>
     :root{
       --bg:#050507;
       --text:#ffffff;
-      --muted:rgba(255,255,255,.74);
-      --muted2:rgba(255,255,255,.56);
+      --muted:rgba(255,255,255,.70);
+      --muted2:rgba(255,255,255,.55);
 
       --panel:rgba(255,255,255,.06);
       --panel2:rgba(255,255,255,.04);
       --border:rgba(255,255,255,.12);
       --border2:rgba(255,255,255,.18);
 
-      /* A1 accent lime (trap) */
+      /* lime trap */
       --accent:#B6FF4A;
       --accentInk:#071006;
 
@@ -34,25 +34,24 @@
     *{box-sizing:border-box;margin:0;padding:0}
     html,body{height:100%}
 
+    /* ✅ NIENTE gradientoni grandi sotto: il lime resta solo in piccoli dettagli */
     body{
       font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
       color:var(--text);
       background:
-        radial-gradient(980px 540px at 14% -12%, rgba(182,255,74,.14), transparent 60%),
-        radial-gradient(900px 520px at 86% 0%, rgba(255,255,255,.05), transparent 60%),
-        linear-gradient(180deg, #050507 0%, #04040a 65%, #050507 100%);
+        radial-gradient(900px 520px at 15% -10%, rgba(182,255,74,.09), transparent 62%),
+        linear-gradient(180deg, #050507 0%, #04040a 70%, #050507 100%);
       line-height:1.35;
-      padding-bottom:122px;
+      padding-bottom:120px;
     }
 
     a{color:inherit;text-decoration:none}
     .wrap{max-width:980px;margin:0 auto;padding:18px}
 
-    /* Topbar */
+    /* ✅ iOS fix: niente backdrop-filter -> addio bande */
     header{
       position:sticky;top:0;z-index:50;
-      backdrop-filter:saturate(150%) blur(12px);
-      background:rgba(5,5,7,.74);
+      background:rgba(5,5,7,.92);
       border-bottom:1px solid rgba(255,255,255,.10);
     }
     .topbar{display:flex;align-items:center;justify-content:space-between;gap:14px}
@@ -60,13 +59,14 @@
     .mark{
       width:18px;height:18px;border-radius:6px;
       background:var(--accent);
-      box-shadow:0 0 0 1px rgba(182,255,74,.22), 0 14px 30px rgba(182,255,74,.10);
+      box-shadow:0 0 0 1px rgba(182,255,74,.22);
       transform:skew(-10deg);
+      flex:0 0 auto;
     }
     .brandName{
-      font-family:"Space Grotesk", Inter, sans-serif;
-      font-weight:700;
-      letter-spacing:-.3px;
+      font-weight:900;
+      letter-spacing:.2px;
+      font-size:18px;
     }
 
     nav{display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:flex-end}
@@ -82,12 +82,10 @@
     .hello{border-color:transparent;background:transparent;padding:9px 6px;cursor:default}
     .action{
       border-color:rgba(182,255,74,.28);
-      background:rgba(182,255,74,.14);
-      box-shadow:0 16px 34px rgba(182,255,74,.10);
+      background:rgba(182,255,74,.12);
     }
-    .action:hover{background:rgba(182,255,74,.18);border-color:rgba(182,255,74,.40)}
 
-    /* Poster card */
+    /* Hero */
     .hero{padding:16px 0 10px}
     .poster{
       position:relative;
@@ -98,24 +96,14 @@
       overflow:hidden;
       padding:18px;
     }
-    /* ✅ rimosse le righe / texture aggressiva: niente repeating-linear-gradient */
+    /* ✅ niente overlay che crea bande */
     .poster::before{
       content:"";
       position:absolute;inset:0;
       background:
-        radial-gradient(1200px 640px at 50% 0%, rgba(0,0,0,.12), transparent 60%),
-        radial-gradient(980px 520px at 50% 120%, rgba(0,0,0,.36), transparent 60%);
-      opacity:.75;
-      pointer-events:none;
-    }
-    .poster::after{
-      content:"";
-      position:absolute;inset:-2px;
-      background:
-        radial-gradient(520px 240px at 18% 0%, rgba(182,255,74,.14), transparent 60%),
-        radial-gradient(520px 240px at 82% 0%, rgba(255,255,255,.06), transparent 60%);
-      filter:blur(12px);
-      opacity:.65;
+        radial-gradient(1200px 640px at 50% 0%, rgba(0,0,0,.16), transparent 60%),
+        radial-gradient(980px 520px at 50% 120%, rgba(0,0,0,.40), transparent 60%);
+      opacity:.85;
       pointer-events:none;
     }
     .poster > *{position:relative;z-index:1}
@@ -129,36 +117,36 @@
       justify-content:space-between;
       gap:10px;
       flex-wrap:wrap;
+      align-items:center;
     }
     .stamp{
       display:inline-flex;
       align-items:center;
-      gap:8px;
       padding:7px 10px;
       border-radius:999px;
       border:1px solid rgba(182,255,74,.40);
-      background:rgba(182,255,74,.12);
-      color:rgba(255,255,255,.96);
+      background:rgba(182,255,74,.10);
+      color:rgba(255,255,255,.95);
       font-size:11px;
       font-weight:900;
       letter-spacing:.6px;
       text-transform:uppercase;
+      white-space:nowrap;
     }
 
     h1{
       margin-top:10px;
-      font-family:"Space Grotesk", Inter, sans-serif;
-      font-weight:700;
+      font-weight:900;
       font-size:40px;
-      line-height:1.03;
-      letter-spacing:-.8px;
+      line-height:1.02;
+      letter-spacing:-.6px;
       text-transform:uppercase;
     }
 
     .sub{
       margin-top:10px;
       font-size:14px;
-      font-weight:900;
+      font-weight:800;
       color:rgba(255,255,255,.88);
       display:flex;
       flex-wrap:wrap;
@@ -175,13 +163,13 @@
       border:1px solid rgba(255,255,255,.12);
       background:rgba(0,0,0,.16);
       color:rgba(255,255,255,.86);
+      white-space:nowrap;
     }
     .chip.accent{
-      border-color:rgba(182,255,74,.38);
-      background:rgba(182,255,74,.10);
+      border-color:rgba(182,255,74,.35);
+      background:rgba(182,255,74,.08);
       font-weight:900;
     }
-    .chip strong{color:#fff}
 
     .metaRow{margin-top:14px;display:grid;grid-template-columns:1.2fr .8fr;gap:10px}
     .meta{
@@ -193,7 +181,11 @@
     .metaK{font-size:11px;letter-spacing:.6px;text-transform:uppercase;color:var(--muted2)}
     .metaV{margin-top:7px;font-weight:900}
     .metaV a{text-decoration:underline;text-underline-offset:3px}
-    @media(max-width:720px){.metaRow{grid-template-columns:1fr}}
+    @media(max-width:720px){
+      .metaRow{grid-template-columns:1fr}
+      h1{font-size:34px}
+      .chip{white-space:normal}
+    }
 
     /* Sections */
     section{padding:14px 0 22px}
@@ -213,37 +205,43 @@
     }
     .ticket.disabled{opacity:.55;background:rgba(255,255,255,.035);box-shadow:none}
     .tLeft{min-width:0}
-    .tName{font-weight:900;font-size:15px}
+    .tName{font-weight:900;font-size:16px}
     .tDesc{margin-top:4px;font-size:13px;color:var(--muted)}
 
-    .badges{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;align-items:center}
-
-    .badge{
-      font-size:11px;
-      padding:6px 9px;
-      border-radius:999px;
-      border:1px solid rgba(255,255,255,.12);
-      background:rgba(0,0,0,.12);
-      color:rgba(255,255,255,.84);
-      font-weight:900;
+    /* ✅ tag NON “pill giganti”: label compatte */
+    .badges{
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+      margin-top:10px;
+      align-items:center;
     }
-    .badge.soldout{
+    .tag{
+      font-size:11px;
+      font-weight:900;
+      letter-spacing:.4px;
+      text-transform:uppercase;
+      padding:6px 9px;
+      border-radius:10px;
+      border:1px solid rgba(255,255,255,.14);
+      background:rgba(0,0,0,.18);
+      color:rgba(255,255,255,.88);
+      line-height:1.1;
+      max-width: 260px;
+      white-space:normal;
+    }
+    .tag.lime{
+      border-color:rgba(182,255,74,.38);
+      background:rgba(182,255,74,.10);
+      color:rgba(255,255,255,.95);
+    }
+    .tag.soldout{
       border-color:rgba(255,255,255,.18);
       background:rgba(255,255,255,.05);
-      color:rgba(255,255,255,.74);
-    }
-    .badge.lime{
-      border-color:rgba(182,255,74,.42);
-      background:rgba(182,255,74,.12);
-      color:rgba(255,255,255,.96);
-    }
-    .badge.hot{
-      border-color:rgba(182,255,74,.34);
-      background:rgba(182,255,74,.10);
-      color:rgba(255,255,255,.96);
+      color:rgba(255,255,255,.72);
     }
 
-    /* Info tooltip badge */
+    /* tooltip info */
     .infoWrap{position:relative;display:inline-flex;align-items:center;gap:8px}
     .infoBtn{
       width:18px;height:18px;border-radius:999px;
@@ -255,7 +253,6 @@
       cursor:pointer;
       line-height:1;
     }
-    .infoBtn:hover{border-color:rgba(182,255,74,.32);background:rgba(182,255,74,.10)}
     .tooltip{
       position:absolute;
       left:0; top: calc(100% + 8px);
@@ -264,25 +261,23 @@
       padding:10px 10px;
       border-radius:12px;
       border:1px solid rgba(255,255,255,.14);
-      background:rgba(10,10,14,.92);
+      background:rgba(10,10,14,.94);
       color:rgba(255,255,255,.88);
       font-size:12px;
       box-shadow:0 22px 60px rgba(0,0,0,.60);
       display:none;
       z-index:20;
     }
-    /* desktop hover */
     @media(hover:hover){
       .infoWrap:hover .tooltip{display:block}
     }
-    /* open via click (mobile + desktop) */
     .infoWrap.open .tooltip{display:block}
 
     .tRight{display:flex;align-items:center;gap:12px;flex-shrink:0}
+    /* ✅ prezzi “come prima”: grandi e puliti */
     .price{
-      font-family:"Space Grotesk", Inter, sans-serif;
-      font-size:20px;
-      font-weight:700;
+      font-size:22px;
+      font-weight:900;
       letter-spacing:-.2px;
       min-width:92px;
       text-align:right;
@@ -304,7 +299,6 @@
       display:flex;align-items:center;justify-content:center;
       user-select:none;
     }
-    .stepBtn:hover{border-color:rgba(182,255,74,.30);background:rgba(182,255,74,.10)}
     .stepBtn:disabled{opacity:.45;cursor:not-allowed}
     .qty{width:30px;text-align:center;font-weight:900;font-variant-numeric:tabular-nums}
 
@@ -333,24 +327,23 @@
       font-size:12px;
     }
 
-    /* Sticky bar */
+    /* ✅ bottom bar iOS fix: niente blur */
     .sticky{
       position:fixed;left:14px;right:14px;bottom:14px;z-index:80;
       max-width:980px;margin:0 auto;
       border-radius:20px;
       border:1px solid rgba(255,255,255,.12);
-      background:rgba(10,10,14,.84);
-      backdrop-filter:saturate(150%) blur(12px);
+      background:rgba(10,10,14,.92);
       box-shadow:0 28px 90px rgba(0,0,0,.62);
       padding:12px 12px;
       display:flex;align-items:center;justify-content:space-between;gap:12px;
     }
     .sLeft{min-width:0;display:flex;flex-direction:column;gap:4px}
+    /* ✅ totale “come prima”: grosso */
     .sTotal{
-      font-family:"Space Grotesk", Inter, sans-serif;
-      font-size:26px;
-      font-weight:700;
-      letter-spacing:-.5px;
+      font-size:34px;
+      font-weight:900;
+      letter-spacing:-.4px;
       line-height:1.05;
       text-transform:uppercase;
     }
@@ -364,7 +357,6 @@
       color:#fff;font-weight:900;font-size:13px;
       cursor:pointer;
     }
-    .ghostBtn:hover{border-color:rgba(255,255,255,.20);background:rgba(255,255,255,.06)}
     .primaryBtn{
       padding:12px 14px;border-radius:999px;
       border:1px solid rgba(182,255,74,.34);
@@ -373,15 +365,12 @@
       font-weight:900;font-size:13px;
       cursor:pointer;
       white-space:nowrap;
-      box-shadow:0 18px 40px rgba(182,255,74,.14);
     }
-    .primaryBtn:hover{filter:brightness(1.03)}
     .primaryBtn:disabled{
       background:rgba(255,255,255,.10);
       color:rgba(255,255,255,.45);
       border-color:rgba(255,255,255,.12);
       cursor:not-allowed;
-      box-shadow:none;
     }
   </style>
 </head>
@@ -491,7 +480,7 @@
 
 <div class="sticky" role="region" aria-label="Riepilogo carrello">
   <div class="sLeft">
-    <div class="sTotal" id="cartTotalText">Totale: €0,00</div>
+    <div class="sTotal" id="cartTotalText">TOTALE: €0,00</div>
     <div class="sItems" id="cartItemsText">Seleziona i biglietti</div>
   </div>
   <div class="sRight">
@@ -501,14 +490,14 @@
 </div>
 
 <script type="module">
-  import { onUser, doSignOut, db } from './auth.v2.js?v=12';
+  import { onUser, doSignOut, db } from './auth.v2.js?v=13';
   import { doc, getDoc, collection, getDocs, query, orderBy } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-firestore.js";
 
   // ---- IDs ticket (modifica qui se i tuoi ID sono diversi) ----
   const ID_EARLY = "earlybird";
   const ID_STD1  = "standard1";
   const ID_STD2  = "standard2";
-  const ID_SALTA = "saltacoda";
+  const ID_FAST  = "fast";
   const ID_VIP   = "vip";
 
   const CART_KEY = "cart_v1";
@@ -588,14 +577,13 @@
   const listEl = document.getElementById('ticketsList');
   const hintEl = document.getElementById('ticketsHint');
 
-  function computeRemaining(t){
+  function remaining(t){
     const cap = Number(t.capacity ?? 0);
     const sold = Number(t.sold ?? 0);
     return cap - sold;
   }
-  function isSoldOut(t){
-    const remaining = computeRemaining(t);
-    return (t.active !== true) || (remaining <= 0);
+  function soldOut(t){
+    return (t.active !== true) || (remaining(t) <= 0);
   }
 
   function cartTotals(){
@@ -615,90 +603,84 @@
     const t = TICKETS.find(x => x.id === ticketId);
     if(!t) return;
 
-    const remaining = computeRemaining(t);
-    const soldOut = isSoldOut(t);
+    const rem = remaining(t);
+    const so = soldOut(t);
 
-    if(soldOut) qty = 0;
+    if(so) qty = 0;
     else{
       qty = Math.max(0, Math.floor(Number(qty || 0)));
-      qty = Math.min(qty, remaining);
+      qty = Math.min(qty, rem);
     }
 
     if(qty <= 0) delete CART[ticketId];
     else CART[ticketId] = qty;
 
     writeCart(CART);
-    syncRowUI(ticketId);
+    syncRow(ticketId);
     updateSticky();
   }
 
-  function syncRowUI(ticketId){
+  function syncRow(ticketId){
     const row = document.querySelector(`[data-ticket-row="${CSS.escape(ticketId)}"]`);
     if(!row) return;
     const t = TICKETS.find(x => x.id === ticketId);
     if(!t) return;
 
-    const remaining = computeRemaining(t);
-    const soldOut = isSoldOut(t);
+    const rem = remaining(t);
+    const so = soldOut(t);
     const qty = Number(CART[ticketId] || 0);
 
-    row.classList.toggle('disabled', soldOut);
+    row.classList.toggle('disabled', so);
     row.querySelector(`[data-qty="${CSS.escape(ticketId)}"]`).textContent = String(qty);
-    row.querySelector(`[data-minus="${CSS.escape(ticketId)}"]`).disabled = soldOut || qty <= 0;
-    row.querySelector(`[data-plus="${CSS.escape(ticketId)}"]`).disabled  = soldOut || qty >= remaining;
+    row.querySelector(`[data-minus="${CSS.escape(ticketId)}"]`).disabled = so || qty <= 0;
+    row.querySelector(`[data-plus="${CSS.escape(ticketId)}"]`).disabled  = so || qty >= rem;
   }
 
-  function bestSellerTargetId(){
+  function bestSellerTarget(){
     const early = TICKETS.find(t => t.id === ID_EARLY);
-    const std1  = TICKETS.find(t => t.id === ID_STD1);
-    const std2  = TICKETS.find(t => t.id === ID_STD2);
+    const s1 = TICKETS.find(t => t.id === ID_STD1);
+    const s2 = TICKETS.find(t => t.id === ID_STD2);
+    if(!early || !s1) return null;
 
-    if(!early || !std1) return null;
-
-    const earlySold = isSoldOut(early);
-    const std1Sold  = std1 ? isSoldOut(std1) : false;
-
-    if(!earlySold) return null;              // finché early bird c'è, niente "più venduto"
-    if(!std1Sold) return ID_STD1;            // early sold out -> badge sotto Standard
-    if(std2 && !isSoldOut(std2)) return ID_STD2; // standard sold out -> badge sotto Standard2
-    return ID_STD2; // anche se sold out, lo mostriamo comunque lì
+    if(!soldOut(early)) return null;
+    if(!soldOut(s1)) return ID_STD1;
+    if(s2 && !soldOut(s2)) return ID_STD2;
+    return ID_STD2;
   }
 
-  function renderBadges(t){
-    const soldOut = isSoldOut(t);
-    const badges = [];
+  function renderTags(t){
+    const so = soldOut(t);
+    const tags = [];
 
-    // Sold out
-    if(soldOut) badges.push(`<span class="badge soldout">Sold out</span>`);
+    if(so) tags.push(`<span class="tag soldout">Sold out</span>`);
 
-    // Earlybird: SOLO X BIGLIETTI DISPONIBILI (X = capacity)
-    if(t.id === ID_EARLY && !soldOut){
+    // Earlybird: SOLO X DISPONIBILI (più corto e bello su mobile)
+    if(t.id === ID_EARLY && !so){
       const cap = Number(t.capacity ?? 0);
       if(Number.isFinite(cap) && cap > 0){
-        badges.push(`<span class="badge lime">SOLO ${cap} BIGLIETTI DISPONIBILI</span>`);
+        tags.push(`<span class="tag lime">SOLO ${cap} DISPONIBILI</span>`);
       }
     }
 
-    // "IL PIÙ VENDUTO" dinamico
-    const target = bestSellerTargetId();
+    const target = bestSellerTarget();
     if(target && t.id === target){
-      badges.push(`<span class="badge hot">IL PIÙ VENDUTO</span>`);
+      tags.push(`<span class="tag lime">IL PIÙ VENDUTO</span>`);
     }
 
-    // Protezione cambio nome inclusa (saltacoda + vip) con tooltip testo da Firestore
-    if(t.id === ID_SALTA || t.id === ID_VIP){
+    // Fast + VIP: cambio nome incluso + tooltip testo da Firestore
+    if(t.id === ID_FAST || t.id === ID_VIP){
       const info = (t.nameChangeProtectionInfo || "").trim();
-      const tooltipText = info || "Info non impostata in Firestore (campo: nameChangeProtectionInfo).";
-      badges.push(`
+      const tooltipText = info || "Imposta in Firestore il campo nameChangeProtectionInfo.";
+      tags.push(`
         <span class="infoWrap" data-tooltip-wrap>
-          <span class="badge lime">PROTEZIONE CAMBIO NOME INCLUSA</span>
+          <span class="tag lime">CAMBIO NOME INCLUSO</span>
           <button class="infoBtn" type="button" aria-label="Info">i</button>
           <span class="tooltip" role="tooltip">${escapeHtml(tooltipText)}</span>
         </span>
       `);
     }
 
-    return badges.join('');
+    return tags.join('');
   }
 
   function renderTickets(){
@@ -714,43 +696,41 @@
     }
 
     listEl.innerHTML = TICKETS.map(t => {
-      const remaining = computeRemaining(t);
-      const soldOut = isSoldOut(t);
+      const rem = remaining(t);
+      const so = soldOut(t);
       const qty = Number(CART[t.id] || 0);
       const desc = (t.descriptionShort || '').trim();
 
       return `
-        <div class="ticket ${soldOut ? 'disabled':''}" data-ticket-row="${escapeHtml(t.id)}">
+        <div class="ticket ${so ? 'disabled':''}" data-ticket-row="${escapeHtml(t.id)}">
           <div class="tLeft">
             <div class="tName">${escapeHtml(t.name || t.id)}</div>
             ${desc ? `<div class="tDesc">${escapeHtml(desc)}</div>` : `<div class="tDesc">Ticket QR digitale</div>`}
-            <div class="badges">${renderBadges(t)}</div>
+            <div class="badges">${renderTags(t)}</div>
           </div>
 
           <div class="tRight">
             <div class="price">${euro(t.priceCents)}</div>
             <div class="stepper" aria-label="Quantità ${escapeHtml(t.name || t.id)}">
-              <button class="stepBtn" type="button" data-minus="${escapeHtml(t.id)}" ${soldOut || qty<=0 ? 'disabled':''} aria-label="Diminuisci">−</button>
+              <button class="stepBtn" type="button" data-minus="${escapeHtml(t.id)}" ${so || qty<=0 ? 'disabled':''} aria-label="Diminuisci">−</button>
               <div class="qty" data-qty="${escapeHtml(t.id)}">${qty}</div>
-              <button class="stepBtn" type="button" data-plus="${escapeHtml(t.id)}" ${soldOut || qty>=remaining ? 'disabled':''} aria-label="Aumenta">+</button>
+              <button class="stepBtn" type="button" data-plus="${escapeHtml(t.id)}" ${so || qty>=rem ? 'disabled':''} aria-label="Aumenta">+</button>
             </div>
           </div>
         </div>
       `;
     }).join('');
 
-    // stepper listeners
     for(const t of TICKETS){
       document.querySelector(`[data-minus="${CSS.escape(t.id)}"]`)?.addEventListener('click', () => setQty(t.id, Number(CART[t.id] || 0) - 1));
       document.querySelector(`[data-plus="${CSS.escape(t.id)}"]`)?.addEventListener('click',  () => setQty(t.id, Number(CART[t.id] || 0) + 1));
-      syncRowUI(t.id);
+      syncRow(t.id);
     }
 
-    // tooltip click behavior (mobile + desktop click)
+    // tooltip click (mobile)
     for(const wrap of document.querySelectorAll('[data-tooltip-wrap]')){
       const btn = wrap.querySelector('.infoBtn');
-      if(!btn) continue;
-      btn.addEventListener('click', (e)=>{
+      btn?.addEventListener('click', (e)=>{
         e.preventDefault();
         e.stopPropagation();
         wrap.classList.toggle('open');
@@ -758,7 +738,6 @@
     }
   }
 
-  // close tooltips on outside click
   document.addEventListener('click', ()=>{
     for(const wrap of document.querySelectorAll('[data-tooltip-wrap].open')){
       wrap.classList.remove('open');
@@ -774,7 +753,7 @@
       snap.forEach(d => items.push({ id:d.id, ...(d.data()||{}) }));
       TICKETS = items;
 
-      // pulisci carrello ticket rimossi
+      // pulisci carrello
       const valid = new Set(items.map(x => x.id));
       let changed = false;
       for(const id of Object.keys(CART)){
@@ -798,7 +777,7 @@
     }
   }
 
-  // Sticky bar
+  // sticky
   const cartTotalEl = document.getElementById('cartTotalText');
   const cartItemsEl = document.getElementById('cartItemsText');
   const clearBtn = document.getElementById('clearBtn');
@@ -806,7 +785,7 @@
 
   function updateSticky(){
     const { items, totalCents } = cartTotals();
-    cartTotalEl.textContent = `Totale: ${euro(totalCents)}`;
+    cartTotalEl.textContent = `TOTALE: ${euro(totalCents)}`;
 
     if(items <= 0){
       cartItemsEl.textContent = 'Seleziona i biglietti';
@@ -822,7 +801,7 @@
   clearBtn.addEventListener('click', ()=>{
     CART = {};
     writeCart(CART);
-    for(const t of TICKETS) syncRowUI(t.id);
+    for(const t of TICKETS) syncRow(t.id);
     updateSticky();
   });
 
