@@ -6,6 +6,7 @@
   <title>TRAPPERREO — Biglietti</title>
   <meta name="description" content="Evento privato. Prevendita online fino a esaurimento posti." />
 
+  <!-- Poster / street fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;600;800;900&display=swap" rel="stylesheet">
@@ -20,9 +21,9 @@
       --panel2:rgba(255,255,255,.04);
       --border:rgba(255,255,255,.12);
 
-      /* A2 accent: orange */
-      --accent:#FF7A18;
-      --accentInk:#140a04;
+      /* A1 accent: lime */
+      --accent:#B6FF4A;
+      --accentInk:#0b1106;
 
       --shadow: 0 18px 70px rgba(0,0,0,.60);
       --radius:18px;
@@ -34,15 +35,16 @@
       font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
       color:var(--text);
       background:
-        radial-gradient(900px 520px at 18% -10%, rgba(255,122,24,.18), transparent 58%),
+        radial-gradient(900px 520px at 15% -10%, rgba(182,255,74,.16), transparent 58%),
         radial-gradient(900px 520px at 85% 0%, rgba(255,255,255,.06), transparent 55%),
-        linear-gradient(180deg, #050507 0%, #07040a 65%, #050507 100%);
+        linear-gradient(180deg, #050507 0%, #04040a 65%, #050507 100%);
       line-height:1.35;
       padding-bottom:122px;
     }
     a{color:inherit;text-decoration:none}
     .wrap{max-width:980px;margin:0 auto;padding:18px}
 
+    /* Topbar */
     header{
       position:sticky;top:0;z-index:50;
       backdrop-filter:saturate(150%) blur(12px);
@@ -54,7 +56,7 @@
     .mark{
       width:18px;height:18px;border-radius:6px;
       background:var(--accent);
-      box-shadow:0 0 0 1px rgba(255,122,24,.25), 0 14px 30px rgba(255,122,24,.12);
+      box-shadow:0 0 0 1px rgba(182,255,74,.25), 0 14px 30px rgba(182,255,74,.12);
       transform:skew(-10deg);
     }
     .brandName{
@@ -75,23 +77,26 @@
     .pill:hover{border-color:rgba(255,255,255,.20);background:rgba(255,255,255,.05)}
     .hello{border-color:transparent;background:transparent;padding:9px 6px;cursor:default}
     .action{
-      border-color:rgba(255,122,24,.28);
-      background:rgba(255,122,24,.14);
+      border-color:rgba(182,255,74,.28);
+      background:rgba(182,255,74,.14);
       color:rgba(255,255,255,.96);
-      box-shadow:0 16px 34px rgba(255,122,24,.10);
+      box-shadow:0 16px 34px rgba(182,255,74,.10);
     }
-    .action:hover{background:rgba(255,122,24,.18);border-color:rgba(255,122,24,.40)}
+    .action:hover{background:rgba(182,255,74,.18);border-color:rgba(182,255,74,.40)}
 
+    /* Poster card */
     .hero{padding:16px 0 10px}
     .poster{
       position:relative;
       border-radius:22px;
       border:1px solid rgba(255,255,255,.12);
-      background:linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.03));
+      background:
+        linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.03));
       box-shadow:var(--shadow);
       overflow:hidden;
       padding:18px;
     }
+    /* grain + vignette */
     .poster::before{
       content:"";
       position:absolute;inset:0;
@@ -107,8 +112,8 @@
       content:"";
       position:absolute;inset:-2px;
       background:
-        radial-gradient(640px 260px at 18% 0%, rgba(255,122,24,.22), transparent 60%),
-        radial-gradient(640px 260px at 82% 0%, rgba(255,255,255,.08), transparent 60%);
+        radial-gradient(620px 240px at 18% 0%, rgba(182,255,74,.18), transparent 60%),
+        radial-gradient(620px 240px at 82% 0%, rgba(255,255,255,.08), transparent 60%);
       filter:blur(10px);
       opacity:.65;
       pointer-events:none;
@@ -125,14 +130,15 @@
       gap:10px;
       flex-wrap:wrap;
     }
+    .kicker strong{color:rgba(255,255,255,.88)}
     .stamp{
       display:inline-flex;
       align-items:center;
       gap:8px;
       padding:7px 10px;
       border-radius:999px;
-      border:1px solid rgba(255,122,24,.42);
-      background:rgba(255,122,24,.12);
+      border:1px solid rgba(182,255,74,.40);
+      background:rgba(182,255,74,.12);
       color:rgba(255,255,255,.94);
       font-size:11px;
       font-weight:900;
@@ -158,7 +164,11 @@
       gap:10px;
       align-items:center;
     }
-    .sub .dot{width:5px;height:5px;border-radius:999px;background:rgba(255,255,255,.35);display:inline-block}
+    .sub .dot{
+      width:5px;height:5px;border-radius:999px;
+      background:rgba(255,255,255,.35);
+      display:inline-block;
+    }
 
     .chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
     .chip{
@@ -170,13 +180,19 @@
       color:rgba(255,255,255,.86);
     }
     .chip.accent{
-      border-color:rgba(255,122,24,.40);
-      background:rgba(255,122,24,.11);
+      border-color:rgba(182,255,74,.35);
+      background:rgba(182,255,74,.10);
       color:rgba(255,255,255,.95);
       font-weight:900;
     }
+    .chip strong{color:#fff}
 
-    .metaRow{margin-top:14px;display:grid;grid-template-columns:1.2fr .8fr;gap:10px}
+    .metaRow{
+      margin-top:14px;
+      display:grid;
+      grid-template-columns: 1.2fr .8fr;
+      gap:10px;
+    }
     .meta{
       border:1px solid rgba(255,255,255,.12);
       border-radius:16px;
@@ -188,11 +204,13 @@
     .metaV a{text-decoration:underline;text-underline-offset:3px}
     @media(max-width:720px){.metaRow{grid-template-columns:1fr}}
 
+    /* Sections */
     section{padding:14px 0 22px}
     .sectionTitle{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;margin:10px 0 12px}
     h2{font-size:18px;font-weight:900}
     .hint{font-size:13px;color:var(--muted)}
 
+    /* Tickets */
     .list{display:grid;gap:10px}
     .ticket{
       border:1px solid rgba(255,255,255,.12);
@@ -227,6 +245,7 @@
       min-width:90px;
       text-align:right;
     }
+    .price small{font-family:Inter,sans-serif;font-size:12px;letter-spacing:0;color:var(--muted2)}
 
     .stepper{
       display:flex;align-items:center;gap:8px;
@@ -245,14 +264,15 @@
       user-select:none;
     }
     .stepBtn:hover{
-      border-color:rgba(255,122,24,.32);
-      background:rgba(255,122,24,.10);
+      border-color:rgba(182,255,74,.30);
+      background:rgba(182,255,74,.10);
     }
     .stepBtn:disabled{opacity:.45;cursor:not-allowed}
     .qty{width:30px;text-align:center;font-weight:900;font-variant-numeric:tabular-nums}
 
     .mutedLine{margin-top:10px;color:var(--muted2);font-size:12px}
 
+    /* FAQ */
     .faq{
       margin-top:12px;
       border:1px solid rgba(255,255,255,.12);
@@ -275,6 +295,7 @@
       font-size:12px;
     }
 
+    /* Sticky bar */
     .sticky{
       position:fixed;left:14px;right:14px;bottom:14px;z-index:80;
       max-width:980px;margin:0 auto;
@@ -306,13 +327,13 @@
     .ghostBtn:hover{border-color:rgba(255,255,255,.20);background:rgba(255,255,255,.06)}
     .primaryBtn{
       padding:12px 14px;border-radius:999px;
-      border:1px solid rgba(255,122,24,.36);
+      border:1px solid rgba(182,255,74,.34);
       background:var(--accent);
       color:var(--accentInk);
       font-weight:900;font-size:13px;
       cursor:pointer;
       white-space:nowrap;
-      box-shadow:0 18px 40px rgba(255,122,24,.14);
+      box-shadow:0 18px 40px rgba(182,255,74,.14);
     }
     .primaryBtn:hover{filter:brightness(1.03)}
     .primaryBtn:disabled{
@@ -342,7 +363,7 @@
   <div class="hero">
     <div class="poster">
       <div class="kicker">
-        <span>Biella • Trap & Reggaeton</span>
+        <span>Biella <strong>•</strong> Trap & Reggaeton</span>
         <span class="stamp">EVENTO PRIVATO</span>
       </div>
 
@@ -475,6 +496,7 @@
   let TICKETS = [];
   let CART = readCart();
 
+  // NAV: sempre "Cambio nome", se loggato aggiungi (Ciao + nome, Area personale, Logout)
   const nav = document.getElementById('navArea');
   function renderNav(user){
     const changeName = `<a class="pill action" href="./account-2.html#change-name">Cambio nome</a>`;
@@ -504,6 +526,7 @@
       const cfg = snap.exists() ? (snap.data() || {}) : {};
       const minA = Number(cfg.minEntryAge || 16);
       const alcA = Number(cfg.alcoholAge || 18);
+
       for (const id of ['minAge','minAgeFaq','minAgeFoot']) document.getElementById(id).textContent = String(minA);
       for (const id of ['alcAge','alcAgeFaq']) document.getElementById(id).textContent = String(alcA);
     }catch(e){
@@ -570,6 +593,7 @@
     const qty = Number(CART[ticketId] || 0);
 
     row.classList.toggle('disabled', soldOut);
+
     row.querySelector(`[data-qty="${CSS.escape(ticketId)}"]`).textContent = String(qty);
     row.querySelector(`[data-minus="${CSS.escape(ticketId)}"]`).disabled = soldOut || qty <= 0;
     row.querySelector(`[data-plus="${CSS.escape(ticketId)}"]`).disabled  = soldOut || qty >= remaining;
@@ -631,6 +655,7 @@
       snap.forEach(d => items.push({ id:d.id, ...(d.data()||{}) }));
       TICKETS = items;
 
+      // pulisci carrello ticket rimossi
       const valid = new Set(items.map(x => x.id));
       let changed = false;
       for(const id of Object.keys(CART)){
