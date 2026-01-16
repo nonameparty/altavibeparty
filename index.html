@@ -5,136 +5,118 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>TRAPPERREO — Biglietti</title>
   <meta name="description" content="Evento privato. Prevendita online fino a esaurimento posti." />
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' fill='black'/%3E%3Ctext x='50%25' y='50%25' dy='.35em' text-anchor='middle' font-size='28' fill='%23ff2bd6' font-family='Arial, Helvetica, sans-serif'%3ETR%3C/text%3E%3C/svg%3E">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&display=swap" rel="stylesheet">
+
+  <!-- Luxury club fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
 
   <style>
     :root{
-      --bg:#07040f;
-      --card:rgba(255,255,255,.06);
+      --bg:#050507;
+      --panel: rgba(255,255,255,.06);
+      --panel2: rgba(255,255,255,.04);
+      --border: rgba(255,255,255,.10);
+      --border2: rgba(255,255,255,.14);
+
       --text:#ffffff;
-      --muted:rgba(255,255,255,.72);
-      --muted2:rgba(255,255,255,.55);
-      --border:rgba(255,255,255,.12);
+      --muted: rgba(255,255,255,.72);
+      --muted2: rgba(255,255,255,.56);
 
-      --pink:#ff2bd6;
-      --cyan:#00e5ff;
-      --violet:#8b5cf6;
-      --lime:#8bff6b;
-
-      --danger:#ff4d6d;
-      --ok:#19c37d;
-
-      --shadow: 0 18px 55px rgba(0,0,0,.45);
+      /* single accent (luxury) */
+      --accent:#A78BFA; /* premium violet */
+      --accent2:#d6c7ff;
+      --shadow: 0 18px 60px rgba(0,0,0,.55);
     }
 
     *{box-sizing:border-box;margin:0;padding:0}
     html,body{height:100%}
-
     body{
-      font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+      font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
       color:var(--text);
-      line-height:1.35;
       background:
-        radial-gradient(900px 500px at 20% 0%, rgba(255,43,214,.28), transparent 55%),
-        radial-gradient(900px 520px at 80% 10%, rgba(0,229,255,.18), transparent 55%),
-        radial-gradient(900px 520px at 50% 95%, rgba(139,92,246,.20), transparent 55%),
+        radial-gradient(900px 520px at 20% -10%, rgba(167,139,250,.16), transparent 55%),
+        radial-gradient(700px 420px at 80% 0%, rgba(255,255,255,.06), transparent 50%),
         var(--bg);
-      padding-bottom:118px; /* spazio sticky */
+      line-height:1.35;
+      padding-bottom:118px;
     }
-
     a{color:inherit;text-decoration:none}
     .wrap{max-width:980px;margin:0 auto;padding:18px}
 
-    /* TOPBAR */
+    /* Top bar */
     header{
       position:sticky;top:0;z-index:50;
-      backdrop-filter:saturate(160%) blur(12px);
-      background:rgba(7,4,15,.62);
-      border-bottom:1px solid rgba(255,255,255,.10);
+      backdrop-filter:saturate(150%) blur(12px);
+      background: rgba(5,5,7,.70);
+      border-bottom:1px solid var(--border);
     }
     .topbar{display:flex;align-items:center;justify-content:space-between;gap:14px}
     .brand{
       display:flex;align-items:center;gap:10px;
-      font-weight:900;letter-spacing:-.4px;
+      font-family:"Space Grotesk", Inter, sans-serif;
+      font-weight:700;
+      letter-spacing:-.4px;
     }
-    .logoDot{
+    .mark{
       width:18px;height:18px;border-radius:6px;
-      background:
-        linear-gradient(135deg, var(--pink), var(--cyan));
-      box-shadow: 0 0 22px rgba(255,43,214,.28), 0 0 22px rgba(0,229,255,.18);
+      background: var(--accent);
+      box-shadow: 0 0 0 1px rgba(167,139,250,.22), 0 10px 24px rgba(167,139,250,.10);
       transform:skew(-8deg);
     }
-
     nav{display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:flex-end}
-    .navpill{
-      font-size:13px;font-weight:800;
-      padding:9px 12px;border-radius:999px;
-      border:1px solid rgba(255,255,255,.14);
-      background:rgba(255,255,255,.05);
-      color:rgba(255,255,255,.88);
+    .pill{
+      font-size:13px;
+      font-weight:800;
+      padding:9px 12px;
+      border-radius:999px;
+      border:1px solid var(--border);
+      background: rgba(255,255,255,.03);
+      color: rgba(255,255,255,.88);
       cursor:pointer;
     }
-    .navpill:hover{
-      border-color:rgba(255,255,255,.22);
-      background:rgba(255,255,255,.07);
-    }
+    .pill:hover{border-color:var(--border2);background: rgba(255,255,255,.05)}
     .hello{
-      border-color:transparent;
-      background:transparent;
-      padding:9px 6px;
-      color:rgba(255,255,255,.92);
-      cursor:default;
+      border-color:transparent;background:transparent;padding:9px 6px;
+      cursor:default;color:rgba(255,255,255,.92);
     }
-    .navAction{
-      font-size:13px;font-weight:900;
-      padding:9px 12px;border-radius:999px;
-      border:1px solid rgba(255,43,214,.25);
-      background: linear-gradient(135deg, rgba(255,43,214,.18), rgba(0,229,255,.12));
-      box-shadow: 0 0 18px rgba(255,43,214,.10);
+    .action{
+      border-color: rgba(167,139,250,.28);
+      background: rgba(167,139,250,.14);
       color:#fff;
+      box-shadow: 0 10px 26px rgba(167,139,250,.10);
+    }
+    .action:hover{
+      background: rgba(167,139,250,.18);
+      border-color: rgba(167,139,250,.38);
     }
 
-    /* HERO / EVENT CARD */
+    /* Hero card */
     .hero{padding:16px 0 10px}
-    .eventCard{
+    .card{
       border-radius:22px;
-      border:1px solid rgba(255,255,255,.12);
-      background:
-        linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.04));
+      border:1px solid var(--border);
+      background: linear-gradient(180deg, rgba(255,255,255,.07), rgba(255,255,255,.03));
       box-shadow: var(--shadow);
       padding:18px;
-      position:relative;
-      overflow:hidden;
     }
-    .eventCard::before{
-      content:"";
-      position:absolute;inset:-2px;
-      background:
-        radial-gradient(600px 220px at 20% 0%, rgba(255,43,214,.35), transparent 60%),
-        radial-gradient(600px 220px at 80% 0%, rgba(0,229,255,.22), transparent 60%);
-      filter:blur(8px);
-      opacity:.85;
-      pointer-events:none;
-    }
-    .eventCard > *{position:relative;z-index:1}
-
     .kicker{
       font-size:12px;
-      letter-spacing:.75px;
+      letter-spacing:.7px;
       text-transform:uppercase;
-      color:rgba(255,255,255,.76);
+      color:var(--muted2);
     }
     h1{
-      margin-top:8px;
-      font-size:32px;
-      line-height:1.05;
-      font-weight:900;
-      letter-spacing:-.6px;
+      font-family:"Space Grotesk", Inter, sans-serif;
+      margin-top:10px;
+      font-size:34px;
+      line-height:1.02;
+      letter-spacing:-.8px;
+      font-weight:700;
     }
     .sub{
       margin-top:10px;
-      color:rgba(255,255,255,.86);
+      color: rgba(255,255,255,.86);
       font-size:14px;
       font-weight:700;
     }
@@ -144,20 +126,14 @@
       font-size:12px;
       padding:8px 10px;
       border-radius:999px;
-      border:1px solid rgba(255,255,255,.14);
-      background:rgba(0,0,0,.18);
-      color:rgba(255,255,255,.84);
+      border:1px solid var(--border);
+      background: rgba(0,0,0,.18);
+      color: rgba(255,255,255,.86);
     }
     .chip strong{color:#fff}
-    .chip.hot{
-      border-color:rgba(255,43,214,.35);
-      background:rgba(255,43,214,.10);
-      box-shadow: 0 0 18px rgba(255,43,214,.10);
-    }
-    .chip.cyan{
-      border-color:rgba(0,229,255,.32);
-      background:rgba(0,229,255,.08);
-      box-shadow: 0 0 18px rgba(0,229,255,.08);
+    .chip.accent{
+      border-color: rgba(167,139,250,.30);
+      background: rgba(167,139,250,.12);
     }
 
     .metaRow{
@@ -166,125 +142,111 @@
       gap:10px;
       margin-top:14px;
     }
-    .metaBox{
-      border:1px solid rgba(255,255,255,.12);
+    .meta{
+      border:1px solid var(--border);
       border-radius:16px;
-      padding:12px 12px;
-      background:rgba(0,0,0,.16);
+      padding:12px;
+      background: rgba(0,0,0,.14);
     }
     .metaK{
-      font-size:11px;
-      letter-spacing:.6px;
-      text-transform:uppercase;
-      color:rgba(255,255,255,.62);
+      font-size:11px;letter-spacing:.6px;text-transform:uppercase;color:var(--muted2);
     }
     .metaV{
       margin-top:7px;
       font-weight:900;
       color:#fff;
     }
-    .metaV a{
-      text-decoration:underline;
-      text-underline-offset:3px;
-    }
+    .metaV a{text-decoration:underline;text-underline-offset:3px}
     @media(max-width:720px){.metaRow{grid-template-columns:1fr}}
 
-    /* SECTIONS */
+    /* Sections */
     section{padding:14px 0 22px}
     .sectionTitle{
       display:flex;align-items:flex-end;justify-content:space-between;
       gap:12px;margin:10px 0 12px;
     }
     h2{font-size:18px;font-weight:900}
-    .hint{font-size:13px;color:rgba(255,255,255,.72)}
+    .hint{font-size:13px;color:var(--muted)}
 
-    /* TICKET ROW */
+    /* Ticket list */
     .list{display:grid;gap:10px}
-    .ticketRow{
-      border:1px solid rgba(255,255,255,.12);
+    .ticket{
+      border:1px solid var(--border);
       border-radius:18px;
-      background:rgba(255,255,255,.05);
+      background: var(--panel);
       padding:14px;
       display:flex;align-items:center;justify-content:space-between;gap:14px;
-      box-shadow: 0 10px 30px rgba(0,0,0,.25);
+      box-shadow: 0 14px 38px rgba(0,0,0,.28);
     }
-    .ticketRow.disabled{opacity:.55; filter:saturate(.6)}
-    .ticketLeft{min-width:0}
+    .ticket.disabled{
+      opacity:.55;
+      background: var(--panel2);
+      box-shadow:none;
+    }
+    .tLeft{min-width:0}
     .tName{font-weight:900;font-size:15px}
-    .tDesc{margin-top:4px;font-size:13px;color:rgba(255,255,255,.72)}
+    .tDesc{margin-top:4px;font-size:13px;color:var(--muted)}
     .badges{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
     .badge{
       font-size:11px;padding:6px 9px;border-radius:999px;
-      border:1px solid rgba(255,255,255,.14);
-      background:rgba(0,0,0,.14);
-      color:rgba(255,255,255,.82);
-    }
-    .badge.hot{
-      border-color:rgba(255,43,214,.32);
-      background:rgba(255,43,214,.10);
-      color:#ffe1f7;
-    }
-    .badge.cyan{
-      border-color:rgba(0,229,255,.28);
-      background:rgba(0,229,255,.08);
-      color:#d9fbff;
+      border:1px solid var(--border);
+      background: rgba(0,0,0,.14);
+      color: rgba(255,255,255,.78);
     }
     .badge.soldout{
-      border-color:rgba(255,77,109,.35);
-      background:rgba(255,77,109,.10);
-      color:#ffd6de;
+      border-color: rgba(255,255,255,.16);
+      background: rgba(255,255,255,.04);
+      color: rgba(255,255,255,.70);
     }
 
-    .ticketRight{display:flex;align-items:center;gap:12px;flex-shrink:0}
+    .tRight{display:flex;align-items:center;gap:12px;flex-shrink:0}
     .price{
-      font-weight:900;
+      font-family:"Space Grotesk", Inter, sans-serif;
+      font-weight:700;
       font-size:18px;
       min-width:96px;
       text-align:right;
-      text-shadow: 0 0 18px rgba(255,43,214,.08);
+      letter-spacing:-.2px;
     }
 
-    /* STEPPER */
+    /* Stepper */
     .stepper{
       display:flex;align-items:center;gap:8px;
-      border:1px solid rgba(255,255,255,.14);
+      border:1px solid var(--border);
       border-radius:999px;
       padding:8px 10px;
-      background:rgba(0,0,0,.18);
+      background: rgba(0,0,0,.14);
     }
     .stepBtn{
       width:36px;height:36px;border-radius:999px;
-      border:1px solid rgba(255,255,255,.16);
-      background:rgba(255,255,255,.06);
+      border:1px solid var(--border);
+      background: rgba(255,255,255,.04);
       color:#fff;font-weight:900;
       cursor:pointer;
       display:flex;align-items:center;justify-content:center;
       user-select:none;
-      box-shadow: 0 0 16px rgba(0,229,255,.05);
     }
-    .stepBtn:hover{
-      border-color:rgba(0,229,255,.22);
-      box-shadow: 0 0 18px rgba(0,229,255,.09);
-    }
-    .stepBtn:disabled{opacity:.45;cursor:not-allowed;box-shadow:none}
+    .stepBtn:hover{border-color: rgba(167,139,250,.28); background: rgba(167,139,250,.10)}
+    .stepBtn:disabled{opacity:.45;cursor:not-allowed}
     .qty{
       width:30px;text-align:center;
       font-weight:900;
       font-variant-numeric:tabular-nums;
+      letter-spacing:-.2px;
     }
 
-    .mutedLine{margin-top:10px;color:rgba(255,255,255,.58);font-size:12px}
+    .mutedLine{margin-top:10px;color:var(--muted2);font-size:12px}
 
     /* FAQ */
     .faq{
       margin-top:12px;
-      border:1px solid rgba(255,255,255,.12);
+      border:1px solid var(--border);
       border-radius:18px;
       overflow:hidden;
-      background:rgba(255,255,255,.04);
-      box-shadow: 0 12px 34px rgba(0,0,0,.22);
+      background: var(--panel2);
+      box-shadow: 0 14px 40px rgba(0,0,0,.24);
     }
-    details{border-top:1px solid rgba(255,255,255,.10)}
+    details{border-top:1px solid rgba(255,255,255,.08)}
     details:first-child{border-top:none}
     summary{
       list-style:none;cursor:pointer;
@@ -292,70 +254,67 @@
       font-weight:900;
     }
     summary::-webkit-details-marker{display:none}
-    .faqBody{padding:0 14px 14px 14px;color:rgba(255,255,255,.74);font-size:13px}
+    .faqBody{padding:0 14px 14px 14px;color:var(--muted);font-size:13px}
 
     footer{
       border-top:1px solid rgba(255,255,255,.10);
       margin-top:18px;
       padding:18px 0 0;
-      color:rgba(255,255,255,.58);
+      color:var(--muted2);
       font-size:12px;
     }
 
-    /* STICKY */
+    /* Sticky */
     .sticky{
       position:fixed;left:14px;right:14px;bottom:14px;z-index:80;
       max-width:980px;margin:0 auto;
 
       border-radius:20px;
-      border:1px solid rgba(255,255,255,.14);
-      background:rgba(10,6,18,.70);
-      backdrop-filter:saturate(160%) blur(12px);
-      box-shadow: 0 24px 70px rgba(0,0,0,.55);
+      border:1px solid rgba(255,255,255,.12);
+      background: rgba(10,10,14,.78);
+      backdrop-filter:saturate(150%) blur(12px);
+      box-shadow: 0 28px 80px rgba(0,0,0,.60);
 
       padding:12px 12px;
       display:flex;align-items:center;justify-content:space-between;gap:12px;
     }
-
     .sLeft{min-width:0;display:flex;flex-direction:column;gap:4px}
-    /* come richiesto: totale grande, testo carrello piccolo */
     .sTotal{
-      font-weight:900;
-      font-size:22px;
+      font-family:"Space Grotesk", Inter, sans-serif;
+      font-weight:700;
+      font-size:24px;
       letter-spacing:-.4px;
-      text-shadow: 0 0 22px rgba(255,43,214,.12);
     }
     .sItems{
       font-size:12px;
-      color:rgba(255,255,255,.68);
+      color:var(--muted);
       font-weight:800;
     }
-
     .sRight{display:flex;align-items:center;gap:8px;flex-shrink:0}
     .ghostBtn{
       padding:12px 12px;border-radius:999px;
-      border:1px solid rgba(255,255,255,.16);
-      background:rgba(255,255,255,.06);
+      border:1px solid var(--border);
+      background: rgba(255,255,255,.04);
       color:#fff;font-weight:900;font-size:13px;
       cursor:pointer;
     }
-    .ghostBtn:hover{background:rgba(255,255,255,.08)}
-
+    .ghostBtn:hover{border-color:var(--border2);background: rgba(255,255,255,.06)}
     .primaryBtn{
       padding:12px 14px;border-radius:999px;
-      border:1px solid rgba(255,43,214,.30);
-      background: linear-gradient(135deg, rgba(255,43,214,.95), rgba(0,229,255,.45));
-      color:#0b0612;
+      border:1px solid rgba(167,139,250,.34);
+      background: var(--accent);
+      color:#050507;
       font-weight:900;
       font-size:13px;
       cursor:pointer;
       white-space:nowrap;
-      box-shadow: 0 0 28px rgba(255,43,214,.18), 0 0 28px rgba(0,229,255,.10);
+      box-shadow: 0 16px 34px rgba(167,139,250,.16);
     }
+    .primaryBtn:hover{filter:brightness(1.03)}
     .primaryBtn:disabled{
-      background:rgba(255,255,255,.10);
-      color:rgba(255,255,255,.45);
-      border-color:rgba(255,255,255,.12);
+      background: rgba(255,255,255,.10);
+      color: rgba(255,255,255,.45);
+      border-color: rgba(255,255,255,.12);
       cursor:not-allowed;
       box-shadow:none;
     }
@@ -367,14 +326,14 @@
     <div class="wrap">
       <div class="topbar">
         <div class="brand">
-          <div class="logoDot"></div>
+          <div class="mark"></div>
           <div>TRAPPERREO</div>
         </div>
 
         <!-- NAV come richiesto:
-             - se NON loggato: nulla
-             - se loggato: "Ciao NOME" + Area personale + Logout
-             - sopra: aggiungi "Cambio nome" (sempre visibile) -->
+             - sempre: Cambio nome
+             - se loggato: Ciao + nome, Area personale, Logout
+             - se NON loggato: solo Cambio nome -->
         <nav id="navArea" aria-label="Navigazione"></nav>
       </div>
     </div>
@@ -382,7 +341,7 @@
 
   <main class="wrap">
     <div class="hero">
-      <div class="eventCard">
+      <div class="card">
         <div class="kicker">Biella • Trap & Reggaeton</div>
         <h1 id="eventTitle">TRAPPERREO</h1>
         <div class="sub" id="eventSubtitle">
@@ -390,24 +349,24 @@
         </div>
 
         <div class="chips">
-          <div class="chip hot">EVENTO PRIVATO</div>
+          <div class="chip accent"><strong>EVENTO PRIVATO</strong></div>
           <div class="chip">Ingresso <strong><span id="minAge">—</span>+</strong> con documento</div>
-          <div class="chip cyan">Alcol <strong><span id="alcAge">—</span>+</strong></div>
+          <div class="chip">Alcol <strong><span id="alcAge">—</span>+</strong></div>
           <div class="chip">Ticket QR digitale</div>
           <div class="chip">Prevendita online</div>
         </div>
 
         <div class="metaRow">
-          <div class="metaBox">
+          <div class="meta">
             <div class="metaK">Location</div>
             <div class="metaV">
               <span id="venueName">Via Italia 38, Biella</span>
               · <a id="mapsLink" href="https://maps.google.com/?q=Via%20Italia%2038%20Biella" target="_blank" rel="noopener">Apri mappa</a>
             </div>
           </div>
-          <div class="metaBox">
+          <div class="meta">
             <div class="metaK">Info</div>
-            <div class="metaV" id="policyLine">Documento richiesto</div>
+            <div class="metaV" id="policyLine">Documento richiesto all’ingresso</div>
           </div>
         </div>
       </div>
@@ -459,7 +418,7 @@
 
     <footer>
       <div>
-        TRAPPERREO — <strong>EVENTO PRIVATO</strong> · Ingresso <strong><span id="minAgeFoot">—</span>+</strong> con documento · Ticket QR digitale
+        TRAPPERREO — <strong>evento privato</strong> · Ingresso <strong><span id="minAgeFoot">—</span>+</strong> con documento · Ticket QR digitale
       </div>
     </footer>
   </main>
@@ -477,7 +436,7 @@
   </div>
 
   <script type="module">
-    import { onUser, doSignOut, db } from './auth.v2.js?v=9';
+    import { onUser, doSignOut, db } from './auth.v2.js?v=10';
     import {
       doc, getDoc,
       collection, getDocs,
@@ -485,8 +444,6 @@
     } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-firestore.js";
 
     const CART_KEY = "cart_v1";
-
-    const nav = document.getElementById('navArea');
 
     function escapeHtml(s){
       return String(s ?? '')
@@ -524,25 +481,26 @@
     let TICKETS = [];
     let CART = readCart();
 
-    // NAV come richiesto:
-    // - Sempre: "Cambio nome"
-    // - Se loggato: "Ciao Nome" + Area personale + Logout
-    // - Se non loggato: SOLO "Cambio nome"
+    // NAV per come lo vuoi tu:
+    // - sempre: Cambio nome
+    // - se loggato: Ciao Nome + Area personale + Logout
+    // - se non loggato: solo Cambio nome
+    const nav = document.getElementById('navArea');
     function renderNav(user){
-      const changeNameLink = `<a class="navAction" href="./account-2.html#change-name">Cambio nome</a>`;
+      const changeName = `<a class="pill action" href="./account-2.html#change-name">Cambio nome</a>`;
 
       if(!user){
-        nav.innerHTML = changeNameLink;
+        nav.innerHTML = changeName;
         return;
       }
 
       const name = (user.displayName || (user.email ? user.email.split('@')[0] : 'Utente')).split(' ')[0];
 
       nav.innerHTML = `
-        ${changeNameLink}
-        <span class="navpill hello">👋 Ciao ${escapeHtml(name)}</span>
-        <a class="navpill" href="./account-2.html">Area personale</a>
-        <a class="navpill" href="#" id="logoutLink" style="border-color:rgba(255,43,214,.25)">Logout</a>
+        ${changeName}
+        <span class="pill hello">👋 Ciao ${escapeHtml(name)}</span>
+        <a class="pill" href="./account-2.html">Area personale</a>
+        <a class="pill" href="#" id="logoutLink">Logout</a>
       `;
 
       document.getElementById('logoutLink')?.addEventListener('click', async (e)=>{
@@ -551,8 +509,8 @@
         renderNav(null);
       });
     }
-
     onUser((u)=>renderNav(u));
+    renderNav(null); // immediato (prima che arrivi auth)
 
     // CONFIG (config/events)
     async function loadConfig(){
@@ -570,26 +528,17 @@
           const el = document.getElementById(id);
           if (el) el.textContent = String(alcA);
         }
-
-        // se vuoi mettere un testo dal db: entryPolicyText
-        if (typeof cfg.entryPolicyText === 'string' && cfg.entryPolicyText.trim()){
-          document.getElementById('policyLine').textContent = cfg.entryPolicyText.trim();
-        } else {
-          document.getElementById('policyLine').textContent = "Documento richiesto";
-        }
       }catch(e){
         console.error('config load error', e);
-        // fallback
         document.getElementById('minAge').textContent = '16';
         document.getElementById('alcAge').textContent = '18';
         document.getElementById('minAgeFaq').textContent = '16';
         document.getElementById('alcAgeFaq').textContent = '18';
         document.getElementById('minAgeFoot').textContent = '16';
-        document.getElementById('policyLine').textContent = "Documento richiesto";
       }
     }
 
-    // TICKETS (config/events/tickets)
+    // TICKETS
     const listEl = document.getElementById('ticketsList');
     const hintEl = document.getElementById('ticketsHint');
 
@@ -664,8 +613,10 @@
           statusBadge.textContent = "Sold out";
           statusBadge.className = "badge soldout";
         }else{
-          statusBadge.textContent = "Disponibile";
-          statusBadge.className = "badge hot";
+          // richiesto: togli "Disponibile" -> badge vuoto
+          statusBadge.textContent = "";
+          statusBadge.className = "badge";
+          statusBadge.style.display = "none";
         }
       }
     }
@@ -673,8 +624,8 @@
     function renderTickets(){
       if(!TICKETS.length){
         listEl.innerHTML = `
-          <div class="ticketRow disabled">
-            <div class="ticketLeft">
+          <div class="ticket disabled">
+            <div class="tLeft">
               <div class="tName">Nessun biglietto disponibile</div>
               <div class="tDesc">Aggiungi documenti in Firestore: config/events/tickets</div>
             </div>
@@ -691,17 +642,16 @@
         const desc = (t.descriptionShort || '').trim();
 
         return `
-          <div class="ticketRow ${soldOut ? 'disabled' : ''}" data-ticket-row="${escapeHtml(t.id)}">
-            <div class="ticketLeft">
+          <div class="ticket ${soldOut ? 'disabled' : ''}" data-ticket-row="${escapeHtml(t.id)}">
+            <div class="tLeft">
               <div class="tName">${escapeHtml(t.name || t.id)}</div>
               ${desc ? `<div class="tDesc">${escapeHtml(desc)}</div>` : `<div class="tDesc">Ticket QR digitale</div>`}
               <div class="badges">
-                <span class="${soldOut ? 'badge soldout' : 'badge hot'}" data-status="${escapeHtml(t.id)}">${soldOut ? 'Sold out' : 'Disponibile'}</span>
-                <span class="badge cyan">Evento privato</span>
+                ${soldOut ? `<span class="badge soldout" data-status="${escapeHtml(t.id)}">Sold out</span>` : ``}
               </div>
             </div>
 
-            <div class="ticketRight">
+            <div class="tRight">
               <div class="price">${euro(t.priceCents)}</div>
 
               <div class="stepper" aria-label="Quantità ${escapeHtml(t.name || t.id)}">
@@ -731,7 +681,6 @@
 
         const items = [];
         snap.forEach(d => items.push({ id:d.id, ...(d.data()||{}) }));
-
         TICKETS = items;
 
         // pulisci carrello da ticket rimossi
@@ -749,8 +698,8 @@
         console.error('tickets load error', e);
         hintEl.textContent = 'Errore nel caricamento biglietti';
         listEl.innerHTML = `
-          <div class="ticketRow disabled">
-            <div class="ticketLeft">
+          <div class="ticket disabled">
+            <div class="tLeft">
               <div class="tName">Non riesco a caricare i biglietti</div>
               <div class="tDesc">Controlla le regole Firestore (read) e riprova.</div>
             </div>
@@ -759,7 +708,7 @@
       }
     }
 
-    // STICKY UI (come richiesto: totale grande, items piccolo)
+    // Sticky
     const cartTotalEl = document.getElementById('cartTotalText');
     const cartItemsEl = document.getElementById('cartItemsText');
     const clearBtn = document.getElementById('clearBtn');
@@ -767,7 +716,6 @@
 
     function updateSticky(){
       const { items, totalCents } = cartTotals();
-
       cartTotalEl.textContent = `Totale: ${euro(totalCents)}`;
 
       if(items <= 0){
@@ -795,7 +743,6 @@
     });
 
     // START
-    renderNav(null); // iniziale (solo cambio nome finché non arriva auth)
     await loadConfig();
     await loadTickets();
     updateSticky();
