@@ -4,219 +4,360 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>TRAPPERREO — Biglietti</title>
-  <meta name="description" content="Acquista i biglietti. Seleziona quantità e vai al pagamento." />
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' fill='black'/%3E%3Ctext x='50%25' y='50%25' dy='.35em' text-anchor='middle' font-size='28' fill='%238b5cf6' font-family='Arial, Helvetica, sans-serif'%3ETR%3C/text%3E%3C/svg%3E">
+  <meta name="description" content="Evento privato. Prevendita online fino a esaurimento posti." />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' fill='black'/%3E%3Ctext x='50%25' y='50%25' dy='.35em' text-anchor='middle' font-size='28' fill='%23ff2bd6' font-family='Arial, Helvetica, sans-serif'%3ETR%3C/text%3E%3C/svg%3E">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&display=swap" rel="stylesheet">
 
   <style>
     :root{
-      --bg:#0b0b0f;
-      --card:#111119;
+      --bg:#07040f;
+      --card:rgba(255,255,255,.06);
       --text:#ffffff;
       --muted:rgba(255,255,255,.72);
       --muted2:rgba(255,255,255,.55);
-      --border:rgba(255,255,255,.10);
-      --accent:#8b5cf6;
-      --accentBg:rgba(139,92,246,.14);
+      --border:rgba(255,255,255,.12);
+
+      --pink:#ff2bd6;
+      --cyan:#00e5ff;
+      --violet:#8b5cf6;
+      --lime:#8bff6b;
+
       --danger:#ff4d6d;
       --ok:#19c37d;
+
+      --shadow: 0 18px 55px rgba(0,0,0,.45);
     }
+
     *{box-sizing:border-box;margin:0;padding:0}
     html,body{height:100%}
+
     body{
-      background: radial-gradient(1200px 600px at 50% -10%, rgba(139,92,246,.18), transparent 60%), var(--bg);
-      color:var(--text);
       font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
-      line-height:1.45;
-      padding-bottom:110px; /* spazio per sticky */
+      color:var(--text);
+      line-height:1.35;
+      background:
+        radial-gradient(900px 500px at 20% 0%, rgba(255,43,214,.28), transparent 55%),
+        radial-gradient(900px 520px at 80% 10%, rgba(0,229,255,.18), transparent 55%),
+        radial-gradient(900px 520px at 50% 95%, rgba(139,92,246,.20), transparent 55%),
+        var(--bg);
+      padding-bottom:118px; /* spazio sticky */
     }
+
     a{color:inherit;text-decoration:none}
     .wrap{max-width:980px;margin:0 auto;padding:18px}
+
+    /* TOPBAR */
     header{
       position:sticky;top:0;z-index:50;
-      backdrop-filter:saturate(140%) blur(10px);
-      background:rgba(11,11,15,.72);
-      border-bottom:1px solid var(--border);
+      backdrop-filter:saturate(160%) blur(12px);
+      background:rgba(7,4,15,.62);
+      border-bottom:1px solid rgba(255,255,255,.10);
     }
     .topbar{display:flex;align-items:center;justify-content:space-between;gap:14px}
-    .brand{display:flex;align-items:center;gap:10px;font-weight:900;letter-spacing:-.3px}
-    .brand-badge{width:20px;height:20px;background:var(--accent);border-radius:4px;transform:skew(-6deg)}
-    nav{display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:flex-end}
-    .navlink{
-      font-size:13px;color:var(--muted);
-      padding:8px 10px;border-radius:10px;
-      border:1px solid transparent;
+    .brand{
+      display:flex;align-items:center;gap:10px;
+      font-weight:900;letter-spacing:-.4px;
     }
-    .navlink:hover{color:#fff;border-color:var(--border);background:rgba(255,255,255,.03)}
-    .navbtn{
-      font-size:13px;font-weight:900;
-      padding:10px 12px;border-radius:10px;
-      background:var(--accent);color:#0a0a0a;
-      border:1px solid rgba(0,0,0,.2);
+    .logoDot{
+      width:18px;height:18px;border-radius:6px;
+      background:
+        linear-gradient(135deg, var(--pink), var(--cyan));
+      box-shadow: 0 0 22px rgba(255,43,214,.28), 0 0 22px rgba(0,229,255,.18);
+      transform:skew(-8deg);
+    }
+
+    nav{display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:flex-end}
+    .navpill{
+      font-size:13px;font-weight:800;
+      padding:9px 12px;border-radius:999px;
+      border:1px solid rgba(255,255,255,.14);
+      background:rgba(255,255,255,.05);
+      color:rgba(255,255,255,.88);
       cursor:pointer;
     }
-    .navbtn[aria-disabled="true"]{
-      background:rgba(255,255,255,.08);
-      color:rgba(255,255,255,.45);
-      border-color:rgba(255,255,255,.08);
-      cursor:not-allowed;
+    .navpill:hover{
+      border-color:rgba(255,255,255,.22);
+      background:rgba(255,255,255,.07);
+    }
+    .hello{
+      border-color:transparent;
+      background:transparent;
+      padding:9px 6px;
+      color:rgba(255,255,255,.92);
+      cursor:default;
+    }
+    .navAction{
+      font-size:13px;font-weight:900;
+      padding:9px 12px;border-radius:999px;
+      border:1px solid rgba(255,43,214,.25);
+      background: linear-gradient(135deg, rgba(255,43,214,.18), rgba(0,229,255,.12));
+      box-shadow: 0 0 18px rgba(255,43,214,.10);
+      color:#fff;
+    }
+
+    /* HERO / EVENT CARD */
+    .hero{padding:16px 0 10px}
+    .eventCard{
+      border-radius:22px;
+      border:1px solid rgba(255,255,255,.12);
+      background:
+        linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.04));
+      box-shadow: var(--shadow);
+      padding:18px;
+      position:relative;
+      overflow:hidden;
+    }
+    .eventCard::before{
+      content:"";
+      position:absolute;inset:-2px;
+      background:
+        radial-gradient(600px 220px at 20% 0%, rgba(255,43,214,.35), transparent 60%),
+        radial-gradient(600px 220px at 80% 0%, rgba(0,229,255,.22), transparent 60%);
+      filter:blur(8px);
+      opacity:.85;
       pointer-events:none;
     }
+    .eventCard > *{position:relative;z-index:1}
 
-    /* Event header */
-    .hero{padding:18px 0 10px}
-    .eventCard{
-      background:linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02));
-      border:1px solid var(--border);
-      border-radius:18px;
-      padding:18px;
+    .kicker{
+      font-size:12px;
+      letter-spacing:.75px;
+      text-transform:uppercase;
+      color:rgba(255,255,255,.76);
     }
-    .kicker{font-size:12px;letter-spacing:.6px;text-transform:uppercase;color:var(--muted2)}
-    h1{margin-top:6px;font-size:28px;line-height:1.1;font-weight:900}
-    .sub{margin-top:8px;color:var(--muted);font-size:14px}
-    .chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+    h1{
+      margin-top:8px;
+      font-size:32px;
+      line-height:1.05;
+      font-weight:900;
+      letter-spacing:-.6px;
+    }
+    .sub{
+      margin-top:10px;
+      color:rgba(255,255,255,.86);
+      font-size:14px;
+      font-weight:700;
+    }
+
+    .chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
     .chip{
-      font-size:12px;padding:7px 10px;border-radius:999px;
-      background:rgba(0,0,0,.35);border:1px solid var(--border);color:var(--muted);
+      font-size:12px;
+      padding:8px 10px;
+      border-radius:999px;
+      border:1px solid rgba(255,255,255,.14);
+      background:rgba(0,0,0,.18);
+      color:rgba(255,255,255,.84);
     }
     .chip strong{color:#fff}
+    .chip.hot{
+      border-color:rgba(255,43,214,.35);
+      background:rgba(255,43,214,.10);
+      box-shadow: 0 0 18px rgba(255,43,214,.10);
+    }
+    .chip.cyan{
+      border-color:rgba(0,229,255,.32);
+      background:rgba(0,229,255,.08);
+      box-shadow: 0 0 18px rgba(0,229,255,.08);
+    }
+
     .metaRow{
-      display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px
+      display:grid;
+      grid-template-columns: 1.2fr .8fr;
+      gap:10px;
+      margin-top:14px;
     }
     .metaBox{
-      border:1px solid var(--border);
-      border-radius:14px;
+      border:1px solid rgba(255,255,255,.12);
+      border-radius:16px;
       padding:12px 12px;
-      background:rgba(0,0,0,.25);
+      background:rgba(0,0,0,.16);
     }
-    .metaK{font-size:11px;letter-spacing:.5px;text-transform:uppercase;color:var(--muted2)}
-    .metaV{margin-top:6px;font-weight:800}
-    .metaV a{color:#fff;text-decoration:underline;text-underline-offset:3px}
+    .metaK{
+      font-size:11px;
+      letter-spacing:.6px;
+      text-transform:uppercase;
+      color:rgba(255,255,255,.62);
+    }
+    .metaV{
+      margin-top:7px;
+      font-weight:900;
+      color:#fff;
+    }
+    .metaV a{
+      text-decoration:underline;
+      text-underline-offset:3px;
+    }
     @media(max-width:720px){.metaRow{grid-template-columns:1fr}}
 
-    /* Sections */
+    /* SECTIONS */
     section{padding:14px 0 22px}
-    .sectionTitle{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;margin:12px 0}
+    .sectionTitle{
+      display:flex;align-items:flex-end;justify-content:space-between;
+      gap:12px;margin:10px 0 12px;
+    }
     h2{font-size:18px;font-weight:900}
-    .hint{font-size:13px;color:var(--muted)}
+    .hint{font-size:13px;color:rgba(255,255,255,.72)}
 
-    /* Tickets list */
+    /* TICKET ROW */
     .list{display:grid;gap:10px}
     .ticketRow{
-      border:1px solid var(--border);
-      border-radius:16px;
-      background:rgba(255,255,255,.03);
+      border:1px solid rgba(255,255,255,.12);
+      border-radius:18px;
+      background:rgba(255,255,255,.05);
       padding:14px;
       display:flex;align-items:center;justify-content:space-between;gap:14px;
+      box-shadow: 0 10px 30px rgba(0,0,0,.25);
     }
-    .ticketRow.disabled{opacity:.55}
+    .ticketRow.disabled{opacity:.55; filter:saturate(.6)}
     .ticketLeft{min-width:0}
-    .tName{font-weight:900}
-    .tDesc{margin-top:4px;font-size:13px;color:var(--muted)}
-    .badges{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+    .tName{font-weight:900;font-size:15px}
+    .tDesc{margin-top:4px;font-size:13px;color:rgba(255,255,255,.72)}
+    .badges{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
     .badge{
-      font-size:11px;padding:5px 8px;border-radius:999px;
-      border:1px solid var(--border);color:var(--muted);
-      background:rgba(0,0,0,.25);
+      font-size:11px;padding:6px 9px;border-radius:999px;
+      border:1px solid rgba(255,255,255,.14);
+      background:rgba(0,0,0,.14);
+      color:rgba(255,255,255,.82);
     }
-    .badge.accent{border-color:rgba(139,92,246,.35);background:var(--accentBg);color:#e9ddff}
-    .badge.soldout{border-color:rgba(255,77,109,.35);background:rgba(255,77,109,.10);color:#ffd6de}
-    .badge.mini{padding:4px 7px;font-size:10px}
-
-    .ticketRight{
-      display:flex;align-items:center;gap:12px;flex-shrink:0;
+    .badge.hot{
+      border-color:rgba(255,43,214,.32);
+      background:rgba(255,43,214,.10);
+      color:#ffe1f7;
     }
-    .price{font-weight:900;font-size:18px;min-width:92px;text-align:right}
+    .badge.cyan{
+      border-color:rgba(0,229,255,.28);
+      background:rgba(0,229,255,.08);
+      color:#d9fbff;
+    }
+    .badge.soldout{
+      border-color:rgba(255,77,109,.35);
+      background:rgba(255,77,109,.10);
+      color:#ffd6de;
+    }
 
-    /* Stepper */
+    .ticketRight{display:flex;align-items:center;gap:12px;flex-shrink:0}
+    .price{
+      font-weight:900;
+      font-size:18px;
+      min-width:96px;
+      text-align:right;
+      text-shadow: 0 0 18px rgba(255,43,214,.08);
+    }
+
+    /* STEPPER */
     .stepper{
       display:flex;align-items:center;gap:8px;
-      border:1px solid var(--border);
-      border-radius:14px;
+      border:1px solid rgba(255,255,255,.14);
+      border-radius:999px;
       padding:8px 10px;
-      background:rgba(0,0,0,.22);
+      background:rgba(0,0,0,.18);
     }
     .stepBtn{
-      width:34px;height:34px;border-radius:12px;
-      border:1px solid var(--border);
-      background:rgba(255,255,255,.04);
+      width:36px;height:36px;border-radius:999px;
+      border:1px solid rgba(255,255,255,.16);
+      background:rgba(255,255,255,.06);
       color:#fff;font-weight:900;
       cursor:pointer;
       display:flex;align-items:center;justify-content:center;
       user-select:none;
+      box-shadow: 0 0 16px rgba(0,229,255,.05);
     }
-    .stepBtn:disabled{
-      opacity:.5;cursor:not-allowed;
+    .stepBtn:hover{
+      border-color:rgba(0,229,255,.22);
+      box-shadow: 0 0 18px rgba(0,229,255,.09);
     }
+    .stepBtn:disabled{opacity:.45;cursor:not-allowed;box-shadow:none}
     .qty{
-      width:28px;text-align:center;
+      width:30px;text-align:center;
       font-weight:900;
       font-variant-numeric:tabular-nums;
     }
 
-    .mutedLine{margin-top:10px;color:var(--muted2);font-size:12px}
+    .mutedLine{margin-top:10px;color:rgba(255,255,255,.58);font-size:12px}
 
-    /* FAQ minimal */
+    /* FAQ */
     .faq{
-      margin-top:14px;
-      border:1px solid var(--border);
-      border-radius:16px;
+      margin-top:12px;
+      border:1px solid rgba(255,255,255,.12);
+      border-radius:18px;
       overflow:hidden;
-      background:rgba(255,255,255,.02);
+      background:rgba(255,255,255,.04);
+      box-shadow: 0 12px 34px rgba(0,0,0,.22);
     }
-    details{border-top:1px solid var(--border)}
+    details{border-top:1px solid rgba(255,255,255,.10)}
     details:first-child{border-top:none}
     summary{
       list-style:none;cursor:pointer;
       padding:14px 14px;
-      font-weight:800;
+      font-weight:900;
     }
     summary::-webkit-details-marker{display:none}
-    .faqBody{padding:0 14px 14px 14px;color:var(--muted);font-size:13px}
+    .faqBody{padding:0 14px 14px 14px;color:rgba(255,255,255,.74);font-size:13px}
 
     footer{
-      border-top:1px solid var(--border);
+      border-top:1px solid rgba(255,255,255,.10);
       margin-top:18px;
       padding:18px 0 0;
-      color:var(--muted2);
+      color:rgba(255,255,255,.58);
       font-size:12px;
     }
 
-    /* Sticky bottom bar */
+    /* STICKY */
     .sticky{
       position:fixed;left:14px;right:14px;bottom:14px;z-index:80;
-      border-radius:16px;
-      border:1px solid rgba(255,255,255,.12);
-      background:rgba(17,17,25,.78);
-      backdrop-filter:saturate(140%) blur(10px);
-      padding:12px 12px;
       max-width:980px;margin:0 auto;
 
-      display:flex;align-items:center;justify-content:space-between;gap:10px;
+      border-radius:20px;
+      border:1px solid rgba(255,255,255,.14);
+      background:rgba(10,6,18,.70);
+      backdrop-filter:saturate(160%) blur(12px);
+      box-shadow: 0 24px 70px rgba(0,0,0,.55);
+
+      padding:12px 12px;
+      display:flex;align-items:center;justify-content:space-between;gap:12px;
     }
-    .sLeft{min-width:0}
-    .sTitle{font-weight:900}
-    .sSub{font-size:12px;color:var(--muted)}
+
+    .sLeft{min-width:0;display:flex;flex-direction:column;gap:4px}
+    /* come richiesto: totale grande, testo carrello piccolo */
+    .sTotal{
+      font-weight:900;
+      font-size:22px;
+      letter-spacing:-.4px;
+      text-shadow: 0 0 22px rgba(255,43,214,.12);
+    }
+    .sItems{
+      font-size:12px;
+      color:rgba(255,255,255,.68);
+      font-weight:800;
+    }
+
     .sRight{display:flex;align-items:center;gap:8px;flex-shrink:0}
     .ghostBtn{
-      padding:12px 12px;border-radius:14px;
-      border:1px solid var(--border);
-      background:rgba(255,255,255,.04);
+      padding:12px 12px;border-radius:999px;
+      border:1px solid rgba(255,255,255,.16);
+      background:rgba(255,255,255,.06);
       color:#fff;font-weight:900;font-size:13px;
       cursor:pointer;
     }
+    .ghostBtn:hover{background:rgba(255,255,255,.08)}
+
     .primaryBtn{
-      padding:12px 14px;border-radius:14px;
-      background:var(--accent);color:#0a0a0a;font-weight:900;font-size:13px;
-      border:1px solid rgba(0,0,0,.2);
+      padding:12px 14px;border-radius:999px;
+      border:1px solid rgba(255,43,214,.30);
+      background: linear-gradient(135deg, rgba(255,43,214,.95), rgba(0,229,255,.45));
+      color:#0b0612;
+      font-weight:900;
+      font-size:13px;
       cursor:pointer;
       white-space:nowrap;
+      box-shadow: 0 0 28px rgba(255,43,214,.18), 0 0 28px rgba(0,229,255,.10);
     }
     .primaryBtn:disabled{
-      background:rgba(255,255,255,.08);
+      background:rgba(255,255,255,.10);
       color:rgba(255,255,255,.45);
-      border-color:rgba(255,255,255,.08);
+      border-color:rgba(255,255,255,.12);
       cursor:not-allowed;
+      box-shadow:none;
     }
   </style>
 </head>
@@ -226,14 +367,15 @@
     <div class="wrap">
       <div class="topbar">
         <div class="brand">
-          <div class="brand-badge"></div>
+          <div class="logoDot"></div>
           <div>TRAPPERREO</div>
         </div>
-        <nav id="navArea" aria-label="Navigazione">
-          <a class="navlink" href="#tickets">Biglietti</a>
-          <a class="navlink" href="#faq">FAQ</a>
-          <a class="navbtn" id="navCheckoutBtn" href="./checkout.html" aria-disabled="true">Vai al checkout</a>
-        </nav>
+
+        <!-- NAV come richiesto:
+             - se NON loggato: nulla
+             - se loggato: "Ciao NOME" + Area personale + Logout
+             - sopra: aggiungi "Cambio nome" (sempre visibile) -->
+        <nav id="navArea" aria-label="Navigazione"></nav>
       </div>
     </div>
   </header>
@@ -248,8 +390,9 @@
         </div>
 
         <div class="chips">
+          <div class="chip hot">EVENTO PRIVATO</div>
           <div class="chip">Ingresso <strong><span id="minAge">—</span>+</strong> con documento</div>
-          <div class="chip">Alcol <strong><span id="alcAge">—</span>+</strong></div>
+          <div class="chip cyan">Alcol <strong><span id="alcAge">—</span>+</strong></div>
           <div class="chip">Ticket QR digitale</div>
           <div class="chip">Prevendita online</div>
         </div>
@@ -263,12 +406,10 @@
             </div>
           </div>
           <div class="metaBox">
-            <div class="metaK">Regole</div>
-            <div class="metaV" id="policyLine">Documento richiesto · Selezione all’ingresso</div>
+            <div class="metaK">Info</div>
+            <div class="metaV" id="policyLine">Documento richiesto</div>
           </div>
         </div>
-
-        <div class="mutedLine" id="configNote" style="display:none;"></div>
       </div>
     </div>
 
@@ -301,16 +442,16 @@
         </details>
 
         <details>
-          <summary>Cosa serve all’ingresso?</summary>
+          <summary>Posso acquistare il biglietto in cassa?</summary>
           <div class="faqBody">
-            Documento valido + QR del ticket sul telefono. Consigliato arrivare presto per evitare code.
+            No. Essendo un <strong>evento privato</strong>, l’ingresso è disponibile <strong>solo tramite prevendita online</strong> fino a <strong>esaurimento posti</strong>.
           </div>
         </details>
 
         <details>
-          <summary>Problemi con l’acquisto?</summary>
+          <summary>Cosa serve all’ingresso?</summary>
           <div class="faqBody">
-            Scrivici su Instagram/WhatsApp (metti qui i link reali) e ti aiutiamo.
+            Documento valido + QR del ticket sul telefono.
           </div>
         </details>
       </div>
@@ -318,10 +459,7 @@
 
     <footer>
       <div>
-        TRAPPERREO — evento privato · Ingresso <strong><span id="minAgeFoot">—</span>+</strong> con documento · Ticket QR digitale
-      </div>
-      <div style="margin-top:6px;">
-        Contatti: <a href="#" id="igLink" style="text-decoration:underline;text-underline-offset:3px;">Instagram</a>
+        TRAPPERREO — <strong>EVENTO PRIVATO</strong> · Ingresso <strong><span id="minAgeFoot">—</span>+</strong> con documento · Ticket QR digitale
       </div>
     </footer>
   </main>
@@ -329,68 +467,27 @@
   <!-- Sticky bottom CTA -->
   <div class="sticky" role="region" aria-label="Riepilogo carrello">
     <div class="sLeft">
-      <div class="sTitle" id="cartTitle">Seleziona i biglietti</div>
-      <div class="sSub" id="cartSub">Poi vai al checkout</div>
+      <div class="sTotal" id="cartTotalText">Totale: €0,00</div>
+      <div class="sItems" id="cartItemsText">Seleziona i biglietti</div>
     </div>
     <div class="sRight">
       <button class="ghostBtn" id="clearBtn" type="button" style="display:none;">Svuota</button>
-      <button class="primaryBtn" id="goCheckoutBtn" type="button" disabled>Vai al checkout</button>
+      <button class="primaryBtn" id="goCheckoutBtn" type="button" disabled>Vai al pagamento</button>
     </div>
   </div>
 
   <script type="module">
-    import { onUser, doSignOut, db } from './auth.v2.js?v=7';
+    import { onUser, doSignOut, db } from './auth.v2.js?v=9';
     import {
       doc, getDoc,
       collection, getDocs,
       query, orderBy
     } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-firestore.js";
 
-    // ====== CONFIG RAPIDA (cambia qui) ======
-    const IG = "https://instagram.com/tuo_profilo"; // TODO: metti il profilo vero
-    const CART_KEY = "cart_v1"; // localStorage key
+    const CART_KEY = "cart_v1";
 
-    document.getElementById('igLink').href = IG;
-
-    // ====== NAV: login/account/logout ======
     const nav = document.getElementById('navArea');
-    const navCheckoutBtn = document.getElementById('navCheckoutBtn');
 
-    const OUT = `
-      <a class="navlink" href="#tickets">Biglietti</a>
-      <a class="navlink" href="#faq">FAQ</a>
-      <a class="navlink" href="${IG}" target="_blank" rel="noopener">Instagram</a>
-      <a class="navbtn" id="navCheckoutBtn" href="./checkout.html" aria-disabled="true">Vai al checkout</a>
-      <a class="navlink" href="./login.html">Accedi</a>
-    `;
-    const IN = (u) => {
-      const name = (u.displayName || (u.email ? u.email.split('@')[0] : 'Utente')).split(' ')[0];
-      return `
-        <span class="navlink" style="border-color:transparent;cursor:default;color:rgba(255,255,255,.85)">👋 ${escapeHtml(name)}</span>
-        <a class="navlink" href="#tickets">Biglietti</a>
-        <a class="navlink" href="${IG}" target="_blank" rel="noopener">Instagram</a>
-        <a class="navbtn" id="navCheckoutBtn" href="./checkout.html" aria-disabled="true">Checkout</a>
-        <a class="navlink" href="./account-2.html">Area personale</a>
-        <a class="navlink" href="#" id="logoutLink" style="color:#e9ddff">Logout</a>
-      `;
-    };
-
-    onUser((u)=>{
-      if(!u){
-        nav.innerHTML = OUT;
-      }else{
-        nav.innerHTML = IN(u);
-        document.getElementById('logoutLink')?.addEventListener('click', async (e)=>{
-          e.preventDefault();
-          await doSignOut();
-          nav.innerHTML = OUT;
-          updateCheckoutButtons();
-        });
-      }
-      updateCheckoutButtons();
-    });
-
-    // ====== UTILS ======
     function escapeHtml(s){
       return String(s ?? '')
         .replaceAll('&','&amp;')
@@ -399,18 +496,17 @@
         .replaceAll('"','&quot;')
         .replaceAll("'","&#039;");
     }
+
     const euro = (cents) => {
       const v = Number(cents || 0) / 100;
       return new Intl.NumberFormat('it-IT', { style:'currency', currency:'EUR' }).format(v);
     };
 
-    // ====== CART (localStorage) ======
     function readCart(){
       try{
         const raw = localStorage.getItem(CART_KEY);
         const obj = raw ? JSON.parse(raw) : {};
         if(!obj || typeof obj !== 'object') return {};
-        // pulizia valori
         for(const k of Object.keys(obj)){
           const n = Number(obj[k]);
           if(!Number.isFinite(n) || n <= 0) delete obj[k];
@@ -425,18 +521,44 @@
       localStorage.setItem(CART_KEY, JSON.stringify(cart || {}));
     }
 
-    // stato globale
-    let CONFIG = {};
-    let TICKETS = []; // array di {id, name, priceCents, capacity, sold, active, sort, descriptionShort}
+    let TICKETS = [];
     let CART = readCart();
 
-    // ====== CONFIG (config/events) ======
+    // NAV come richiesto:
+    // - Sempre: "Cambio nome"
+    // - Se loggato: "Ciao Nome" + Area personale + Logout
+    // - Se non loggato: SOLO "Cambio nome"
+    function renderNav(user){
+      const changeNameLink = `<a class="navAction" href="./account-2.html#change-name">Cambio nome</a>`;
+
+      if(!user){
+        nav.innerHTML = changeNameLink;
+        return;
+      }
+
+      const name = (user.displayName || (user.email ? user.email.split('@')[0] : 'Utente')).split(' ')[0];
+
+      nav.innerHTML = `
+        ${changeNameLink}
+        <span class="navpill hello">👋 Ciao ${escapeHtml(name)}</span>
+        <a class="navpill" href="./account-2.html">Area personale</a>
+        <a class="navpill" href="#" id="logoutLink" style="border-color:rgba(255,43,214,.25)">Logout</a>
+      `;
+
+      document.getElementById('logoutLink')?.addEventListener('click', async (e)=>{
+        e.preventDefault();
+        await doSignOut();
+        renderNav(null);
+      });
+    }
+
+    onUser((u)=>renderNav(u));
+
+    // CONFIG (config/events)
     async function loadConfig(){
       try{
         const snap = await getDoc(doc(db, 'config', 'events'));
         const cfg = snap.exists() ? (snap.data() || {}) : {};
-        CONFIG = cfg;
-
         const minA = Number(cfg.minEntryAge || 16);
         const alcA = Number(cfg.alcoholAge || 18);
 
@@ -449,9 +571,11 @@
           if (el) el.textContent = String(alcA);
         }
 
-        // opzionale: testo policy dal db
+        // se vuoi mettere un testo dal db: entryPolicyText
         if (typeof cfg.entryPolicyText === 'string' && cfg.entryPolicyText.trim()){
           document.getElementById('policyLine').textContent = cfg.entryPolicyText.trim();
+        } else {
+          document.getElementById('policyLine').textContent = "Documento richiesto";
         }
       }catch(e){
         console.error('config load error', e);
@@ -461,56 +585,32 @@
         document.getElementById('minAgeFaq').textContent = '16';
         document.getElementById('alcAgeFaq').textContent = '18';
         document.getElementById('minAgeFoot').textContent = '16';
+        document.getElementById('policyLine').textContent = "Documento richiesto";
       }
     }
 
-    // ====== TICKETS (config/events/tickets) ======
+    // TICKETS (config/events/tickets)
     const listEl = document.getElementById('ticketsList');
     const hintEl = document.getElementById('ticketsHint');
-
-    async function loadTickets(){
-      try{
-        hintEl.textContent = 'Caricamento biglietti…';
-        const qy = query(collection(db, 'config', 'events', 'tickets'), orderBy('sort', 'asc'));
-        const snap = await getDocs(qy);
-
-        const items = [];
-        snap.forEach(d => items.push({ id:d.id, ...(d.data()||{}) }));
-
-        TICKETS = items;
-
-        // se nel carrello ci sono ticket che non esistono più, pulisci
-        const validIds = new Set(items.map(x => x.id));
-        let changed = false;
-        for (const id of Object.keys(CART)){
-          if(!validIds.has(id)){
-            delete CART[id];
-            changed = true;
-          }
-        }
-        if(changed) writeCart(CART);
-
-        renderTickets();
-        updateSticky();
-        hintEl.textContent = items.length ? 'Seleziona quantità e vai al checkout' : 'Nessun ticket caricato';
-      }catch(e){
-        console.error('tickets load error', e);
-        hintEl.textContent = 'Errore nel caricamento biglietti';
-        listEl.innerHTML = `
-          <div class="ticketRow disabled">
-            <div class="ticketLeft">
-              <div class="tName">Non riesco a caricare i biglietti</div>
-              <div class="tDesc">Controlla le regole Firestore (read) e riprova.</div>
-            </div>
-          </div>
-        `;
-      }
-    }
 
     function computeRemaining(t){
       const cap = Number(t.capacity ?? 0);
       const sold = Number(t.sold ?? 0);
       return cap - sold;
+    }
+
+    function cartTotals(){
+      let items = 0;
+      let totalCents = 0;
+      for(const [id, qty] of Object.entries(CART)){
+        const t = TICKETS.find(x => x.id === id);
+        if(!t) continue;
+        const q = Number(qty || 0);
+        if(q <= 0) continue;
+        items += q;
+        totalCents += (Number(t.priceCents || 0) * q);
+      }
+      return { items, totalCents };
     }
 
     function setQty(ticketId, qty){
@@ -519,13 +619,12 @@
 
       const active = (t.active === true);
       const remaining = computeRemaining(t);
+      const soldOut = (!active) || (remaining <= 0);
 
-      // se non attivo o soldout, forza 0
-      if(!active || remaining <= 0){
+      if(soldOut){
         qty = 0;
       }else{
         qty = Math.max(0, Math.floor(Number(qty || 0)));
-        // non superare remaining
         qty = Math.min(qty, remaining);
       }
 
@@ -535,7 +634,6 @@
       writeCart(CART);
       syncRowUI(ticketId);
       updateSticky();
-      updateCheckoutButtons();
     }
 
     function syncRowUI(ticketId){
@@ -550,26 +648,24 @@
       const soldOut = (!active) || (remaining <= 0);
       const qty = Number(CART[ticketId] || 0);
 
+      row.classList.toggle('disabled', soldOut);
+
       const qtyEl = row.querySelector(`[data-qty="${CSS.escape(ticketId)}"]`);
       const minusBtn = row.querySelector(`[data-minus="${CSS.escape(ticketId)}"]`);
       const plusBtn  = row.querySelector(`[data-plus="${CSS.escape(ticketId)}"]`);
 
       if(qtyEl) qtyEl.textContent = String(qty);
-
       if(minusBtn) minusBtn.disabled = (soldOut || qty <= 0);
       if(plusBtn)  plusBtn.disabled  = (soldOut || qty >= remaining);
 
-      // badge "rimasti"
-      const remainBadge = row.querySelector(`[data-remainbadge="${CSS.escape(ticketId)}"]`);
-      if(remainBadge){
+      const statusBadge = row.querySelector(`[data-status="${CSS.escape(ticketId)}"]`);
+      if(statusBadge){
         if(soldOut){
-          remainBadge.textContent = "Sold out";
-          remainBadge.classList.add('soldout');
-          remainBadge.classList.remove('accent');
+          statusBadge.textContent = "Sold out";
+          statusBadge.className = "badge soldout";
         }else{
-          remainBadge.textContent = `${remaining} rimasti`;
-          remainBadge.classList.add('accent');
-          remainBadge.classList.remove('soldout');
+          statusBadge.textContent = "Disponibile";
+          statusBadge.className = "badge hot";
         }
       }
     }
@@ -592,9 +688,7 @@
         const remaining = computeRemaining(t);
         const soldOut = (!active) || (remaining <= 0);
         const qty = Number(CART[t.id] || 0);
-
         const desc = (t.descriptionShort || '').trim();
-        const remainText = soldOut ? 'Sold out' : `${remaining} rimasti`;
 
         return `
           <div class="ticketRow ${soldOut ? 'disabled' : ''}" data-ticket-row="${escapeHtml(t.id)}">
@@ -602,7 +696,8 @@
               <div class="tName">${escapeHtml(t.name || t.id)}</div>
               ${desc ? `<div class="tDesc">${escapeHtml(desc)}</div>` : `<div class="tDesc">Ticket QR digitale</div>`}
               <div class="badges">
-                <span class="badge mini ${soldOut ? 'soldout' : 'accent'}" data-remainbadge="${escapeHtml(t.id)}">${escapeHtml(remainText)}</span>
+                <span class="${soldOut ? 'badge soldout' : 'badge hot'}" data-status="${escapeHtml(t.id)}">${soldOut ? 'Sold out' : 'Disponibile'}</span>
+                <span class="badge cyan">Evento privato</span>
               </div>
             </div>
 
@@ -619,90 +714,91 @@
         `;
       }).join('');
 
-      // bind eventi
       for(const t of TICKETS){
-        const minusBtn = document.querySelector(`[data-minus="${CSS.escape(t.id)}"]`);
-        const plusBtn  = document.querySelector(`[data-plus="${CSS.escape(t.id)}"]`);
-
-        minusBtn?.addEventListener('click', () => setQty(t.id, Number(CART[t.id] || 0) - 1));
-        plusBtn?.addEventListener('click',  () => setQty(t.id, Number(CART[t.id] || 0) + 1));
-
-        // sync per sicurezza
+        document.querySelector(`[data-minus="${CSS.escape(t.id)}"]`)
+          ?.addEventListener('click', () => setQty(t.id, Number(CART[t.id] || 0) - 1));
+        document.querySelector(`[data-plus="${CSS.escape(t.id)}"]`)
+          ?.addEventListener('click', () => setQty(t.id, Number(CART[t.id] || 0) + 1));
         syncRowUI(t.id);
       }
     }
 
-    // ====== STICKY SUMMARY ======
-    const cartTitleEl = document.getElementById('cartTitle');
-    const cartSubEl = document.getElementById('cartSub');
+    async function loadTickets(){
+      try{
+        hintEl.textContent = 'Caricamento biglietti…';
+        const qy = query(collection(db, 'config', 'events', 'tickets'), orderBy('sort', 'asc'));
+        const snap = await getDocs(qy);
+
+        const items = [];
+        snap.forEach(d => items.push({ id:d.id, ...(d.data()||{}) }));
+
+        TICKETS = items;
+
+        // pulisci carrello da ticket rimossi
+        const validIds = new Set(items.map(x => x.id));
+        let changed = false;
+        for (const id of Object.keys(CART)){
+          if(!validIds.has(id)){ delete CART[id]; changed = true; }
+        }
+        if(changed) writeCart(CART);
+
+        renderTickets();
+        updateSticky();
+        hintEl.textContent = items.length ? 'Seleziona quantità e vai al pagamento' : 'Nessun ticket caricato';
+      }catch(e){
+        console.error('tickets load error', e);
+        hintEl.textContent = 'Errore nel caricamento biglietti';
+        listEl.innerHTML = `
+          <div class="ticketRow disabled">
+            <div class="ticketLeft">
+              <div class="tName">Non riesco a caricare i biglietti</div>
+              <div class="tDesc">Controlla le regole Firestore (read) e riprova.</div>
+            </div>
+          </div>
+        `;
+      }
+    }
+
+    // STICKY UI (come richiesto: totale grande, items piccolo)
+    const cartTotalEl = document.getElementById('cartTotalText');
+    const cartItemsEl = document.getElementById('cartItemsText');
     const clearBtn = document.getElementById('clearBtn');
     const goCheckoutBtn = document.getElementById('goCheckoutBtn');
-
-    function cartTotals(){
-      let items = 0;
-      let totalCents = 0;
-
-      for(const [id, qty] of Object.entries(CART)){
-        const t = TICKETS.find(x => x.id === id);
-        if(!t) continue;
-        const q = Number(qty || 0);
-        if(q <= 0) continue;
-
-        items += q;
-        totalCents += (Number(t.priceCents || 0) * q);
-      }
-      return { items, totalCents };
-    }
 
     function updateSticky(){
       const { items, totalCents } = cartTotals();
 
+      cartTotalEl.textContent = `Totale: ${euro(totalCents)}`;
+
       if(items <= 0){
-        cartTitleEl.textContent = "Seleziona i biglietti";
-        cartSubEl.textContent = "Poi vai al checkout";
+        cartItemsEl.textContent = "Seleziona i biglietti";
         goCheckoutBtn.disabled = true;
         clearBtn.style.display = "none";
       }else{
-        cartTitleEl.textContent = `${items} bigliett${items===1?'o':'i'} nel carrello`;
-        cartSubEl.textContent = `Totale: ${euro(totalCents)}`;
+        cartItemsEl.textContent = `${items} bigliett${items===1?'o':'i'} nel carrello`;
         goCheckoutBtn.disabled = false;
         clearBtn.style.display = "inline-flex";
-      }
-    }
-
-    function updateCheckoutButtons(){
-      const { items } = cartTotals();
-      const btn = document.getElementById('navCheckoutBtn'); // ricreato nella nav
-      const enabled = items > 0;
-
-      if(btn){
-        btn.setAttribute('aria-disabled', enabled ? 'false' : 'true');
       }
     }
 
     clearBtn.addEventListener('click', ()=>{
       CART = {};
       writeCart(CART);
-      // aggiorna tutte le righe
       for(const t of TICKETS) syncRowUI(t.id);
       updateSticky();
-      updateCheckoutButtons();
     });
 
     goCheckoutBtn.addEventListener('click', ()=>{
       const { items } = cartTotals();
       if(items <= 0) return;
-
-      // Salviamo il carrello in localStorage (già fatto).
-      // Passiamo anche un flag nell’URL (utile per debug / future logiche)
       window.location.href = "./checkout.html?from=index";
     });
 
-    // ====== START ======
+    // START
+    renderNav(null); // iniziale (solo cambio nome finché non arriva auth)
     await loadConfig();
     await loadTickets();
     updateSticky();
-    updateCheckoutButtons();
   </script>
 </body>
 </html>
