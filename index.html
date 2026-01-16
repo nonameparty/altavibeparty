@@ -6,24 +6,26 @@
   <title>TRAPPERREO — Biglietti</title>
   <meta name="description" content="Evento privato. Prevendita online fino a esaurimento posti." />
 
-  <!-- Poster / street fonts -->
+  <!-- Clean premium fonts (original vibe) -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;600;800;900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
 
   <style>
     :root{
       --bg:#050507;
-      --text:#fff;
+      --text:#ffffff;
       --muted:rgba(255,255,255,.74);
-      --muted2:rgba(255,255,255,.58);
+      --muted2:rgba(255,255,255,.56);
+
       --panel:rgba(255,255,255,.06);
       --panel2:rgba(255,255,255,.04);
       --border:rgba(255,255,255,.12);
+      --border2:rgba(255,255,255,.18);
 
-      /* A1 accent: lime */
+      /* A1 accent lime (trap) */
       --accent:#B6FF4A;
-      --accentInk:#0b1106;
+      --accentInk:#071006;
 
       --shadow: 0 18px 70px rgba(0,0,0,.60);
       --radius:18px;
@@ -31,16 +33,18 @@
 
     *{box-sizing:border-box;margin:0;padding:0}
     html,body{height:100%}
+
     body{
       font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
       color:var(--text);
       background:
-        radial-gradient(900px 520px at 15% -10%, rgba(182,255,74,.16), transparent 58%),
-        radial-gradient(900px 520px at 85% 0%, rgba(255,255,255,.06), transparent 55%),
+        radial-gradient(980px 540px at 14% -12%, rgba(182,255,74,.14), transparent 60%),
+        radial-gradient(900px 520px at 86% 0%, rgba(255,255,255,.05), transparent 60%),
         linear-gradient(180deg, #050507 0%, #04040a 65%, #050507 100%);
       line-height:1.35;
       padding-bottom:122px;
     }
+
     a{color:inherit;text-decoration:none}
     .wrap{max-width:980px;margin:0 auto;padding:18px}
 
@@ -48,7 +52,7 @@
     header{
       position:sticky;top:0;z-index:50;
       backdrop-filter:saturate(150%) blur(12px);
-      background:rgba(5,5,7,.72);
+      background:rgba(5,5,7,.74);
       border-bottom:1px solid rgba(255,255,255,.10);
     }
     .topbar{display:flex;align-items:center;justify-content:space-between;gap:14px}
@@ -56,13 +60,13 @@
     .mark{
       width:18px;height:18px;border-radius:6px;
       background:var(--accent);
-      box-shadow:0 0 0 1px rgba(182,255,74,.25), 0 14px 30px rgba(182,255,74,.12);
+      box-shadow:0 0 0 1px rgba(182,255,74,.22), 0 14px 30px rgba(182,255,74,.10);
       transform:skew(-10deg);
     }
     .brandName{
-      font-family:"Bebas Neue", Inter, sans-serif;
-      font-size:22px;
-      letter-spacing:1px;
+      font-family:"Space Grotesk", Inter, sans-serif;
+      font-weight:700;
+      letter-spacing:-.3px;
     }
 
     nav{display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:flex-end}
@@ -79,7 +83,6 @@
     .action{
       border-color:rgba(182,255,74,.28);
       background:rgba(182,255,74,.14);
-      color:rgba(255,255,255,.96);
       box-shadow:0 16px 34px rgba(182,255,74,.10);
     }
     .action:hover{background:rgba(182,255,74,.18);border-color:rgba(182,255,74,.40)}
@@ -90,31 +93,28 @@
       position:relative;
       border-radius:22px;
       border:1px solid rgba(255,255,255,.12);
-      background:
-        linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.03));
+      background:linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.03));
       box-shadow:var(--shadow);
       overflow:hidden;
       padding:18px;
     }
-    /* grain + vignette */
+    /* ✅ rimosse le righe / texture aggressiva: niente repeating-linear-gradient */
     .poster::before{
       content:"";
       position:absolute;inset:0;
       background:
-        radial-gradient(1200px 600px at 50% 0%, rgba(0,0,0,.10), transparent 55%),
-        radial-gradient(900px 420px at 50% 120%, rgba(0,0,0,.34), transparent 55%),
-        repeating-linear-gradient(0deg, rgba(255,255,255,.03) 0 1px, rgba(255,255,255,0) 1px 3px);
-      opacity:.55;
+        radial-gradient(1200px 640px at 50% 0%, rgba(0,0,0,.12), transparent 60%),
+        radial-gradient(980px 520px at 50% 120%, rgba(0,0,0,.36), transparent 60%);
+      opacity:.75;
       pointer-events:none;
-      mix-blend-mode:overlay;
     }
     .poster::after{
       content:"";
       position:absolute;inset:-2px;
       background:
-        radial-gradient(620px 240px at 18% 0%, rgba(182,255,74,.18), transparent 60%),
-        radial-gradient(620px 240px at 82% 0%, rgba(255,255,255,.08), transparent 60%);
-      filter:blur(10px);
+        radial-gradient(520px 240px at 18% 0%, rgba(182,255,74,.14), transparent 60%),
+        radial-gradient(520px 240px at 82% 0%, rgba(255,255,255,.06), transparent 60%);
+      filter:blur(12px);
       opacity:.65;
       pointer-events:none;
     }
@@ -130,7 +130,6 @@
       gap:10px;
       flex-wrap:wrap;
     }
-    .kicker strong{color:rgba(255,255,255,.88)}
     .stamp{
       display:inline-flex;
       align-items:center;
@@ -139,7 +138,7 @@
       border-radius:999px;
       border:1px solid rgba(182,255,74,.40);
       background:rgba(182,255,74,.12);
-      color:rgba(255,255,255,.94);
+      color:rgba(255,255,255,.96);
       font-size:11px;
       font-weight:900;
       letter-spacing:.6px;
@@ -148,27 +147,25 @@
 
     h1{
       margin-top:10px;
-      font-family:"Bebas Neue", Inter, sans-serif;
-      font-size:56px;
-      line-height:.95;
-      letter-spacing:1px;
+      font-family:"Space Grotesk", Inter, sans-serif;
+      font-weight:700;
+      font-size:40px;
+      line-height:1.03;
+      letter-spacing:-.8px;
       text-transform:uppercase;
     }
+
     .sub{
       margin-top:10px;
       font-size:14px;
-      font-weight:800;
+      font-weight:900;
       color:rgba(255,255,255,.88);
       display:flex;
       flex-wrap:wrap;
       gap:10px;
       align-items:center;
     }
-    .sub .dot{
-      width:5px;height:5px;border-radius:999px;
-      background:rgba(255,255,255,.35);
-      display:inline-block;
-    }
+    .sub .dot{width:5px;height:5px;border-radius:999px;background:rgba(255,255,255,.35);display:inline-block}
 
     .chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
     .chip{
@@ -180,19 +177,13 @@
       color:rgba(255,255,255,.86);
     }
     .chip.accent{
-      border-color:rgba(182,255,74,.35);
+      border-color:rgba(182,255,74,.38);
       background:rgba(182,255,74,.10);
-      color:rgba(255,255,255,.95);
       font-weight:900;
     }
     .chip strong{color:#fff}
 
-    .metaRow{
-      margin-top:14px;
-      display:grid;
-      grid-template-columns: 1.2fr .8fr;
-      gap:10px;
-    }
+    .metaRow{margin-top:14px;display:grid;grid-template-columns:1.2fr .8fr;gap:10px}
     .meta{
       border:1px solid rgba(255,255,255,.12);
       border-radius:16px;
@@ -224,28 +215,78 @@
     .tLeft{min-width:0}
     .tName{font-weight:900;font-size:15px}
     .tDesc{margin-top:4px;font-size:13px;color:var(--muted)}
-    .badges{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+
+    .badges{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;align-items:center}
+
     .badge{
-      font-size:11px;padding:6px 9px;border-radius:999px;
+      font-size:11px;
+      padding:6px 9px;
+      border-radius:999px;
       border:1px solid rgba(255,255,255,.12);
       background:rgba(0,0,0,.12);
-      color:rgba(255,255,255,.78);
+      color:rgba(255,255,255,.84);
+      font-weight:900;
     }
     .badge.soldout{
       border-color:rgba(255,255,255,.18);
       background:rgba(255,255,255,.05);
-      color:rgba(255,255,255,.70);
+      color:rgba(255,255,255,.74);
     }
+    .badge.lime{
+      border-color:rgba(182,255,74,.42);
+      background:rgba(182,255,74,.12);
+      color:rgba(255,255,255,.96);
+    }
+    .badge.hot{
+      border-color:rgba(182,255,74,.34);
+      background:rgba(182,255,74,.10);
+      color:rgba(255,255,255,.96);
+    }
+
+    /* Info tooltip badge */
+    .infoWrap{position:relative;display:inline-flex;align-items:center;gap:8px}
+    .infoBtn{
+      width:18px;height:18px;border-radius:999px;
+      border:1px solid rgba(255,255,255,.18);
+      background:rgba(255,255,255,.05);
+      color:rgba(255,255,255,.90);
+      display:inline-flex;align-items:center;justify-content:center;
+      font-size:12px;font-weight:900;
+      cursor:pointer;
+      line-height:1;
+    }
+    .infoBtn:hover{border-color:rgba(182,255,74,.32);background:rgba(182,255,74,.10)}
+    .tooltip{
+      position:absolute;
+      left:0; top: calc(100% + 8px);
+      min-width:240px;
+      max-width:360px;
+      padding:10px 10px;
+      border-radius:12px;
+      border:1px solid rgba(255,255,255,.14);
+      background:rgba(10,10,14,.92);
+      color:rgba(255,255,255,.88);
+      font-size:12px;
+      box-shadow:0 22px 60px rgba(0,0,0,.60);
+      display:none;
+      z-index:20;
+    }
+    /* desktop hover */
+    @media(hover:hover){
+      .infoWrap:hover .tooltip{display:block}
+    }
+    /* open via click (mobile + desktop) */
+    .infoWrap.open .tooltip{display:block}
 
     .tRight{display:flex;align-items:center;gap:12px;flex-shrink:0}
     .price{
-      font-family:"Bebas Neue", Inter, sans-serif;
-      font-size:26px;
-      letter-spacing:.6px;
-      min-width:90px;
+      font-family:"Space Grotesk", Inter, sans-serif;
+      font-size:20px;
+      font-weight:700;
+      letter-spacing:-.2px;
+      min-width:92px;
       text-align:right;
     }
-    .price small{font-family:Inter,sans-serif;font-size:12px;letter-spacing:0;color:var(--muted2)}
 
     .stepper{
       display:flex;align-items:center;gap:8px;
@@ -263,10 +304,7 @@
       display:flex;align-items:center;justify-content:center;
       user-select:none;
     }
-    .stepBtn:hover{
-      border-color:rgba(182,255,74,.30);
-      background:rgba(182,255,74,.10);
-    }
+    .stepBtn:hover{border-color:rgba(182,255,74,.30);background:rgba(182,255,74,.10)}
     .stepBtn:disabled{opacity:.45;cursor:not-allowed}
     .qty{width:30px;text-align:center;font-weight:900;font-variant-numeric:tabular-nums}
 
@@ -301,7 +339,7 @@
       max-width:980px;margin:0 auto;
       border-radius:20px;
       border:1px solid rgba(255,255,255,.12);
-      background:rgba(10,10,14,.80);
+      background:rgba(10,10,14,.84);
       backdrop-filter:saturate(150%) blur(12px);
       box-shadow:0 28px 90px rgba(0,0,0,.62);
       padding:12px 12px;
@@ -309,10 +347,12 @@
     }
     .sLeft{min-width:0;display:flex;flex-direction:column;gap:4px}
     .sTotal{
-      font-family:"Bebas Neue", Inter, sans-serif;
-      font-size:34px;
-      letter-spacing:1px;
-      line-height:1;
+      font-family:"Space Grotesk", Inter, sans-serif;
+      font-size:26px;
+      font-weight:700;
+      letter-spacing:-.5px;
+      line-height:1.05;
+      text-transform:uppercase;
     }
     .sItems{font-size:12px;color:var(--muted);font-weight:800}
 
@@ -363,7 +403,7 @@
   <div class="hero">
     <div class="poster">
       <div class="kicker">
-        <span>Biella <strong>•</strong> Trap & Reggaeton</span>
+        <span>Biella • Trap & Reggaeton</span>
         <span class="stamp">EVENTO PRIVATO</span>
       </div>
 
@@ -461,8 +501,15 @@
 </div>
 
 <script type="module">
-  import { onUser, doSignOut, db } from './auth.v2.js?v=11';
+  import { onUser, doSignOut, db } from './auth.v2.js?v=12';
   import { doc, getDoc, collection, getDocs, query, orderBy } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-firestore.js";
+
+  // ---- IDs ticket (modifica qui se i tuoi ID sono diversi) ----
+  const ID_EARLY = "earlybird";
+  const ID_STD1  = "standard1";
+  const ID_STD2  = "standard2";
+  const ID_SALTA = "saltacoda";
+  const ID_VIP   = "vip";
 
   const CART_KEY = "cart_v1";
 
@@ -496,7 +543,7 @@
   let TICKETS = [];
   let CART = readCart();
 
-  // NAV: sempre "Cambio nome", se loggato aggiungi (Ciao + nome, Area personale, Logout)
+  // NAV: sempre Cambio nome, se loggato aggiungi (Ciao + nome, Area personale, Logout)
   const nav = document.getElementById('navArea');
   function renderNav(user){
     const changeName = `<a class="pill action" href="./account-2.html#change-name">Cambio nome</a>`;
@@ -526,7 +573,6 @@
       const cfg = snap.exists() ? (snap.data() || {}) : {};
       const minA = Number(cfg.minEntryAge || 16);
       const alcA = Number(cfg.alcoholAge || 18);
-
       for (const id of ['minAge','minAgeFaq','minAgeFoot']) document.getElementById(id).textContent = String(minA);
       for (const id of ['alcAge','alcAgeFaq']) document.getElementById(id).textContent = String(alcA);
     }catch(e){
@@ -547,6 +593,10 @@
     const sold = Number(t.sold ?? 0);
     return cap - sold;
   }
+  function isSoldOut(t){
+    const remaining = computeRemaining(t);
+    return (t.active !== true) || (remaining <= 0);
+  }
 
   function cartTotals(){
     let items = 0, totalCents = 0;
@@ -566,7 +616,7 @@
     if(!t) return;
 
     const remaining = computeRemaining(t);
-    const soldOut = (t.active !== true) || (remaining <= 0);
+    const soldOut = isSoldOut(t);
 
     if(soldOut) qty = 0;
     else{
@@ -589,14 +639,66 @@
     if(!t) return;
 
     const remaining = computeRemaining(t);
-    const soldOut = (t.active !== true) || (remaining <= 0);
+    const soldOut = isSoldOut(t);
     const qty = Number(CART[ticketId] || 0);
 
     row.classList.toggle('disabled', soldOut);
-
     row.querySelector(`[data-qty="${CSS.escape(ticketId)}"]`).textContent = String(qty);
     row.querySelector(`[data-minus="${CSS.escape(ticketId)}"]`).disabled = soldOut || qty <= 0;
     row.querySelector(`[data-plus="${CSS.escape(ticketId)}"]`).disabled  = soldOut || qty >= remaining;
+  }
+
+  function bestSellerTargetId(){
+    const early = TICKETS.find(t => t.id === ID_EARLY);
+    const std1  = TICKETS.find(t => t.id === ID_STD1);
+    const std2  = TICKETS.find(t => t.id === ID_STD2);
+
+    if(!early || !std1) return null;
+
+    const earlySold = isSoldOut(early);
+    const std1Sold  = std1 ? isSoldOut(std1) : false;
+
+    if(!earlySold) return null;              // finché early bird c'è, niente "più venduto"
+    if(!std1Sold) return ID_STD1;            // early sold out -> badge sotto Standard
+    if(std2 && !isSoldOut(std2)) return ID_STD2; // standard sold out -> badge sotto Standard2
+    return ID_STD2; // anche se sold out, lo mostriamo comunque lì
+  }
+
+  function renderBadges(t){
+    const soldOut = isSoldOut(t);
+    const badges = [];
+
+    // Sold out
+    if(soldOut) badges.push(`<span class="badge soldout">Sold out</span>`);
+
+    // Earlybird: SOLO X BIGLIETTI DISPONIBILI (X = capacity)
+    if(t.id === ID_EARLY && !soldOut){
+      const cap = Number(t.capacity ?? 0);
+      if(Number.isFinite(cap) && cap > 0){
+        badges.push(`<span class="badge lime">SOLO ${cap} BIGLIETTI DISPONIBILI</span>`);
+      }
+    }
+
+    // "IL PIÙ VENDUTO" dinamico
+    const target = bestSellerTargetId();
+    if(target && t.id === target){
+      badges.push(`<span class="badge hot">IL PIÙ VENDUTO</span>`);
+    }
+
+    // Protezione cambio nome inclusa (saltacoda + vip) con tooltip testo da Firestore
+    if(t.id === ID_SALTA || t.id === ID_VIP){
+      const info = (t.nameChangeProtectionInfo || "").trim();
+      const tooltipText = info || "Info non impostata in Firestore (campo: nameChangeProtectionInfo).";
+      badges.push(`
+        <span class="infoWrap" data-tooltip-wrap>
+          <span class="badge lime">PROTEZIONE CAMBIO NOME INCLUSA</span>
+          <button class="infoBtn" type="button" aria-label="Info">i</button>
+          <span class="tooltip" role="tooltip">${escapeHtml(tooltipText)}</span>
+        </span>
+      `);
+    }
+
+    return badges.join('');
   }
 
   function renderTickets(){
@@ -613,7 +715,7 @@
 
     listEl.innerHTML = TICKETS.map(t => {
       const remaining = computeRemaining(t);
-      const soldOut = (t.active !== true) || (remaining <= 0);
+      const soldOut = isSoldOut(t);
       const qty = Number(CART[t.id] || 0);
       const desc = (t.descriptionShort || '').trim();
 
@@ -622,9 +724,7 @@
           <div class="tLeft">
             <div class="tName">${escapeHtml(t.name || t.id)}</div>
             ${desc ? `<div class="tDesc">${escapeHtml(desc)}</div>` : `<div class="tDesc">Ticket QR digitale</div>`}
-            <div class="badges">
-              ${soldOut ? `<span class="badge soldout">Sold out</span>` : ``}
-            </div>
+            <div class="badges">${renderBadges(t)}</div>
           </div>
 
           <div class="tRight">
@@ -639,12 +739,31 @@
       `;
     }).join('');
 
+    // stepper listeners
     for(const t of TICKETS){
       document.querySelector(`[data-minus="${CSS.escape(t.id)}"]`)?.addEventListener('click', () => setQty(t.id, Number(CART[t.id] || 0) - 1));
       document.querySelector(`[data-plus="${CSS.escape(t.id)}"]`)?.addEventListener('click',  () => setQty(t.id, Number(CART[t.id] || 0) + 1));
       syncRowUI(t.id);
     }
+
+    // tooltip click behavior (mobile + desktop click)
+    for(const wrap of document.querySelectorAll('[data-tooltip-wrap]')){
+      const btn = wrap.querySelector('.infoBtn');
+      if(!btn) continue;
+      btn.addEventListener('click', (e)=>{
+        e.preventDefault();
+        e.stopPropagation();
+        wrap.classList.toggle('open');
+      });
+    }
   }
+
+  // close tooltips on outside click
+  document.addEventListener('click', ()=>{
+    for(const wrap of document.querySelectorAll('[data-tooltip-wrap].open')){
+      wrap.classList.remove('open');
+    }
+  });
 
   async function loadTickets(){
     try{
@@ -679,6 +798,7 @@
     }
   }
 
+  // Sticky bar
   const cartTotalEl = document.getElementById('cartTotalText');
   const cartItemsEl = document.getElementById('cartItemsText');
   const clearBtn = document.getElementById('clearBtn');
