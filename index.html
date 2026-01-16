@@ -13,110 +13,88 @@
     --border:rgba(255,255,255,.14);
 
     --lime:#b7ff2a;
-    --lime2:#8bff00;
+    --limeStrong:#a6ff00;
     --yellow:#ffd84a;
 
     --danger:#ff4d4d;
     --ok:#33d17a;
 
     --shadow:0 18px 60px rgba(0,0,0,.55);
-    --radius:20px;
+    --radius:18px;
 
     --poster:url("./assets/bg-poster.png");
   }
   *{box-sizing:border-box}
   html,body{height:100%}
   body{
-    margin:0;
-    background:#000;
-    color:var(--text);
+    margin:0;background:#000;color:var(--text);
     font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
     overflow-x:hidden;
-    padding-bottom:92px;
+    padding-bottom:74px; /* bar più bassa */
   }
 
-  /* Background */
   .bg{position:fixed;inset:0;background-image:var(--poster);background-size:cover;background-position:center;background-repeat:no-repeat;z-index:-3}
   .bg::after{
     content:"";position:absolute;inset:0;
     background:
-      radial-gradient(70% 55% at 50% 18%, rgba(0,0,0,.35), rgba(0,0,0,.82) 62%, rgba(0,0,0,.92) 100%),
-      linear-gradient(180deg, rgba(0,0,0,.70), rgba(0,0,0,.35) 30%, rgba(0,0,0,.88) 100%);
+      radial-gradient(70% 55% at 50% 18%, rgba(0,0,0,.30), rgba(0,0,0,.86) 62%, rgba(0,0,0,.94) 100%),
+      linear-gradient(180deg, rgba(0,0,0,.65), rgba(0,0,0,.30) 30%, rgba(0,0,0,.90) 100%);
   }
 
   header{
     position:sticky;top:0;z-index:60;
     backdrop-filter: blur(10px) saturate(130%);
-    background: rgba(0,0,0,.42);
+    background: rgba(0,0,0,.40);
     border-bottom:1px solid rgba(255,255,255,.08);
   }
   .nav{
     max-width:1100px;margin:0 auto;
-    padding:14px 16px;
-    display:flex;align-items:center;justify-content:space-between;gap:12px;
+    padding:12px 14px;
+    display:flex;align-items:center;justify-content:space-between;gap:10px;
   }
-  .brand{
-    display:flex;align-items:center;gap:10px;
-    font-weight:900;letter-spacing:-.3px;
-    user-select:none;
-  }
-  .brand-badge{
-    width:22px;height:22px;border-radius:5px;
-    background:var(--lime);
-    box-shadow:0 0 0 1px rgba(0,0,0,.55) inset, 0 0 22px rgba(183,255,42,.10);
-  }
-  .navRight{display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:flex-end}
+  .brand{display:flex;align-items:center;gap:10px;font-weight:900;letter-spacing:-.3px;user-select:none}
+  .brand-badge{width:20px;height:20px;border-radius:5px;background:var(--lime)}
+  .navRight{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-end}
   .hello{
-    font-weight:900;
-    opacity:.92;
-    padding:10px 10px;
-    border-radius:999px;
+    font-weight:900;opacity:.92;
+    padding:8px 10px;border-radius:999px;
     border:1px solid rgba(255,255,255,.10);
     background: rgba(0,0,0,.18);
     white-space:nowrap;
+    font-size:13px;
   }
   .btnTop{
-    padding:10px 14px;
-    border-radius:999px;
+    padding:9px 12px;border-radius:999px;
     border:1px solid rgba(255,255,255,.14);
-    background: rgba(0,0,0,.25);
-    color:#fff;
-    font-weight:900;
-    cursor:pointer;
+    background: rgba(0,0,0,.22);
+    color:#fff;font-weight:900;cursor:pointer;
     white-space:nowrap;
+    font-size:13px;
   }
   .btnTop.primary{
     border-color: rgba(183,255,42,.35);
-    background: rgba(183,255,42,.18);
-    color:#fff;
+    background: rgba(183,255,42,.16);
   }
 
-  main{max-width:1100px;margin:0 auto;padding:18px 16px 26px}
+  main{max-width:1100px;margin:0 auto;padding:14px 14px 18px}
 
-  /* HERO */
   .heroCard{
     margin-top:10px;
     background: rgba(0,0,0,.55);
     border:1px solid rgba(255,255,255,.12);
-    border-radius:22px;
-    padding:18px 16px;
+    border-radius:20px;
+    padding:14px 14px;
     box-shadow:var(--shadow);
   }
   .kickerRow{
-    display:flex;align-items:center;gap:10px;
-    font-weight:900;
-    letter-spacing:.12em;
-    font-size:13px;
-    color: rgba(255,255,255,.74);
-    text-transform:uppercase;
-    margin-bottom:6px;
+    display:flex;align-items:center;gap:8px;
+    font-weight:900;letter-spacing:.12em;
+    font-size:12px;color: rgba(255,255,255,.74);
+    text-transform:uppercase;margin-bottom:6px;
   }
-
-  /* ✅ BIELLA cliccabile ma “segreto” */
   #citySecret{
     display:inline-block;
-    padding:4px 8px;
-    border-radius:8px;
+    padding:3px 7px;border-radius:8px;
     background: rgba(255,255,255,.06);
     border:1px solid rgba(255,255,255,.10);
     user-select:none;
@@ -124,180 +102,160 @@
     position:relative;
     z-index:10;
   }
-
   .title{
-    font-size:46px;line-height:1;
-    font-weight:900;
-    letter-spacing:-.8px;
-    margin:6px 0 10px;
+    font-size:40px;line-height:1;
+    font-weight:900;letter-spacing:-.8px;
+    margin:4px 0 8px;
   }
-  @media(max-width:480px){ .title{font-size:40px} }
+  @media(max-width:480px){ .title{font-size:36px} }
 
   .dateBig{
-    font-size:24px;font-weight:900;letter-spacing:-.3px;
-    margin:0 0 14px;opacity:.96;
+    font-size:20px;font-weight:900;letter-spacing:-.2px;
+    margin:0 0 12px;opacity:.96;
   }
-
-  .pills{display:flex;flex-wrap:wrap;gap:10px;margin-top:6px}
+  .pills{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}
   .pill{
-    display:inline-flex;align-items:center;gap:8px;
-    padding:10px 12px;border-radius:999px;
+    display:inline-flex;align-items:center;
+    padding:9px 11px;border-radius:999px;
     border:1px solid rgba(183,255,42,.28);
-    background: rgba(183,255,42,.16);
-    color:#fff;font-weight:900;font-size:14px;
+    background: rgba(183,255,42,.14);
+    color:#fff;font-weight:900;font-size:13px;
   }
   .pill.yellow{
     border-color: rgba(255,216,74,.45);
-    background: rgba(255,216,74,.18);
-    color:#fff;
+    background: rgba(255,216,74,.16);
   }
 
-  /* Section */
   .sectionRow{
-    display:flex;align-items:baseline;justify-content:space-between;gap:12px;
-    margin-top:20px;
+    display:flex;align-items:baseline;justify-content:space-between;gap:10px;
+    margin-top:16px;
   }
   .sectionRow h2{
     margin:0;
-    font-size:44px;
+    font-size:38px;
     font-weight:900;
     letter-spacing:-.6px;
   }
   .sectionRow .hint{
-    margin:0;
-    color: var(--muted);
-    font-weight:800;
+    margin:0;color: var(--muted);
+    font-weight:800;font-size:14px;
   }
-  @media(max-width:480px){ .sectionRow h2{font-size:38px} }
+  @media(max-width:480px){ .sectionRow h2{font-size:34px} }
 
-  /* Tickets */
-  .tickets{margin-top:14px;display:flex;flex-direction:column;gap:14px}
+  /* TICKETS: più piccoli sul telefono */
+  .tickets{
+    margin-top:12px;
+    display:flex;flex-direction:column;gap:10px;
+    padding-bottom:92px; /* spazio extra per vedere VIP sopra la bar */
+  }
   .ticket{
     background: rgba(0,0,0,.55);
     border:1px solid rgba(255,255,255,.12);
-    border-radius: 22px;
-    padding:16px;
-    box-shadow: 0 16px 50px rgba(0,0,0,.45);
+    border-radius: 18px;
+    padding:12px;
+    box-shadow: 0 14px 46px rgba(0,0,0,.42);
     display:grid;
     grid-template-columns: 1fr auto;
-    gap:14px;
+    gap:10px;
     align-items:center;
   }
   .ticket.soldout{opacity:.45}
-  .ticketLeft h3{margin:0 0 6px;font-size:22px;font-weight:900;letter-spacing:-.2px}
-  .ticketLeft .desc{margin:0;color: rgba(255,255,255,.74);font-weight:700;line-height:1.35}
-  .tags{margin-top:10px;display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+  .ticketLeft h3{margin:0 0 6px;font-size:18px;font-weight:900;letter-spacing:-.2px}
+  .ticketLeft .desc{margin:0;color: rgba(255,255,255,.74);font-weight:700;line-height:1.25;font-size:13px}
+  .tags{margin-top:8px;display:flex;flex-wrap:wrap;gap:8px;align-items:center}
   .tag{
     display:inline-flex;align-items:center;gap:8px;
-    padding:8px 10px;border-radius:999px;
-    border:1px solid rgba(183,255,42,.25);
-    background: rgba(183,255,42,.14);
-    font-weight:900;font-size:12px;color:#fff;
+    padding:7px 9px;border-radius:999px;
+    border:1px solid rgba(183,255,42,.22);
+    background: rgba(183,255,42,.12);
+    font-weight:900;font-size:11px;color:#fff;
     max-width:100%;
   }
-  .tag.best{border-color: rgba(255,255,255,.18);background: rgba(255,255,255,.10)}
-  .infoIcon{
-    width:18px;height:18px;display:inline-grid;place-items:center;
-    border-radius:999px;border:1px solid rgba(255,255,255,.22);
-    background: rgba(0,0,0,.25);
-    font-weight:900;cursor:pointer;user-select:none;
-  }
-  .ticketRight{display:flex;align-items:center;gap:14px;justify-content:flex-end}
-  .price{font-size:24px;font-weight:900;letter-spacing:-.4px;white-space:nowrap}
+  .ticketRight{display:flex;align-items:center;gap:10px;justify-content:flex-end}
+  .price{font-size:18px;font-weight:900;letter-spacing:-.3px;white-space:nowrap}
   .qty{
-    display:flex;align-items:center;gap:10px;
+    display:flex;align-items:center;gap:8px;
     border:1px solid rgba(255,255,255,.14);
-    background: rgba(0,0,0,.28);
+    background: rgba(0,0,0,.26);
     border-radius: 999px;
-    padding:8px;
+    padding:6px 8px;
   }
   .qBtn{
-    width:40px;height:40px;
+    width:32px;height:32px;
     border-radius:999px;border:1px solid rgba(255,255,255,.14);
-    background: rgba(0,0,0,.25);
-    color:#fff;font-size:20px;font-weight:900;cursor:pointer;
+    background: rgba(0,0,0,.22);
+    color:#fff;font-size:18px;font-weight:900;cursor:pointer;
   }
-  .qVal{width:22px;text-align:center;font-weight:900;font-size:18px}
+  .qVal{width:18px;text-align:center;font-weight:900;font-size:16px}
 
-  /* ✅ MOBILE: ticket più piccoli (per vedere VIP) */
   @media(max-width:520px){
-    .ticket{
-      padding:12px;
-      gap:10px;
-      grid-template-columns: 1fr;
-      align-items:stretch;
-    }
-    .ticketRight{
-      justify-content:space-between;
-      margin-top:6px;
-    }
-    .ticketLeft h3{font-size:20px}
-    .price{font-size:20px}
-    .qty{padding:6px}
-    .qBtn{width:36px;height:36px}
-    .qVal{font-size:16px}
+    .ticket{grid-template-columns:1fr; padding:10px}
+    .ticketRight{justify-content:space-between;margin-top:6px}
+    .ticketLeft h3{font-size:16px}
+    .ticketLeft .desc{font-size:12.5px}
+    .price{font-size:17px}
+    .qBtn{width:30px;height:30px}
   }
 
-  /* Bottom bar (più piccolo) */
+  /* BOTTOM BAR: più bassa */
   .bar{
-    position:fixed;left:12px;right:12px;bottom:12px;
+    position:fixed;left:10px;right:10px;bottom:10px;
     z-index:120;
-    background: rgba(0,0,0,.72);
+    background: rgba(0,0,0,.70);
     border:1px solid rgba(255,255,255,.12);
-    border-radius: 18px;
-    padding:10px 12px;
-    box-shadow: 0 18px 60px rgba(0,0,0,.6);
+    border-radius: 16px;
+    padding:8px 10px;
+    box-shadow: 0 18px 60px rgba(0,0,0,.60);
     backdrop-filter: blur(10px) saturate(130%);
-    display:flex;flex-direction:column;gap:10px;
+    display:flex;flex-direction:column;gap:8px;
   }
+  .bar.hidden{display:none} /* quando entri nella parte legale */
   .barTop{display:flex;align-items:flex-end;justify-content:space-between;gap:10px}
   .cartCount{
     font-size:12px;color: rgba(255,255,255,.70);
     font-weight:900;
-    white-space:nowrap;
-    overflow:hidden;
-    text-overflow:ellipsis;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
   }
   .total{
-    font-size:32px;line-height:1;
+    font-size:28px;line-height:1;
     font-weight:900;
-    letter-spacing:-.8px;
+    letter-spacing:-.6px;
   }
-  .barBtns{display:flex;align-items:center;gap:10px;justify-content:flex-end}
+  .barBtns{display:flex;align-items:center;gap:8px;justify-content:flex-end}
   .ghostBtn{
-    padding:10px 12px;border-radius:14px;
+    padding:9px 10px;border-radius:12px;
     border:1px solid rgba(255,255,255,.14);
-    background: rgba(0,0,0,.22);
+    background: rgba(0,0,0,.18);
     color:#fff;font-weight:900;cursor:pointer;white-space:nowrap;
+    font-size:13px;
   }
   .payBtn{
-    padding:10px 12px;border-radius:14px;
+    padding:9px 10px;border-radius:12px;
     border:1px solid rgba(183,255,42,.35);
-    background: rgba(183,255,42,.22);
-    color:#000;
-    font-weight:900;cursor:pointer;white-space:nowrap;
+    background: rgba(183,255,42,.18);
+    color:#000;font-weight:900;cursor:pointer;white-space:nowrap;
+    font-size:13px;
   }
-  /* ✅ quando attivo: lime pieno */
   .payBtn.active{
-    background: var(--lime);
-    border-color: rgba(183,255,42,.55);
-    box-shadow: 0 10px 30px rgba(183,255,42,.12);
+    background: var(--limeStrong);
+    border-color: rgba(183,255,42,.65);
+    box-shadow: 0 10px 30px rgba(166,255,0,.14);
   }
   .payBtn:disabled,.ghostBtn:disabled{opacity:.45;cursor:not-allowed}
 
-  /* Discount row */
-  .discRow{display:flex;gap:10px;align-items:center}
+  .discRow{display:flex;gap:8px;align-items:center}
   .discInput{
-    flex:1;border-radius:14px;border:1px solid rgba(255,255,255,.14);
-    background: rgba(0,0,0,.25);
-    color:#fff;font-weight:900;padding:10px 12px;outline:none;
-    text-transform:uppercase;
+    flex:1;border-radius:12px;border:1px solid rgba(255,255,255,.14);
+    background: rgba(0,0,0,.22);
+    color:#fff;font-weight:900;padding:9px 10px;outline:none;
+    text-transform:uppercase;font-size:13px;
   }
   .discApply{
-    padding:10px 12px;border-radius:14px;
+    padding:9px 10px;border-radius:12px;
     border:1px solid rgba(255,255,255,.14);
     background: rgba(255,255,255,.10);
     color:#fff;font-weight:900;cursor:pointer;
+    font-size:13px;
   }
   .discMsg{
     font-size:12px;font-weight:900;
@@ -308,7 +266,7 @@
   .discMsg.bad{color: rgba(255,77,77,.95)}
   .discMsg.warn{color: rgba(255,216,74,.95)}
 
-  /* overlays */
+  /* Overlay modals */
   .overlay{
     position:fixed;inset:0;
     background: rgba(0,0,0,.72);
@@ -319,50 +277,41 @@
     padding:16px;
   }
   .modal{
-    width:min(96vw, 540px);
+    width:min(96vw, 560px);
     background: rgba(0,0,0,.78);
     border:1px solid rgba(255,255,255,.14);
-    border-radius:22px;
+    border-radius:20px;
     box-shadow: 0 24px 80px rgba(0,0,0,.65);
-    padding:18px;
+    padding:16px;
     backdrop-filter: blur(10px) saturate(130%);
   }
-  .modal h3{margin:0 0 6px;font-size:22px;font-weight:900}
-  .modal p{margin:0 0 14px;color:rgba(255,255,255,.72);font-weight:700}
-  .row{display:flex;gap:10px;justify-content:space-between;align-items:center;flex-wrap:wrap;margin-top:14px}
+  .modal h3{margin:0 0 6px;font-size:20px;font-weight:900}
+  .modal p{margin:0 0 12px;color:rgba(255,255,255,.72);font-weight:700}
+  .row{display:flex;gap:10px;justify-content:space-between;align-items:center;flex-wrap:wrap;margin-top:12px}
   .modalBtn{
-    padding:12px 14px;border-radius:14px;
+    padding:11px 12px;border-radius:12px;
     border:1px solid rgba(255,255,255,.14);
     background: rgba(255,255,255,.10);
     color:#fff;font-weight:900;cursor:pointer;
   }
-  .modalBtn.primary{
-    border-color: rgba(183,255,42,.35);
-    background: rgba(183,255,42,.22);
-    color:#000;
-  }
 
-  .codeBoxes{display:grid;grid-template-columns:repeat(6,1fr);gap:10px;margin-top:10px}
+  .codeBoxes{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;margin-top:10px}
   .codeBoxes input{
-    width:100%;height:54px;text-align:center;
-    font-size:22px;font-weight:900;
-    border-radius:14px;
+    width:100%;height:50px;text-align:center;
+    font-size:20px;font-weight:900;
+    border-radius:12px;
     border:1px solid rgba(255,255,255,.16);
     background: rgba(0,0,0,.35);
     color:#fff;outline:none;
   }
-  .codeBoxes input:focus{
-    border-color: rgba(183,255,42,.45);
-    box-shadow: 0 0 0 3px rgba(183,255,42,.12);
-  }
-
   .banner{
     display:none;
-    padding:10px 12px;border-radius:14px;
+    padding:9px 10px;border-radius:12px;
     font-weight:900;
     border:1px solid rgba(255,77,77,.45);
     background: rgba(255,77,77,.12);
     color: rgba(255,210,210,.95);
+    font-size:13px;
   }
   .banner.ok{
     border-color: rgba(51,209,122,.45);
@@ -375,19 +324,51 @@
     color: rgba(255,242,208,.95);
   }
 
-  /* Views */
   .view{display:none}
   .view.active{display:block}
 
-  /* Attendees view */
-  .attWrap{margin-top:14px;display:grid;grid-template-columns:1fr;gap:14px}
-  @media(min-width:900px){ .attWrap{grid-template-columns:2fr 1fr} }
+  /* FAQ + LEGAL */
+  .block{
+    margin-top:16px;
+    background: rgba(0,0,0,.55);
+    border:1px solid rgba(255,255,255,.12);
+    border-radius:18px;
+    padding:14px;
+    box-shadow: 0 16px 50px rgba(0,0,0,.45);
+  }
+  .block h3{margin:0 0 10px;font-size:18px;font-weight:900}
+  .qa{border-top:1px solid rgba(255,255,255,.10);padding-top:12px;margin-top:12px}
+  .q{font-weight:900;margin:0 0 6px}
+  .a{margin:0;color:rgba(255,255,255,.78);font-weight:700;line-height:1.45}
 
+  .legalTitle{margin-top:12px;font-size:16px;font-weight:900}
+  .legalP{margin:8px 0;color:rgba(255,255,255,.78);font-weight:700;line-height:1.55}
+
+  /* Cookie banner */
+  .cookieBar{
+    position:fixed;left:10px;right:10px;top:10px;z-index:300;
+    background: rgba(0,0,0,.75);
+    border:1px solid rgba(255,255,255,.14);
+    border-radius:16px;
+    padding:10px;
+    box-shadow: 0 20px 70px rgba(0,0,0,.65);
+    display:none;
+    backdrop-filter: blur(10px) saturate(130%);
+  }
+  .cookieRow{display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+  .cookieText{font-size:12px;font-weight:800;color:rgba(255,255,255,.80);line-height:1.35;flex:1;min-width:220px}
+  .cookieBtns{display:flex;gap:8px;flex-wrap:wrap}
+  .cBtn{padding:9px 10px;border-radius:12px;font-weight:900;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.10);color:#fff;cursor:pointer}
+  .cBtn.primary{background:rgba(183,255,42,.20);border-color:rgba(183,255,42,.45);color:#000}
+
+  /* ATTENDEES */
+  .attWrap{margin-top:14px;display:grid;grid-template-columns:1fr;gap:12px}
+  @media(min-width:900px){ .attWrap{grid-template-columns:2fr 1fr} }
   .card{
     background: rgba(0,0,0,.55);
     border:1px solid rgba(255,255,255,.12);
-    border-radius:22px;
-    padding:16px;
+    border-radius:18px;
+    padding:14px;
     box-shadow: 0 16px 50px rgba(0,0,0,.45);
   }
   .card h2{margin:0 0 10px;font-size:18px;font-weight:900}
@@ -399,11 +380,12 @@
     width:100%;
     background: rgba(0,0,0,.35);
     border:1px solid rgba(255,255,255,.16);
-    border-radius:14px;
+    border-radius:12px;
     color:#fff;
-    padding:12px 12px;
+    padding:11px 11px;
     font-weight:900;
     outline:none;
+    font-size:14px;
   }
   .input:focus{border-color:rgba(183,255,42,.40);box-shadow:0 0 0 3px rgba(183,255,42,.12)}
   .form2{display:grid;grid-template-columns:1fr;gap:10px}
@@ -413,28 +395,47 @@
   .line.save{color:rgba(51,209,122,.95)}
   .totRow{display:flex;justify-content:space-between;align-items:flex-end;margin-top:10px}
   .totRow .k{font-size:12px;color:rgba(255,255,255,.72);font-weight:900}
-  .totRow .v{font-size:28px;font-weight:900;letter-spacing:-.5px}
+  .totRow .v{font-size:26px;font-weight:900;letter-spacing:-.4px}
 
   .attSlot{
     border:1px solid rgba(255,255,255,.12);
-    border-radius:18px;
-    padding:14px;
-    background: rgba(0,0,0,.25);
+    border-radius:16px;
+    padding:12px;
+    background: rgba(0,0,0,.24);
     margin-top:12px;
   }
   .attSlot h3{margin:0 0 10px;font-size:14px;font-weight:900;opacity:.95}
+  .drinkBanner{
+    display:none;
+    padding:9px 10px;border-radius:12px;
+    font-weight:900;
+    font-size:13px;
+    margin-bottom:10px;
+    border:1px solid rgba(255,216,74,.40);
+    background: rgba(255,216,74,.12);
+    color: rgba(255,242,208,.95);
+  }
+  .drinkBanner.ok{
+    border-color: rgba(51,209,122,.40);
+    background: rgba(51,209,122,.10);
+    color: rgba(200,255,224,.95);
+  }
 
   .actions{display:flex;gap:10px;flex-wrap:wrap}
   .btn{
-    padding:12px 14px;border-radius:14px;
+    padding:11px 12px;border-radius:12px;
     border:1px solid rgba(255,255,255,.16);
     background: rgba(255,255,255,.10);
     color:#fff;font-weight:900;cursor:pointer;
   }
   .btn.primary{
-    border-color: rgba(183,255,42,.45);
-    background: rgba(183,255,42,.22);
+    border-color: rgba(183,255,42,.55);
+    background: rgba(183,255,42,.18);
     color:#000;
+  }
+  .btn.primary.active{
+    background: var(--limeStrong);
+    box-shadow: 0 10px 30px rgba(166,255,0,.14);
   }
   .btn:disabled{opacity:.45;cursor:not-allowed}
 </style>
@@ -443,15 +444,24 @@
 <body>
 <div class="bg" aria-hidden="true"></div>
 
+<div class="cookieBar" id="cookieBar">
+  <div class="cookieRow">
+    <div class="cookieText" id="cookieText">Cookie banner</div>
+    <div class="cookieBtns">
+      <button class="cBtn" id="cookieReject" type="button">Rifiuta</button>
+      <button class="cBtn primary" id="cookieAccept" type="button">Accetta</button>
+    </div>
+  </div>
+</div>
+
 <header>
   <div class="nav">
     <div class="brand">
       <div class="brand-badge"></div>
-      <div>TRAPPERREO</div>
+      <div id="brandTitle">TRAPPERREO</div>
     </div>
     <div class="navRight" id="navRight">
-      <button class="btnTop primary" id="changeNameBtn">Cambio nome</button>
-      <!-- (se loggato) aggiunge Ciao + Area personale + Logout -->
+      <button class="btnTop primary" id="changeNameBtn" type="button">Cambio nome</button>
     </div>
   </div>
 </header>
@@ -462,16 +472,16 @@
     <section class="heroCard">
       <div class="kickerRow">
         <span id="citySecret">BIELLA</span>
-        <span>• TRAP & REGGAETON</span>
+        <span id="genreLabel">• TRAP & REGGAETON</span>
       </div>
 
-      <div class="title">TRAPPERREO</div>
-      <div class="dateBig">Sab 21 Marzo 2026 · 22:30–04:30</div>
+      <div class="title" id="eventTitle">TRAPPERREO</div>
+      <div class="dateBig" id="dateLabel">Sab 21 Marzo 2026 · 22:30–04:30</div>
 
-      <div class="pills">
-        <span class="pill">Ingresso 16+ con documento</span>
-        <span class="pill">Evento privato</span>
-        <span class="pill yellow">Vendita solo online fino a esaurimento posti</span>
+      <div class="pills" id="heroPills">
+        <span class="pill" id="entryBanner">Ingresso 16+ con documento</span>
+        <span class="pill" id="privateLabel">Evento privato</span>
+        <span class="pill yellow" id="lastLabel">Vendita solo online fino a esaurimento posti</span>
       </div>
     </section>
 
@@ -481,9 +491,25 @@
     </div>
 
     <section class="tickets" id="tickets"></section>
+
+    <section class="block" id="faqBlock">
+      <h3>FAQ</h3>
+      <div id="faqList"></div>
+    </section>
+
+    <!-- sentinel: quando entri nella parte legale nascondiamo la bar -->
+    <div id="legalSentinel" style="height:1px"></div>
+
+    <section class="block" id="legalBlock">
+      <h3>Info legali</h3>
+      <div id="legalContent"></div>
+      <div class="legalP" style="opacity:.75">
+        Nota: i testi legali sono un modello generico. Per piena conformità (GDPR/cookie/termini) fatti validare da un professionista.
+      </div>
+    </section>
   </section>
 
-  <!-- VIEW: ATTENDEES -->
+  <!-- VIEW: ATTENDEES (dentro index) -->
   <section class="view" id="viewAttendees">
     <div class="attWrap">
       <section class="card" id="attLeft">
@@ -493,7 +519,7 @@
       </section>
 
       <aside class="card" id="attRight">
-        <div class="meta">Sab 21 Marzo 2026 · 22:30–04:30 · Biella</div>
+        <div class="meta" id="attMeta">Sab 21 Marzo 2026 · 22:30–04:30 · Via Italia 38, Biella</div>
         <div class="hr"></div>
 
         <div id="attSummary"></div>
@@ -506,11 +532,11 @@
 
         <div class="hr"></div>
 
-        <div class="banner warn" id="discWarn"></div>
+        <div class="banner warn" id="attDiscWarn"></div>
 
-        <div style="margin-top:12px">
+        <div style="margin-top:10px">
           <label>Codice sconto</label>
-          <div style="display:flex;gap:10px;align-items:center">
+          <div style="display:flex;gap:8px;align-items:center">
             <input class="input" id="attDiscCode" placeholder="CODICE SCONTO" style="text-transform:uppercase">
             <button class="btn" id="attDiscApply" type="button">Applica</button>
           </div>
@@ -521,11 +547,7 @@
 
         <div class="actions">
           <button class="btn" id="attBack" type="button">Indietro</button>
-          <button class="btn primary" id="attPay" type="button">Procedi al pagamento</button>
-        </div>
-
-        <div class="discMsg" style="margin-top:10px">
-          (Pagamento: collego qui la tua logica Stripe appena mi dici come crei la sessione.)
+          <button class="btn primary" id="attPay" type="button" disabled>Procedi al pagamento</button>
         </div>
       </aside>
     </div>
@@ -535,24 +557,24 @@
 <!-- Bottom bar -->
 <div class="bar" id="bar">
   <div class="barTop">
-    <div class="left">
+    <div>
       <div class="cartCount" id="cartCount">Seleziona i biglietti</div>
       <div class="total" id="total">0,00 €</div>
     </div>
     <div class="barBtns">
-      <button class="ghostBtn" id="clearBtn" disabled>Svuota</button>
-      <button class="payBtn" id="goPay" disabled>Vai al pagamento</button>
+      <button class="ghostBtn" id="clearBtn" disabled type="button">Svuota</button>
+      <button class="payBtn" id="goPay" disabled type="button">Vai al pagamento</button>
     </div>
   </div>
 
   <div class="discRow">
     <input class="discInput" id="discCode" placeholder="CODICE SCONTO" autocomplete="off" autocapitalize="characters" />
-    <button class="discApply" id="discApply">Applica</button>
+    <button class="discApply" id="discApply" type="button">Applica</button>
   </div>
   <div class="discMsg" id="discMsg"></div>
 </div>
 
-<!-- Gate -->
+<!-- Gate (2 tap SOLO su city) -->
 <div class="overlay" id="gateOverlay" role="dialog" aria-modal="true">
   <div class="modal">
     <h3>Codice accesso</h3>
@@ -570,7 +592,7 @@
     <div class="discMsg bad" id="gateErr" style="display:none;margin-top:10px">Codice errato</div>
 
     <div class="row">
-      <button class="modalBtn" id="gateBack">Indietro</button>
+      <button class="modalBtn" id="gateBack" type="button">Indietro</button>
     </div>
   </div>
 </div>
@@ -596,7 +618,6 @@
 
       <button class="btn primary" id="loginBtn" type="button">Entra</button>
 
-      <!-- ✅ dopo login: 2 azioni -->
       <div class="actions" id="postLoginActions" style="display:none">
         <button class="btn" id="goAccount" type="button">Vai all’area personale</button>
         <button class="btn primary" id="continueBuy" type="button">Continua con l’acquisto</button>
@@ -607,731 +628,862 @@
   </div>
 </div>
 
-<script>
-/* ========== UTIL ========== */
+<script type="module">
+import { app, onUser, emailSignIn, sendReset, ensureUserDoc } from './auth.v2.js?v=6';
+import {
+  getFirestore, doc, getDoc, collection, getDocs, query, orderBy
+} from 'https://www.gstatic.com/firebasejs/12.5.0/firebase-firestore.js';
+
+const db = getFirestore(app);
 const $ = (q)=>document.querySelector(q);
-const $$ = (q)=>[...document.querySelectorAll(q)];
 
 function moneyCents(cents){
   const n = (cents||0)/100;
   return n.toFixed(2).replace('.',',') + ' €';
 }
-
-/* ========== CART STATE ========== */
-const cart = { earlybird:0, standard:0, standard2:0, fast:0, vip:0 };
-let ticketDocs = {};
-
-function cartCount(){ return cart.earlybird+cart.standard+cart.standard2+cart.fast+cart.vip; }
-
+function validEmail(v){
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(v||'').trim());
+}
 function readApplied(){ try{ return JSON.parse(localStorage.getItem('trapperreo_discount_applied')||'null'); }catch{return null;} }
 function writeApplied(obj){ if(!obj) localStorage.removeItem('trapperreo_discount_applied'); else localStorage.setItem('trapperreo_discount_applied', JSON.stringify(obj)); }
 
-/* sconto: applico subito se non ha userEmail (se ce l’ha -> verifico in attendees) */
-function applyDiscountToTotal(totalCents){
-  const d = readApplied();
-  if(!d || !d.active) return totalCents;
-  if(d.userEmail && d.userEmail.trim()) return totalCents; // verifica dopo
-  if(d.type === 'percent'){
-    const pct = Number(d.amount||0);
-    return totalCents - Math.round(totalCents*(pct/100));
-  }
-  if(d.type === 'fixed'){
-    const eur = Number(d.amount||0);
-    return totalCents - Math.round(eur*100);
-  }
-  return totalCents;
-}
+let EVENT = null;
+let tickets = [];          // {id, ...data}
+let ticketById = {};       // id -> data
+let currentUser = null;
 
-function computeTotalCents(){
-  let tot=0;
+/* cart = qty per ticketId */
+const cart = { earlybird:0, standard1:0, standard2:0, fast:0, vip:0 };
+
+function cartCount(){
+  return cart.earlybird+cart.standard1+cart.standard2+cart.fast+cart.vip;
+}
+function cartTotalCents(){
+  let sum = 0;
   for(const id of Object.keys(cart)){
-    const q = cart[id];
-    const d = ticketDocs[id];
-    if(!d) continue;
-    tot += q * (d.priceCents||0);
+    const t = ticketById[id];
+    if(!t) continue;
+    sum += (t.priceCents||0) * (cart[id]||0);
   }
-  tot = applyDiscountToTotal(tot);
-  return Math.max(0, tot);
+  return sum;
 }
 
-/* ========== UI: BOTTOM BAR ========== */
-function updateBar(){
-  const n = cartCount();
-  $('#cartCount').textContent = n===0 ? 'Seleziona i biglietti' : (n===1 ? '1 biglietto nel carrello' : `${n} biglietti nel carrello`);
-  $('#total').textContent = moneyCents(computeTotalCents());
-  $('#clearBtn').disabled = (n===0);
-  $('#goPay').disabled = (n===0);
+/* ====== COOKIE ====== */
+function cookieKey(){ return 'trpr_cookie_choice_v1'; }
+function hasCookieChoice(){ return !!localStorage.getItem(cookieKey()); }
+function setCookieChoice(v){ localStorage.setItem(cookieKey(), v); }
+function showCookieBarIfNeeded(){
+  if(!EVENT?.cookie?.enabled) return;
+  if(hasCookieChoice()) return;
+  $('#cookieText').textContent = EVENT.cookie.text || 'Usiamo cookie tecnici.';
+  $('#cookieBar').style.display = 'block';
+}
+$('#cookieAccept').addEventListener('click', ()=>{
+  setCookieChoice('accept');
+  $('#cookieBar').style.display = 'none';
+});
+$('#cookieReject').addEventListener('click', ()=>{
+  setCookieChoice('reject');
+  $('#cookieBar').style.display = 'none';
+});
 
-  const pay = $('#goPay');
-  if(n>0){ pay.classList.add('active'); } else { pay.classList.remove('active'); }
+/* ====== NASCONDI BAR DOPO FAQ (quando inizi la legale) ====== */
+const bar = $('#bar');
+const sentinel = $('#legalSentinel');
+const io = new IntersectionObserver((entries)=>{
+  const e = entries[0];
+  if(!e) return;
+  // quando il sentinel è visibile (stai entrando nella legale), nascondi la bar
+  if(e.isIntersecting) bar.classList.add('hidden');
+  else bar.classList.remove('hidden');
+},{ threshold: 0.01 });
+io.observe(sentinel);
+
+/* ====== RENDER NAV (Ciao / Area personale / Logout) ====== */
+function renderNav(){
+  const nav = $('#navRight');
+  nav.innerHTML = `<button class="btnTop primary" id="changeNameBtn" type="button">Cambio nome</button>`;
+  const u = currentUser;
+  if(u && !u.isAnonymous){
+    const name = (u.displayName || (u.email||'').split('@')[0] || 'utente');
+    const hello = document.createElement('div');
+    hello.className='hello';
+    hello.textContent = `👋 Ciao ${name}`;
+    nav.appendChild(hello);
+
+    const acc = document.createElement('button');
+    acc.className='btnTop';
+    acc.textContent='Area personale';
+    acc.onclick=()=>location.assign('./account-2.html');
+    nav.appendChild(acc);
+
+    const lo = document.createElement('button');
+    lo.className='btnTop';
+    lo.textContent='Logout';
+    lo.onclick=()=>location.assign('./logout.html');
+    nav.appendChild(lo);
+  }
+}
+
+/* ====== LOAD CONFIG + TICKETS ====== */
+async function loadEventConfig(){
+  const snap = await getDoc(doc(db,'config','events'));
+  if(!snap.exists()) throw new Error('config/events non trovato');
+  EVENT = snap.data() || {};
+
+  $('#citySecret').textContent = EVENT.cityName || 'BIELLA';
+  $('#genreLabel').textContent = `• ${(EVENT.genreLabel || 'TRAP & REGGAETON')}`;
+  $('#eventTitle').textContent = EVENT.eventTitle || 'TRAPPERREO';
+  $('#brandTitle').textContent = EVENT.eventTitle || 'TRAPPERREO';
+  $('#dateLabel').textContent = EVENT.dateLabel || 'Sab 21 Marzo 2026 · 22:30–04:30';
+  $('#entryBanner').textContent = EVENT.entryBanner || 'Ingresso 16+ con documento';
+  $('#privateLabel').textContent = EVENT.privateLabel || 'Evento privato';
+  $('#lastLabel').textContent = EVENT.lastLabel || 'Vendita solo online fino a esaurimento posti';
+
+  // FAQ
+  const faqList = $('#faqList');
+  faqList.innerHTML = '';
+  const faqs = Array.isArray(EVENT.faq) ? EVENT.faq : [];
+  for(const f of faqs){
+    const wrap = document.createElement('div');
+    wrap.className='qa';
+    wrap.innerHTML = `<div class="q">${(f.q||'')}</div><div class="a">${(f.a||'')}</div>`;
+    faqList.appendChild(wrap);
+  }
+
+  // LEGAL
+  const L = EVENT.legal || {};
+  const legal = $('#legalContent');
+  legal.innerHTML = `
+    <div class="legalTitle">Organizzatore</div>
+    <div class="legalP">${(L.organizer||'—')}</div>
+
+    <div class="legalTitle">Contatti</div>
+    <div class="legalP">${(L.contactEmail||'—')}</div>
+
+    <div class="legalTitle">Termini e Condizioni</div>
+    <div class="legalP">${(L.terms||'—')}</div>
+
+    <div class="legalTitle">Privacy Policy</div>
+    <div class="legalP">${(L.privacy||'—')}</div>
+
+    <div class="legalTitle">Cookie Policy</div>
+    <div class="legalP">${(L.cookies||'—')}</div>
+
+    <div class="legalTitle">Rimborsi / Cambio nominativo</div>
+    <div class="legalP">${(L.refund||'—')}</div>
+  `;
+
+  showCookieBarIfNeeded();
+}
+
+async function loadTickets(){
+  const qy = query(collection(db,'config','events','tickets'), orderBy('sort','asc'));
+  const snaps = await getDocs(qy);
+  tickets = [];
+  snaps.forEach(s=>{
+    const d = s.data() || {};
+    if(d.active === false) return;
+    tickets.push({ id: s.id, ...d });
+  });
+  ticketById = {};
+  for(const t of tickets) ticketById[t.id]=t;
+}
+
+/* ====== RENDER TICKETS ====== */
+function renderTickets(){
+  const root = $('#tickets');
+  root.innerHTML = '';
+
+  const orderWanted = ['earlybird','standard1','standard2','fast','vip'];
+  const list = [];
+  for(const id of orderWanted){
+    const t = ticketById[id];
+    if(t) list.push(t);
+  }
+  // append others not in list
+  for(const t of tickets){
+    if(!orderWanted.includes(t.id)) list.push(t);
+  }
+
+  for(const t of list){
+    const soldout = (typeof t.availableOnline === 'number' && t.availableOnline <= 0);
+    const el = document.createElement('div');
+    el.className = 'ticket' + (soldout ? ' soldout' : '');
+    el.dataset.id = t.id;
+
+    const inc = !!t.includesNameChange || t.id === 'fast' || t.id === 'vip';
+
+    el.innerHTML = `
+      <div class="ticketLeft">
+        <h3>${t.name || t.id}</h3>
+        <p class="desc">${t.description || ''}</p>
+        <div class="tags">
+          ${t.id==='earlybird' && t.availableOnline ? `<span class="tag">SOLO ${t.availableOnline} DISPONIBILI</span>` : ``}
+          ${inc ? `<span class="tag">CAMBIO NOME INCLUSO</span>` : ``}
+        </div>
+      </div>
+
+      <div class="ticketRight">
+        <div class="price">${moneyCents(t.priceCents || 0)}</div>
+        <div class="qty">
+          <button class="qBtn" data-act="dec" ${soldout ? 'disabled':''}>−</button>
+          <div class="qVal" id="q_${t.id}">${cart[t.id]||0}</div>
+          <button class="qBtn" data-act="inc" ${soldout ? 'disabled':''}>+</button>
+        </div>
+      </div>
+    `;
+    el.addEventListener('click', (ev)=>{
+      const btn = ev.target.closest('button[data-act]');
+      if(!btn) return;
+      const act = btn.dataset.act;
+      const id = t.id;
+      const max = 999; // se vuoi, qui puoi limitare
+
+      if(act==='inc'){
+        // se vuoi rispettare availableOnline:
+        if(typeof t.availableOnline === 'number' && (cart[id] + 1) > t.availableOnline) return;
+        cart[id] = Math.min(max, (cart[id]||0)+1);
+      }else{
+        cart[id] = Math.max(0, (cart[id]||0)-1);
+      }
+      $('#q_'+id).textContent = cart[id];
+      updateBar();
+    });
+    root.appendChild(el);
+  }
+}
+
+/* ====== DISCOUNT VALIDATION ====== */
+function setDiscMsg(text, kind){
+  const el = $('#discMsg');
+  el.textContent = text || '';
+  el.className = 'discMsg' + (kind ? ' ' + kind : '');
+}
+function setAttDiscMsg(text, kind){
+  const el = $('#attDiscMsg');
+  el.textContent = text || '';
+  el.className = 'discMsg' + (kind ? ' ' + kind : '');
+}
+function clearDiscountUI(){
+  setDiscMsg('', '');
+  setAttDiscMsg('', '');
+  $('#attDiscWarn').style.display='none';
+}
+function discountIsEligibleForCart(discount){
+  if(!discount || !discount.active) return { ok:false, reason:'Codice non attivo' };
+
+  // minPurchase
+  const min = discount.minPurchase || null;
+  if(min && typeof min === 'object'){
+    for(const sku of Object.keys(min)){
+      const need = Number(min[sku]||0);
+      if(need>0 && (cart[sku]||0) < need){
+        return { ok:false, reason:`Richiede minimo: ${need} × ${sku}` };
+      }
+    }
+  }
+  return { ok:true };
+}
+
+async function findDiscountByCode(code){
+  // semplice: scansione collezione (ok per pochi codici)
+  const snaps = await getDocs(collection(db,'discountcodes'));
+  const C = String(code||'').trim().toUpperCase();
+  let found = null;
+  snaps.forEach(s=>{
+    const d = s.data() || {};
+    if(String(d.code||'').trim().toUpperCase() === C) found = { id:s.id, ...d };
+  });
+  return found;
+}
+
+function applyDiscountMath(totalCents, discount, eligibleCents){
+  // eligibleCents = porzione su cui applicare lo sconto (appliesSkus)
+  if(!discount || !discount.active) return { total: totalCents, disc:0 };
+
+  const base = Math.max(0, eligibleCents);
+  if(base <= 0) return { total: totalCents, disc:0 };
+
+  let disc = 0;
+  if(discount.type === 'percent'){
+    const pct = Number(discount.amount||0);
+    disc = Math.round(base * (pct/100));
+  }else{
+    disc = Math.min(base, Number(discount.amount||0));
+  }
+  disc = Math.max(0, disc);
+  return { total: Math.max(0, totalCents - disc), disc };
+}
+
+function eligibleSubtotalFor(discount){
+  if(!discount) return 0;
+  const applies = Array.isArray(discount.appliesSkus) ? discount.appliesSkus : null;
+  if(!applies || applies.length===0){
+    return cartTotalCents();
+  }
+  let sum = 0;
+  for(const sku of applies){
+    const t = ticketById[sku];
+    if(!t) continue;
+    sum += (t.priceCents||0) * (cart[sku]||0);
+  }
+  return sum;
+}
+
+async function handleApplyDiscount(code, fromAttendees=false){
+  clearDiscountUI();
+  const C = String(code||'').trim().toUpperCase();
+  if(!C){ writeApplied(null); updateBar(); updateAttendeesSummary(); return; }
+
+  const d = await findDiscountByCode(C);
+  if(!d){ writeApplied(null); setDiscMsg('Codice non valido', 'bad'); setAttDiscMsg('Codice non valido', 'bad'); updateBar(); updateAttendeesSummary(); return; }
+  if(!d.active){ writeApplied(null); setDiscMsg('Codice non attivo', 'bad'); setAttDiscMsg('Codice non attivo', 'bad'); updateBar(); updateAttendeesSummary(); return; }
+
+  // se c'è requisito minimo e autoFix attivo -> prova ad aggiustare il carrello
+  const elig = discountIsEligibleForCart(d);
+  if(!elig.ok && d.autoFix?.enabled){
+    const addSku = d.autoFix.addSku;
+    const addQty = Number(d.autoFix.addQty||0);
+    const remSku = d.autoFix.removeSku;
+    const remQty = Number(d.autoFix.removeQty||0);
+
+    // prova a togliere
+    if(remSku && remQty>0){
+      cart[remSku] = Math.max(0, (cart[remSku]||0) - remQty);
+    }
+    // prova ad aggiungere (solo se disponibile)
+    if(addSku && addQty>0){
+      const t = ticketById[addSku];
+      const avail = (typeof t?.availableOnline === 'number') ? t.availableOnline : 999999;
+      if(t && (cart[addSku] + addQty) <= avail){
+        cart[addSku] += addQty;
+      }
+    }
+    // aggiorna UI quantities
+    for(const k of Object.keys(cart)){
+      const qEl = document.getElementById('q_'+k);
+      if(qEl) qEl.textContent = cart[k]||0;
+    }
+  }
+
+  // ricontrolla eligibilità
+  const elig2 = discountIsEligibleForCart(d);
+  if(!elig2.ok){
+    writeApplied(null);
+    setDiscMsg(`Codice non applicabile: ${elig2.reason}`, 'warn');
+    setAttDiscMsg(`Codice non applicabile: ${elig2.reason}`, 'warn');
+    updateBar(); updateAttendeesSummary();
+    return;
+  }
+
+  writeApplied({
+    id: d.id,
+    code: d.code,
+    active: true,
+    type: d.type,
+    amount: d.amount,
+    userEmail: d.userEmail || '',
+    appliesSkus: d.appliesSkus || [],
+    minPurchase: d.minPurchase || null
+  });
+
+  setDiscMsg(`Codice applicato: ${d.code}`, 'ok');
+  setAttDiscMsg(`Codice applicato: ${d.code}`, 'ok');
+  updateBar(); updateAttendeesSummary();
+}
+
+/* ====== BAR ====== */
+function updateBar(){
+  const cnt = cartCount();
+  const totalRaw = cartTotalCents();
+  const disc = readApplied();
+
+  const eligible = eligibleSubtotalFor(disc);
+  const res = disc ? applyDiscountMath(totalRaw, disc, eligible) : { total: totalRaw, disc:0 };
+
+  $('#total').textContent = moneyCents(res.total);
+  $('#cartCount').textContent = cnt>0 ? `${cnt} biglietto${cnt>1?'i':''} nel carrello` : 'Seleziona i biglietti';
+
+  $('#clearBtn').disabled = cnt<=0;
+  $('#goPay').disabled = cnt<=0;
+
+  const go = $('#goPay');
+  go.classList.toggle('active', cnt>0);
+
+  // se hai sconto ma carrello vuoto -> pulisci
+  if(cnt===0 && disc){ writeApplied(null); $('#discCode').value=''; setDiscMsg('', ''); }
 }
 
 $('#clearBtn').addEventListener('click', ()=>{
-  Object.keys(cart).forEach(k=>cart[k]=0);
-  ['earlybird','standard','standard2','fast','vip'].forEach(id=>{
-    const el = document.getElementById(`q-${id}`); if(el) el.textContent='0';
-  });
+  for(const k of Object.keys(cart)) cart[k]=0;
+  for(const k of Object.keys(cart)){
+    const qEl = document.getElementById('q_'+k);
+    if(qEl) qEl.textContent = '0';
+  }
+  writeApplied(null);
+  $('#discCode').value='';
+  setDiscMsg('');
   updateBar();
 });
 
-/* ========== UI: TICKETS RENDER ========== */
-function bestSellerId(){
-  const eb = ticketDocs.earlybird;
-  const s1 = ticketDocs.standard;
-  const s2 = ticketDocs.standard2;
-  // se earlybird finito, best seller = standard se presente
-  if(eb && eb.active === false){
-    if(s1 && s1.active !== false) return 'standard';
-    if(s2 && s2.active !== false) return 'standard2';
-  }
-  return null;
-}
+$('#discApply').addEventListener('click', async ()=>{
+  const code = $('#discCode').value;
+  await handleApplyDiscount(code, false);
+});
 
-function showTooltip(title, body){ alert(`${title}\n\n${body||''}`); }
-
-function renderTickets(){
-  const ticketsEl = $('#tickets');
-  ticketsEl.innerHTML = '';
-
-  const ids = ['earlybird','standard','standard2','fast','vip'];
-  const bestId = bestSellerId();
-
-  ids.forEach(id=>{
-    const d = ticketDocs[id];
-    if(!d) return;
-
-    const sold = (d.active === false);
-    const name = d.name || id;
-    const desc = d.subtitle || d.description || '';
-
-    const wrap = document.createElement('div');
-    wrap.className = 'ticket' + (sold?' soldout':'');
-    wrap.innerHTML = `
-      <div class="ticketLeft">
-        <h3>${name}</h3>
-        <p class="desc">${desc}</p>
-        <div class="tags" id="tags-${id}"></div>
-      </div>
-      <div class="ticketRight">
-        <div class="price">${moneyCents(d.priceCents||0)}</div>
-        <div class="qty">
-          <button class="qBtn" data-act="minus" ${sold?'disabled':''}>–</button>
-          <div class="qVal" id="q-${id}">0</div>
-          <button class="qBtn" data-act="plus" ${sold?'disabled':''}>+</button>
-        </div>
-      </div>
-    `;
-    ticketsEl.appendChild(wrap);
-
-    const tags = wrap.querySelector(`#tags-${id}`);
-
-    if(id==='earlybird' && typeof d.capacity==='number'){
-      const t=document.createElement('span');
-      t.className='tag';
-      t.textContent=`SOLO ${d.capacity} DISPONIBILI`;
-      tags.appendChild(t);
-    }
-
-    if(bestId===id){
-      const t=document.createElement('span');
-      t.className='tag best';
-      t.textContent='IL PIÙ VENDUTO';
-      tags.appendChild(t);
-    }
-
-    // cambio nome incluso -> solo fast e vip
-    if((id==='fast' || id==='vip') && d.nameChangeIncluded){
-      const t=document.createElement('span');
-      t.className='tag';
-      t.textContent='CAMBIO NOME INCLUSO';
-      tags.appendChild(t);
-
-      const info=document.createElement('span');
-      info.className='infoIcon';
-      info.textContent='i';
-      info.addEventListener('click', ()=>showTooltip('Cambio nome incluso', d.nameChangeInfo || 'Include 1 cambio nominativo.'));
-      tags.appendChild(info);
-    }
-
-    const qVal = wrap.querySelector(`#q-${id}`);
-    const minus = wrap.querySelector(`[data-act="minus"]`);
-    const plus  = wrap.querySelector(`[data-act="plus"]`);
-
-    const setQ = (n)=>{
-      cart[id] = Math.max(0, Math.min(50, n));
-      qVal.textContent = String(cart[id]);
-      updateBar();
-    };
-    minus.addEventListener('click', ()=>setQ(cart[id]-1));
-    plus.addEventListener('click', ()=>setQ(cart[id]+1));
-  });
-
-  updateBar();
-}
-
-function setFallbackTickets(){
-  ticketDocs = {
-    earlybird:{name:'Early Bird', priceCents:1200, capacity:50, active:true, sort:10, description:'Ingresso con drink incluso'},
-    standard:{name:'Standard', priceCents:1500, active:true, sort:20, description:'Ingresso con drink incluso'},
-    standard2:{name:'Standard 2nd Release', priceCents:1600, active:true, sort:30, description:'Ingresso con drink incluso'},
-    fast:{name:'Ingresso Saltacoda', priceCents:2200, active:true, sort:40, description:'Ingresso saltacoda con drink incluso', nameChangeIncluded:true, nameChangeInfo:'Include 1 cambio nominativo.'},
-    vip:{name:'VIP', priceCents:2700, active:true, sort:50, description:'Ingresso saltacoda con drink incluso + area riservata in console', nameChangeIncluded:true, nameChangeInfo:'Include 1 cambio nominativo.'}
-  };
-  renderTickets();
-}
-</script>
-
-<script>
-/* ========== GATE “BIELLA”: NO CONFERMA, AUTO-CHECK ALLA 6ª CIFRA ========== */
-(function(){
-  const cityEl = document.getElementById('citySecret');
-  const gateOverlay = document.getElementById('gateOverlay');
-  const gateErr = document.getElementById('gateErr');
-  const codeInputs = [...document.querySelectorAll('#codeBoxes input')];
-  const gateBack = document.getElementById('gateBack');
-
-  let taps = 0;
-  let timer = null;
-  const WINDOW_MS = 12000;
-  let attempts = 0;
-
-  function openGate(){
-    attempts = 0;
-    gateErr.style.display = 'none';
-    codeInputs.forEach(i=>i.value='');
-    gateOverlay.style.display='flex';
-    setTimeout(()=>codeInputs[0].focus(), 50);
-  }
-  function closeGate(){ gateOverlay.style.display='none'; }
-  function clearAll(){
-    codeInputs.forEach(i=>i.value='');
-    setTimeout(()=>codeInputs[0].focus(), 20);
-  }
-
-  // “Biella” segreto: 2 tocchi anche non consecutivi ma entro 12s
-  cityEl.addEventListener('click', (e)=>{
-    e.preventDefault(); e.stopPropagation();
-    taps++;
-    if(timer) clearTimeout(timer);
-    timer = setTimeout(()=>{ taps=0; }, WINDOW_MS);
-    if(taps>=2){ taps=0; openGate(); }
-  }, {passive:false});
-
-  gateBack.addEventListener('click', closeGate);
-  gateOverlay.addEventListener('click', (e)=>{ if(e.target===gateOverlay) closeGate(); });
-
-  // funzione che prova a validare (viene rimpiazzata dal modulo se Firestore c’è)
-  window.__tryGateCode = async function(code){
-    // fallback: se non carica firestore, considera errato e guida l’utente
-    return { ok:false, reason:'not_ready' };
-  };
-
-  async function checkNow(){
-    const code = codeInputs.map(i=>i.value).join('');
-    if(code.length !== 6) return;
-    const res = await window.__tryGateCode(code);
-
-    if(res.ok){
-      closeGate();
-      // apre login overlay
-      document.getElementById('loginErr').style.display='none';
-      document.getElementById('loginOk').style.display='none';
-      document.getElementById('postLoginActions').style.display='none';
-      document.getElementById('loginOverlay').style.display='flex';
-      setTimeout(()=>document.getElementById('loginEmail').focus(), 50);
-      return;
-    }
-
-    attempts++;
-    gateErr.textContent = (res.reason==='not_ready')
-      ? 'Apri il sito dalla URL Vercel/GitHub Pages, non da GitHub.'
-      : 'Codice errato';
-    gateErr.style.display='block';
-
-    // svuota e riparti
-    clearAll();
-
-    if(attempts>=3){
-      closeGate();
-      setTimeout(()=>location.reload(), 250);
-    }
-  }
-
-  codeInputs.forEach((inp, idx)=>{
-    inp.addEventListener('input', ()=>{
-      inp.value = (inp.value||'').replace(/[^0-9]/g,'').slice(0,1);
-      if(inp.value && idx < codeInputs.length-1) codeInputs[idx+1].focus();
-      // ✅ auto-check appena finita 6ª cifra
-      setTimeout(checkNow, 0);
-    });
-    inp.addEventListener('keydown', (e)=>{
-      if(e.key==='Backspace' && !inp.value && idx>0) codeInputs[idx-1].focus();
-    });
-  });
-})();
-</script>
-
-<script type="module">
-/* ========== FIREBASE: tickets + gate hash + discountCodes + login ========== */
-const navRight = document.getElementById('navRight');
-
-function setDiscMsg(text, kind){
-  const el = document.getElementById('discMsg');
-  el.textContent = text || '';
-  el.className = 'discMsg' + (kind ? ' ' + kind : '');
-}
-
-function setAttDiscMsg(text, kind){
-  const el = document.getElementById('attDiscMsg');
-  el.textContent = text || '';
-  el.className = 'discMsg' + (kind ? ' ' + kind : '');
-}
-
-try{
-  const auth = await import('./auth.v2.js?v=9');
-  const app = auth.app;
-
-  const fs = await import('https://www.gstatic.com/firebasejs/12.5.0/firebase-firestore.js');
-  const { getFirestore, collection, getDocs, query, orderBy, doc, getDoc, where } = fs;
-  const db = getFirestore(app);
-
-  // expose for other handlers
-  window.__db = db;
-  window.__fs = fs;
-
-  // NAV user
-  function renderNavUser(u){
-    [...navRight.querySelectorAll('[data-dyn]')].forEach(n=>n.remove());
-    if(!u || u.isAnonymous) return;
-
-    const hello = document.createElement('div');
-    hello.className='hello'; hello.dataset.dyn='1';
-    hello.textContent = '👋 Ciao ' + (u.displayName?.split(' ')[0] || 'Utente');
-
-    const area = document.createElement('button');
-    area.className='btnTop'; area.dataset.dyn='1';
-    area.textContent='Area personale';
-    area.onclick=()=>location.assign('./account-2.html');
-
-    const out = document.createElement('button');
-    out.className='btnTop'; out.dataset.dyn='1';
-    out.textContent='Logout';
-    out.onclick=async()=>{ try{ await auth.logout(); }catch{} };
-
-    navRight.appendChild(hello);
-    navRight.appendChild(area);
-    navRight.appendChild(out);
-  }
-  auth.onUser(renderNavUser);
-
-  // Tickets Firestore
-  try{
-    const snap = await getDocs(query(collection(db,'config','events','tickets'), orderBy('sort','asc')));
-    const obj = {};
-    snap.forEach(d=>obj[d.id]=d.data()||{});
-    // normalizza i campi che ti servono
-    // (se nel db metti price in euro, converti qui)
-    window.ticketDocs = obj; // debug
-    // usa i global già creati in script classico
-    // @ts-ignore
-    ticketDocs = obj;
-    if(!Object.keys(ticketDocs).length) throw new Error('empty');
-    renderTickets();
-  }catch{
-    setFallbackTickets();
-  }
-
-  /* ========== Gate hash da config/events.adminGateHash ========== */
-  let gateHash = null;
-  async function loadGateHash(){
-    if(gateHash) return gateHash;
-    const s = await getDoc(doc(db,'config','events'));
-    gateHash = s.exists() ? (s.data().adminGateHash || null) : null;
-    return gateHash;
-  }
-  async function sha256hex(s){
-    const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(s));
-    return [...new Uint8Array(buf)].map(b=>b.toString(16).padStart(2,'0')).join('');
-  }
-
-  // collega la validazione gate alla funzione globale usata dal blocco non-module
-  window.__tryGateCode = async function(code){
-    const stored = await loadGateHash();
-    if(!stored) return { ok:false, reason:'no_config' };
-    const h = await sha256hex(code);
-    return { ok: (h===stored), reason: (h===stored?'ok':'bad') };
-  };
-
-  /* ========== LOGIN overlay + post-login actions ========== */
-  const loginOverlay = document.getElementById('loginOverlay');
-  const loginClose = document.getElementById('loginClose');
-  const loginBtn = document.getElementById('loginBtn');
-  const loginErr = document.getElementById('loginErr');
-  const loginOk = document.getElementById('loginOk');
-
-  const post = document.getElementById('postLoginActions');
-  const goAccount = document.getElementById('goAccount');
-  const continueBuy = document.getElementById('continueBuy');
-
-  loginClose.addEventListener('click', ()=>loginOverlay.style.display='none');
-  loginOverlay.addEventListener('click', (e)=>{ if(e.target===loginOverlay) loginOverlay.style.display='none'; });
-
-  goAccount.addEventListener('click', ()=>location.assign('./account-2.html'));
-  continueBuy.addEventListener('click', ()=>loginOverlay.style.display='none');
-
-  loginBtn.addEventListener('click', async ()=>{
-    loginErr.style.display='none';
-    loginOk.style.display='none';
-    post.style.display='none';
-    try{
-      const email = document.getElementById('loginEmail').value.trim();
-      const pwd   = document.getElementById('loginPass').value;
-      if(!email || !pwd) throw Error('Inserisci email e password.');
-      const cred = await auth.emailSignIn(email, pwd);
-      await auth.ensureUserDoc(cred.user);
-
-      loginOk.textContent='Accesso effettuato.';
-      loginOk.style.display='block';
-      post.style.display='flex';  // ✅ mostra i 2 bottoni
-    }catch(e){
-      loginErr.textContent = e?.message || 'Errore imprevisto';
-      loginErr.style.display='block';
-    }
-  });
-
-  /* ========== DISCOUNT (barra sotto) ========== */
-  document.getElementById('discApply').addEventListener('click', async ()=>{
-    const code = (document.getElementById('discCode').value||'').trim().toUpperCase();
-    if(!code){
-      writeApplied(null);
-      setDiscMsg('', '');
-      updateBar();
-      return;
-    }
-    try{
-      setDiscMsg('Controllo codice...', '');
-      const qy = query(collection(db,'discountCodes'), where('code','==',code));
-      const snap = await getDocs(qy);
-      if(snap.empty){
-        writeApplied(null);
-        setDiscMsg('Codice sconto non valido', 'bad');
-        updateBar();
-        return;
-      }
-      let best=null;
-      snap.forEach(d=>{
-        const v=d.data();
-        if(v && v.active===true && !best) best = { id:d.id, ...v };
-      });
-      if(!best){
-        writeApplied(null);
-        setDiscMsg('Codice sconto non valido', 'bad');
-        updateBar();
-        return;
-      }
-      writeApplied({
-        code: best.code,
-        active: true,
-        type: best.type,
-        amount: best.amount ?? 0,
-        userEmail: (best.userEmail || '').trim()
-      });
-
-      if(best.userEmail && best.userEmail.trim()){
-        setDiscMsg('Codice inserito (verifica email nel prossimo step)', 'warn');
-      }else{
-        setDiscMsg(`Codice applicato: ${best.type==='percent' ? best.amount+'%' : ('-'+best.amount+'€')}`, 'ok');
-      }
-      updateBar();
-    }catch{
-      setDiscMsg('Errore nel controllo codice. Riprova.', 'bad');
-    }
-  });
-
-}catch(err){
-  // se firebase non carica: fallback tickets
-  setFallbackTickets();
-  updateBar();
-  setDiscMsg('Apri il sito da Vercel / GitHub Pages per attivare Firestore e login.', 'bad');
-  console.warn('Firebase init failed:', err);
-}
-</script>
-
-<script>
-/* ========== ATTENDEES IN-PLACE (NON ESCE DA INDEX) ========== */
+/* ====== SWITCH VIEW -> ATTENDEES ====== */
 function showView(id){
-  document.getElementById('viewTickets').classList.remove('active');
-  document.getElementById('viewAttendees').classList.remove('active');
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
   document.getElementById(id).classList.add('active');
-
-  // barra in basso: nascondo in view attendees
-  document.getElementById('bar').style.display = (id==='viewTickets') ? 'flex' : 'none';
-  // scroll su top
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
+$('#goPay').addEventListener('click', ()=>{
+  if(cartCount()<=0) return;
 
-function currentCartItems(){
-  const items=[];
-  const push=(id,label)=>{
-    const q = cart[id]||0;
-    if(q<=0) return;
+  // precompila codice sconto in attendees se presente
+  const d = readApplied();
+  $('#attDiscCode').value = d?.code ? String(d.code).toUpperCase() : (String($('#discCode').value||'').toUpperCase());
+
+  buildAttendees();
+  updateAttendeesSummary();
+  showView('viewAttendees');
+});
+
+/* ====== ATTENDEES ====== */
+let attendeeModels = []; // [{sku, idx, first,last,email,dob,bannerEl}]
+function buildAttendees(){
+  attendeeModels = [];
+  const wrap = $('#attSlots');
+  wrap.innerHTML = '';
+
+  const order = ['earlybird','standard1','standard2','fast','vip'];
+  let nTot = 0;
+  for(const sku of order){
+    const q = cart[sku]||0;
     for(let i=0;i<q;i++){
-      items.push({ id, label, idx: i+1 });
-    }
-  };
-  push('earlybird','Early Bird');
-  push('standard','Standard');
-  push('standard2','Standard 2nd Release');
-  push('fast','Ingresso Saltacoda');
-  push('vip','VIP');
-  return items;
-}
+      nTot++;
+      const t = ticketById[sku];
+      const slot = document.createElement('div');
+      slot.className='attSlot';
 
-function computeTotalCents_NoUserCheck(){
-  // totale con sconto “no userEmail”
-  return computeTotalCents();
-}
+      slot.innerHTML = `
+        <div class="drinkBanner" data-drink></div>
+        <h3>${(t?.name||sku)} — Biglietto ${i+1}</h3>
 
-function renderAttendees(){
-  const items = currentCartItems();
-  const n = items.length;
-
-  document.getElementById('attSub').innerHTML =
-    n===1 ? 'Compila i dati per <strong>1 biglietto</strong>.' : `Compila i dati per <strong>${n} biglietti</strong>.`;
-
-  const slots = document.getElementById('attSlots');
-  slots.innerHTML = '';
-
-  items.forEach((it, i)=>{
-    const box = document.createElement('div');
-    box.className='attSlot';
-    box.innerHTML = `
-      <h3>${it.label} — Biglietto ${it.idx}</h3>
-      <div class="form2">
-        <div>
-          <label>Nome</label>
-          <input class="input" data-field="first" autocomplete="given-name" placeholder="Es. Marco">
+        <div class="form2">
+          <div>
+            <label>Nome</label>
+            <input class="input" data-first autocomplete="given-name" placeholder="Nome">
+          </div>
+          <div>
+            <label>Cognome</label>
+            <input class="input" data-last autocomplete="family-name" placeholder="Cognome">
+          </div>
         </div>
-        <div>
-          <label>Cognome</label>
-          <input class="input" data-field="last" autocomplete="family-name" placeholder="Es. Rossi">
-        </div>
-      </div>
-      <div style="margin-top:10px">
-        <label>Email</label>
-        <input class="input" data-field="email" inputmode="email" autocomplete="email" placeholder="email@email.it">
-      </div>
-    `;
-    slots.appendChild(box);
-  });
 
-  // summary
-  const sum = document.getElementById('attSummary');
-  const lines=[];
-  for(const id of Object.keys(cart)){
-    const q = cart[id];
-    if(!q) continue;
-    const d = ticketDocs[id];
-    if(!d) continue;
-    lines.push(`<div class="line"><span>${d.name || id} × ${q}</span><span>${moneyCents(q*(d.priceCents||0))}</span></div>`);
-  }
-  const applied = readApplied();
-  if(applied && applied.active){
-    if(applied.userEmail && applied.userEmail.trim()){
-      lines.push(`<div class="line"><span>Sconto (${applied.code})</span><span>—</span></div>`);
-    }else{
-      const gross = (function(){
-        let g=0;
-        for(const id of Object.keys(cart)){
-          const q=cart[id]; if(!q) continue;
-          const d=ticketDocs[id]; if(!d) continue;
-          g += q*(d.priceCents||0);
-        }
-        return g;
-      })();
-      const net = computeTotalCents_NoUserCheck();
-      const diff = Math.max(0, gross - net);
-      lines.push(`<div class="line save"><span>Sconto (${applied.code})</span><span>- ${moneyCents(diff)}</span></div>`);
+        <div style="margin-top:10px">
+          <label>Email</label>
+          <input class="input" data-email inputmode="email" autocomplete="email" placeholder="email@email.it">
+        </div>
+
+        <div style="margin-top:10px">
+          <label>Data di nascita</label>
+          <input class="input" data-dob type="date">
+        </div>
+      `;
+
+      wrap.appendChild(slot);
+
+      const model = {
+        sku,
+        idx:i+1,
+        first: slot.querySelector('[data-first]'),
+        last: slot.querySelector('[data-last]'),
+        email: slot.querySelector('[data-email]'),
+        dob: slot.querySelector('[data-dob]'),
+        banner: slot.querySelector('[data-drink]')
+      };
+
+      // listeners
+      [model.first, model.last, model.email, model.dob].forEach(inp=>{
+        inp.addEventListener('input', ()=>{
+          updateDrinkBanner(model);
+          validateAttendeesAndTogglePay();
+          // se sconto limitato a userEmail, riesegui validazione sconto
+          updateAttendeesSummary();
+        });
+      });
+
+      attendeeModels.push(model);
     }
   }
-  sum.innerHTML = lines.join('');
 
-  // totale
-  document.getElementById('attGrand').textContent = moneyCents(computeTotalCents_NoUserCheck());
+  $('#attSub').textContent = `Compila i dati per ${nTot} biglietto${nTot>1?'i':''}.`;
 
-  // warning banner reset
-  const w = document.getElementById('discWarn');
-  w.style.display='none';
-  w.textContent='';
+  // meta con location
+  const loc = EVENT?.locationLabel || 'Via Italia 38, Biella';
+  $('#attMeta').textContent = `${EVENT?.dateLabel || 'Sab 21 Marzo 2026 · 22:30–04:30'} · ${loc}`;
+
+  // prefill da account se loggato (solo primo ticket)
+  if(currentUser && !currentUser.isAnonymous){
+    const em = currentUser.email || '';
+    const dn = (currentUser.displayName||'').trim();
+    const parts = dn.split(' ').filter(Boolean);
+    if(attendeeModels[0]){
+      if(!attendeeModels[0].email.value) attendeeModels[0].email.value = em;
+      if(!attendeeModels[0].first.value && parts[0]) attendeeModels[0].first.value = parts[0];
+      if(!attendeeModels[0].last.value && parts.slice(1).join(' ')) attendeeModels[0].last.value = parts.slice(1).join(' ');
+    }
+  }
+
+  attendeeModels.forEach(updateDrinkBanner);
+  validateAttendeesAndTogglePay();
 }
 
-document.getElementById('attBack').addEventListener('click', ()=>showView('viewTickets'));
+function parseDateInput(v){
+  // v: "YYYY-MM-DD"
+  if(!v) return null;
+  const [y,m,d] = v.split('-').map(Number);
+  if(!y||!m||!d) return null;
+  return new Date(y, m-1, d, 0,0,0,0);
+}
 
-/* VALIDAZIONE SCONTO userEmail (come hai chiesto) */
-function validateDiscountAgainstEmails(){
-  const applied = readApplied();
-  const warn = document.getElementById('discWarn');
-  warn.style.display='none'; warn.textContent='';
+function updateDrinkBanner(m){
+  // regole:
+  // - se 18esimo compleanno <= 21 marzo 00:00 -> alcolico
+  // - se 18esimo compleanno = 22 marzo 00:00 -> analcolico, poi dalle 00:00 diventa alcolico
+  // - altrimenti analcolico
+  const startISO = EVENT?.eventStartISO || '2026-03-21T22:30:00+01:00';
+  const midnightISO = EVENT?.legalMidnightISO || '2026-03-22T00:00:00+01:00';
+  const eventStart = new Date(startISO);
+  const midnightAfter = new Date(midnightISO);
 
-  if(!applied || !applied.active) return;
+  // “00:00 del giorno evento” -> 21 marzo 00:00
+  const eventDayMidnight = new Date(eventStart.getFullYear(), eventStart.getMonth(), eventStart.getDate(), 0,0,0,0);
 
-  // se userEmail vuoto -> ok già applicato
-  if(!applied.userEmail || !applied.userEmail.trim()){
+  const dob = parseDateInput(m.dob.value);
+  if(!dob){
+    m.banner.style.display='none';
+    m.banner.textContent='';
+    m.banner.classList.remove('ok');
     return;
   }
 
-  // userEmail pieno -> deve esserci ALMENO un attendee con quell’email
-  const target = applied.userEmail.trim().toLowerCase();
-  const emails = $$('[data-field="email"]').map(i=>(i.value||'').trim().toLowerCase()).filter(Boolean);
+  const b18 = new Date(dob.getFullYear()+18, dob.getMonth(), dob.getDate(), 0,0,0,0);
 
-  const ok = emails.includes(target);
-  if(!ok){
-    // sconto NON applicabile: lo togliamo e avviso
-    writeApplied(null);
-    warn.textContent = 'Codice sconto non valido perché non applicabile a questo utente';
-    warn.className = 'banner warn';
-    warn.style.display='block';
-    // rerender per aggiornare totale
-    renderAttendees();
-  }else{
-    // ok: lo applichi solo “a quello”, ma come totale carrello lo lasci uguale?
-    // Tu mi hai chiesto: se più biglietti si applica solo a quello con email giusta.
-    // Quindi qui applichiamo lo sconto SOLO su 1 biglietto (il primo del carrello) come base.
-    // Implementazione: applica sconto sul ticket più economico selezionato (di solito EB/STD).
-    // Se vuoi specificare il tipo, me lo dici e lo cambio.
-    const gross = (function(){
-      let g=0;
-      for(const id of Object.keys(cart)){
-        const q=cart[id]; if(!q) continue;
-        const d=ticketDocs[id]; if(!d) continue;
-        g += q*(d.priceCents||0);
+  // caso alcolico subito
+  if(b18.getTime() <= eventDayMidnight.getTime()){
+    m.banner.style.display='block';
+    m.banner.textContent = "Il tuo drink incluso sarà alcolico";
+    m.banner.classList.add('ok');
+    return;
+  }
+
+  // caso “diventa alcolico a mezzanotte del giorno dopo” (22 marzo 00:00)
+  if(b18.getTime() === midnightAfter.getTime()){
+    m.banner.style.display='block';
+    m.banner.textContent = "Il tuo drink incluso sarà analcolico; dalle ore 00:00 si convertirà in alcolico";
+    m.banner.classList.remove('ok');
+    return;
+  }
+
+  // default analcolico
+  m.banner.style.display='block';
+  m.banner.textContent = "Il tuo drink incluso sarà analcolico";
+  m.banner.classList.remove('ok');
+}
+
+function validateAttendeesAndTogglePay(){
+  const okAll = attendeeModels.length>0 && attendeeModels.every(m=>{
+    return m.first.value.trim().length>=2 &&
+           m.last.value.trim().length>=2 &&
+           validEmail(m.email.value) &&
+           !!parseDateInput(m.dob.value);
+  });
+  $('#attPay').disabled = !okAll;
+  $('#attPay').classList.toggle('active', okAll);
+}
+
+function computeDiscountForAttendees(){
+  const disc = readApplied();
+  if(!disc || !disc.active) return { discCents:0, warn:'' };
+
+  // se userEmail è valorizzata: applica SOLO ai biglietti dove email coincide
+  const userEmail = String(disc.userEmail||'').trim().toLowerCase();
+  if(userEmail){
+    const hasMatch = attendeeModels.some(m=>String(m.email.value||'').trim().toLowerCase()===userEmail);
+    if(!hasMatch){
+      return { discCents:0, warn:'Codice sconto non valido perché non applicabile a questo utente' };
+    }
+    // applica sconto solo alla quota “di un biglietto” (primo match) sulla parte eleggibile
+    // qui: applichiamo sul totale eleggibile MA limitato al valore di 1 biglietto tra quelli eleggibili
+    // (per non scontare tutto il carrello se era “user”)
+    // scegliamo il primo ticket del carrello che è in appliesSkus (o qualsiasi se vuoto)
+    const applies = Array.isArray(disc.appliesSkus) ? disc.appliesSkus : [];
+    const pickSku = (() => {
+      const order = ['earlybird','standard1','standard2','fast','vip'];
+      for(const sku of order){
+        if((cart[sku]||0)<=0) continue;
+        if(applies.length===0 || applies.includes(sku)) return sku;
       }
-      return g;
+      return null;
     })();
 
-    // trova il prezzo minimo tra i biglietti selezionati
-    let minPrice = null;
-    for(const id of Object.keys(cart)){
-      if(!cart[id]) continue;
-      const d=ticketDocs[id]; if(!d) continue;
-      const p=d.priceCents||0;
-      if(minPrice===null || p<minPrice) minPrice=p;
+    if(!pickSku) return { discCents:0, warn:'Codice non applicabile ai biglietti selezionati' };
+
+    const oneTicketCents = (ticketById[pickSku]?.priceCents||0);
+    const eligibleCents = oneTicketCents; // solo 1 biglietto
+
+    const totalRaw = cartTotalCents();
+    const res = applyDiscountMath(totalRaw, disc, eligibleCents);
+    return { discCents: (totalRaw - res.total), warn:'' };
+  }
+
+  // altrimenti applica normalmente sulla parte eleggibile
+  const totalRaw = cartTotalCents();
+  const eligible = eligibleSubtotalFor(disc);
+  const res = applyDiscountMath(totalRaw, disc, eligible);
+  return { discCents: (totalRaw - res.total), warn:'' };
+}
+
+function updateAttendeesSummary(){
+  const s = $('#attSummary');
+  const totalRaw = cartTotalCents();
+
+  let lines = [];
+  const names = [
+    ['earlybird','Early Bird'],
+    ['standard1','Standard'],
+    ['standard2','Standard 2nd Release'],
+    ['fast','Ingresso Saltacoda'],
+    ['vip','VIP'],
+  ];
+  for(const [sku,label] of names){
+    const q = cart[sku]||0;
+    if(q<=0) continue;
+    const p = (ticketById[sku]?.priceCents||0) * q;
+    lines.push(`<div class="line"><span>${label} × ${q}</span><span>${moneyCents(p)}</span></div>`);
+  }
+
+  const disc = readApplied();
+  let discCents = 0;
+  let warn = '';
+
+  if(disc && disc.active){
+    const dres = computeDiscountForAttendees();
+    discCents = dres.discCents;
+    warn = dres.warn;
+
+    if(discCents>0){
+      lines.push(`<div class="line save"><span>Sconto (${String(disc.code||'').toUpperCase()})</span><span>- ${moneyCents(discCents)}</span></div>`);
     }
-    if(minPrice===null) minPrice=0;
+  }
 
-    // calcolo sconto su 1 ticket (minPrice)
-    let disc = 0;
-    if(applied.type==='percent'){
-      const pct = Number(applied.amount||0);
-      disc = Math.round(minPrice*(pct/100));
-    }else if(applied.type==='fixed'){
-      const eur = Number(applied.amount||0);
-      disc = Math.min(minPrice, Math.round(eur*100));
-    }
+  s.innerHTML = lines.join('');
 
-    const net = Math.max(0, gross - disc);
-    document.getElementById('attGrand').textContent = moneyCents(net);
+  const finalTotal = Math.max(0, totalRaw - discCents);
+  $('#attGrand').textContent = moneyCents(finalTotal);
 
-    // aggiorna summary sconto
-    const sum = document.getElementById('attSummary');
-    let html = sum.innerHTML;
-    // aggiungi/rimpiazza riga sconto
-    const line = `<div class="line save"><span>Sconto (${applied.code})</span><span>- ${moneyCents(disc)}</span></div>`;
-    // rimuovi eventuali righe sconto precedenti
-    html = html.replace(/<div class="line save">[\s\S]*?<\/div>/g,'');
-    // inserisci prima del totale (qui è solo elenco, quindi append)
-    sum.innerHTML = html + line;
+  // warning banner
+  const bw = $('#attDiscWarn');
+  if(warn){
+    bw.textContent = warn;
+    bw.style.display='block';
+  }else{
+    bw.style.display='none';
   }
 }
 
-/* input change -> rivedi sconto userEmail */
-document.addEventListener('input', (e)=>{
-  const t = e.target;
-  if(t && t.matches && t.matches('[data-field="email"]')){
-    validateDiscountAgainstEmails();
+/* Attendees discount apply (keep synced) */
+$('#attDiscApply').addEventListener('click', async ()=>{
+  const code = $('#attDiscCode').value;
+  await handleApplyDiscount(code, true);
+  // sync index input too
+  const applied = readApplied();
+  $('#discCode').value = applied?.code ? String(applied.code).toUpperCase() : String(code||'').toUpperCase();
+});
+
+/* back from attendees */
+$('#attBack').addEventListener('click', ()=>{
+  showView('viewTickets');
+  // ricompare bar (non siamo nel legal sentinel)
+  updateBar();
+});
+
+/* proceed payment (placeholder) */
+$('#attPay').addEventListener('click', ()=>{
+  if($('#attPay').disabled) return;
+
+  // salva payload in localStorage per checkout
+  const payload = {
+    cart: { ...cart },
+    discount: readApplied(),
+    attendees: attendeeModels.map(m=>({
+      sku: m.sku,
+      first: m.first.value.trim(),
+      last: m.last.value.trim(),
+      email: m.email.value.trim(),
+      dob: m.dob.value
+    })),
+    event: {
+      title: EVENT?.eventTitle || 'TRAPPERREO',
+      dateLabel: EVENT?.dateLabel || '',
+      location: EVENT?.locationLabel || ''
+    },
+    totalCents: (()=>{
+      const totalRaw = cartTotalCents();
+      const dres = computeDiscountForAttendees();
+      return Math.max(0, totalRaw - (dres.discCents||0));
+    })()
+  };
+  localStorage.setItem('trapperreo_checkout_payload', JSON.stringify(payload));
+
+  // vai al checkout (se vuoi rimanere qui, dimmelo e lo faccio in-page)
+  location.assign('./checkout.html');
+});
+
+/* ====== GATE: doppio tap su city ONLY ====== */
+let gateHash = '';
+let tapCount = 0;
+let tapTimer = null;
+let gateTries = 0;
+
+async function sha256hex(s){
+  const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(s));
+  return [...new Uint8Array(buf)].map(b=>b.toString(16).padStart(2,'0')).join('');
+}
+function openGate(){
+  gateTries = 0;
+  $('#gateErr').style.display='none';
+  $('#gateOverlay').style.display='flex';
+  clearGateInputs();
+  focusGate(0);
+}
+function closeGate(){
+  $('#gateOverlay').style.display='none';
+}
+function clearGateInputs(){
+  const inputs = [...document.querySelectorAll('#codeBoxes input')];
+  inputs.forEach(i=>i.value='');
+}
+function focusGate(i){
+  const inputs = [...document.querySelectorAll('#codeBoxes input')];
+  inputs[Math.max(0, Math.min(inputs.length-1, i))]?.focus();
+}
+function readGateCode(){
+  return [...document.querySelectorAll('#codeBoxes input')].map(i=>i.value||'').join('');
+}
+
+$('#citySecret').addEventListener('click', ()=>{
+  // 2 tap non necessariamente di seguito: entro 3 secondi
+  tapCount++;
+  if(tapTimer) clearTimeout(tapTimer);
+  tapTimer = setTimeout(()=>{ tapCount=0; }, 3000);
+  if(tapCount>=2){
+    tapCount=0;
+    openGate();
   }
 });
 
-/* codice sconto dentro attendees */
-document.getElementById('attDiscApply').addEventListener('click', async ()=>{
-  const code = (document.getElementById('attDiscCode').value||'').trim().toUpperCase();
-  if(!code){
-    writeApplied(null);
-    setAttDiscMsg('', '');
-    renderAttendees();
-    return;
-  }
-  if(!window.__db){
-    setAttDiscMsg('Codice: disponibile solo con Firestore attivo.', 'bad');
-    return;
-  }
-  try{
-    const { collection, getDocs, query, where } = window.__fs;
-    setAttDiscMsg('Controllo codice...', '');
-    const qy = query(collection(window.__db,'discountCodes'), where('code','==',code));
-    const snap = await getDocs(qy);
-    if(snap.empty){
-      writeApplied(null);
-      setAttDiscMsg('Codice sconto non valido', 'bad');
-      renderAttendees();
-      return;
-    }
-    let best=null;
-    snap.forEach(d=>{
-      const v=d.data();
-      if(v && v.active===true && !best) best = { id:d.id, ...v };
-    });
-    if(!best){
-      writeApplied(null);
-      setAttDiscMsg('Codice sconto non valido', 'bad');
-      renderAttendees();
-      return;
-    }
+$('#gateBack').addEventListener('click', closeGate);
 
-    writeApplied({
-      code: best.code,
-      active: true,
-      type: best.type,
-      amount: best.amount ?? 0,
-      userEmail: (best.userEmail || '').trim()
-    });
+document.querySelectorAll('#codeBoxes input').forEach((inp, idx, arr)=>{
+  inp.addEventListener('input', async ()=>{
+    // solo numeri
+    inp.value = (inp.value||'').replace(/[^0-9]/g,'').slice(0,1);
+    if(inp.value && idx < arr.length-1) arr[idx+1].focus();
 
-    if(best.userEmail && best.userEmail.trim()){
-      setAttDiscMsg('Codice inserito (valido solo per email specifica)', 'warn');
+    const code = readGateCode();
+    if(code.length === 6){
+      const h = await sha256hex(code);
+      if(h === gateHash){
+        // giusto -> entra login overlay senza conferme
+        closeGate();
+        openLogin();
+      }else{
+        gateTries++;
+        $('#gateErr').style.display='block';
+        clearGateInputs();
+        focusGate(0);
+        if(gateTries>=3){
+          closeGate();
+          location.reload();
+        }
+      }
     }else{
-      setAttDiscMsg(`Codice applicato: ${best.type==='percent' ? best.amount+'%' : ('-'+best.amount+'€')}`, 'ok');
+      $('#gateErr').style.display='none';
     }
-    renderAttendees();
-    validateDiscountAgainstEmails();
-  }catch{
-    setAttDiscMsg('Errore nel controllo codice. Riprova.', 'bad');
+  });
+
+  inp.addEventListener('keydown', (e)=>{
+    if(e.key === 'Backspace' && !inp.value && idx>0){
+      arr[idx-1].focus();
+    }
+  });
+});
+
+/* ====== LOGIN POPUP ====== */
+function openLogin(){
+  $('#loginErr').style.display='none';
+  $('#loginOk').style.display='none';
+  $('#postLoginActions').style.display='none';
+  $('#loginOverlay').style.display='flex';
+}
+function closeLogin(){
+  $('#loginOverlay').style.display='none';
+}
+$('#loginClose').addEventListener('click', closeLogin);
+
+$('#loginBtn').addEventListener('click', async ()=>{
+  $('#loginErr').style.display='none';
+  $('#loginOk').style.display='none';
+
+  try{
+    const email = $('#loginEmail').value.trim();
+    const pwd = $('#loginPass').value;
+    if(!email || !pwd) throw new Error('Inserisci email e password.');
+
+    const cred = await emailSignIn(email, pwd);
+    await ensureUserDoc(cred.user);
+
+    $('#loginOk').textContent = 'Accesso effettuato.';
+    $('#loginOk').style.display='block';
+
+    $('#postLoginActions').style.display='flex';
+  }catch(e){
+    $('#loginErr').textContent = e.message || 'Errore imprevisto';
+    $('#loginErr').style.display='block';
   }
 });
 
-/* bottone dalla barra -> entra in attendees view (NO cambio pagina) */
-document.getElementById('goPay').addEventListener('click', ()=>{
-  if(cartCount()<=0) return;
-  renderAttendees();
-  showView('viewAttendees');
-  validateDiscountAgainstEmails();
+$('#goAccount').addEventListener('click', ()=>location.assign('./account-2.html'));
+$('#continueBuy').addEventListener('click', closeLogin);
+
+/* ====== INIT ====== */
+onUser((u)=>{
+  currentUser = u || null;
+  renderNav();
 });
 
-/* pagamento: placeholder (NON esce da index) */
-document.getElementById('attPay').addEventListener('click', ()=>{
-  alert('Qui collego il pagamento. Dimmi come stai creando la sessione checkout e lo aggancio senza uscire dalla pagina.');
-});
+(async function init(){
+  try{
+    await loadEventConfig();
+    gateHash = String(EVENT.adminGateHash || '').trim();
+    await loadTickets();
+    renderTickets();
+    updateBar();
 
-/* init */
-setFallbackTickets(); // se poi Firestore carica, viene sovrascritto
-updateBar();
+    // preload sconto se esiste
+    const d = readApplied();
+    if(d?.code) $('#discCode').value = String(d.code).toUpperCase();
+
+  }catch(e){
+    console.error(e);
+    const root = $('#tickets');
+    root.innerHTML = `<div class="block"><h3>Errore</h3><p class="a">Non riesco a caricare i biglietti. Controlla Firestore rules (read) e riprova.</p></div>`;
+  }
+})();
 </script>
-
-<script>
-/* top button */
-document.getElementById('changeNameBtn').addEventListener('click', ()=>{
-  alert('Cambio nome: incluso su Fast/VIP (se previsto).');
-});
-</script>
-
 </body>
 </html>
