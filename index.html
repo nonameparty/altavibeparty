@@ -5,26 +5,25 @@
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>TRAPPERREO — Biglietti</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&display=swap" rel="stylesheet">
-
 <style>
   :root{
     --bg:#000;
     --text:#fff;
     --muted:rgba(255,255,255,.72);
     --border:rgba(255,255,255,.14);
+
     --lime:#b7ff2a;
+    --lime2:#8bff00;
     --yellow:#ffd84a;
+
     --danger:#ff4d4d;
+    --ok:#33d17a;
+
     --shadow:0 18px 60px rgba(0,0,0,.55);
     --radius:20px;
 
-    /* ✅ SFONDO: RAW github (funziona sempre) */
-    --bgPoster:url("https://raw.githubusercontent.com/nonameparty/altavibeparty/main/assets/bg-poster.png");
-    /* se preferisci locale:
-       --bgPoster:url("./assets/bg-poster.png");
-    */
+    --poster:url("./assets/bg-poster.png");
   }
-
   *{box-sizing:border-box}
   html,body{height:100%}
   body{
@@ -37,44 +36,36 @@
   }
 
   /* Background */
-  .bg{
-    position:fixed; inset:0;
-    background-image:var(--bgPoster);
-    background-size:cover;
-    background-position:center;
-    background-repeat:no-repeat;
-    z-index:-3;
-  }
+  .bg{position:fixed;inset:0;background-image:var(--poster);background-size:cover;background-position:center;background-repeat:no-repeat;z-index:-3}
   .bg::after{
-    content:"";
-    position:absolute; inset:0;
+    content:"";position:absolute;inset:0;
     background:
-      radial-gradient(65% 45% at 50% 20%, rgba(0,0,0,.35), rgba(0,0,0,.80) 62%, rgba(0,0,0,.92) 100%),
+      radial-gradient(70% 55% at 50% 18%, rgba(0,0,0,.35), rgba(0,0,0,.82) 62%, rgba(0,0,0,.92) 100%),
       linear-gradient(180deg, rgba(0,0,0,.70), rgba(0,0,0,.35) 30%, rgba(0,0,0,.88) 100%);
   }
 
   header{
-    position:sticky; top:0; z-index:60;
+    position:sticky;top:0;z-index:60;
     backdrop-filter: blur(10px) saturate(130%);
     background: rgba(0,0,0,.42);
     border-bottom:1px solid rgba(255,255,255,.08);
   }
   .nav{
-    max-width:1100px; margin:0 auto;
+    max-width:1100px;margin:0 auto;
     padding:14px 16px;
-    display:flex; align-items:center; justify-content:space-between; gap:12px;
+    display:flex;align-items:center;justify-content:space-between;gap:12px;
   }
   .brand{
-    display:flex; align-items:center; gap:10px;
-    font-weight:900; letter-spacing:-.3px;
+    display:flex;align-items:center;gap:10px;
+    font-weight:900;letter-spacing:-.3px;
     user-select:none;
   }
   .brand-badge{
-    width:22px; height:22px; border-radius:5px;
+    width:22px;height:22px;border-radius:5px;
     background:var(--lime);
     box-shadow:0 0 0 1px rgba(0,0,0,.55) inset, 0 0 22px rgba(183,255,42,.10);
   }
-  .navRight{display:flex; align-items:center; gap:10px; flex-wrap:wrap; justify-content:flex-end}
+  .navRight{display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:flex-end}
   .hello{
     font-weight:900;
     opacity:.92;
@@ -82,6 +73,7 @@
     border-radius:999px;
     border:1px solid rgba(255,255,255,.10);
     background: rgba(0,0,0,.18);
+    white-space:nowrap;
   }
   .btnTop{
     padding:10px 14px;
@@ -91,6 +83,7 @@
     color:#fff;
     font-weight:900;
     cursor:pointer;
+    white-space:nowrap;
   }
   .btnTop.primary{
     border-color: rgba(183,255,42,.35);
@@ -98,7 +91,7 @@
     color:#fff;
   }
 
-  main{max-width:1100px; margin:0 auto; padding:18px 16px 26px}
+  main{max-width:1100px;margin:0 auto;padding:18px 16px 26px}
 
   /* HERO */
   .heroCard{
@@ -110,7 +103,7 @@
     box-shadow:var(--shadow);
   }
   .kickerRow{
-    display:flex; align-items:center; gap:10px;
+    display:flex;align-items:center;gap:10px;
     font-weight:900;
     letter-spacing:.12em;
     font-size:13px;
@@ -119,57 +112,49 @@
     margin-bottom:6px;
   }
 
-  /* ✅ BIELLA cliccabile (ma non sembra un tasto) */
+  /* ✅ BIELLA cliccabile ma “segreto” */
   #citySecret{
     display:inline-block;
     padding:4px 8px;
     border-radius:8px;
     background: rgba(255,255,255,.06);
     border:1px solid rgba(255,255,255,.10);
-    cursor: default;         /* non “button look” */
     user-select:none;
-    pointer-events:auto;
+    cursor:default;
     position:relative;
-    z-index:5;               /* sopra qualsiasi overlay */
+    z-index:10;
   }
 
   .title{
-    font-size:46px;
-    line-height:1;
+    font-size:46px;line-height:1;
     font-weight:900;
     letter-spacing:-.8px;
     margin:6px 0 10px;
   }
   @media(max-width:480px){ .title{font-size:40px} }
 
-  /* ✅ Data/Ora grande sotto TRAPPERREO */
   .dateBig{
-    font-size:24px;
-    font-weight:900;
-    letter-spacing:-.3px;
-    margin:0 0 14px;
-    opacity:.96;
+    font-size:24px;font-weight:900;letter-spacing:-.3px;
+    margin:0 0 14px;opacity:.96;
   }
 
-  .pills{display:flex; flex-wrap:wrap; gap:10px; margin-top:6px}
+  .pills{display:flex;flex-wrap:wrap;gap:10px;margin-top:6px}
   .pill{
-    display:inline-flex; align-items:center; gap:8px;
-    padding:10px 12px;
-    border-radius:999px;
+    display:inline-flex;align-items:center;gap:8px;
+    padding:10px 12px;border-radius:999px;
     border:1px solid rgba(183,255,42,.28);
     background: rgba(183,255,42,.16);
-    color:#fff;
-    font-weight:900;
-    font-size:14px;
+    color:#fff;font-weight:900;font-size:14px;
   }
   .pill.yellow{
     border-color: rgba(255,216,74,.45);
     background: rgba(255,216,74,.18);
+    color:#fff;
   }
 
   /* Section */
   .sectionRow{
-    display:flex; align-items:baseline; justify-content:space-between; gap:12px;
+    display:flex;align-items:baseline;justify-content:space-between;gap:12px;
     margin-top:20px;
   }
   .sectionRow h2{
@@ -186,7 +171,7 @@
   @media(max-width:480px){ .sectionRow h2{font-size:38px} }
 
   /* Tickets */
-  .tickets{margin-top:14px; display:flex; flex-direction:column; gap:14px}
+  .tickets{margin-top:14px;display:flex;flex-direction:column;gap:14px}
   .ticket{
     background: rgba(0,0,0,.55);
     border:1px solid rgba(255,255,255,.12);
@@ -199,58 +184,63 @@
     align-items:center;
   }
   .ticket.soldout{opacity:.45}
-  .ticketLeft h3{margin:0 0 6px; font-size:22px; font-weight:900; letter-spacing:-.2px}
-  .ticketLeft .desc{margin:0; color: rgba(255,255,255,.74); font-weight:700; line-height:1.35}
-  .tags{margin-top:10px; display:flex; flex-wrap:wrap; gap:10px; align-items:center}
+  .ticketLeft h3{margin:0 0 6px;font-size:22px;font-weight:900;letter-spacing:-.2px}
+  .ticketLeft .desc{margin:0;color: rgba(255,255,255,.74);font-weight:700;line-height:1.35}
+  .tags{margin-top:10px;display:flex;flex-wrap:wrap;gap:10px;align-items:center}
   .tag{
-    display:inline-flex; align-items:center; gap:8px;
-    padding:8px 10px;
-    border-radius:999px;
+    display:inline-flex;align-items:center;gap:8px;
+    padding:8px 10px;border-radius:999px;
     border:1px solid rgba(183,255,42,.25);
     background: rgba(183,255,42,.14);
-    font-weight:900;
-    font-size:12px;
-    color:#fff;
+    font-weight:900;font-size:12px;color:#fff;
     max-width:100%;
   }
-  .tag.best{
-    border-color: rgba(255,255,255,.18);
-    background: rgba(255,255,255,.10);
-  }
+  .tag.best{border-color: rgba(255,255,255,.18);background: rgba(255,255,255,.10)}
   .infoIcon{
-    width:18px; height:18px;
-    display:inline-grid; place-items:center;
-    border-radius:999px;
-    border:1px solid rgba(255,255,255,.22);
+    width:18px;height:18px;display:inline-grid;place-items:center;
+    border-radius:999px;border:1px solid rgba(255,255,255,.22);
     background: rgba(0,0,0,.25);
-    font-weight:900;
-    cursor:pointer;
-    user-select:none;
+    font-weight:900;cursor:pointer;user-select:none;
   }
-  .ticketRight{display:flex; align-items:center; gap:14px; justify-content:flex-end}
-  .price{font-size:24px; font-weight:900; letter-spacing:-.4px; white-space:nowrap}
+  .ticketRight{display:flex;align-items:center;gap:14px;justify-content:flex-end}
+  .price{font-size:24px;font-weight:900;letter-spacing:-.4px;white-space:nowrap}
   .qty{
-    display:flex; align-items:center; gap:10px;
+    display:flex;align-items:center;gap:10px;
     border:1px solid rgba(255,255,255,.14);
     background: rgba(0,0,0,.28);
     border-radius: 999px;
     padding:8px;
   }
   .qBtn{
-    width:40px; height:40px;
-    border-radius:999px;
-    border:1px solid rgba(255,255,255,.14);
+    width:40px;height:40px;
+    border-radius:999px;border:1px solid rgba(255,255,255,.14);
     background: rgba(0,0,0,.25);
-    color:#fff;
-    font-size:20px;
-    font-weight:900;
-    cursor:pointer;
+    color:#fff;font-size:20px;font-weight:900;cursor:pointer;
   }
-  .qVal{width:22px; text-align:center; font-weight:900; font-size:18px}
+  .qVal{width:22px;text-align:center;font-weight:900;font-size:18px}
+
+  /* ✅ MOBILE: ticket più piccoli (per vedere VIP) */
+  @media(max-width:520px){
+    .ticket{
+      padding:12px;
+      gap:10px;
+      grid-template-columns: 1fr;
+      align-items:stretch;
+    }
+    .ticketRight{
+      justify-content:space-between;
+      margin-top:6px;
+    }
+    .ticketLeft h3{font-size:20px}
+    .price{font-size:20px}
+    .qty{padding:6px}
+    .qBtn{width:36px;height:36px}
+    .qVal{font-size:16px}
+  }
 
   /* Bottom bar (più piccolo) */
   .bar{
-    position:fixed; left:12px; right:12px; bottom:12px;
+    position:fixed;left:12px;right:12px;bottom:12px;
     z-index:120;
     background: rgba(0,0,0,.72);
     border:1px solid rgba(255,255,255,.12);
@@ -258,81 +248,69 @@
     padding:10px 12px;
     box-shadow: 0 18px 60px rgba(0,0,0,.6);
     backdrop-filter: blur(10px) saturate(130%);
-    display:flex;
-    flex-direction:column;
-    gap:10px;
+    display:flex;flex-direction:column;gap:10px;
   }
-  .barTop{display:flex; align-items:flex-end; justify-content:space-between; gap:10px}
+  .barTop{display:flex;align-items:flex-end;justify-content:space-between;gap:10px}
   .cartCount{
-    font-size:12px;
-    color: rgba(255,255,255,.70);
+    font-size:12px;color: rgba(255,255,255,.70);
     font-weight:900;
     white-space:nowrap;
     overflow:hidden;
     text-overflow:ellipsis;
   }
   .total{
-    font-size:34px; line-height:1;
+    font-size:32px;line-height:1;
     font-weight:900;
     letter-spacing:-.8px;
   }
-  .barBtns{display:flex; align-items:center; gap:10px; justify-content:flex-end}
+  .barBtns{display:flex;align-items:center;gap:10px;justify-content:flex-end}
   .ghostBtn{
-    padding:10px 12px;
-    border-radius:14px;
+    padding:10px 12px;border-radius:14px;
     border:1px solid rgba(255,255,255,.14);
     background: rgba(0,0,0,.22);
-    color:#fff;
-    font-weight:900;
-    cursor:pointer;
-    white-space:nowrap;
+    color:#fff;font-weight:900;cursor:pointer;white-space:nowrap;
   }
   .payBtn{
-    padding:10px 12px;
-    border-radius:14px;
+    padding:10px 12px;border-radius:14px;
     border:1px solid rgba(183,255,42,.35);
     background: rgba(183,255,42,.22);
     color:#000;
-    font-weight:900;
-    cursor:pointer;
-    white-space:nowrap;
+    font-weight:900;cursor:pointer;white-space:nowrap;
   }
-  .payBtn:disabled, .ghostBtn:disabled{opacity:.45; cursor:not-allowed}
+  /* ✅ quando attivo: lime pieno */
+  .payBtn.active{
+    background: var(--lime);
+    border-color: rgba(183,255,42,.55);
+    box-shadow: 0 10px 30px rgba(183,255,42,.12);
+  }
+  .payBtn:disabled,.ghostBtn:disabled{opacity:.45;cursor:not-allowed}
 
   /* Discount row */
-  .discRow{display:flex; gap:10px; align-items:center}
+  .discRow{display:flex;gap:10px;align-items:center}
   .discInput{
-    flex:1;
-    border-radius:14px;
-    border:1px solid rgba(255,255,255,.14);
+    flex:1;border-radius:14px;border:1px solid rgba(255,255,255,.14);
     background: rgba(0,0,0,.25);
-    color:#fff;
-    font-weight:900;
-    padding:10px 12px;
-    outline:none;
+    color:#fff;font-weight:900;padding:10px 12px;outline:none;
     text-transform:uppercase;
   }
   .discApply{
-    padding:10px 12px;
-    border-radius:14px;
+    padding:10px 12px;border-radius:14px;
     border:1px solid rgba(255,255,255,.14);
     background: rgba(255,255,255,.10);
-    color:#fff;
-    font-weight:900;
-    cursor:pointer;
+    color:#fff;font-weight:900;cursor:pointer;
   }
   .discMsg{
-    font-size:12px;
-    font-weight:900;
+    font-size:12px;font-weight:900;
     color: rgba(255,255,255,.75);
     margin-top:-2px;
   }
   .discMsg.ok{color: rgba(51,209,122,.95)}
   .discMsg.bad{color: rgba(255,77,77,.95)}
+  .discMsg.warn{color: rgba(255,216,74,.95)}
 
   /* overlays */
   .overlay{
-    position:fixed; inset:0;
+    position:fixed;inset:0;
     background: rgba(0,0,0,.72);
     z-index:200;
     display:none;
@@ -341,7 +319,7 @@
     padding:16px;
   }
   .modal{
-    width:min(96vw, 520px);
+    width:min(96vw, 540px);
     background: rgba(0,0,0,.78);
     border:1px solid rgba(255,255,255,.14);
     border-radius:22px;
@@ -349,17 +327,14 @@
     padding:18px;
     backdrop-filter: blur(10px) saturate(130%);
   }
-  .modal h3{margin:0 0 6px; font-size:22px; font-weight:900}
-  .modal p{margin:0 0 14px; color:rgba(255,255,255,.72); font-weight:700}
-  .modal .row{display:flex; gap:10px; justify-content:space-between; align-items:center; flex-wrap:wrap; margin-top:14px}
+  .modal h3{margin:0 0 6px;font-size:22px;font-weight:900}
+  .modal p{margin:0 0 14px;color:rgba(255,255,255,.72);font-weight:700}
+  .row{display:flex;gap:10px;justify-content:space-between;align-items:center;flex-wrap:wrap;margin-top:14px}
   .modalBtn{
-    padding:12px 14px;
-    border-radius:14px;
+    padding:12px 14px;border-radius:14px;
     border:1px solid rgba(255,255,255,.14);
     background: rgba(255,255,255,.10);
-    color:#fff;
-    font-weight:900;
-    cursor:pointer;
+    color:#fff;font-weight:900;cursor:pointer;
   }
   .modalBtn.primary{
     border-color: rgba(183,255,42,.35);
@@ -367,37 +342,101 @@
     color:#000;
   }
 
-  .codeBoxes{display:grid; grid-template-columns:repeat(6,1fr); gap:10px; margin-top:10px}
+  .codeBoxes{display:grid;grid-template-columns:repeat(6,1fr);gap:10px;margin-top:10px}
   .codeBoxes input{
-    width:100%; height:54px;
-    text-align:center;
-    font-size:22px;
-    font-weight:900;
+    width:100%;height:54px;text-align:center;
+    font-size:22px;font-weight:900;
     border-radius:14px;
     border:1px solid rgba(255,255,255,.16);
     background: rgba(0,0,0,.35);
-    color:#fff;
-    outline:none;
+    color:#fff;outline:none;
   }
   .codeBoxes input:focus{
     border-color: rgba(183,255,42,.45);
     box-shadow: 0 0 0 3px rgba(183,255,42,.12);
   }
 
-  .alert{
+  .banner{
     display:none;
-    padding:10px 12px;
-    border-radius:14px;
+    padding:10px 12px;border-radius:14px;
     font-weight:900;
     border:1px solid rgba(255,77,77,.45);
     background: rgba(255,77,77,.12);
     color: rgba(255,210,210,.95);
   }
-  .alert.ok{
+  .banner.ok{
     border-color: rgba(51,209,122,.45);
     background: rgba(51,209,122,.12);
     color: rgba(200,255,224,.95);
   }
+  .banner.warn{
+    border-color: rgba(255,216,74,.45);
+    background: rgba(255,216,74,.12);
+    color: rgba(255,242,208,.95);
+  }
+
+  /* Views */
+  .view{display:none}
+  .view.active{display:block}
+
+  /* Attendees view */
+  .attWrap{margin-top:14px;display:grid;grid-template-columns:1fr;gap:14px}
+  @media(min-width:900px){ .attWrap{grid-template-columns:2fr 1fr} }
+
+  .card{
+    background: rgba(0,0,0,.55);
+    border:1px solid rgba(255,255,255,.12);
+    border-radius:22px;
+    padding:16px;
+    box-shadow: 0 16px 50px rgba(0,0,0,.45);
+  }
+  .card h2{margin:0 0 10px;font-size:18px;font-weight:900}
+  .meta{font-size:13px;color:rgba(255,255,255,.82);font-weight:800;line-height:1.4}
+  .hr{height:1px;background:rgba(255,255,255,.10);margin:12px 0}
+
+  label{display:block;font-size:12px;color:rgba(255,255,255,.72);font-weight:900;margin:0 0 6px 2px}
+  .input{
+    width:100%;
+    background: rgba(0,0,0,.35);
+    border:1px solid rgba(255,255,255,.16);
+    border-radius:14px;
+    color:#fff;
+    padding:12px 12px;
+    font-weight:900;
+    outline:none;
+  }
+  .input:focus{border-color:rgba(183,255,42,.40);box-shadow:0 0 0 3px rgba(183,255,42,.12)}
+  .form2{display:grid;grid-template-columns:1fr;gap:10px}
+  @media(min-width:520px){ .form2{grid-template-columns:1fr 1fr} }
+
+  .line{display:flex;justify-content:space-between;gap:10px;margin:7px 0;font-size:14px;color:rgba(255,255,255,.88);font-weight:900}
+  .line.save{color:rgba(51,209,122,.95)}
+  .totRow{display:flex;justify-content:space-between;align-items:flex-end;margin-top:10px}
+  .totRow .k{font-size:12px;color:rgba(255,255,255,.72);font-weight:900}
+  .totRow .v{font-size:28px;font-weight:900;letter-spacing:-.5px}
+
+  .attSlot{
+    border:1px solid rgba(255,255,255,.12);
+    border-radius:18px;
+    padding:14px;
+    background: rgba(0,0,0,.25);
+    margin-top:12px;
+  }
+  .attSlot h3{margin:0 0 10px;font-size:14px;font-weight:900;opacity:.95}
+
+  .actions{display:flex;gap:10px;flex-wrap:wrap}
+  .btn{
+    padding:12px 14px;border-radius:14px;
+    border:1px solid rgba(255,255,255,.16);
+    background: rgba(255,255,255,.10);
+    color:#fff;font-weight:900;cursor:pointer;
+  }
+  .btn.primary{
+    border-color: rgba(183,255,42,.45);
+    background: rgba(183,255,42,.22);
+    color:#000;
+  }
+  .btn:disabled{opacity:.45;cursor:not-allowed}
 </style>
 </head>
 
@@ -418,28 +457,79 @@
 </header>
 
 <main>
-  <section class="heroCard">
-    <div class="kickerRow">
-      <span id="citySecret">BIELLA</span>
-      <span>• TRAP & REGGAETON</span>
+  <!-- VIEW: TICKETS -->
+  <section class="view active" id="viewTickets">
+    <section class="heroCard">
+      <div class="kickerRow">
+        <span id="citySecret">BIELLA</span>
+        <span>• TRAP & REGGAETON</span>
+      </div>
+
+      <div class="title">TRAPPERREO</div>
+      <div class="dateBig">Sab 21 Marzo 2026 · 22:30–04:30</div>
+
+      <div class="pills">
+        <span class="pill">Ingresso 16+ con documento</span>
+        <span class="pill">Evento privato</span>
+        <span class="pill yellow">Vendita solo online fino a esaurimento posti</span>
+      </div>
+    </section>
+
+    <div class="sectionRow">
+      <h2>Biglietti</h2>
+      <p class="hint">Seleziona quantità e vai al pagamento</p>
     </div>
 
-    <div class="title">TRAPPERREO</div>
-    <div class="dateBig">Sab 21 Marzo 2026 · 22:30–04:30</div>
-
-    <div class="pills">
-      <span class="pill">Ingresso 16+ con documento</span>
-      <span class="pill">Evento privato</span>
-      <span class="pill yellow">Vendita solo online fino a esaurimento posti</span>
-    </div>
+    <section class="tickets" id="tickets"></section>
   </section>
 
-  <div class="sectionRow">
-    <h2>Biglietti</h2>
-    <p class="hint">Seleziona quantità e vai al pagamento</p>
-  </div>
+  <!-- VIEW: ATTENDEES -->
+  <section class="view" id="viewAttendees">
+    <div class="attWrap">
+      <section class="card" id="attLeft">
+        <h2>Inserisci i dati</h2>
+        <div class="meta" id="attSub">Compila i dati per i biglietti selezionati.</div>
+        <div id="attSlots"></div>
+      </section>
 
-  <section class="tickets" id="tickets"></section>
+      <aside class="card" id="attRight">
+        <div class="meta">Sab 21 Marzo 2026 · 22:30–04:30 · Biella</div>
+        <div class="hr"></div>
+
+        <div id="attSummary"></div>
+
+        <div class="hr"></div>
+        <div class="totRow">
+          <div class="k">Totale (IVA inclusa)</div>
+          <div class="v" id="attGrand">0,00 €</div>
+        </div>
+
+        <div class="hr"></div>
+
+        <div class="banner warn" id="discWarn"></div>
+
+        <div style="margin-top:12px">
+          <label>Codice sconto</label>
+          <div style="display:flex;gap:10px;align-items:center">
+            <input class="input" id="attDiscCode" placeholder="CODICE SCONTO" style="text-transform:uppercase">
+            <button class="btn" id="attDiscApply" type="button">Applica</button>
+          </div>
+          <div class="discMsg" id="attDiscMsg" style="margin-top:8px"></div>
+        </div>
+
+        <div class="hr"></div>
+
+        <div class="actions">
+          <button class="btn" id="attBack" type="button">Indietro</button>
+          <button class="btn primary" id="attPay" type="button">Procedi al pagamento</button>
+        </div>
+
+        <div class="discMsg" style="margin-top:10px">
+          (Pagamento: collego qui la tua logica Stripe appena mi dici come crei la sessione.)
+        </div>
+      </aside>
+    </div>
+  </section>
 </main>
 
 <!-- Bottom bar -->
@@ -481,131 +571,66 @@
 
     <div class="row">
       <button class="modalBtn" id="gateBack">Indietro</button>
-      <button class="modalBtn primary" id="gateOk">Conferma</button>
     </div>
   </div>
 </div>
 
-<!-- Login inside index (apre solo se auth carica) -->
+<!-- Login inside index -->
 <div class="overlay" id="loginOverlay" role="dialog" aria-modal="true">
   <div class="modal">
     <h3>Accedi</h3>
     <p>Entra per gestire account e backoffice.</p>
 
-    <div class="alert" id="loginErr"></div>
-    <div class="alert ok" id="loginOk"></div>
+    <div class="banner" id="loginErr"></div>
+    <div class="banner ok" id="loginOk"></div>
 
     <div style="display:grid;gap:10px;margin-top:10px">
       <div>
         <div style="font-size:12px;font-weight:900;color:rgba(255,255,255,.75);margin:0 0 6px 2px">Email</div>
-        <input id="loginEmail" type="email" placeholder="tuo@email.it" autocomplete="email"
-               style="width:100%;padding:12px;border-radius:14px;border:1px solid rgba(255,255,255,.16);background:rgba(0,0,0,.35);color:#fff;font-weight:900;outline:none">
+        <input id="loginEmail" type="email" placeholder="tuo@email.it" autocomplete="email" class="input">
       </div>
       <div>
         <div style="font-size:12px;font-weight:900;color:rgba(255,255,255,.75);margin:0 0 6px 2px">Password</div>
-        <input id="loginPass" type="password" placeholder="Minimo 6 caratteri" autocomplete="current-password"
-               style="width:100%;padding:12px;border-radius:14px;border:1px solid rgba(255,255,255,.16);background:rgba(0,0,0,.35);color:#fff;font-weight:900;outline:none">
+        <input id="loginPass" type="password" placeholder="Minimo 6 caratteri" autocomplete="current-password" class="input">
       </div>
 
-      <button class="modalBtn primary" id="loginBtn" type="button">Entra</button>
-      <button class="modalBtn" id="loginClose" type="button">Chiudi</button>
+      <button class="btn primary" id="loginBtn" type="button">Entra</button>
+
+      <!-- ✅ dopo login: 2 azioni -->
+      <div class="actions" id="postLoginActions" style="display:none">
+        <button class="btn" id="goAccount" type="button">Vai all’area personale</button>
+        <button class="btn primary" id="continueBuy" type="button">Continua con l’acquisto</button>
+      </div>
+
+      <button class="btn" id="loginClose" type="button">Chiudi</button>
     </div>
   </div>
 </div>
 
 <script>
-/* =========================
-   1) CLICK BIELLA: sempre attivo (anche se i moduli falliscono)
-========================= */
-(function(){
-  const cityEl = document.getElementById('citySecret');
-  const gateOverlay = document.getElementById('gateOverlay');
-  const gateErr = document.getElementById('gateErr');
-  const codeInputs = [...document.querySelectorAll('#codeBoxes input')];
-
-  let taps = 0;
-  let timer = null;
-  const WINDOW_MS = 12000;
-  let attempts = 0;
-
-  function openGate(){
-    attempts = 0;
-    gateErr.style.display = 'none';
-    codeInputs.forEach(i=>i.value='');
-    gateOverlay.style.display='flex';
-    setTimeout(()=>codeInputs[0].focus(), 50);
-  }
-  function closeGate(){ gateOverlay.style.display='none'; }
-
-  cityEl.addEventListener('click', (e)=>{
-    e.preventDefault(); e.stopPropagation();
-    taps++;
-    if(timer) clearTimeout(timer);
-    timer = setTimeout(()=>{ taps=0; }, WINDOW_MS);
-    if(taps>=2){ taps=0; openGate(); }
-  }, {passive:false});
-
-  document.getElementById('gateBack').addEventListener('click', closeGate);
-  gateOverlay.addEventListener('click', (e)=>{ if(e.target===gateOverlay) closeGate(); });
-
-  codeInputs.forEach((inp, idx)=>{
-    inp.addEventListener('input', ()=>{
-      inp.value = (inp.value||'').replace(/[^0-9]/g,'').slice(0,1);
-      if(inp.value && idx < codeInputs.length-1) codeInputs[idx+1].focus();
-    });
-    inp.addEventListener('keydown', (e)=>{
-      if(e.key==='Backspace' && !inp.value && idx>0) codeInputs[idx-1].focus();
-      if(e.key==='Enter') document.getElementById('gateOk').click();
-    });
-  });
-
-  // gateOk verrà collegato nel modulo se Firestore è disponibile
-  // qui mettiamo un fallback: se modulo non carica, dopo 3 errori reload
-  document.getElementById('gateOk').addEventListener('click', ()=>{
-    // se il modulo non ha attaccato la logica vera, qui non validiamo:
-    // mostriamo errore chiaro.
-    gateErr.textContent = 'Caricamento non completato (apri il sito da GitHub Pages, non da GitHub).';
-    gateErr.style.display = 'block';
-    attempts++;
-    if(attempts>=3){ closeGate(); setTimeout(()=>location.reload(), 250); }
-  });
-})();
-</script>
-
-<script type="module">
-/* =========================
-   2) Modulo principale: Firestore tickets + adminGateHash + login
-   Se fallisce, i biglietti li mostriamo lo stesso con fallback.
-========================= */
+/* ========== UTIL ========== */
 const $ = (q)=>document.querySelector(q);
+const $$ = (q)=>[...document.querySelectorAll(q)];
 
-const ticketsEl = $('#tickets');
-const discMsg = $('#discMsg');
+function moneyCents(cents){
+  const n = (cents||0)/100;
+  return n.toFixed(2).replace('.',',') + ' €';
+}
 
+/* ========== CART STATE ========== */
 const cart = { earlybird:0, standard:0, standard2:0, fast:0, vip:0 };
 let ticketDocs = {};
 
-const money = (cents)=>{
-  const n = (cents||0)/100;
-  return n.toFixed(2).replace('.',',') + ' €';
-};
-const cartCount = ()=>cart.earlybird+cart.standard+cart.standard2+cart.fast+cart.vip;
+function cartCount(){ return cart.earlybird+cart.standard+cart.standard2+cart.fast+cart.vip; }
 
-function readApplied(){
-  try{ return JSON.parse(localStorage.getItem('trapperreo_discount_applied')||'null'); }catch{return null;}
-}
-function writeApplied(obj){
-  if(!obj) localStorage.removeItem('trapperreo_discount_applied');
-  else localStorage.setItem('trapperreo_discount_applied', JSON.stringify(obj));
-}
-function setDiscMsg(text, kind){
-  discMsg.textContent = text || '';
-  discMsg.className = 'discMsg' + (kind ? ' ' + kind : '');
-}
+function readApplied(){ try{ return JSON.parse(localStorage.getItem('trapperreo_discount_applied')||'null'); }catch{return null;} }
+function writeApplied(obj){ if(!obj) localStorage.removeItem('trapperreo_discount_applied'); else localStorage.setItem('trapperreo_discount_applied', JSON.stringify(obj)); }
+
+/* sconto: applico subito se non ha userEmail (se ce l’ha -> verifico in attendees) */
 function applyDiscountToTotal(totalCents){
   const d = readApplied();
   if(!d || !d.active) return totalCents;
-  if(d.userEmail && d.userEmail.trim()) return totalCents; // verifica dopo, non qui
+  if(d.userEmail && d.userEmail.trim()) return totalCents; // verifica dopo
   if(d.type === 'percent'){
     const pct = Number(d.amount||0);
     return totalCents - Math.round(totalCents*(pct/100));
@@ -616,6 +641,7 @@ function applyDiscountToTotal(totalCents){
   }
   return totalCents;
 }
+
 function computeTotalCents(){
   let tot=0;
   for(const id of Object.keys(cart)){
@@ -627,18 +653,33 @@ function computeTotalCents(){
   tot = applyDiscountToTotal(tot);
   return Math.max(0, tot);
 }
+
+/* ========== UI: BOTTOM BAR ========== */
 function updateBar(){
   const n = cartCount();
   $('#cartCount').textContent = n===0 ? 'Seleziona i biglietti' : (n===1 ? '1 biglietto nel carrello' : `${n} biglietti nel carrello`);
-  $('#total').textContent = money(computeTotalCents());
+  $('#total').textContent = moneyCents(computeTotalCents());
   $('#clearBtn').disabled = (n===0);
   $('#goPay').disabled = (n===0);
+
+  const pay = $('#goPay');
+  if(n>0){ pay.classList.add('active'); } else { pay.classList.remove('active'); }
 }
 
+$('#clearBtn').addEventListener('click', ()=>{
+  Object.keys(cart).forEach(k=>cart[k]=0);
+  ['earlybird','standard','standard2','fast','vip'].forEach(id=>{
+    const el = document.getElementById(`q-${id}`); if(el) el.textContent='0';
+  });
+  updateBar();
+});
+
+/* ========== UI: TICKETS RENDER ========== */
 function bestSellerId(){
   const eb = ticketDocs.earlybird;
   const s1 = ticketDocs.standard;
   const s2 = ticketDocs.standard2;
+  // se earlybird finito, best seller = standard se presente
   if(eb && eb.active === false){
     if(s1 && s1.active !== false) return 'standard';
     if(s2 && s2.active !== false) return 'standard2';
@@ -646,12 +687,12 @@ function bestSellerId(){
   return null;
 }
 
-function showTooltip(title, body){
-  alert(`${title}\n\n${body||''}`);
-}
+function showTooltip(title, body){ alert(`${title}\n\n${body||''}`); }
 
 function renderTickets(){
+  const ticketsEl = $('#tickets');
   ticketsEl.innerHTML = '';
+
   const ids = ['earlybird','standard','standard2','fast','vip'];
   const bestId = bestSellerId();
 
@@ -672,7 +713,7 @@ function renderTickets(){
         <div class="tags" id="tags-${id}"></div>
       </div>
       <div class="ticketRight">
-        <div class="price">${money(d.priceCents||0)}</div>
+        <div class="price">${moneyCents(d.priceCents||0)}</div>
         <div class="qty">
           <button class="qBtn" data-act="minus" ${sold?'disabled':''}>–</button>
           <div class="qVal" id="q-${id}">0</div>
@@ -698,6 +739,7 @@ function renderTickets(){
       tags.appendChild(t);
     }
 
+    // cambio nome incluso -> solo fast e vip
     if((id==='fast' || id==='vip') && d.nameChangeIncluded){
       const t=document.createElement('span');
       t.className='tag';
@@ -707,13 +749,14 @@ function renderTickets(){
       const info=document.createElement('span');
       info.className='infoIcon';
       info.textContent='i';
-      info.addEventListener('click', ()=>showTooltip('Cambio nome incluso', d.nameChangeInfo || 'Dettagli disponibili in assistenza.'));
+      info.addEventListener('click', ()=>showTooltip('Cambio nome incluso', d.nameChangeInfo || 'Include 1 cambio nominativo.'));
       tags.appendChild(info);
     }
 
     const qVal = wrap.querySelector(`#q-${id}`);
     const minus = wrap.querySelector(`[data-act="minus"]`);
     const plus  = wrap.querySelector(`[data-act="plus"]`);
+
     const setQ = (n)=>{
       cart[id] = Math.max(0, Math.min(50, n));
       qVal.textContent = String(cart[id]);
@@ -731,112 +774,136 @@ function setFallbackTickets(){
     earlybird:{name:'Early Bird', priceCents:1200, capacity:50, active:true, sort:10, description:'Ingresso con drink incluso'},
     standard:{name:'Standard', priceCents:1500, active:true, sort:20, description:'Ingresso con drink incluso'},
     standard2:{name:'Standard 2nd Release', priceCents:1600, active:true, sort:30, description:'Ingresso con drink incluso'},
-    fast:{name:'Fast Entry', priceCents:2200, active:true, sort:40, description:'Ingresso fast + drink', nameChangeIncluded:true, nameChangeInfo:'Include 1 cambio nominativo.'},
-    vip:{name:'VIP', priceCents:2700, active:true, sort:50, description:'VIP + drink + area riservata', nameChangeIncluded:true, nameChangeInfo:'Include 1 cambio nominativo.'}
+    fast:{name:'Ingresso Saltacoda', priceCents:2200, active:true, sort:40, description:'Ingresso saltacoda con drink incluso', nameChangeIncluded:true, nameChangeInfo:'Include 1 cambio nominativo.'},
+    vip:{name:'VIP', priceCents:2700, active:true, sort:50, description:'Ingresso saltacoda con drink incluso + area riservata in console', nameChangeIncluded:true, nameChangeInfo:'Include 1 cambio nominativo.'}
   };
   renderTickets();
 }
+</script>
 
-/* Buttons */
-$('#clearBtn').addEventListener('click', ()=>{
-  Object.keys(cart).forEach(k=>cart[k]=0);
-  ['earlybird','standard','standard2','fast','vip'].forEach(id=>{
-    const el = document.getElementById(`q-${id}`); if(el) el.textContent='0';
+<script>
+/* ========== GATE “BIELLA”: NO CONFERMA, AUTO-CHECK ALLA 6ª CIFRA ========== */
+(function(){
+  const cityEl = document.getElementById('citySecret');
+  const gateOverlay = document.getElementById('gateOverlay');
+  const gateErr = document.getElementById('gateErr');
+  const codeInputs = [...document.querySelectorAll('#codeBoxes input')];
+  const gateBack = document.getElementById('gateBack');
+
+  let taps = 0;
+  let timer = null;
+  const WINDOW_MS = 12000;
+  let attempts = 0;
+
+  function openGate(){
+    attempts = 0;
+    gateErr.style.display = 'none';
+    codeInputs.forEach(i=>i.value='');
+    gateOverlay.style.display='flex';
+    setTimeout(()=>codeInputs[0].focus(), 50);
+  }
+  function closeGate(){ gateOverlay.style.display='none'; }
+  function clearAll(){
+    codeInputs.forEach(i=>i.value='');
+    setTimeout(()=>codeInputs[0].focus(), 20);
+  }
+
+  // “Biella” segreto: 2 tocchi anche non consecutivi ma entro 12s
+  cityEl.addEventListener('click', (e)=>{
+    e.preventDefault(); e.stopPropagation();
+    taps++;
+    if(timer) clearTimeout(timer);
+    timer = setTimeout(()=>{ taps=0; }, WINDOW_MS);
+    if(taps>=2){ taps=0; openGate(); }
+  }, {passive:false});
+
+  gateBack.addEventListener('click', closeGate);
+  gateOverlay.addEventListener('click', (e)=>{ if(e.target===gateOverlay) closeGate(); });
+
+  // funzione che prova a validare (viene rimpiazzata dal modulo se Firestore c’è)
+  window.__tryGateCode = async function(code){
+    // fallback: se non carica firestore, considera errato e guida l’utente
+    return { ok:false, reason:'not_ready' };
+  };
+
+  async function checkNow(){
+    const code = codeInputs.map(i=>i.value).join('');
+    if(code.length !== 6) return;
+    const res = await window.__tryGateCode(code);
+
+    if(res.ok){
+      closeGate();
+      // apre login overlay
+      document.getElementById('loginErr').style.display='none';
+      document.getElementById('loginOk').style.display='none';
+      document.getElementById('postLoginActions').style.display='none';
+      document.getElementById('loginOverlay').style.display='flex';
+      setTimeout(()=>document.getElementById('loginEmail').focus(), 50);
+      return;
+    }
+
+    attempts++;
+    gateErr.textContent = (res.reason==='not_ready')
+      ? 'Apri il sito dalla URL Vercel/GitHub Pages, non da GitHub.'
+      : 'Codice errato';
+    gateErr.style.display='block';
+
+    // svuota e riparti
+    clearAll();
+
+    if(attempts>=3){
+      closeGate();
+      setTimeout(()=>location.reload(), 250);
+    }
+  }
+
+  codeInputs.forEach((inp, idx)=>{
+    inp.addEventListener('input', ()=>{
+      inp.value = (inp.value||'').replace(/[^0-9]/g,'').slice(0,1);
+      if(inp.value && idx < codeInputs.length-1) codeInputs[idx+1].focus();
+      // ✅ auto-check appena finita 6ª cifra
+      setTimeout(checkNow, 0);
+    });
+    inp.addEventListener('keydown', (e)=>{
+      if(e.key==='Backspace' && !inp.value && idx>0) codeInputs[idx-1].focus();
+    });
   });
-  updateBar();
-});
-$('#goPay').addEventListener('click', ()=>{
-  const n = cartCount();
-  if(n<=0) return;
-  const qs = new URLSearchParams();
-  qs.set('eb', cart.earlybird);
-  qs.set('std', cart.standard);
-  qs.set('std2', cart.standard2);
-  qs.set('fast', cart.fast);
-  qs.set('vip', cart.vip);
-  location.assign('./checkout.html?' + qs.toString());
-});
-$('#changeNameBtn').addEventListener('click', ()=>{
-  alert('Cambio nome: incluso in Fast/VIP (se previsto).');
-});
+})();
+</script>
 
-/* Discount apply (Firestore se disponibile) */
-$('#discApply').addEventListener('click', async ()=>{
-  const code = ($('#discCode').value||'').trim().toUpperCase();
-  if(!code){
-    writeApplied(null);
-    setDiscMsg('', '');
-    updateBar();
-    return;
-  }
-  // se Firestore non disponibile, avvisa
-  if(!window.__db){
-    setDiscMsg('Codice: disponibile solo su GitHub Pages (non da GitHub).', 'bad');
-    return;
-  }
-  try{
-    const { collection, getDocs, query, where } = window.__fs;
-    setDiscMsg('Controllo codice...', '');
-    const qy = query(collection(window.__db,'discountCodes'), where('code','==',code));
-    const snap = await getDocs(qy);
-    if(snap.empty){
-      writeApplied(null);
-      setDiscMsg('Codice sconto non valido', 'bad');
-      updateBar();
-      return;
-    }
-    let best=null;
-    snap.forEach(d=>{
-      const v=d.data();
-      if(v && v.active===true && !best) best = { id:d.id, ...v };
-    });
-    if(!best){
-      writeApplied(null);
-      setDiscMsg('Codice sconto non valido', 'bad');
-      updateBar();
-      return;
-    }
-    writeApplied({
-      code: best.code,
-      active: true,
-      type: best.type,
-      amount: best.amount ?? 0,
-      userEmail: (best.userEmail || '').trim()
-    });
-    if(best.userEmail && best.userEmail.trim()){
-      setDiscMsg('Codice inserito (verifica email al prossimo step)', '');
-    }else{
-      setDiscMsg(`Codice applicato: ${best.type==='percent' ? best.amount+'%' : ('-'+best.amount+'€')}`, 'ok');
-    }
-    updateBar();
-  }catch{
-    setDiscMsg('Errore nel controllo codice. Riprova.', 'bad');
-  }
-});
+<script type="module">
+/* ========== FIREBASE: tickets + gate hash + discountCodes + login ========== */
+const navRight = document.getElementById('navRight');
 
-/* ===========
-   Carica Firebase/Firestore tramite auth.v2.js (se esiste).
-   Se fallisce: fallback tickets.
-=========== */
+function setDiscMsg(text, kind){
+  const el = document.getElementById('discMsg');
+  el.textContent = text || '';
+  el.className = 'discMsg' + (kind ? ' ' + kind : '');
+}
+
+function setAttDiscMsg(text, kind){
+  const el = document.getElementById('attDiscMsg');
+  el.textContent = text || '';
+  el.className = 'discMsg' + (kind ? ' ' + kind : '');
+}
+
 try{
   const auth = await import('./auth.v2.js?v=9');
-  // prova a prendere app e funzioni login
   const app = auth.app;
 
-  // import Firestore SDK
   const fs = await import('https://www.gstatic.com/firebasejs/12.5.0/firebase-firestore.js');
-  const { getFirestore, collection, getDocs, query, orderBy, doc, getDoc } = fs;
+  const { getFirestore, collection, getDocs, query, orderBy, doc, getDoc, where } = fs;
   const db = getFirestore(app);
 
-  // esponi per discount handler
+  // expose for other handlers
   window.__db = db;
   window.__fs = fs;
 
-  // nav user
-  const navRight = document.getElementById('navRight');
+  // NAV user
   function renderNavUser(u){
     [...navRight.querySelectorAll('[data-dyn]')].forEach(n=>n.remove());
     if(!u || u.isAnonymous) return;
+
     const hello = document.createElement('div');
     hello.className='hello'; hello.dataset.dyn='1';
     hello.textContent = '👋 Ciao ' + (u.displayName?.split(' ')[0] || 'Utente');
@@ -857,20 +924,24 @@ try{
   }
   auth.onUser(renderNavUser);
 
-  // tickets Firestore
+  // Tickets Firestore
   try{
     const snap = await getDocs(query(collection(db,'config','events','tickets'), orderBy('sort','asc')));
     const obj = {};
     snap.forEach(d=>obj[d.id]=d.data()||{});
+    // normalizza i campi che ti servono
+    // (se nel db metti price in euro, converti qui)
+    window.ticketDocs = obj; // debug
+    // usa i global già creati in script classico
+    // @ts-ignore
     ticketDocs = obj;
-    // se per qualche motivo è vuoto, fallback
-    if(!Object.keys(ticketDocs).length) setFallbackTickets();
-    else renderTickets();
+    if(!Object.keys(ticketDocs).length) throw new Error('empty');
+    renderTickets();
   }catch{
     setFallbackTickets();
   }
 
-  // Gate hash Firestore
+  /* ========== Gate hash da config/events.adminGateHash ========== */
   let gateHash = null;
   async function loadGateHash(){
     if(gateHash) return gateHash;
@@ -883,81 +954,384 @@ try{
     return [...new Uint8Array(buf)].map(b=>b.toString(16).padStart(2,'0')).join('');
   }
 
-  // collega il vero gateOk (sovrascrive il fallback)
-  const gateOk = document.getElementById('gateOk');
-  const gateOverlay = document.getElementById('gateOverlay');
-  const gateErr = document.getElementById('gateErr');
-  const codeInputs = [...document.querySelectorAll('#codeBoxes input')];
-  let attempts = 0;
-
-  function closeGate(){ gateOverlay.style.display='none'; }
-  function openLogin(){
-    document.getElementById('loginErr').style.display='none';
-    document.getElementById('loginOk').style.display='none';
-    document.getElementById('loginOverlay').style.display='flex';
-    setTimeout(()=>document.getElementById('loginEmail').focus(), 50);
-  }
-
-  gateOk.onclick = async ()=>{
-    gateErr.style.display='none';
-    const code = codeInputs.map(i=>i.value).join('');
-    if(code.length!==6){
-      gateErr.textContent='Inserisci 6 cifre';
-      gateErr.style.display='block';
-      return;
-    }
+  // collega la validazione gate alla funzione globale usata dal blocco non-module
+  window.__tryGateCode = async function(code){
     const stored = await loadGateHash();
-    if(!stored){
-      gateErr.textContent='Codice non configurato';
-      gateErr.style.display='block';
-      return;
-    }
+    if(!stored) return { ok:false, reason:'no_config' };
     const h = await sha256hex(code);
-    if(h === stored){
-      closeGate();
-      openLogin();
-      return;
-    }
-    attempts++;
-    gateErr.textContent='Codice errato';
-    gateErr.style.display='block';
-    if(attempts>=3){
-      closeGate();
-      setTimeout(()=>location.reload(), 250);
-    }
+    return { ok: (h===stored), reason: (h===stored?'ok':'bad') };
   };
 
-  // login inside index
-  document.getElementById('loginClose').addEventListener('click', ()=>document.getElementById('loginOverlay').style.display='none');
-  document.getElementById('loginOverlay').addEventListener('click', (e)=>{ if(e.target.id==='loginOverlay') document.getElementById('loginOverlay').style.display='none'; });
+  /* ========== LOGIN overlay + post-login actions ========== */
+  const loginOverlay = document.getElementById('loginOverlay');
+  const loginClose = document.getElementById('loginClose');
+  const loginBtn = document.getElementById('loginBtn');
+  const loginErr = document.getElementById('loginErr');
+  const loginOk = document.getElementById('loginOk');
 
-  document.getElementById('loginBtn').addEventListener('click', async ()=>{
-    const loginErr = document.getElementById('loginErr');
-    const loginOk  = document.getElementById('loginOk');
-    loginErr.style.display='none'; loginOk.style.display='none';
+  const post = document.getElementById('postLoginActions');
+  const goAccount = document.getElementById('goAccount');
+  const continueBuy = document.getElementById('continueBuy');
+
+  loginClose.addEventListener('click', ()=>loginOverlay.style.display='none');
+  loginOverlay.addEventListener('click', (e)=>{ if(e.target===loginOverlay) loginOverlay.style.display='none'; });
+
+  goAccount.addEventListener('click', ()=>location.assign('./account-2.html'));
+  continueBuy.addEventListener('click', ()=>loginOverlay.style.display='none');
+
+  loginBtn.addEventListener('click', async ()=>{
+    loginErr.style.display='none';
+    loginOk.style.display='none';
+    post.style.display='none';
     try{
       const email = document.getElementById('loginEmail').value.trim();
       const pwd   = document.getElementById('loginPass').value;
       if(!email || !pwd) throw Error('Inserisci email e password.');
       const cred = await auth.emailSignIn(email, pwd);
       await auth.ensureUserDoc(cred.user);
+
       loginOk.textContent='Accesso effettuato.';
       loginOk.style.display='block';
-      setTimeout(()=>document.getElementById('loginOverlay').style.display='none', 500);
+      post.style.display='flex';  // ✅ mostra i 2 bottoni
     }catch(e){
       loginErr.textContent = e?.message || 'Errore imprevisto';
       loginErr.style.display='block';
     }
   });
 
+  /* ========== DISCOUNT (barra sotto) ========== */
+  document.getElementById('discApply').addEventListener('click', async ()=>{
+    const code = (document.getElementById('discCode').value||'').trim().toUpperCase();
+    if(!code){
+      writeApplied(null);
+      setDiscMsg('', '');
+      updateBar();
+      return;
+    }
+    try{
+      setDiscMsg('Controllo codice...', '');
+      const qy = query(collection(db,'discountCodes'), where('code','==',code));
+      const snap = await getDocs(qy);
+      if(snap.empty){
+        writeApplied(null);
+        setDiscMsg('Codice sconto non valido', 'bad');
+        updateBar();
+        return;
+      }
+      let best=null;
+      snap.forEach(d=>{
+        const v=d.data();
+        if(v && v.active===true && !best) best = { id:d.id, ...v };
+      });
+      if(!best){
+        writeApplied(null);
+        setDiscMsg('Codice sconto non valido', 'bad');
+        updateBar();
+        return;
+      }
+      writeApplied({
+        code: best.code,
+        active: true,
+        type: best.type,
+        amount: best.amount ?? 0,
+        userEmail: (best.userEmail || '').trim()
+      });
+
+      if(best.userEmail && best.userEmail.trim()){
+        setDiscMsg('Codice inserito (verifica email nel prossimo step)', 'warn');
+      }else{
+        setDiscMsg(`Codice applicato: ${best.type==='percent' ? best.amount+'%' : ('-'+best.amount+'€')}`, 'ok');
+      }
+      updateBar();
+    }catch{
+      setDiscMsg('Errore nel controllo codice. Riprova.', 'bad');
+    }
+  });
+
 }catch(err){
-  // Se stai aprendo da github.com/blob o manca auth.v2.js:
-  // almeno mostriamo biglietti fallback sempre.
+  // se firebase non carica: fallback tickets
   setFallbackTickets();
   updateBar();
-  setDiscMsg('Apri il sito da GitHub Pages (non da GitHub) per attivare Firestore e login.', 'bad');
-  console.warn('Module init failed:', err);
+  setDiscMsg('Apri il sito da Vercel / GitHub Pages per attivare Firestore e login.', 'bad');
+  console.warn('Firebase init failed:', err);
 }
 </script>
+
+<script>
+/* ========== ATTENDEES IN-PLACE (NON ESCE DA INDEX) ========== */
+function showView(id){
+  document.getElementById('viewTickets').classList.remove('active');
+  document.getElementById('viewAttendees').classList.remove('active');
+  document.getElementById(id).classList.add('active');
+
+  // barra in basso: nascondo in view attendees
+  document.getElementById('bar').style.display = (id==='viewTickets') ? 'flex' : 'none';
+  // scroll su top
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function currentCartItems(){
+  const items=[];
+  const push=(id,label)=>{
+    const q = cart[id]||0;
+    if(q<=0) return;
+    for(let i=0;i<q;i++){
+      items.push({ id, label, idx: i+1 });
+    }
+  };
+  push('earlybird','Early Bird');
+  push('standard','Standard');
+  push('standard2','Standard 2nd Release');
+  push('fast','Ingresso Saltacoda');
+  push('vip','VIP');
+  return items;
+}
+
+function computeTotalCents_NoUserCheck(){
+  // totale con sconto “no userEmail”
+  return computeTotalCents();
+}
+
+function renderAttendees(){
+  const items = currentCartItems();
+  const n = items.length;
+
+  document.getElementById('attSub').innerHTML =
+    n===1 ? 'Compila i dati per <strong>1 biglietto</strong>.' : `Compila i dati per <strong>${n} biglietti</strong>.`;
+
+  const slots = document.getElementById('attSlots');
+  slots.innerHTML = '';
+
+  items.forEach((it, i)=>{
+    const box = document.createElement('div');
+    box.className='attSlot';
+    box.innerHTML = `
+      <h3>${it.label} — Biglietto ${it.idx}</h3>
+      <div class="form2">
+        <div>
+          <label>Nome</label>
+          <input class="input" data-field="first" autocomplete="given-name" placeholder="Es. Marco">
+        </div>
+        <div>
+          <label>Cognome</label>
+          <input class="input" data-field="last" autocomplete="family-name" placeholder="Es. Rossi">
+        </div>
+      </div>
+      <div style="margin-top:10px">
+        <label>Email</label>
+        <input class="input" data-field="email" inputmode="email" autocomplete="email" placeholder="email@email.it">
+      </div>
+    `;
+    slots.appendChild(box);
+  });
+
+  // summary
+  const sum = document.getElementById('attSummary');
+  const lines=[];
+  for(const id of Object.keys(cart)){
+    const q = cart[id];
+    if(!q) continue;
+    const d = ticketDocs[id];
+    if(!d) continue;
+    lines.push(`<div class="line"><span>${d.name || id} × ${q}</span><span>${moneyCents(q*(d.priceCents||0))}</span></div>`);
+  }
+  const applied = readApplied();
+  if(applied && applied.active){
+    if(applied.userEmail && applied.userEmail.trim()){
+      lines.push(`<div class="line"><span>Sconto (${applied.code})</span><span>—</span></div>`);
+    }else{
+      const gross = (function(){
+        let g=0;
+        for(const id of Object.keys(cart)){
+          const q=cart[id]; if(!q) continue;
+          const d=ticketDocs[id]; if(!d) continue;
+          g += q*(d.priceCents||0);
+        }
+        return g;
+      })();
+      const net = computeTotalCents_NoUserCheck();
+      const diff = Math.max(0, gross - net);
+      lines.push(`<div class="line save"><span>Sconto (${applied.code})</span><span>- ${moneyCents(diff)}</span></div>`);
+    }
+  }
+  sum.innerHTML = lines.join('');
+
+  // totale
+  document.getElementById('attGrand').textContent = moneyCents(computeTotalCents_NoUserCheck());
+
+  // warning banner reset
+  const w = document.getElementById('discWarn');
+  w.style.display='none';
+  w.textContent='';
+}
+
+document.getElementById('attBack').addEventListener('click', ()=>showView('viewTickets'));
+
+/* VALIDAZIONE SCONTO userEmail (come hai chiesto) */
+function validateDiscountAgainstEmails(){
+  const applied = readApplied();
+  const warn = document.getElementById('discWarn');
+  warn.style.display='none'; warn.textContent='';
+
+  if(!applied || !applied.active) return;
+
+  // se userEmail vuoto -> ok già applicato
+  if(!applied.userEmail || !applied.userEmail.trim()){
+    return;
+  }
+
+  // userEmail pieno -> deve esserci ALMENO un attendee con quell’email
+  const target = applied.userEmail.trim().toLowerCase();
+  const emails = $$('[data-field="email"]').map(i=>(i.value||'').trim().toLowerCase()).filter(Boolean);
+
+  const ok = emails.includes(target);
+  if(!ok){
+    // sconto NON applicabile: lo togliamo e avviso
+    writeApplied(null);
+    warn.textContent = 'Codice sconto non valido perché non applicabile a questo utente';
+    warn.className = 'banner warn';
+    warn.style.display='block';
+    // rerender per aggiornare totale
+    renderAttendees();
+  }else{
+    // ok: lo applichi solo “a quello”, ma come totale carrello lo lasci uguale?
+    // Tu mi hai chiesto: se più biglietti si applica solo a quello con email giusta.
+    // Quindi qui applichiamo lo sconto SOLO su 1 biglietto (il primo del carrello) come base.
+    // Implementazione: applica sconto sul ticket più economico selezionato (di solito EB/STD).
+    // Se vuoi specificare il tipo, me lo dici e lo cambio.
+    const gross = (function(){
+      let g=0;
+      for(const id of Object.keys(cart)){
+        const q=cart[id]; if(!q) continue;
+        const d=ticketDocs[id]; if(!d) continue;
+        g += q*(d.priceCents||0);
+      }
+      return g;
+    })();
+
+    // trova il prezzo minimo tra i biglietti selezionati
+    let minPrice = null;
+    for(const id of Object.keys(cart)){
+      if(!cart[id]) continue;
+      const d=ticketDocs[id]; if(!d) continue;
+      const p=d.priceCents||0;
+      if(minPrice===null || p<minPrice) minPrice=p;
+    }
+    if(minPrice===null) minPrice=0;
+
+    // calcolo sconto su 1 ticket (minPrice)
+    let disc = 0;
+    if(applied.type==='percent'){
+      const pct = Number(applied.amount||0);
+      disc = Math.round(minPrice*(pct/100));
+    }else if(applied.type==='fixed'){
+      const eur = Number(applied.amount||0);
+      disc = Math.min(minPrice, Math.round(eur*100));
+    }
+
+    const net = Math.max(0, gross - disc);
+    document.getElementById('attGrand').textContent = moneyCents(net);
+
+    // aggiorna summary sconto
+    const sum = document.getElementById('attSummary');
+    let html = sum.innerHTML;
+    // aggiungi/rimpiazza riga sconto
+    const line = `<div class="line save"><span>Sconto (${applied.code})</span><span>- ${moneyCents(disc)}</span></div>`;
+    // rimuovi eventuali righe sconto precedenti
+    html = html.replace(/<div class="line save">[\s\S]*?<\/div>/g,'');
+    // inserisci prima del totale (qui è solo elenco, quindi append)
+    sum.innerHTML = html + line;
+  }
+}
+
+/* input change -> rivedi sconto userEmail */
+document.addEventListener('input', (e)=>{
+  const t = e.target;
+  if(t && t.matches && t.matches('[data-field="email"]')){
+    validateDiscountAgainstEmails();
+  }
+});
+
+/* codice sconto dentro attendees */
+document.getElementById('attDiscApply').addEventListener('click', async ()=>{
+  const code = (document.getElementById('attDiscCode').value||'').trim().toUpperCase();
+  if(!code){
+    writeApplied(null);
+    setAttDiscMsg('', '');
+    renderAttendees();
+    return;
+  }
+  if(!window.__db){
+    setAttDiscMsg('Codice: disponibile solo con Firestore attivo.', 'bad');
+    return;
+  }
+  try{
+    const { collection, getDocs, query, where } = window.__fs;
+    setAttDiscMsg('Controllo codice...', '');
+    const qy = query(collection(window.__db,'discountCodes'), where('code','==',code));
+    const snap = await getDocs(qy);
+    if(snap.empty){
+      writeApplied(null);
+      setAttDiscMsg('Codice sconto non valido', 'bad');
+      renderAttendees();
+      return;
+    }
+    let best=null;
+    snap.forEach(d=>{
+      const v=d.data();
+      if(v && v.active===true && !best) best = { id:d.id, ...v };
+    });
+    if(!best){
+      writeApplied(null);
+      setAttDiscMsg('Codice sconto non valido', 'bad');
+      renderAttendees();
+      return;
+    }
+
+    writeApplied({
+      code: best.code,
+      active: true,
+      type: best.type,
+      amount: best.amount ?? 0,
+      userEmail: (best.userEmail || '').trim()
+    });
+
+    if(best.userEmail && best.userEmail.trim()){
+      setAttDiscMsg('Codice inserito (valido solo per email specifica)', 'warn');
+    }else{
+      setAttDiscMsg(`Codice applicato: ${best.type==='percent' ? best.amount+'%' : ('-'+best.amount+'€')}`, 'ok');
+    }
+    renderAttendees();
+    validateDiscountAgainstEmails();
+  }catch{
+    setAttDiscMsg('Errore nel controllo codice. Riprova.', 'bad');
+  }
+});
+
+/* bottone dalla barra -> entra in attendees view (NO cambio pagina) */
+document.getElementById('goPay').addEventListener('click', ()=>{
+  if(cartCount()<=0) return;
+  renderAttendees();
+  showView('viewAttendees');
+  validateDiscountAgainstEmails();
+});
+
+/* pagamento: placeholder (NON esce da index) */
+document.getElementById('attPay').addEventListener('click', ()=>{
+  alert('Qui collego il pagamento. Dimmi come stai creando la sessione checkout e lo aggancio senza uscire dalla pagina.');
+});
+
+/* init */
+setFallbackTickets(); // se poi Firestore carica, viene sovrascritto
+updateBar();
+</script>
+
+<script>
+/* top button */
+document.getElementById('changeNameBtn').addEventListener('click', ()=>{
+  alert('Cambio nome: incluso su Fast/VIP (se previsto).');
+});
+</script>
+
 </body>
 </html>
