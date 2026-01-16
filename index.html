@@ -4,569 +4,376 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>TRAPPERREO</title>
-
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&display=swap" rel="stylesheet">
 
 <style>
-  :root{
-    --bg:#000;
-    --text:#fff;
-    --muted:rgba(255,255,255,.72);
-    --card:rgba(10,10,10,.62);
-    --border:rgba(255,255,255,.14);
-    --soft:rgba(255,255,255,.10);
+:root{
+  --bg:#000;
+  --text:#fff;
+  --muted:rgba(255,255,255,.72);
+  --card:rgba(10,10,10,.62);
+  --border:rgba(255,255,255,.14);
+  --shadow:0 18px 60px rgba(0,0,0,.62);
+  --radius:18px;
 
-    --lime:#b7ff3c;
-    --lime2:#7CFF00;
-    --limeBg:rgba(183,255,60,.12);
-    --limeBorder:rgba(183,255,60,.35);
+  --lime:#b7ff3c;
+  --limeBg:rgba(183,255,60,.12);
+  --limeBorder:rgba(183,255,60,.35);
 
-    --danger:#ef4444;
-    --ok:#22c55e;
+  --yellow:#fde047;
+  --yellowBg:rgba(253,224,71,.12);
+  --yellowBorder:rgba(253,224,71,.30);
 
-    --shadow:0 18px 60px rgba(0,0,0,.62);
-    --radius:18px;
-  }
+  --danger:#ef4444;
+}
 
-  *{box-sizing:border-box}
-  html,body{height:100%}
-  body{
-    margin:0;
-    color:var(--text);
-    font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
-    background:#000;
-    min-height:100vh;
-  }
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0;
+  font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+  color:var(--text);
+  background:#000;
+  min-height:100vh;
+}
 
-  /* ===== Background poster ===== */
-  body::before{
-    content:"";
-    position:fixed; inset:0;
-    background:
-      radial-gradient(80% 70% at 50% 20%, rgba(0,0,0,.25), rgba(0,0,0,.75) 62%, rgba(0,0,0,.92)),
-      url("https://raw.githubusercontent.com/nonameparty/altavibeparty/main/assets/bg-poster.png");
-    background-size:cover;
-    background-position:center;
-    filter:saturate(1.05) contrast(1.05);
-    z-index:-2;
-  }
-  body::after{
-    content:"";
-    position:fixed; inset:0;
-    background:
-      radial-gradient(60% 60% at 50% 40%, rgba(183,255,60,.08), transparent 62%),
-      linear-gradient(180deg, rgba(0,0,0,.10), rgba(0,0,0,.65));
-    z-index:-1;
-    pointer-events:none;
-  }
+/* ====== SFONDO: assets/bg-poster.png (quello tuo) ====== */
+body::before{
+  content:"";
+  position:fixed; inset:0;
+  background:
+    radial-gradient(80% 70% at 50% 20%, rgba(0,0,0,.25), rgba(0,0,0,.75) 62%, rgba(0,0,0,.92)),
+    url("./assets/bg-poster.png");
+  background-size:cover;
+  background-position:center;
+  z-index:-2;
+}
+body::after{
+  content:"";
+  position:fixed; inset:0;
+  background:
+    radial-gradient(60% 60% at 50% 40%, rgba(183,255,60,.09), transparent 62%),
+    linear-gradient(180deg, rgba(0,0,0,.10), rgba(0,0,0,.65));
+  z-index:-1;
+  pointer-events:none;
+}
 
-  a{color:inherit}
+a{color:inherit}
 
-  /* ===== Header ===== */
-  header{
-    position:sticky; top:0; z-index:60;
-    backdrop-filter:saturate(140%) blur(8px);
-    background:rgba(0,0,0,.60);
-    border-bottom:1px solid rgba(255,255,255,.08);
-  }
-  .nav{
-    max-width:1100px;
-    margin:0 auto;
-    padding:12px 16px;
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-    gap:12px;
-  }
-  .brand{
-    display:flex; align-items:center; gap:10px;
-    font-weight:900; letter-spacing:-.3px;
-  }
-  .brand-badge{
-    width:22px;height:22px;background:var(--lime);
-    border-radius:4px; transform:skew(-6deg);
-    box-shadow:0 0 0 1px rgba(0,0,0,.35) inset;
-  }
+/* ===== Header ===== */
+header{
+  position:sticky; top:0; z-index:60;
+  backdrop-filter:saturate(140%) blur(8px);
+  background:rgba(0,0,0,.60);
+  border-bottom:1px solid rgba(255,255,255,.08);
+}
+.nav{
+  max-width:1100px;
+  margin:0 auto;
+  padding:12px 16px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+}
+.brand{
+  display:flex; align-items:center; gap:10px;
+  font-weight:900; letter-spacing:-.3px;
+}
+.brand-badge{
+  width:22px;height:22px;background:var(--lime);
+  border-radius:4px; transform:skew(-6deg);
+}
 
-  .navRight{display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:flex-end}
-  .chipBtn{
-    border-radius:999px;
-    padding:10px 14px;
-    border:1px solid rgba(255,255,255,.14);
-    background:rgba(0,0,0,.25);
-    color:#fff;
-    font-weight:900;
-    cursor:pointer;
-    display:inline-flex;align-items:center;gap:8px;
-    white-space:nowrap;
-  }
-  .chipBtn.lime{
-    border-color:rgba(183,255,60,.35);
-    background:rgba(183,255,60,.12);
-  }
-  .chipBtn:active{transform:scale(.99)}
+/* ===== Layout ===== */
+.wrap{max-width:1100px;margin:0 auto;padding:16px}
+.card{
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  box-shadow:var(--shadow);
+}
 
-  /* ===== Layout ===== */
-  .wrap{max-width:1100px;margin:0 auto;padding:16px}
-  .card{
-    background:var(--card);
-    border:1px solid var(--border);
-    border-radius:var(--radius);
-    box-shadow:var(--shadow);
-  }
+/* ===== Hero ===== */
+.hero{padding:16px}
+.heroTop{
+  display:flex; align-items:center; gap:10px;
+  color:rgba(255,255,255,.78);
+  font-weight:900;
+  text-transform:uppercase;
+  letter-spacing:.14em;
+  font-size:12px;
+}
+.heroTop .dot{opacity:.45}
 
-  /* ===== Hero ===== */
-  .hero{padding:16px}
-  .heroTop{
-    display:flex; align-items:center; gap:10px;
-    color:rgba(255,255,255,.78);
-    font-weight:900;
-    text-transform:uppercase;
-    letter-spacing:.14em;
-    font-size:12px;
-  }
-  .heroTop .dot{opacity:.45}
-  /* BIELLA clickable secret */
-  #cityTap{
-    cursor:default;
-    user-select:none;
-    -webkit-tap-highlight-color:transparent;
-  }
+/* BIELLA cliccabile (NON sembra tasto) */
+#cityTap{
+  user-select:none;
+  -webkit-tap-highlight-color:transparent;
+  cursor:default; /* non sembra bottone */
+  pointer-events:auto;
+}
 
-  .heroTitle{
-    margin:8px 0 10px;
-    font-size:44px;
-    line-height:1;
-    font-weight:900;
-    letter-spacing:-.7px;
-  }
-  .heroDate{
-    font-size:22px;
-    font-weight:900;
-    letter-spacing:-.35px;
-    opacity:.95;
-    margin-bottom:12px;
-  }
+.heroTitle{
+  margin:8px 0 10px;
+  font-size:44px;
+  line-height:1;
+  font-weight:900;
+  letter-spacing:-.7px;
+}
+.heroDate{
+  font-size:22px;
+  font-weight:900;
+  letter-spacing:-.35px;
+  opacity:.95;
+  margin-bottom:12px;
+}
 
-  .pillRow{display:flex;flex-wrap:wrap;gap:10px;margin-top:10px}
-  .pill{
-    display:inline-flex;align-items:center;justify-content:center;
-    padding:10px 14px;
-    border-radius:999px;
-    border:1px solid rgba(183,255,60,.35);
-    background:rgba(183,255,60,.12);
-    font-weight:900;
-    color:#eaffc9;
-    font-size:14px;
-  }
-  .pill.dark{
-    border-color:rgba(255,255,255,.14);
-    background:rgba(0,0,0,.28);
-    color:rgba(255,255,255,.88);
-    font-weight:800;
-  }
-  .pill.yellow{
-    border-color:rgba(253,224,71,.35);
-    background:rgba(253,224,71,.14);
-    color:#fff3a6;
-  }
+.pillRow{display:flex;flex-wrap:wrap;gap:10px;margin-top:10px}
+.pill{
+  display:inline-flex;align-items:center;justify-content:center;
+  padding:10px 14px;
+  border-radius:999px;
+  border:1px solid var(--limeBorder);
+  background:var(--limeBg);
+  font-weight:900;
+  color:#eaffc9;
+  font-size:14px;
+}
+.pill.dark{
+  border-color:rgba(255,255,255,.14);
+  background:rgba(0,0,0,.28);
+  color:rgba(255,255,255,.88);
+  font-weight:800;
+}
+.pill.yellow{
+  border-color:var(--yellowBorder);
+  background:var(--yellowBg);
+  color:#fff3a6;
+}
 
-  /* ===== Section titles ===== */
-  .sectionHead{
-    display:flex;align-items:baseline;justify-content:space-between;gap:12px;
-    padding:10px 2px 10px;
-  }
-  .sectionHead h2{
-    margin:0;
-    font-size:44px;
-    font-weight:900;
-    letter-spacing:-.7px;
-  }
-  .sectionHead .hint{
-    margin:0;
-    color:rgba(255,255,255,.60);
-    font-weight:800;
-  }
+/* ===== Section titles ===== */
+.sectionHead{
+  display:flex;align-items:baseline;justify-content:space-between;gap:12px;
+  padding:10px 2px 10px;
+}
+.sectionHead h2{
+  margin:0;
+  font-size:44px;
+  font-weight:900;
+  letter-spacing:-.7px;
+}
+.sectionHead .hint{
+  margin:0;
+  color:rgba(255,255,255,.60);
+  font-weight:800;
+}
 
-  /* ===== Tickets ===== */
-  #tickets{margin-top:14px}
-  .ticketsList{display:grid;gap:12px}
+/* ===== Tickets ===== */
+#tickets{margin-top:14px}
+.ticketsList{display:grid;gap:12px}
 
+.ticket{
+  padding:14px;
+  display:grid;
+  grid-template-columns: 1.2fr .9fr;
+  gap:12px;
+  align-items:center;
+}
+.tLeft h3{
+  margin:0;
+  font-size:22px;
+  font-weight:900;
+  letter-spacing:-.35px;
+}
+.tLeft .desc{
+  margin-top:6px;
+  color:rgba(255,255,255,.72);
+  font-weight:700;
+  font-size:14px;
+  line-height:1.3;
+}
+.tagRow{margin-top:10px;display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.tag{
+  display:inline-flex;align-items:center;gap:8px;
+  padding:8px 10px;border-radius:999px;
+  border:1px solid var(--limeBorder);
+  background:var(--limeBg);
+  color:#eaffc9;
+  font-weight:900;
+  font-size:12px;
+  white-space:nowrap;
+}
+.tag.grey{
+  border-color:rgba(255,255,255,.14);
+  background:rgba(0,0,0,.25);
+  color:rgba(255,255,255,.86);
+  font-weight:800;
+}
+.tag.best{
+  border-color:var(--yellowBorder);
+  background:var(--yellowBg);
+  color:#fff3a6;
+}
+
+.tRight{
+  display:flex;align-items:center;justify-content:flex-end;gap:12px;
+}
+.price{
+  font-size:24px;
+  font-weight:900;
+  letter-spacing:-.4px;
+  white-space:nowrap;
+}
+.qty{
+  display:inline-flex;align-items:center;gap:10px;
+  padding:10px 10px;
+  border-radius:999px;
+  border:1px solid rgba(255,255,255,.14);
+  background:rgba(0,0,0,.22);
+}
+.qbtn{
+  width:38px;height:38px;border-radius:999px;
+  border:1px solid rgba(255,255,255,.14);
+  background:rgba(0,0,0,.22);
+  color:#fff;
+  font-weight:900;
+  cursor:pointer;
+  display:grid;place-items:center;
+  font-size:18px;
+}
+.qval{min-width:22px;text-align:center;font-weight:900;font-size:18px}
+
+/* Mobile: super compatto così vedi VIP sopra la barra */
+@media(max-width:560px){
+  .heroTitle{font-size:36px}
+  .heroDate{font-size:18px}
+  .sectionHead h2{font-size:40px}
   .ticket{
-    padding:14px;
-    display:grid;
-    grid-template-columns: 1.2fr .9fr;
-    gap:12px;
-    align-items:center;
+    grid-template-columns: 1fr;
+    align-items:stretch;
+    padding:12px;
   }
-  .tLeft h3{
-    margin:0;
-    font-size:22px;
-    font-weight:900;
-    letter-spacing:-.35px;
-  }
-  .tLeft .desc{
-    margin-top:6px;
-    color:rgba(255,255,255,.72);
-    font-weight:700;
-    font-size:14px;
-    line-height:1.3;
-  }
+  .tRight{justify-content:space-between;margin-top:8px}
+  .price{font-size:22px}
+  .qty{padding:9px 9px}
+  .qbtn{width:36px;height:36px}
+}
 
-  .tagRow{margin-top:10px;display:flex;gap:10px;flex-wrap:wrap;align-items:center}
-  .tag{
-    display:inline-flex;align-items:center;gap:8px;
-    padding:8px 10px;border-radius:999px;
-    border:1px solid rgba(183,255,60,.35);
-    background:rgba(183,255,60,.12);
-    color:#eaffc9;
-    font-weight:900;
-    font-size:12px;
-    white-space:nowrap;
-  }
-  .tag.grey{
-    border-color:rgba(255,255,255,.14);
-    background:rgba(0,0,0,.25);
-    color:rgba(255,255,255,.86);
-    font-weight:800;
-  }
-  .tag.best{
-    border-color:rgba(253,224,71,.30);
-    background:rgba(253,224,71,.12);
-    color:#fff3a6;
-  }
+/* ===== FAQ accordion ===== */
+#faq{margin-top:18px}
+.faqList{display:grid;gap:10px}
+details.faqItem{
+  border:1px solid rgba(255,255,255,.22);
+  background:rgba(0,0,0,.22);
+  border-radius:16px;
+  overflow:hidden;
+}
+details.faqItem summary{
+  list-style:none;
+  cursor:pointer;
+  padding:14px 14px;
+  font-weight:900;
+  font-size:16px;
+  display:flex;align-items:center;justify-content:space-between;gap:12px;
+}
+details.faqItem summary::-webkit-details-marker{display:none}
+.chev{opacity:.7;font-weight:900}
+.faqBody{
+  padding:0 14px 14px;
+  color:rgba(255,255,255,.78);
+  font-weight:700;
+  line-height:1.45;
+}
 
-  .infoDot{
-    width:22px;height:22px;border-radius:999px;
-    border:1px solid rgba(255,255,255,.18);
-    background:rgba(0,0,0,.22);
-    display:inline-grid;place-items:center;
-    font-weight:900;
-    color:rgba(255,255,255,.92);
-    cursor:pointer;
-    -webkit-tap-highlight-color:transparent;
-  }
+/* ===== Mobile bar (più piccola) ===== */
+.padForBar{padding-bottom:150px}
+@media(min-width:900px){ .padForBar{padding-bottom:0} }
 
-  .tRight{
-    display:flex;align-items:center;justify-content:flex-end;gap:12px;
-  }
-  .price{
-    font-size:28px;
-    font-weight:900;
-    letter-spacing:-.4px;
-    white-space:nowrap;
-  }
-  /* prezzo più piccolo su richiesta */
-  .price.small{font-size:24px}
+.mobileBar{
+  position:fixed; left:12px; right:12px; bottom:12px;
+  z-index:220;
+  background:rgba(0,0,0,.78);
+  border:1px solid rgba(255,255,255,.14);
+  border-radius:16px;
+  padding:10px 10px;
+  box-shadow:0 18px 50px rgba(0,0,0,.55);
+  display:flex;flex-direction:column;gap:10px;
+}
+.barTop{display:flex;align-items:flex-end;justify-content:space-between;gap:12px}
+.barLeft{display:flex;flex-direction:column;gap:2px}
+.barLeft .k{font-size:12px;color:rgba(255,255,255,.60);font-weight:800}
+.barLeft .v{font-size:34px;font-weight:900;letter-spacing:-.6px;line-height:1}
+.barBtns{display:flex;gap:10px;align-items:center}
+.barBtn{
+  padding:11px 14px;border-radius:999px;
+  font-weight:900;border:1px solid rgba(255,255,255,.16);
+  background:rgba(255,255,255,.06);
+  color:#fff;
+  cursor:pointer;
+  white-space:nowrap;
+}
+.barBtn.pay{
+  background:rgba(255,255,255,.10);
+  border-color:rgba(255,255,255,.16);
+}
+.barBtn.pay.enabled{
+  background:var(--lime);
+  border-color:rgba(0,0,0,.25);
+  color:#0a0a0a;
+}
+@media(min-width:900px){ .mobileBar{display:none} }
 
-  .qty{
-    display:inline-flex;align-items:center;gap:10px;
-    padding:10px 10px;
-    border-radius:999px;
-    border:1px solid rgba(255,255,255,.14);
-    background:rgba(0,0,0,.22);
-  }
-  .qbtn{
-    width:38px;height:38px;border-radius:999px;
-    border:1px solid rgba(255,255,255,.14);
-    background:rgba(0,0,0,.22);
-    color:#fff;
-    font-weight:900;
-    cursor:pointer;
-    display:grid;place-items:center;
-    font-size:18px;
-  }
-  .qval{min-width:22px;text-align:center;font-weight:900;font-size:18px}
-
-  /* mobile: ticket più compatti per far stare VIP sopra la barra */
-  @media(max-width:560px){
-    .heroTitle{font-size:36px}
-    .heroDate{font-size:18px}
-    .sectionHead h2{font-size:40px}
-    .ticket{
-      grid-template-columns: 1fr;
-      align-items:stretch;
-      padding:12px;
-    }
-    .tRight{
-      justify-content:space-between;
-      margin-top:8px;
-    }
-    .price.small{font-size:22px}
-    .qty{padding:9px 9px}
-    .qbtn{width:36px;height:36px}
-  }
-
-  /* ===== FAQ accordion (tendina) ===== */
-  #faq{margin-top:18px}
-  .faqList{display:grid;gap:10px}
-  details.faqItem{
-    border:1px solid rgba(255,255,255,.22);
-    background:rgba(0,0,0,.22);
-    border-radius:16px;
-    overflow:hidden;
-  }
-  details.faqItem summary{
-    list-style:none;
-    cursor:pointer;
-    padding:14px 14px;
-    font-weight:900;
-    font-size:16px;
-    display:flex;align-items:center;justify-content:space-between;gap:12px;
-  }
-  details.faqItem summary::-webkit-details-marker{display:none}
-  .chev{opacity:.7;font-weight:900}
-  .faqBody{
-    padding:0 14px 14px;
-    color:rgba(255,255,255,.78);
-    font-weight:700;
-    line-height:1.45;
-  }
-
-  /* ===== Legal ===== */
-  #legal{margin-top:22px}
-  .legalLinks{display:flex;flex-wrap:wrap;gap:12px}
-  .legalLinks a{
-    display:inline-flex;align-items:center;justify-content:center;
-    padding:10px 14px;
-    border-radius:999px;
-    border:1px solid rgba(255,255,255,.16);
-    background:rgba(0,0,0,.22);
-    text-decoration:none;
-    font-weight:900;
-    color:rgba(255,255,255,.92);
-  }
-  .legalLinks a:hover{border-color:rgba(183,255,60,.35); background:rgba(183,255,60,.08)}
-  .legalSmall{margin-top:10px;color:rgba(255,255,255,.65);font-weight:700;font-size:13px;line-height:1.45}
-
-  /* ===== Tooltip ===== */
-  .tooltip{
-    position:fixed;
-    left:50%; top:50%;
-    transform:translate(-50%,-50%);
-    width:min(92vw,420px);
-    background:rgba(0,0,0,.92);
-    border:1px solid rgba(255,255,255,.16);
-    border-radius:16px;
-    padding:14px;
-    box-shadow:0 24px 80px rgba(0,0,0,.65);
-    z-index:500;
-    display:none;
-  }
-  .tooltip h4{margin:0 0 8px;font-size:16px;font-weight:900}
-  .tooltip p{margin:0;color:rgba(255,255,255,.78);font-weight:700;line-height:1.45}
-  .tooltip .row{display:flex;justify-content:flex-end;margin-top:12px}
-  .tooltip button{
-    border:none;border-radius:12px;
-    padding:10px 12px;
-    background:rgba(255,255,255,.10);
-    color:#fff;
-    font-weight:900;
-    cursor:pointer;
-  }
-
-  /* ===== Bottom bar (smaller) ===== */
-  .mobileBar{
-    position:fixed; left:12px; right:12px; bottom:12px;
-    z-index:220;
-    background:rgba(0,0,0,.78);
-    border:1px solid rgba(255,255,255,.14);
-    border-radius:16px;
-    padding:10px 10px;
-    box-shadow:0 18px 50px rgba(0,0,0,.55);
-    display:flex;flex-direction:column;gap:10px;
-  }
-  .barTop{display:flex;align-items:flex-end;justify-content:space-between;gap:12px}
-  .barLeft{display:flex;_toggle;flex-direction:column;gap:2px}
-  .barLeft .k{font-size:12px;color:rgba(255,255,255,.60);font-weight:800}
-  .barLeft .v{font-size:34px;font-weight:900;letter-spacing:-.6px;line-height:1}
-  .barBtns{display:flex;gap:10px;align-items:center}
-  .barBtn{
-    padding:11px 14px;border-radius:999px;
-    font-weight:900;border:1px solid rgba(255,255,255,.16);
-    background:rgba(255,255,255,.06);
-    color:#fff;
-    cursor:pointer;
-    white-space:nowrap;
-  }
-  .barBtn.lime{
-    border-color:rgba(183,255,60,.40);
-    background:rgba(183,255,60,.14);
-    color:#eaffc9;
-  }
-  .barBtn.pay{
-    border:none;
-    background:rgba(255,255,255,.12);
-    color:#fff;
-  }
-  .barBtn.pay.enabled{
-    background:var(--lime);
-    color:#0a0a0a;
-  }
-  .discountRow{
-    display:flex; gap:10px; align-items:center;
-  }
-  .discountRow input{
-    flex:1;
-    height:42px;
-    border-radius:14px;
-    border:1px solid rgba(255,255,255,.14);
-    background:rgba(0,0,0,.25);
-    color:#fff;
-    padding:0 12px;
-    font-weight:900;
-    text-transform:uppercase;
-    letter-spacing:.04em;
-    outline:none;
-  }
-  .discountRow input::placeholder{color:rgba(255,255,255,.35)}
-  .discountRow button{
-    height:42px;
-    border-radius:14px;
-    border:1px solid rgba(255,255,255,.16);
-    background:rgba(255,255,255,.10);
-    color:#fff;
-    font-weight:900;
-    padding:0 14px;
-    cursor:pointer;
-  }
-  .discMsg{
-    display:none;
-    font-weight:900;
-    font-size:13px;
-    padding:10px 12px;
-    border-radius:14px;
-    border:1px solid rgba(255,255,255,.14);
-    background:rgba(0,0,0,.22);
-  }
-  .discMsg.ok{border-color:rgba(34,197,94,.35); background:rgba(34,197,94,.10); color:#caffdd}
-  .discMsg.err{border-color:rgba(239,68,68,.35); background:rgba(239,68,68,.12); color:#ffd1d1}
-
-  /* bar visible only on mobile */
-  @media(min-width:900px){
-    .mobileBar{display:none}
-  }
-
-  /* content bottom padding so VIP is visible above bar */
-  .padForBar{padding-bottom:160px}
-  @media(min-width:900px){ .padForBar{padding-bottom:0} }
-
-  /* ===== Overlays (Gate + Login + Attendees SPA) ===== */
-  .overlay{
-    position:fixed; inset:0;
-    background:rgba(0,0,0,.72);
-    backdrop-filter:blur(6px);
-    z-index:600;
-    display:none;
-    align-items:center;
-    justify-content:center;
-    padding:16px;
-  }
-  .modal{
-    width:min(92vw,520px);
-    background:rgba(0,0,0,.88);
-    border:1px solid rgba(255,255,255,.16);
-    border-radius:18px;
-    box-shadow:0 28px 90px rgba(0,0,0,.72);
-    padding:16px;
-  }
-  .modal h3{margin:0 0 8px;font-size:18px;font-weight:900}
-  .modal .muted{color:rgba(255,255,255,.68);font-weight:700;line-height:1.45}
-  .modal .row{display:flex;gap:10px;align-items:center;justify-content:flex-end;margin-top:14px;flex-wrap:wrap}
-  .btn{
-    padding:11px 14px;border-radius:14px;font-weight:900;cursor:pointer;
-    border:1px solid rgba(255,255,255,.16);
-    background:rgba(255,255,255,.08);
-    color:#fff;
-  }
-  .btn.primary{border:none;background:var(--lime);color:#0a0a0a}
-  .btn.danger{border-color:rgba(239,68,68,.35); background:rgba(239,68,68,.12); color:#ffd1d1}
-
-  .pinRow{display:flex;gap:10px;justify-content:center;margin-top:14px}
-  .pinRow input{
-    width:44px;height:52px;
-    border-radius:12px;
-    text-align:center;
-    font-weight:900;
-    font-size:22px;
-    border:1px solid rgba(255,255,255,.18);
-    background:rgba(0,0,0,.22);
-    color:#fff;
-    outline:none;
-  }
-  .pinErr{
-    display:none;
-    margin-top:10px;
-    padding:10px 12px;
-    border-radius:14px;
-    border:1px solid rgba(239,68,68,.35);
-    background:rgba(239,68,68,.12);
-    color:#ffd1d1;
-    font-weight:900;
-  }
-
-  /* ===== Attendees section (SPA) ===== */
-  #attendeesView{display:none}
-  .attWrap{max-width:1100px;margin:0 auto;padding:16px}
-  .attHead{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin-bottom:10px}
-  .attHead h2{margin:0;font-size:30px;font-weight:900;letter-spacing:-.4px}
-  .attSub{color:rgba(255,255,255,.68);font-weight:700;margin-top:6px;line-height:1.4}
-
-  .attGrid{display:grid;gap:14px}
-  @media(min-width:900px){.attGrid{grid-template-columns:2fr 1fr}}
-
-  .slot{
-    border:1px solid rgba(255,255,255,.12);
-    background:rgba(0,0,0,.22);
-    border-radius:16px;
-    padding:14px;
-  }
-  .slotTop{display:flex;align-items:center;justify-content:space-between;gap:12px}
-  .slotTop h4{margin:0;font-size:16px;font-weight:900}
-  .drinkBanner{
-    margin-top:10px;
-    padding:10px 12px;
-    border-radius:14px;
-    border:1px solid rgba(253,224,71,.25);
-    background:rgba(253,224,71,.10);
-    color:#fff3a6;
-    font-weight:900;
-    display:none;
-  }
-  .fields{
-    display:grid;
-    gap:10px;
-    margin-top:12px;
-  }
-  @media(min-width:520px){ .fields.two{grid-template-columns:1fr 1fr} }
-  .fields label{display:block;font-size:12px;color:rgba(255,255,255,.65);font-weight:800;margin:0 0 6px 2px}
-  .fields input{
-    width:100%;
-    height:44px;
-    border-radius:12px;
-    border:1px solid rgba(255,255,255,.14);
-    background:rgba(0,0,0,.25);
-    color:#fff;
-    padding:0 12px;
-    font-weight:900;
-    outline:none;
-  }
-  .fields input:focus{border-color:rgba(183,255,60,.35); box-shadow:0 0 0 3px rgba(183,255,60,.10)}
-
-  .sideCard{padding:14px}
-  .line{display:flex;justify-content:space-between;gap:10px;margin:8px 0;color:rgba(255,255,255,.86);font-weight:800}
-  .line.save{color:#caffdd}
-  .hr{height:1px;background:rgba(255,255,255,.10);margin:12px 0}
-  .totRow{display:flex;justify-content:space-between;align-items:flex-end}
-  .totRow .k{font-size:12px;color:rgba(255,255,255,.65);font-weight:800}
-  .totRow .v{font-size:28px;font-weight:900;letter-spacing:-.4px}
-
-  .payBox{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
-  .payBox .btn{flex:1}
-  .btn.disabled{opacity:.45;cursor:not-allowed}
-
-  /* make sure attendees still has mobile bar spacing */
-  #attendeesView.padForBar{padding-bottom:160px}
+/* ===== Overlay PIN ===== */
+.overlay{
+  position:fixed; inset:0;
+  background:rgba(0,0,0,.72);
+  backdrop-filter:blur(6px);
+  z-index:600;
+  display:none;
+  align-items:center;
+  justify-content:center;
+  padding:16px;
+}
+.modal{
+  width:min(92vw,520px);
+  background:rgba(0,0,0,.88);
+  border:1px solid rgba(255,255,255,.16);
+  border-radius:18px;
+  box-shadow:0 28px 90px rgba(0,0,0,.72);
+  padding:16px;
+}
+.modal h3{margin:0 0 8px;font-size:18px;font-weight:900}
+.modal .muted{color:rgba(255,255,255,.68);font-weight:700;line-height:1.45}
+.modal .row{display:flex;gap:10px;align-items:center;justify-content:flex-end;margin-top:14px;flex-wrap:wrap}
+.btn{
+  padding:11px 14px;border-radius:14px;font-weight:900;cursor:pointer;
+  border:1px solid rgba(255,255,255,.16);
+  background:rgba(255,255,255,.08);
+  color:#fff;
+}
+.pinRow{display:flex;gap:10px;justify-content:center;margin-top:14px}
+.pinRow input{
+  width:44px;height:52px;
+  border-radius:12px;
+  text-align:center;
+  font-weight:900;
+  font-size:22px;
+  border:1px solid rgba(255,255,255,.18);
+  background:rgba(0,0,0,.22);
+  color:#fff;
+  outline:none;
+}
+.pinErr{
+  display:none;
+  margin-top:10px;
+  padding:10px 12px;
+  border-radius:14px;
+  border:1px solid rgba(239,68,68,.35);
+  background:rgba(239,68,68,.12);
+  color:#ffd1d1;
+  font-weight:900;
+}
 </style>
 </head>
 
@@ -577,34 +384,24 @@
       <div class="brand-badge"></div>
       <div>TRAPPERREO</div>
     </div>
-    <div class="navRight">
-      <button class="chipBtn lime" id="nameChangeBtn">Cambio nome</button>
-
-      <button class="chipBtn" id="helloBtn" style="display:none">👋 <span id="helloName">Ciao</span></button>
-      <button class="chipBtn" id="accountBtn" style="display:none">Area personale</button>
-      <button class="chipBtn" id="logoutBtn" style="display:none">Logout</button>
-    </div>
   </div>
 </header>
 
-<!-- ===== Main view (Index) ===== -->
-<main id="indexView" class="wrap padForBar">
-
-  <section class="card hero" id="heroCard">
+<main class="wrap padForBar">
+  <section class="card hero">
     <div class="heroTop">
       <span id="cityTap">BIELLA</span>
       <span class="dot">•</span>
-      <span id="genreText">TRAP &amp; REGGAETON</span>
+      <span>TRAP &amp; REGGAETON</span>
     </div>
 
-    <div class="heroTitle" id="eventTitle">TRAPPERREO</div>
-
-    <div class="heroDate" id="heroDate">Sab 21 Marzo 2026 · 22:30–04:30</div>
+    <div class="heroTitle">TRAPPERREO</div>
+    <div class="heroDate">Sab 21 Marzo 2026 · 22:30–04:30</div>
 
     <div class="pillRow">
-      <div class="pill" id="agePill">Ingresso 16+ con documento</div>
-      <div class="pill dark" id="privatePill">Evento privato</div>
-      <div class="pill yellow" id="onlinePill">Vendita solo online fino a esaurimento posti</div>
+      <div class="pill">Ingresso 16+ con documento</div>
+      <div class="pill dark">Evento privato</div>
+      <div class="pill yellow">Vendita solo online fino a esaurimento posti</div>
     </div>
   </section>
 
@@ -620,75 +417,14 @@
   <section id="faq">
     <div class="sectionHead">
       <h2>FAQ</h2>
-      <p class="hint">Risposte rapide</p>
+      <p class="hint">Domande frequenti</p>
     </div>
     <div class="faqList" id="faqList"></div>
   </section>
-
-  <section id="legal" class="card" style="padding:14px;margin-top:18px">
-    <div style="font-size:18px;font-weight:900;margin-bottom:10px">Info legali</div>
-
-    <div class="legalLinks">
-      <a href="./terms.html">Termini e Condizioni</a>
-      <a href="./privacy.html">Privacy Policy</a>
-      <a href="./cookies.html">Cookie Policy</a>
-      <a href="./refunds.html">Rimborsi &amp; Cambio nominativo</a>
-    </div>
-
-    <div class="legalSmall" id="legalSmall">
-      Organizzazione: <span id="legalOrg">Trappereo (Impresa Individuale)</span> · Contatti: <span id="legalMail">info@trappereo.it</span>
-    </div>
-  </section>
-</main>
-
-<!-- ===== Attendees view (SPA) ===== -->
-<main id="attendeesView" class="padForBar">
-  <div class="attWrap">
-    <div class="attHead">
-      <div>
-        <h2>Inserisci i dati</h2>
-        <div class="attSub" id="attSub">Compila i dati per i biglietti selezionati.</div>
-      </div>
-      <button class="btn" id="attBackTop">Indietro</button>
-    </div>
-
-    <div class="attGrid">
-      <section id="slotsHost"></section>
-
-      <aside class="card sideCard">
-        <div style="color:rgba(255,255,255,.75);font-weight:800" id="eventMetaSide">
-          Sab 21 Marzo 2026 · 22:30–04:30 · Via Italia 38, Biella
-        </div>
-
-        <div class="hr"></div>
-        <div id="summaryLinesSide"></div>
-
-        <div class="hr"></div>
-        <div class="totRow">
-          <div class="k">Totale (IVA inclusa)</div>
-          <div class="v" id="grandSide">0,00 €</div>
-        </div>
-
-        <div class="hr"></div>
-
-        <!-- Discount inside attendees too -->
-        <div class="discountRow" style="margin-top:4px">
-          <input id="discInput2" placeholder="CODICE SCONTO" autocomplete="off" inputmode="text" />
-          <button id="discApply2">Applica</button>
-        </div>
-        <div id="discMsg2" class="discMsg" style="margin-top:10px"></div>
-
-        <div class="payBox">
-          <button class="btn" id="attBackBtn">Indietro</button>
-          <button class="btn primary disabled" id="attPayBtn">Procedi con il pagamento</button>
-        </div>
-      </aside>
-    </div>
-  </div>
 </main>
 
 <!-- ===== Mobile bar ===== -->
-<div class="mobileBar" id="mobileBar" aria-live="polite">
+<div class="mobileBar" aria-live="polite">
   <div class="barTop">
     <div class="barLeft">
       <div class="k" id="cartLabel">Seleziona i biglietti</div>
@@ -697,26 +433,12 @@
 
     <div class="barBtns">
       <button class="barBtn" id="clearBtn" style="display:none">Svuota</button>
-      <button class="barBtn pay" id="payBtn">Vai al pagamento</button>
+      <button class="barBtn pay" id="payBtn" disabled>Vai al pagamento</button>
     </div>
   </div>
-
-  <div class="discountRow">
-    <input id="discInput" placeholder="CODICE SCONTO" autocomplete="off" inputmode="text" />
-    <button id="discApply">Applica</button>
-  </div>
-
-  <div id="discMsg" class="discMsg"></div>
 </div>
 
-<!-- ===== Tooltip ===== -->
-<div class="tooltip" id="tooltip">
-  <h4 id="tipTitle">Info</h4>
-  <p id="tipText"></p>
-  <div class="row"><button id="tipClose">Chiudi</button></div>
-</div>
-
-<!-- ===== Secret Gate (PIN) ===== -->
+<!-- ===== Gate PIN ===== -->
 <div class="overlay" id="gateOverlay">
   <div class="modal">
     <h3>Codice accesso</h3>
@@ -739,1220 +461,249 @@
   </div>
 </div>
 
-<!-- ===== Login overlay (inside index) ===== -->
-<div class="overlay" id="loginOverlay">
-  <div class="modal">
-    <h3>Accedi</h3>
-    <div class="muted" style="margin-bottom:12px">Entra per gestire area personale.</div>
+<script>
+/* ==========================
+   DATI (fallback locale)
+   ========================== */
+const TICKETS = [
+  { id:'earlybird', title:'Early Bird', desc:'Ingresso con drink incluso', price:12.00, tag:'SOLO 50 DISPONIBILI' },
+  { id:'standard1', title:'Standard', desc:'Ingresso con drink incluso', price:15.00, tag:'IL PIÙ VENDUTO', tagClass:'best' },
+  { id:'standard2', title:'Standard 2nd Release', desc:'Ingresso con drink incluso', price:16.00, tag:null },
+  { id:'fast', title:'Ingresso Saltacoda', desc:'Ingresso saltacoda con drink incluso', price:22.00, tag:'CAMBIO NOME INCLUSO' },
+  { id:'vip', title:'VIP', desc:'Ingresso saltacoda con drink incluso + area riservata in console', price:27.00, tag:'CAMBIO NOME INCLUSO' }
+];
 
-    <div id="loginMsg" class="discMsg ok" style="display:none"></div>
-    <div id="loginErr" class="discMsg err" style="display:none"></div>
+const FAQ = [
+  { q:'Età minima', a:'Ingresso dai 16+ con documento valido' },
+  { q:'Posso acquistare in cassa?', a:'No. Evento privato: vendita solo online fino a esaurimento posti.' },
+  { q:'Come funziona il cambio nome?', a:"Il cambio nome permette di cambiare il nominativo, e-mail e data di nascita presenti sopra il ticket. In questo modo potrai cederlo a chi vuoi tu! Il cambio è permesso per un massimo di 2 volte entro 24 ore dall'evento." },
+  { q:'Quanto costa il cambio nome?', a:'Il cambio nome ha un prezzo di €3,99 ma è incluso con l’acquisto di un Ticket Saltacoda oppure un Ticket VIP' }
+];
 
-    <div style="display:grid;gap:10px;margin-top:10px">
-      <div>
-        <div style="font-size:12px;color:rgba(255,255,255,.65);font-weight:800;margin:0 0 6px 2px">Email</div>
-        <input id="loginEmail" style="height:44px;border-radius:12px;border:1px solid rgba(255,255,255,.14);background:rgba(0,0,0,.25);color:#fff;padding:0 12px;font-weight:900;outline:none"
-               type="email" autocomplete="email" inputmode="email" placeholder="tuo@email.it">
-      </div>
-      <div>
-        <div style="font-size:12px;color:rgba(255,255,255,.65);font-weight:800;margin:0 0 6px 2px">Password</div>
-        <input id="loginPassword" style="height:44px;border-radius:12px;border:1px solid rgba(255,255,255,.14);background:rgba(0,0,0,.25);color:#fff;padding:0 12px;font-weight:900;outline:none"
-               type="password" autocomplete="current-password" placeholder="Minimo 6 caratteri">
-      </div>
-    </div>
+/* ==========================
+   RENDER
+   ========================== */
+const € = n => Number(n||0).toFixed(2).replace('.',',') + ' €';
+const qs = s => document.querySelector(s);
 
-    <div class="row">
-      <button class="btn" id="loginBack">Indietro</button>
-      <button class="btn primary" id="loginBtn">Entra</button>
-    </div>
+const ticketsList = qs('#ticketsList');
+const faqList = qs('#faqList');
+const cartLabel = qs('#cartLabel');
+const cartTotal = qs('#cartTotal');
+const clearBtn = qs('#clearBtn');
+const payBtn = qs('#payBtn');
 
-    <div class="row" style="justify-content:space-between">
-      <button class="btn" id="goSignup" style="background:transparent">Registrati</button>
-      <button class="btn" id="goReset" style="background:transparent">Password dimenticata?</button>
-    </div>
+const qty = Object.fromEntries(TICKETS.map(t=>[t.id,0]));
 
-    <div id="postLoginRow" style="display:none;margin-top:10px;gap:10px">
-      <button class="btn" id="goAccount">Vai all’area personale</button>
-      <button class="btn primary" id="closeLoginContinue">Continua con l’acquisto</button>
-    </div>
-  </div>
-</div>
+function subtotal(){
+  let s=0;
+  for(const t of TICKETS) s += qty[t.id]*t.price;
+  return s;
+}
+function countTickets(){
+  let c=0;
+  for(const k in qty) c += qty[k];
+  return c;
+}
 
-<script type="module">
-  import { onUser, app, emailSignIn, sendReset, ensureUserDoc, signOutUser } from './auth.v2.js?v=6';
-  import {
-    getFirestore, doc, getDoc, collection, getDocs, query, where
-  } from 'https://www.gstatic.com/firebasejs/12.5.0/firebase-firestore.js';
+function renderTickets(){
+  ticketsList.innerHTML = '';
+  for(const t of TICKETS){
+    const row = document.createElement('div');
+    row.className = 'card ticket';
 
-  const db = getFirestore(app);
+    const left = document.createElement('div');
+    left.className = 'tLeft';
+    left.innerHTML = `
+      <h3>${t.title}</h3>
+      <div class="desc">${t.desc}</div>
+    `;
 
-  /* ======================
-     Helpers
-  ====================== */
-  const € = (n)=>{
-    const v = Number(n||0);
-    return v.toFixed(2).replace('.',',') + ' €';
-  };
-  const clamp = (v,min,max)=>Math.max(min,Math.min(max,v));
-
-  function sha256hexBrowser(str){
-    // Used only if you decide to store hash (recommended). Optional.
-    return crypto.subtle.digest('SHA-256', new TextEncoder().encode(str))
-      .then(buf => [...new Uint8Array(buf)].map(b=>b.toString(16).padStart(2,'0')).join(''));
-  }
-
-  /* ======================
-     Config from Firestore
-  ====================== */
-  const CONFIG_PATH = doc(db,'config','events');
-
-  const state = {
-    user: null,
-    config: null,
-
-    tickets: [], // {id, title, desc, price, order, nameChangeIncluded, capacityPublic, soldOut, remainingPublic, tag?}
-    qty: { earlybird:0, standard1:0, standard2:0, fast:0, vip:0 },
-
-    // discount snapshot stored locally (applied doc)
-    discount: null, // {code,type,amount,appliesSkus[],minPurchase,userEmail,autoFix}
-    discountError: null,
-
-    nameChangeInfo: '',
-
-    // Gate
-    gateAttempts: 0,
-    gateOpen: false,
-
-    // Event time
-    eventStart: new Date('2026-03-21T22:30:00+01:00'),
-    eventEnd:   new Date('2026-03-22T04:30:00+01:00'),
-    // Legal freeze point
-    legalInView: false
-  };
-
-  function totalTicketsCount(){
-    const q = state.qty;
-    return q.earlybird + q.standard1 + q.standard2 + q.fast + q.vip;
-  }
-  function subtotal(){
-    let s = 0;
-    for(const t of state.tickets){
-      const k = t.id;
-      s += (state.qty[k]||0) * (t.price||0);
+    const tagRow = document.createElement('div');
+    tagRow.className = 'tagRow';
+    if(t.tag){
+      const tag = document.createElement('div');
+      tag.className = 'tag' + (t.tagClass ? (' '+t.tagClass) : '');
+      tag.textContent = t.tag;
+      tagRow.appendChild(tag);
     }
-    return s;
+    left.appendChild(tagRow);
+
+    const right = document.createElement('div');
+    right.className = 'tRight';
+
+    const price = document.createElement('div');
+    price.className = 'price';
+    price.textContent = €(t.price);
+
+    const qwrap = document.createElement('div');
+    qwrap.className = 'qty';
+
+    const minus = document.createElement('button');
+    minus.className = 'qbtn';
+    minus.textContent = '−';
+    minus.onclick = () => { qty[t.id] = Math.max(0, qty[t.id]-1); renderAll(); };
+
+    const val = document.createElement('div');
+    val.className = 'qval';
+    val.textContent = qty[t.id];
+
+    const plus = document.createElement('button');
+    plus.className = 'qbtn';
+    plus.textContent = '+';
+    plus.onclick = () => { qty[t.id] = Math.min(99, qty[t.id]+1); renderAll(); };
+
+    qwrap.appendChild(minus);
+    qwrap.appendChild(val);
+    qwrap.appendChild(plus);
+
+    right.appendChild(price);
+    right.appendChild(qwrap);
+
+    row.appendChild(left);
+    row.appendChild(right);
+
+    ticketsList.appendChild(row);
   }
+}
 
-  // Discount application rules:
-  // - if userEmail set: apply only to attendee with matching email (so in index we "reserve" the discount,
-  //   but final apply happens in attendees when emails are known).
-  // - if userEmail empty: apply to eligible SKUs in cart (index) and later validated again in attendees.
-  function cartEligibleBase(){
-    if(!state.discount) return 0;
-    const d = state.discount;
-    const applies = (Array.isArray(d.appliesSkus) && d.appliesSkus.length) ? d.appliesSkus : state.tickets.map(x=>x.id);
-    let base = 0;
-    for(const sku of applies){
-      const t = state.tickets.find(x=>x.id===sku);
-      if(!t) continue;
-      base += (state.qty[sku]||0) * (t.price||0);
-    }
-    return base;
-  }
+function renderFaq(){
+  faqList.innerHTML = '';
+  for(const it of FAQ){
+    const d = document.createElement('details');
+    d.className = 'faqItem';
 
-  function cartMeetsMin(){
-    const d = state.discount;
-    if(!d) return true;
+    const s = document.createElement('summary');
+    s.innerHTML = `<span>${it.q}</span><span class="chev">+</span>`;
+    d.appendChild(s);
 
-    const min = Number(d.minPurchase||0);
-    if(!min) return true;
+    const b = document.createElement('div');
+    b.className = 'faqBody';
+    b.textContent = it.a;
+    d.appendChild(b);
 
-    // Interpretazione: minPurchase riferito agli SKUs di appliesSkus (se presenti)
-    const applies = (Array.isArray(d.appliesSkus) && d.appliesSkus.length) ? d.appliesSkus : [];
-    if(!applies.length){
-      // se non specificato, min su totale biglietti
-      return totalTicketsCount() >= min;
-    }
-    let count = 0;
-    for(const sku of applies) count += (state.qty[sku]||0);
-    return count >= min;
-  }
-
-  function computeCartDiscountPreview(){
-    const d = state.discount;
-    if(!d) return 0;
-
-    // se userEmail è vincolante, su index non sappiamo ancora chi è.
-    // Mostriamo comunque "codice applicato" ma lo sconto effettivo lo validiamo su attendees.
-    // Qui preview = 0 se vincolante.
-    if(d.userEmail && String(d.userEmail).trim()){
-      return 0;
-    }
-
-    if(!cartMeetsMin()) return 0;
-
-    const base = cartEligibleBase();
-    if(base<=0) return 0;
-
-    if(d.type === 'percent'){
-      return clamp(base * (Number(d.amount||0)/100), 0, base);
-    }
-    if(d.type === 'fixed'){
-      return clamp(Number(d.amount||0), 0, base);
-    }
-    return 0;
-  }
-
-  function grandTotalPreview(){
-    const sub = subtotal();
-    const disc = computeCartDiscountPreview();
-    return Math.max(0, sub - disc);
-  }
-
-  function setDiscMsg(box, kind, text){
-    box.style.display = 'block';
-    box.classList.remove('ok','err');
-    box.classList.add(kind);
-    box.textContent = text;
-  }
-
-  /* ======================
-     UI refs
-  ====================== */
-  const $ = (q)=>document.querySelector(q);
-
-  const ticketsList = $('#ticketsList');
-  const cartLabel = $('#cartLabel');
-  const cartTotal = $('#cartTotal');
-  const clearBtn = $('#clearBtn');
-  const payBtn = $('#payBtn');
-
-  const discInput = $('#discInput');
-  const discApply = $('#discApply');
-  const discMsg = $('#discMsg');
-
-  const discInput2 = $('#discInput2');
-  const discApply2 = $('#discApply2');
-  const discMsg2 = $('#discMsg2');
-
-  const tooltip = $('#tooltip');
-  const tipText = $('#tipText');
-
-  const cityTap = $('#cityTap');
-  const gateOverlay = $('#gateOverlay');
-  const pinErr = $('#pinErr');
-  const pinInputs = [...$('#pinRow').querySelectorAll('input')];
-  const gateBack = $('#gateBack');
-
-  const loginOverlay = $('#loginOverlay');
-  const loginEmail = $('#loginEmail');
-  const loginPassword = $('#loginPassword');
-  const loginBtn = $('#loginBtn');
-  const loginBack = $('#loginBack');
-  const loginMsg = $('#loginMsg');
-  const loginErr = $('#loginErr');
-  const postLoginRow = $('#postLoginRow');
-  const goAccount = $('#goAccount');
-  const closeLoginContinue = $('#closeLoginContinue');
-  const goSignup = $('#goSignup');
-  const goReset = $('#goReset');
-
-  const helloBtn = $('#helloBtn');
-  const helloName = $('#helloName');
-  const accountBtn = $('#accountBtn');
-  const logoutBtn = $('#logoutBtn');
-
-  const indexView = $('#indexView');
-  const attendeesView = $('#attendeesView');
-  const slotsHost = $('#slotsHost');
-  const summaryLinesSide = $('#summaryLinesSide');
-  const grandSide = $('#grandSide');
-  const attPayBtn = $('#attPayBtn');
-  const attBackBtn = $('#attBackBtn');
-  const attBackTop = $('#attBackTop');
-  const attSub = $('#attSub');
-
-  /* ======================
-     Load config + tickets
-  ====================== */
-  async function loadConfig(){
-    const snap = await getDoc(CONFIG_PATH);
-    const d = snap.exists() ? (snap.data()||{}) : {};
-
-    state.config = d;
-
-    // texts editable
-    $('#genreText').textContent = d.genre || 'TRAP & REGGAETON';
-    $('#cityTap').textContent = (d.cityName || 'BIELLA');
-    $('#agePill').textContent = (d.ageText || 'Ingresso 16+ con documento');
-    $('#legalOrg').textContent = d.legal?.organizer || 'Trappereo (Impresa Individuale)';
-    $('#legalMail').textContent = d.legal?.contactEmail || 'info@trappereo.it';
-
-    // name change info (tooltip)
-    state.nameChangeInfo = d.nameChangeProtectionInfo || '';
-
-    // FAQ
-    renderFaq(d.faq || []);
-
-    // Gate hash (optional)
-    state.gateHash = d.adminGateHash || null; // if you use hash
-    state.gateCodePlain = d.adminGateCode || null; // if you decide plain (not recommended)
-  }
-
-  async function loadTickets(){
-    // public read: /config/events/tickets/*
-    // Using subcollection: config/events/tickets
-    const col = collection(db,'config','events','tickets');
-    const snaps = await getDocs(col);
-    const arr = [];
-    snaps.forEach(s=>{
-      const d = s.data()||{};
-      arr.push({
-        id: s.id,
-        title: d.title || d.name || s.id,
-        desc: d.desc || d.description || '',
-        price: Number(d.price||0),
-        order: Number(d.order||999),
-        // public remaining/capacity (if you have it)
-        remainingPublic: (d.remainingPublic!=null ? Number(d.remainingPublic) : null),
-        capacityPublic: (d.capacity!=null ? Number(d.capacity) : null),
-        soldOut: !!d.soldOut,
-        tagText: d.tagText || '',
-        nameChangeIncluded: !!d.nameChangeIncluded
-      });
+    d.addEventListener('toggle', ()=>{
+      s.querySelector('.chev').textContent = d.open ? '−' : '+';
     });
 
-    // Ensure required SKUs exist with fallback (so you always see standard1)
-    const must = [
-      {id:'earlybird', title:'Early Bird', desc:'Ingresso con drink incluso', price:12, order:10},
-      {id:'standard1', title:'Standard', desc:'Ingresso con drink incluso', price:15, order:20},
-      {id:'standard2', title:'Standard 2nd Release', desc:'Ingresso con drink incluso', price:16, order:30},
-      {id:'fast', title:'Ingresso Saltacoda', desc:'Ingresso saltacoda con drink incluso', price:22, order:40},
-      {id:'vip', title:'VIP', desc:'Ingresso saltacoda con drink incluso + area riservata in console', price:27, order:50},
-    ];
-    for(const m of must){
-      if(!arr.find(x=>x.id===m.id)) arr.push(m);
-    }
-
-    arr.sort((a,b)=>a.order-b.order);
-    state.tickets = arr;
-
-    // keep qty keys consistent with IDs
-    for(const t of state.tickets){
-      if(state.qty[t.id]==null) state.qty[t.id]=0;
-    }
-
-    renderTickets();
-    renderCart();
+    faqList.appendChild(d);
   }
+}
 
-  /* ======================
-     Render Tickets (smaller)
-  ====================== */
-  function tagForTicket(t){
-    // EarlyBird: SOLO X DISPONIBILI if remainingPublic or capacityPublic
-    if(t.id==='earlybird'){
-      const x = (t.remainingPublic!=null ? t.remainingPublic : (t.capacityPublic!=null ? t.capacityPublic : null));
-      if(x!=null) return {text:`SOLO ${x} DISPONIBILI`, cls:''};
-    }
+function renderCart(){
+  const cnt = countTickets();
+  const sub = subtotal();
+  cartTotal.textContent = €(sub);
 
-    // "IL PIÙ VENDUTO": if earlybird sold out -> standard1, if standard1 sold out -> standard2
-    const eb = state.tickets.find(x=>x.id==='earlybird');
-    const s1 = state.tickets.find(x=>x.id==='standard1');
-    const s2 = state.tickets.find(x=>x.id==='standard2');
-
-    const isSoldOut = (x)=> !!x?.soldOut;
-
-    if(!isSoldOut(eb)){
-      // no best seller tag until earlybird is sold out
-    }else{
-      if(t.id==='standard1' && !isSoldOut(s1)) return {text:'IL PIÙ VENDUTO', cls:'best'};
-      if(isSoldOut(s1) && t.id==='standard2' && !isSoldOut(s2)) return {text:'IL PIÙ VENDUTO', cls:'best'};
-    }
-
-    // Fast + VIP: PROTEZIONE CAMBIO NOME INCLUSA + info icon (tooltip)
-    if(t.id==='fast' || t.id==='vip'){
-      return {text:'CAMBIO NOME INCLUSO', cls:'' , info:true};
-    }
-
-    return null;
+  if(cnt<=0){
+    cartLabel.textContent = 'Seleziona i biglietti';
+    clearBtn.style.display = 'none';
+    payBtn.classList.remove('enabled');
+    payBtn.disabled = true;
+  }else{
+    cartLabel.textContent = `${cnt} bigliett${cnt===1?'o':'i'} nel carrello`;
+    clearBtn.style.display = 'inline-flex';
+    payBtn.disabled = false;
+    payBtn.classList.add('enabled'); /* lime pieno */
   }
-
-  function renderTickets(){
-    ticketsList.innerHTML = '';
-    for(const t of state.tickets){
-      const row = document.createElement('div');
-      row.className = 'card ticket';
-
-      const tag = tagForTicket(t);
-
-      const left = document.createElement('div');
-      left.className = 'tLeft';
-      left.innerHTML = `
-        <h3>${t.title}</h3>
-        <div class="desc">${t.desc || ''}</div>
-      `;
-
-      const tagRow = document.createElement('div');
-      tagRow.className = 'tagRow';
-
-      if(tag){
-        const chip = document.createElement('div');
-        chip.className = 'tag' + (tag.cls ? (' '+tag.cls) : '');
-        chip.textContent = tag.text;
-        tagRow.appendChild(chip);
-
-        if(tag.info){
-          const i = document.createElement('div');
-          i.className = 'infoDot';
-          i.textContent = 'i';
-          i.addEventListener('click', ()=>{
-            const txt = state.nameChangeInfo || "Protezione cambio nome inclusa. Dettagli configurabili in Firestore.";
-            openTip('Cambio nome', txt);
-          });
-          tagRow.appendChild(i);
-        }
-      }
-
-      left.appendChild(tagRow);
-
-      const right = document.createElement('div');
-      right.className = 'tRight';
-
-      const price = document.createElement('div');
-      price.className = 'price small';
-      price.textContent = €(t.price);
-      right.appendChild(price);
-
-      const qty = document.createElement('div');
-      qty.className = 'qty';
-
-      const minus = document.createElement('button');
-      minus.className = 'qbtn';
-      minus.textContent = '−';
-      minus.addEventListener('click', ()=>{
-        state.qty[t.id] = Math.max(0, (state.qty[t.id]||0) - 1);
-        renderCart();
-        renderTickets();
-      });
-
-      const val = document.createElement('div');
-      val.className = 'qval';
-      val.textContent = String(state.qty[t.id]||0);
-
-      const plus = document.createElement('button');
-      plus.className = 'qbtn';
-      plus.textContent = '+';
-      plus.addEventListener('click', ()=>{
-        state.qty[t.id] = Math.min(99, (state.qty[t.id]||0) + 1);
-        renderCart();
-        renderTickets();
-      });
-
-      qty.appendChild(minus);
-      qty.appendChild(val);
-      qty.appendChild(plus);
-
-      right.appendChild(qty);
-
-      row.appendChild(left);
-      row.appendChild(right);
-
-      ticketsList.appendChild(row);
-    }
-  }
-
-  /* ======================
-     FAQ accordion
-  ====================== */
-  function renderFaq(items){
-    const host = $('#faqList');
-    host.innerHTML = '';
-
-    const fallback = [
-      { q: "Età minima", a: "Ingresso dai 16+ con documento valido." },
-      { q: "Posso acquistare in cassa?", a: "No. Evento privato: vendita solo online fino a esaurimento posti." },
-      { q: "Come funziona il cambio nome?", a: "Il cambio nome permette di cambiare il nominativo, e-mail e data di nascita presenti sopra il ticket. In questo modo potrai cederlo a chi vuoi tu! Il cambio è permesso per un massimo di 2 volte entro 24 ore dall'evento." },
-      { q: "Quanto costa il cambio nome?", a: "Il cambio nome ha un prezzo di €3,99 ma è incluso con l'acquisto di un Ticket Saltacoda oppure un Ticket VIP." }
-    ];
-
-    const list = Array.isArray(items) && items.length ? items : fallback;
-
-    for(const it of list){
-      const d = document.createElement('details');
-      d.className = 'faqItem';
-
-      const s = document.createElement('summary');
-      s.innerHTML = `<span>${it.q||''}</span><span class="chev">+</span>`;
-      d.appendChild(s);
-
-      const b = document.createElement('div');
-      b.className = 'faqBody';
-      b.textContent = it.a || '';
-      d.appendChild(b);
-
-      d.addEventListener('toggle', ()=>{
-        s.querySelector('.chev').textContent = d.open ? '−' : '+';
-      });
-
-      host.appendChild(d);
-    }
-  }
-
-  /* ======================
-     Tooltip
-  ====================== */
-  function openTip(title, text){
-    $('#tipTitle').textContent = title || 'Info';
-    tipText.textContent = text || '';
-    tooltip.style.display = 'block';
-  }
-  $('#tipClose').addEventListener('click', ()=>tooltip.style.display='none');
-
-  /* ======================
-     Cart render
-  ====================== */
-  function renderCart(){
-    const cnt = totalTicketsCount();
-    const sub = subtotal();
-    const disc = computeCartDiscountPreview();
-    const total = Math.max(0, sub - disc);
-
-    cartTotal.textContent = €(total);
-
-    if(cnt<=0){
-      cartLabel.textContent = 'Seleziona i biglietti';
-      clearBtn.style.display = 'none';
-      payBtn.classList.remove('enabled');
-      payBtn.disabled = true;
-    }else{
-      cartLabel.textContent = `${cnt} bigliett${cnt===1?'o':'i'} nel carrello`;
-      clearBtn.style.display = 'inline-flex';
-      payBtn.disabled = false;
-      payBtn.classList.add('enabled');
-    }
-
-    // keep discount inputs synced
-    const storedCode = localStorage.getItem('trapperreo_discount_code') || '';
-    if(storedCode && !discInput.value) discInput.value = storedCode;
-    if(storedCode && !discInput2.value) discInput2.value = storedCode;
-
-    // show message if discount present
-    if(state.discount){
-      const d = state.discount;
-      const baseOk = cartMeetsMin();
-
-      if(d.userEmail && String(d.userEmail).trim()){
-        setDiscMsg(discMsg, 'ok', `Codice ${d.code} inserito. Verrà applicato solo all'email autorizzata (verifica nei nominativi).`);
-        setDiscMsg(discMsg2, 'ok', `Codice ${d.code} inserito. Verrà applicato solo all'email autorizzata (verifica nei nominativi).`);
-      } else if(!baseOk){
-        setDiscMsg(discMsg, 'err', `Codice ${d.code} non applicabile: requisiti minimi non rispettati.`);
-        setDiscMsg(discMsg2, 'err', `Codice ${d.code} non applicabile: requisiti minimi non rispettati.`);
-      } else {
-        const val = computeCartDiscountPreview();
-        setDiscMsg(discMsg, 'ok', `Codice ${d.code} applicato: -${€(val)}`);
-        setDiscMsg(discMsg2, 'ok', `Codice ${d.code} applicato: -${€(val)}`);
-      }
-    } else {
-      discMsg.style.display = 'none';
-      discMsg2.style.display = 'none';
-    }
-  }
-
-  clearBtn.addEventListener('click', ()=>{
-    for(const k in state.qty) state.qty[k]=0;
-    // discount stays, but becomes non-applicable
-    renderTickets();
-    renderCart();
-  });
-
-  /* ======================
-     Discount code: fetch + apply (+autofix)
-  ====================== */
-  async function fetchDiscountByCode(code){
-    // We read by query where code == uppercase
-    const c = String(code||'').trim().toUpperCase();
-    if(!c) return null;
-
-    const col = collection(db,'discountcodes');
-    const qy = query(col, where('code','==',c), where('active','==',true));
-    const snaps = await getDocs(qy);
-    if(snaps.empty) return null;
-
-    // pick first
-    const s = snaps.docs[0];
-    const d = s.data()||{};
-    const out = {
-      id: s.id,
-      code: d.code,
-      type: d.type,
-      amount: Number(d.amount ?? d.value ?? 0),
-      minPurchase: Number(d.minPurchase||0),
-      userEmail: (d.userEmail||'').trim(),
-      appliesSkus: Array.isArray(d.appliesSkus) ? d.appliesSkus : (typeof d.appliesSkus === 'string' && d.appliesSkus ? [d.appliesSkus] : []),
-      autoFix: d.autoFix || null
-    };
-    return out;
-  }
-
-  function cartHasSku(sku, qtyMin){
-    return (state.qty[sku]||0) >= (qtyMin||1);
-  }
-
-  async function tryAutoFix(d){
-    if(!d?.autoFix?.enabled) return false;
-
-    const addSku = d.autoFix.addSku;
-    const addQty = Number(d.autoFix.addQty||0);
-    if(!addSku || !addQty) return false;
-
-    // if already meets min, no fix
-    if(cartMeetsMin()) return false;
-
-    // If removeSku set, attempt remove first
-    const removeSku = d.autoFix.removeSku;
-    const removeQty = Number(d.autoFix.removeQty||0);
-
-    if(removeSku && removeQty){
-      state.qty[removeSku] = Math.max(0, (state.qty[removeSku]||0) - removeQty);
-    }
-
-    // Add requested sku
-    state.qty[addSku] = (state.qty[addSku]||0) + addQty;
-
-    // if you have availability checks, you can block here.
-    // For now: if ticket marked soldOut, revert.
-    const t = state.tickets.find(x=>x.id===addSku);
-    if(t?.soldOut){
-      // revert
-      state.qty[addSku] = Math.max(0, (state.qty[addSku]||0) - addQty);
-      if(removeSku && removeQty){
-        state.qty[removeSku] = (state.qty[removeSku]||0) + removeQty;
-      }
-      return false;
-    }
-
-    return true;
-  }
-
-  async function applyDiscountFlow(code, msgBox){
-    const c = String(code||'').trim().toUpperCase();
-    if(!c){
-      setDiscMsg(msgBox,'err','Inserisci un codice sconto.');
-      return;
-    }
-
-    const d = await fetchDiscountByCode(c);
-    if(!d){
-      state.discount = null;
-      localStorage.removeItem('trapperreo_discount_code');
-      setDiscMsg(msgBox,'err','Codice sconto non valido.');
-      renderCart();
-      return;
-    }
-
-    state.discount = d;
-    localStorage.setItem('trapperreo_discount_code', d.code);
-
-    // if min not met, try autofix
-    if(!cartMeetsMin()){
-      const did = await tryAutoFix(d);
-      renderTickets();
-      renderCart();
-
-      if(!cartMeetsMin()){
-        setDiscMsg(msgBox,'err',`Codice ${d.code} non applicabile: requisiti minimi non rispettati.`);
-        return;
-      }
-      if(did){
-        setDiscMsg(msgBox,'ok',`Codice ${d.code}: carrello ottimizzato automaticamente.`);
-        return;
-      }
-    }
-
-    // success
-    if(d.userEmail){
-      setDiscMsg(msgBox,'ok',`Codice ${d.code} inserito. Verrà applicato solo all'email autorizzata (nei nominativi).`);
-    } else {
-      const val = computeCartDiscountPreview();
-      setDiscMsg(msgBox,'ok',`Codice ${d.code} applicato: -${€(val)}`);
-    }
-    renderCart();
-  }
-
-  discApply.addEventListener('click', ()=>applyDiscountFlow(discInput.value, discMsg));
-  discApply2.addEventListener('click', ()=>applyDiscountFlow(discInput2.value, discMsg2));
-
-  /* ======================
-     Pay => Attendees SPA (no navigation)
-  ====================== */
-  payBtn.addEventListener('click', ()=>{
-    if(totalTicketsCount()<=0) return;
-    openAttendees();
-  });
-
-  function openIndex(){
-    attendeesView.style.display = 'none';
-    indexView.style.display = 'block';
-    window.scrollTo({top:0, behavior:'instant'});
-    history.pushState({view:'index'}, '', './index.html');
-  }
-
-  function openAttendees(){
-    // Build slots based on qty
-    buildSlots();
-
-    // switch view
-    indexView.style.display = 'none';
-    attendeesView.style.display = 'block';
-    window.scrollTo({top:0, behavior:'instant'});
-    history.pushState({view:'attendees'}, '', '#attendees');
-    updateAttendeesSummary();
-    validateAttendees();
-  }
-
-  attBackBtn.addEventListener('click', openIndex);
-  attBackTop.addEventListener('click', openIndex);
-
-  window.addEventListener('popstate', (e)=>{
-    const v = e.state?.view;
-    if(v==='attendees') openAttendees();
-    else openIndex();
-  });
-
-  /* ======================
-     Build Attendees slots
-  ====================== */
-  let slotModels = []; // [{sku, price, title, el, first,last,email,dob,banner}]
-  function buildSlots(){
-    slotModels = [];
-    slotsHost.innerHTML = '';
-
-    const cnt = totalTicketsCount();
-    attSub.innerHTML = `Compila i dati per <strong>${cnt} bigliett${cnt===1?'o':'i'}</strong>.`;
-
-    // sync discount input
-    const storedCode = localStorage.getItem('trapperreo_discount_code') || '';
-    discInput2.value = storedCode;
-
-    // For each ticket unit, create a slot
-    const order = ['earlybird','standard1','standard2','fast','vip'];
-    let idx = 0;
-
-    for(const sku of order){
-      const q = state.qty[sku]||0;
-      if(!q) continue;
-
-      const t = state.tickets.find(x=>x.id===sku);
-      for(let i=0;i<q;i++){
-        idx++;
-        const el = document.createElement('div');
-        el.className = 'slot';
-
-        el.innerHTML = `
-          <div class="slotTop">
-            <h4>${t?.title || sku} — Biglietto ${idx}</h4>
-            <div style="font-weight:900;opacity:.9">${€(t?.price||0)}</div>
-          </div>
-
-          <div class="drinkBanner"></div>
-
-          <div class="fields two" style="margin-top:12px">
-            <div>
-              <label>Nome</label>
-              <input data-f="first" autocomplete="given-name" placeholder="Es. Marco">
-            </div>
-            <div>
-              <label>Cognome</label>
-              <input data-f="last" autocomplete="family-name" placeholder="Es. Rossi">
-            </div>
-          </div>
-
-          <div class="fields">
-            <div>
-              <label>Email</label>
-              <input data-f="email" inputmode="email" autocomplete="email" placeholder="email@email.it">
-            </div>
-          </div>
-
-          <div class="fields">
-            <div>
-              <label>Data di nascita</label>
-              <input data-f="dob" type="date" inputmode="numeric">
-            </div>
-          </div>
-        `;
-
-        slotsHost.appendChild(el);
-
-        const model = {
-          sku,
-          price: Number(t?.price||0),
-          title: t?.title || sku,
-          el,
-          first: el.querySelector('[data-f="first"]'),
-          last:  el.querySelector('[data-f="last"]'),
-          email: el.querySelector('[data-f="email"]'),
-          dob:   el.querySelector('[data-f="dob"]'),
-          banner: el.querySelector('.drinkBanner')
-        };
-
-        // listeners
-        model.first.addEventListener('input', ()=>{validateAttendees();});
-        model.last.addEventListener('input', ()=>{validateAttendees();});
-        model.email.addEventListener('input', ()=>{validateAttendees(); updateAttendeesSummary();});
-        model.dob.addEventListener('input', ()=>{updateDrinkBanner(model); validateAttendees();});
-
-        slotModels.push(model);
-      }
-    }
-
-    // Autofill for logged user (first slot only)
-    if(state.user && !state.user.isAnonymous){
-      prefillFromUser();
-    }
-  }
-
-  async function prefillFromUser(){
-    try{
-      const u = state.user;
-      if(!u || u.isAnonymous) return;
-
-      // users/{uid} fallback
-      const snap = await getDoc(doc(db,'users',u.uid));
-      let first='', last='', email='';
-      if(snap.exists()){
-        const d = snap.data()||{};
-        const prof = d.profile || {};
-        const full = d.name || prof.name || d.fullName || prof.fullName || u.displayName || '';
-        first = d.firstName || prof.firstName || (full.split(' ')[0]||'');
-        last  = d.lastName  || prof.lastName  || (full.split(' ').slice(1).join(' ')||'');
-        email = d.email || prof.email || u.email || '';
-      }else{
-        const parts = (u.displayName||'').split(' ');
-        first = parts[0]||'';
-        last = parts.slice(1).join(' ')||'';
-        email = u.email || '';
-      }
-
-      const m0 = slotModels[0];
-      if(m0){
-        if(!m0.first.value.trim()) m0.first.value = first;
-        if(!m0.last.value.trim())  m0.last.value  = last;
-        if(!m0.email.value.trim()) m0.email.value = email;
-      }
-
-      validateAttendees();
-      updateAttendeesSummary();
-    }catch{}
-  }
-
-  /* ======================
-     Drink banner logic (per ticket)
-  ====================== */
-  function parseDateOnly(v){
-    if(!v) return null;
-    // v like YYYY-MM-DD
-    const [y,m,d] = v.split('-').map(Number);
-    if(!y||!m||!d) return null;
-    return new Date(y, m-1, d, 0,0,0);
-  }
-
-  function addYears(date, years){
-    const d = new Date(date);
-    d.setFullYear(d.getFullYear()+years);
-    return d;
-  }
-
-  function updateDrinkBanner(model){
-    const dob = parseDateOnly(model.dob.value);
-    if(!dob){
-      model.banner.style.display = 'none';
-      model.banner.textContent = '';
-      return;
-    }
-
-    const turning18 = addYears(dob, 18); // at 00:00 of birthday
-    const start = state.eventStart;
-    const end   = state.eventEnd;
-
-    // 18+ at event start?
-    if(turning18 <= start){
-      model.banner.style.display = 'block';
-      model.banner.textContent = "Il tuo drink incluso sarà alcolico.";
-      return;
-    }
-
-    // turns 18 during event?
-    if(turning18 > start && turning18 <= end){
-      const hh = String(turning18.getHours()).padStart(2,'0');
-      const mm = String(turning18.getMinutes()).padStart(2,'0');
-      model.banner.style.display = 'block';
-      model.banner.textContent = `Il tuo drink incluso sarà analcolico; a partire dalle ore ${hh}:${mm} si convertirà in alcolico.`;
-      return;
-    }
-
-    // still minor during event
-    model.banner.style.display = 'block';
-    model.banner.textContent = "Il tuo drink incluso sarà analcolico.";
-  }
-
-  /* ======================
-     Attendees summary + discount final validation
-  ====================== */
-  function updateAttendeesSummary(){
-    const lines = [];
-    for(const t of state.tickets){
-      const q = state.qty[t.id]||0;
-      if(!q) continue;
-      lines.push(`<div class="line"><span>${t.title} × ${q}</span><span>${€(q*t.price)}</span></div>`);
-    }
-
-    const sub = subtotal();
-
-    // Final discount depends on emails if userEmail specified
-    let disc = 0;
-    let discNote = '';
-    if(state.discount){
-      const d = state.discount;
-
-      const meets = cartMeetsMin();
-      if(!meets){
-        discNote = `Codice ${d.code} non applicabile: requisiti minimi non rispettati.`;
-      }else{
-        // eligible base based on appliesSkus
-        const applies = (Array.isArray(d.appliesSkus) && d.appliesSkus.length) ? d.appliesSkus : state.tickets.map(x=>x.id);
-
-        if(d.userEmail){
-          // apply ONLY to attendee whose email matches (and only if that attendee ticket sku is eligible)
-          const wanted = d.userEmail.trim().toLowerCase();
-          const m = slotModels.find(x => (x.email.value||'').trim().toLowerCase() === wanted && applies.includes(x.sku));
-          if(!m){
-            discNote = "Codice sconto non valido perchè non applicabile a questo utente.";
-          }else{
-            const base = m.price;
-            if(d.type==='percent') disc = clamp(base*(d.amount/100), 0, base);
-            if(d.type==='fixed')   disc = clamp(d.amount, 0, base);
-          }
-        }else{
-          // apply to all eligible SKUs in cart
-          const base = cartEligibleBase();
-          if(d.type==='percent') disc = clamp(base*(d.amount/100), 0, base);
-          if(d.type==='fixed')   disc = clamp(d.amount, 0, base);
-        }
-      }
-    }
-
-    if(state.discount){
-      if(disc>0){
-        lines.push(`<div class="line save"><span>Sconto (${state.discount.code})</span><span>- ${€(disc)}</span></div>`);
-      }else{
-        if(discNote){
-          lines.push(`<div class="line" style="color:#ffd1d1"><span>${discNote}</span><span></span></div>`);
-        }else{
-          lines.push(`<div class="line" style="color:rgba(255,255,255,.75)"><span>Codice ${state.discount.code} inserito</span><span></span></div>`);
-        }
-      }
-    }
-
-    summaryLinesSide.innerHTML = lines.join('');
-    grandSide.textContent = €(Math.max(0, sub - disc));
-
-    // show message box on attendees if needed
-    if(state.discount){
-      if(disc>0){
-        setDiscMsg(discMsg2,'ok',`Codice ${state.discount.code} applicato: -${€(disc)}`);
-      }else if(discNote){
-        setDiscMsg(discMsg2,'err',discNote);
-      }else{
-        discMsg2.style.display = 'none';
-      }
-    }else{
-      discMsg2.style.display = 'none';
-    }
-  }
-
-  discApply2.addEventListener('click', async ()=>{
-    await applyDiscountFlow(discInput2.value, discMsg2);
-    updateAttendeesSummary();
-    validateAttendees();
-  });
-
-  /* ======================
-     Attendees validation + enable pay button
-  ====================== */
-  function validEmail(v){
-    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(v||'').trim());
-  }
-
-  function validateAttendees(){
-    let ok = true;
-
-    for(const m of slotModels){
-      if(m.first.value.trim().length < 2) ok = false;
-      if(m.last.value.trim().length < 2) ok = false;
-      if(!validEmail(m.email.value)) ok = false;
-      if(!m.dob.value) ok = false;
-
-      // update banner per slot
-      updateDrinkBanner(m);
-    }
-
-    // If discount has userEmail, require that at least one attendee has that email, otherwise keep pay disabled
-    if(state.discount && state.discount.userEmail){
-      const wanted = state.discount.userEmail.trim().toLowerCase();
-      const has = slotModels.some(x => (x.email.value||'').trim().toLowerCase() === wanted);
-      if(!has) ok = false;
-    }
-
-    attPayBtn.classList.toggle('disabled', !ok);
-    attPayBtn.disabled = !ok;
-    return ok;
-  }
-
-  attPayBtn.addEventListener('click', ()=>{
-    if(attPayBtn.disabled) return;
-    // qui fai la tua logica di checkout/stripe ecc.
-    alert('Pagamento: placeholder (qui colleghi checkout vero).');
-  });
-
-  /* ======================
-     Secret Gate: double-tap on CITY ONLY
-  ====================== */
-  let tapCount = 0;
-  let tapTimer = null;
-
-  cityTap.addEventListener('click', ()=>{
-    // 2 click anche non di seguito: facciamo “conteggio con finestra lunga”
-    tapCount++;
-    if(tapTimer) clearTimeout(tapTimer);
-    tapTimer = setTimeout(()=>{ tapCount=0; }, 6000);
-
-    if(tapCount >= 2){
-      tapCount = 0;
-      openGate();
-    }
-  });
-
-  function openGate(){
-    gateOverlay.style.display = 'flex';
-    pinErr.style.display = 'none';
-    pinInputs.forEach(i=>i.value='');
-    pinInputs[0].focus();
-  }
-
-  gateBack.addEventListener('click', ()=>{
-    gateOverlay.style.display = 'none';
-  });
-
-  function readPin(){
-    return pinInputs.map(i=>i.value).join('');
-  }
-  function clearPin(){
-    pinInputs.forEach(i=>i.value='');
-    pinInputs[0].focus();
-  }
-
-  // auto-advance
-  pinInputs.forEach((inp, idx)=>{
-    inp.addEventListener('input', async ()=>{
-      inp.value = (inp.value||'').replace(/[^0-9]/g,'').slice(0,1);
-      if(inp.value && idx < pinInputs.length-1) pinInputs[idx+1].focus();
-
-      if(readPin().length === 6){
-        await checkPinAndProceed();
-      }
-    });
-
-    inp.addEventListener('keydown', (e)=>{
-      if(e.key === 'Backspace' && !inp.value && idx>0){
-        pinInputs[idx-1].focus();
-      }
-    });
-  });
-
-  async function checkPinAndProceed(){
-    const pin = readPin();
-    pinErr.style.display = 'none';
-
-    let ok = false;
-
-    // Prefer hash if present
-    if(state.gateHash){
-      const hx = await sha256hexBrowser(pin);
-      ok = (hx === state.gateHash);
-    }else if(state.gateCodePlain){
-      ok = (pin === String(state.gateCodePlain));
-    }else{
-      // if nothing configured, block
-      ok = false;
-    }
-
-    if(ok){
-      gateOverlay.style.display = 'none';
-      openLogin();
-      return;
-    }
-
-    state.gateAttempts++;
-    pinErr.style.display = 'block';
-    pinErr.textContent = 'Codice errato';
-    clearPin();
-
-    if(state.gateAttempts >= 3){
-      // reset + reload
-      state.gateAttempts = 0;
-      gateOverlay.style.display = 'none';
-      location.reload();
-    }
-  }
-
-  /* ======================
-     Login inside index
-  ====================== */
-  function openLogin(){
-    loginOverlay.style.display = 'flex';
-    loginErr.style.display='none';
-    loginMsg.style.display='none';
-    postLoginRow.style.display='none';
-    loginEmail.focus();
-  }
-  loginBack.addEventListener('click', ()=>loginOverlay.style.display='none');
-
-  loginBtn.addEventListener('click', async ()=>{
-    loginErr.style.display='none';
-    loginMsg.style.display='none';
-
-    try{
-      const em = loginEmail.value.trim();
-      const pw = loginPassword.value;
-      if(!em || !pw) throw Error('Inserisci email e password.');
-
-      const cred = await emailSignIn(em, pw);
-      await ensureUserDoc(cred.user);
-
-      // show post-login actions (no redirect)
-      postLoginRow.style.display='grid';
-      setDiscMsg(loginMsg, 'ok', 'Accesso effettuato.');
-      loginMsg.style.display='block';
-    }catch(e){
-      setDiscMsg(loginErr, 'err', e.message || 'Errore imprevisto');
-      loginErr.style.display='block';
-    }
-  });
-
-  goAccount.addEventListener('click', ()=>{
-    location.assign('./account-2.html');
-  });
-  closeLoginContinue.addEventListener('click', ()=>{
-    loginOverlay.style.display='none';
-  });
-
-  goSignup.addEventListener('click', ()=>{
-    location.assign('./signup.html');
-  });
-  goReset.addEventListener('click', async ()=>{
-    const em = loginEmail.value.trim();
-    if(!em){
-      setDiscMsg(loginErr,'err',"Inserisci l'email, poi clicca di nuovo.");
-      loginErr.style.display='block';
-      return;
-    }
-    try{
-      await sendReset(em);
-      setDiscMsg(loginMsg,'ok',"Email di reset inviata.");
-      loginMsg.style.display='block';
-    }catch(e){
-      setDiscMsg(loginErr,'err', e.message || "Errore reset.");
-      loginErr.style.display='block';
-    }
-  });
-
-  /* ======================
-     Logged UI
-  ====================== */
-  onUser((u)=>{
-    state.user = u || null;
-
-    const logged = !!(u && !u.isAnonymous);
-    helloBtn.style.display = logged ? 'inline-flex' : 'none';
-    accountBtn.style.display = logged ? 'inline-flex' : 'none';
-    logoutBtn.style.display = logged ? 'inline-flex' : 'none';
-
-    if(logged){
-      helloName.textContent = u.displayName ? `Ciao ${u.displayName.split(' ')[0]}` : 'Ciao';
-    }
-  });
-
-  accountBtn.addEventListener('click', ()=>location.assign('./account-2.html'));
-  logoutBtn.addEventListener('click', async ()=>{
-    try{ await signOutUser(); }catch{}
-    location.reload();
-  });
-
-  /* ======================
-     Name change button (simple)
-  ====================== */
-  $('#nameChangeBtn').addEventListener('click', ()=>{
-    openTip('Cambio nome', state.nameChangeInfo || 'Info cambio nome non configurata.');
-  });
-
-  /* ======================
-     Freeze bar after FAQ (when Legal visible)
-  ====================== */
-  const legal = $('#legal');
-  const mobileBar = $('#mobileBar');
-
-  const io = new IntersectionObserver((entries)=>{
-    for(const e of entries){
-      if(e.target === legal){
-        state.legalInView = e.isIntersecting;
-        // when legal visible: hide bar (so it "stops" before legal)
-        // (You asked: "dopo faq il banner si ferma e vedi le robe legali sotto")
-        if(state.legalInView){
-          mobileBar.style.display = 'none';
-        }else{
-          if(window.innerWidth < 900) mobileBar.style.display = 'flex';
-        }
-      }
-    }
-  }, { threshold: 0.10 });
-
-  io.observe(legal);
-
-  window.addEventListener('resize', ()=>{
-    if(window.innerWidth >= 900){
-      mobileBar.style.display = 'none';
-    }else{
-      if(!state.legalInView) mobileBar.style.display = 'flex';
-    }
-  });
-
-  /* ======================
-     Init
-  ====================== */
-  $('#tipClose').addEventListener('click', ()=>tooltip.style.display='none');
-
-  // Apply discount from localStorage on load (if any)
-  async function bootDiscount(){
-    const c = (localStorage.getItem('trapperreo_discount_code')||'').trim();
-    if(!c) return;
-    const d = await fetchDiscountByCode(c);
-    if(d){
-      state.discount = d;
-      discInput.value = d.code;
-      discInput2.value = d.code;
-      renderCart();
-    }else{
-      localStorage.removeItem('trapperreo_discount_code');
-    }
-  }
-
-  await loadConfig();
-  await loadTickets();
-  await bootDiscount();
+}
+
+function renderAll(){
+  renderTickets();
+  renderFaq();
   renderCart();
-</script>
+}
 
+clearBtn.onclick = ()=>{
+  for(const k in qty) qty[k]=0;
+  renderAll();
+};
+
+payBtn.onclick = ()=>{
+  if(payBtn.disabled) return;
+  alert('Qui apri la tua pagina/flow attendees SPA (lo facciamo nel prossimo step).');
+};
+
+/* ==========================
+   GATE su BIELLA (solo quello)
+   ========================== */
+const GATE_CODE = "160985"; // <-- il tuo codice (per ora hardcoded, così FUNZIONA)
+let gateAttempts = 0;
+
+const cityTap = qs('#cityTap');
+const gateOverlay = qs('#gateOverlay');
+const pinErr = qs('#pinErr');
+const pinInputs = [...qs('#pinRow').querySelectorAll('input')];
+qs('#gateBack').onclick = ()=> gateOverlay.style.display = 'none';
+
+let tapCount = 0;
+let tapTimer = null;
+
+function onCityTap(){
+  tapCount++;
+  if(tapTimer) clearTimeout(tapTimer);
+  tapTimer = setTimeout(()=>{ tapCount=0; }, 6000);
+
+  if(tapCount>=2){
+    tapCount=0;
+    openGate();
+  }
+}
+cityTap.addEventListener('click', onCityTap);
+cityTap.addEventListener('touchstart', (e)=>{ onCityTap(); }, {passive:true});
+
+function openGate(){
+  gateOverlay.style.display = 'flex';
+  pinErr.style.display = 'none';
+  pinInputs.forEach(i=>i.value='');
+  pinInputs[0].focus();
+}
+
+function readPin(){ return pinInputs.map(i=>i.value).join(''); }
+function clearPin(){
+  pinInputs.forEach(i=>i.value='');
+  pinInputs[0].focus();
+}
+
+async function checkPin(){
+  const pin = readPin();
+  if(pin.length!==6) return;
+
+  if(pin === GATE_CODE){
+    gateOverlay.style.display = 'none';
+    // qui apri login popup / admin panel (step dopo)
+    alert('OK: codice corretto (qui apriamo login dentro index).');
+    return;
+  }
+
+  gateAttempts++;
+  pinErr.style.display = 'block';
+  pinErr.textContent = 'Codice errato';
+  clearPin();
+
+  if(gateAttempts>=3){
+    gateAttempts=0;
+    gateOverlay.style.display = 'none';
+    location.reload();
+  }
+}
+
+pinInputs.forEach((inp, idx)=>{
+  inp.addEventListener('input', ()=>{
+    inp.value = (inp.value||'').replace(/[^0-9]/g,'').slice(0,1);
+    if(inp.value && idx < pinInputs.length-1) pinInputs[idx+1].focus();
+    checkPin();
+  });
+
+  inp.addEventListener('keydown', (e)=>{
+    if(e.key === 'Backspace' && !inp.value && idx>0){
+      pinInputs[idx-1].focus();
+    }
+  });
+});
+
+/* BOOT */
+renderAll();
+</script>
 </body>
 </html>
