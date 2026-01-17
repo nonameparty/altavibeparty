@@ -26,12 +26,7 @@
   --danger:#ef4444;
   --dangerBg:rgba(239,68,68,.10);
   --dangerBorder:rgba(239,68,68,.35);
-
-  --ok:#22c55e;
-  --okBg:rgba(34,197,94,.10);
-  --okBorder:rgba(34,197,94,.35);
 }
-
 *{box-sizing:border-box}
 html,body{height:100%}
 body{
@@ -42,7 +37,7 @@ body{
   min-height:100vh;
 }
 
-/* SFONDO */
+/* BG: assets/bg-poster.png */
 body::before{
   content:"";
   position:fixed; inset:0;
@@ -124,6 +119,7 @@ header{
   opacity:.95;
   margin-bottom:12px;
 }
+
 .pillRow{display:flex;flex-wrap:wrap;gap:10px;margin-top:10px}
 .pill{
   display:inline-flex;align-items:center;justify-content:center;
@@ -173,20 +169,8 @@ header{
   gap:12px;
   align-items:center;
 }
-.tLeft h3{
-  margin:0;
-  font-size:22px;
-  font-weight:900;
-  letter-spacing:-.35px;
-}
-.tLeft .desc{
-  margin-top:6px;
-  color:rgba(255,255,255,.72);
-  font-weight:700;
-  font-size:14px;
-  line-height:1.3;
-}
-
+.tLeft h3{margin:0;font-size:22px;font-weight:900;letter-spacing:-.35px}
+.tLeft .desc{margin-top:6px;color:rgba(255,255,255,.72);font-weight:700;font-size:14px;line-height:1.3}
 .tagRow{margin-top:10px;display:flex;gap:10px;flex-wrap:wrap;align-items:center}
 .tag{
   display:inline-flex;align-items:center;gap:8px;
@@ -198,17 +182,7 @@ header{
   font-size:12px;
   white-space:nowrap;
 }
-.tag.best{
-  border-color:var(--yellowBorder);
-  background:var(--yellowBg);
-  color:#fff3a6;
-}
-.tag.discount{
-  border-color:var(--dangerBorder);
-  background:var(--dangerBg);
-  color:#ffd1d1;
-}
-
+.tag.best{border-color:var(--yellowBorder);background:var(--yellowBg);color:#fff3a6}
 .infoI{
   width:18px;height:18px;border-radius:999px;
   display:inline-grid;place-items:center;
@@ -219,28 +193,11 @@ header{
   cursor:pointer;
   user-select:none;
 }
-
-.tRight{
-  display:flex;align-items:center;justify-content:flex-end;gap:12px;
-}
-.priceWrap{display:flex;flex-direction:column;align-items:flex-end;gap:2px}
-.price{
-  font-size:24px;
-  font-weight:900;
-  letter-spacing:-.4px;
-  white-space:nowrap;
-}
-.oldPrice{
-  font-size:14px;
-  font-weight:900;
-  color:rgba(255,255,255,.55);
-  text-decoration:line-through;
-}
-
+.tRight{display:flex;align-items:center;justify-content:flex-end;gap:12px}
+.price{font-size:24px;font-weight:900;letter-spacing:-.4px;white-space:nowrap}
 .qty{
   display:inline-flex;align-items:center;gap:10px;
-  padding:9px 9px;
-  border-radius:999px;
+  padding:9px 9px;border-radius:999px;
   border:1px solid rgba(255,255,255,.14);
   background:rgba(0,0,0,.22);
 }
@@ -248,15 +205,13 @@ header{
   width:36px;height:36px;border-radius:999px;
   border:1px solid rgba(255,255,255,.14);
   background:rgba(0,0,0,.22);
-  color:#fff;
-  font-weight:900;
-  cursor:pointer;
+  color:#fff;font-weight:900;cursor:pointer;
   display:grid;place-items:center;
   font-size:18px;
 }
 .qval{min-width:22px;text-align:center;font-weight:900;font-size:18px}
 
-/* Mobile compatto */
+/* Mobile (piu piccolo = vedi anche VIP sopra la barra) */
 @media(max-width:560px){
   .heroTitle{font-size:36px}
   .heroDate{font-size:18px}
@@ -266,7 +221,7 @@ header{
   .price{font-size:22px}
 }
 
-/* FAQ */
+/* FAQ accordion */
 #faq{margin-top:18px}
 .faqList{display:grid;gap:10px}
 details.faqItem{
@@ -285,17 +240,11 @@ details.faqItem summary{
 }
 details.faqItem summary::-webkit-details-marker{display:none}
 .chev{opacity:.7;font-weight:900}
-.faqBody{
-  padding:0 14px 14px;
-  color:rgba(255,255,255,.78);
-  font-weight:700;
-  line-height:1.45;
-}
+.faqBody{padding:0 14px 14px;color:rgba(255,255,255,.78);font-weight:700;line-height:1.45}
 
 /* Mobile bar */
-.padForBar{padding-bottom:168px}
+.padForBar{padding-bottom:150px}
 @media(min-width:900px){ .padForBar{padding-bottom:0} }
-
 .mobileBar{
   position:fixed; left:12px; right:12px; bottom:12px;
   z-index:220;
@@ -315,49 +264,18 @@ details.faqItem summary::-webkit-details-marker{display:none}
   padding:11px 14px;border-radius:999px;
   font-weight:900;border:1px solid rgba(255,255,255,.16);
   background:rgba(255,255,255,.06);
-  color:#fff;
-  cursor:pointer;
-  white-space:nowrap;
+  color:#fff;cursor:pointer;white-space:nowrap;
 }
-.barBtn.pay{
-  background:rgba(255,255,255,.10);
-  border-color:rgba(255,255,255,.16);
-  opacity:.65;
-}
+.barBtn.pay{background:rgba(255,255,255,.10);opacity:.65}
 .barBtn.pay.enabled{
   background:var(--lime);
   border-color:rgba(0,0,0,.25);
   color:#0a0a0a;
   opacity:1;
 }
-
-.barRow2{display:flex;gap:10px;align-items:center}
-.discountWrap{
-  flex:1;
-  display:flex;gap:10px;align-items:center;
-  border:1px solid rgba(255,255,255,.14);
-  background:rgba(0,0,0,.22);
-  border-radius:999px;
-  padding:8px 10px;
-}
-.discountWrap input{
-  flex:1;background:transparent;border:none;outline:none;
-  color:#fff;font-weight:900;text-transform:uppercase;
-}
-.msg{
-  display:none;
-  padding:10px 12px;border-radius:14px;
-  border:1px solid rgba(255,255,255,.16);
-  background:rgba(0,0,0,.30);
-  color:rgba(255,255,255,.88);
-  font-weight:900;
-}
-.msg.ok{border-color:var(--okBorder); background:var(--okBg); color:#d7ffe6}
-.msg.err{border-color:var(--dangerBorder); background:var(--dangerBg); color:#ffd1d1}
-
 @media(min-width:900px){ .mobileBar{display:none} }
 
-/* Gate overlay */
+/* Overlay */
 .overlay{
   position:fixed; inset:0;
   background:rgba(0,0,0,.72);
@@ -407,37 +325,11 @@ details.faqItem summary::-webkit-details-marker{display:none}
   color:#ffd1d1;
   font-weight:900;
 }
-
-/* founder-only toast */
-.founderToast{
-  position:fixed;
-  top:72px;
-  left:12px;
-  right:12px;
-  z-index:999;
-  display:none;
-  background:rgba(0,0,0,.86);
-  border:1px solid var(--dangerBorder);
-  border-radius:16px;
-  padding:12px 14px;
-  box-shadow:0 18px 60px rgba(0,0,0,.65);
-  font-weight:900;
-  color:#ffd1d1;
-}
-.founderToast .small{display:block; margin-top:6px; font-weight:800; color:rgba(255,255,255,.72)}
 </style>
 
-<script>
-window.FIREBASE_CONFIG = {
-  apiKey: "AIzaSyDF6BiYXreDirGnT3RPkGwDNlwj5ploUyo",
-  authDomain: "trappereo.firebaseapp.com",
-  projectId: "trappereo",
-  storageBucket: "trappereo.firebasestorage.app",
-  messagingSenderId: "767231932063",
-  appId: "1:767231932063:web:b1431de1c04bbe5dc0d4aa",
-  measurementId: "G-BDBRZQ6J8S"
-};
-</script>
+<!-- Firebase compat (stabile, niente type=module) -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 </head>
 
 <body>
@@ -449,11 +341,6 @@ window.FIREBASE_CONFIG = {
     </div>
   </div>
 </header>
-
-<div class="founderToast" id="fbDownToast">
-  FIREBASE NON RISPONDE
-  <span class="small">Sto usando l’ultima cache salvata. Controlla regole/firestore o connessione.</span>
-</div>
 
 <main class="wrap padForBar">
   <section class="card hero">
@@ -476,7 +363,7 @@ window.FIREBASE_CONFIG = {
   <section id="tickets">
     <div class="sectionHead">
       <h2>Biglietti</h2>
-      <p class="hint">Seleziona quantità e vai al pagamento</p>
+      <p class="hint">Seleziona quantita e vai al pagamento</p>
     </div>
     <div class="ticketsList" id="ticketsList"></div>
   </section>
@@ -503,15 +390,6 @@ window.FIREBASE_CONFIG = {
       <button class="barBtn pay" id="payBtn" disabled>Vai al pagamento</button>
     </div>
   </div>
-
-  <div class="barRow2">
-    <div class="discountWrap">
-      <input id="discountInput" placeholder="CODICE SCONTO" autocomplete="off" />
-      <button class="barBtn" id="discountApply">Applica</button>
-    </div>
-  </div>
-
-  <div class="msg" id="discountMsg"></div>
 </div>
 
 <!-- Gate PIN -->
@@ -521,12 +399,12 @@ window.FIREBASE_CONFIG = {
     <div class="muted">Inserisci il codice a 6 cifre.</div>
 
     <div class="pinRow" id="pinRow">
-      <input inputmode="numeric" pattern="[0-9]*" maxlength="1" />
-      <input inputmode="numeric" pattern="[0-9]*" maxlength="1" />
-      <input inputmode="numeric" pattern="[0-9]*" maxlength="1" />
-      <input inputmode="numeric" pattern="[0-9]*" maxlength="1" />
-      <input inputmode="numeric" pattern="[0-9]*" maxlength="1" />
-      <input inputmode="numeric" pattern="[0-9]*" maxlength="1" />
+      <input inputmode="numeric" maxlength="1" />
+      <input inputmode="numeric" maxlength="1" />
+      <input inputmode="numeric" maxlength="1" />
+      <input inputmode="numeric" maxlength="1" />
+      <input inputmode="numeric" maxlength="1" />
+      <input inputmode="numeric" maxlength="1" />
     </div>
 
     <div class="pinErr" id="pinErr">Codice errato</div>
@@ -541,40 +419,32 @@ window.FIREBASE_CONFIG = {
 <div class="overlay" id="infoOverlay">
   <div class="modal">
     <h3 id="infoTitle">Info</h3>
-    <div class="muted" id="infoText">—</div>
+    <div class="muted" id="infoText">-</div>
     <div class="row">
       <button class="btn" id="infoClose">Chiudi</button>
     </div>
   </div>
 </div>
 
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-app.js";
-import {
-  getFirestore, doc, collection, onSnapshot, getDoc, getDocs, query
-} from "https://www.gstatic.com/firebasejs/12.5.0/firebase-firestore.js";
+<script>
+/* =========================
+   FIREBASE CONFIG (tuo)
+   ========================= */
+const FIREBASE_CONFIG = {
+  apiKey: "AIzaSyDF6BiYXreDirGnT3RPkGwDNlwj5ploUyo",
+  authDomain: "trappereo.firebaseapp.com",
+  projectId: "trappereo",
+  storageBucket: "trappereo.firebasestorage.app",
+  messagingSenderId: "767231932063",
+  appId: "1:767231932063:web:b1431de1c04bbe5dc0d4aa",
+  measurementId: "G-BDBRZQ6J8S"
+};
 
-const firebaseConfig = window.FIREBASE_CONFIG;
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
-
-/* ====== CACHE ====== */
+/* =========================
+   FALLBACK + CACHE (sempre visibile)
+   ========================= */
 const CACHE_KEY = "trappereo_cache_v1";
-function saveCache(payload){
-  try{
-    localStorage.setItem(CACHE_KEY, JSON.stringify({ at:Date.now(), payload }));
-  }catch{}
-}
-function loadCache(){
-  try{
-    const raw = localStorage.getItem(CACHE_KEY);
-    if(!raw) return null;
-    const j = JSON.parse(raw);
-    return j && j.payload ? j.payload : null;
-  }catch{ return null; }
-}
 
-/* ===== fallback hard ===== */
 const FALLBACK = {
   event: {
     cityName:"BIELLA",
@@ -587,49 +457,70 @@ const FALLBACK = {
     adminGateHash:"",
     nameChangeProtectionInfo:"Il cambio nome consente di modificare nominativo, email e data di nascita del ticket."
   },
+  faq: [
+    { q:"Età minima", a:"Ingresso dai 16+ con documento valido" }
+  ],
   tickets: [
     { id:"earlybird", name:"Early Bird", descriptionShort:"Ingresso con drink incluso", priceCents:1200, sort:10, capacity:50, sold:0, active:true, includesNameChange:false },
     { id:"standard1", name:"Standard", descriptionShort:"Ingresso con drink incluso", priceCents:1500, sort:20, capacity:999, sold:0, active:true, includesNameChange:false },
     { id:"standard2", name:"Standard 2nd Release", descriptionShort:"Ingresso con drink incluso", priceCents:1600, sort:30, capacity:999, sold:0, active:true, includesNameChange:false },
     { id:"fast", name:"Ingresso Saltacoda", descriptionShort:"Ingresso saltacoda con drink incluso", priceCents:2200, sort:40, capacity:999, sold:0, active:true, includesNameChange:true },
     { id:"vip", name:"VIP", descriptionShort:"Ingresso saltacoda con drink incluso + area riservata in console", priceCents:2700, sort:50, capacity:999, sold:0, active:true, includesNameChange:true }
-  ],
-  faq: [
-    { q:"Età minima", a:"Ingresso dai 16+ con documento valido" }
-  ],
-  discounts: [] // per fallback
+  ]
 };
 
-/* ===== state ===== */
+function loadCache(){
+  try{
+    const raw = localStorage.getItem(CACHE_KEY);
+    if(!raw) return null;
+    const j = JSON.parse(raw);
+    return j && j.payload ? j.payload : null;
+  }catch(e){ return null; }
+}
+function saveCache(payload){
+  try{
+    localStorage.setItem(CACHE_KEY, JSON.stringify({ at: Date.now(), payload: payload }));
+  }catch(e){}
+}
+
+/* =========================
+   STATE + DOM
+   ========================= */
 const state = {
-  firestoreOk: false,
-  event: {...FALLBACK.event},
+  event: Object.assign({}, FALLBACK.event),
+  faq: FALLBACK.faq.slice(),
   tickets: new Map(FALLBACK.tickets.map(t=>[t.id,t])),
-  faq: [...FALLBACK.faq],
   cart: {},
-  discountApplied: null,   // dal campo input (codice)
-  publicDiscount: null,    // doc con code=="" (sconto visibile a tutti)
-  founderUnlocked: sessionStorage.getItem("founderGateUnlocked")==="1"
+  founderUnlocked: (sessionStorage.getItem("founderGateUnlocked")==="1"),
 };
 
-const el = (q)=>document.querySelector(q);
-const ticketsList = el("#ticketsList");
-const faqList = el("#faqList");
+function $(q){ return document.querySelector(q); }
 
-const cartLabel = el("#cartLabel");
-const cartTotal = el("#cartTotal");
-const clearBtn = el("#clearBtn");
-const payBtn = el("#payBtn");
-const discountInput = el("#discountInput");
-const discountApply = el("#discountApply");
-const discountMsg = el("#discountMsg");
+const ticketsList = $("#ticketsList");
+const faqList = $("#faqList");
+const cartLabel = $("#cartLabel");
+const cartTotal = $("#cartTotal");
+const clearBtn = $("#clearBtn");
+const payBtn = $("#payBtn");
 
-const fbDownToast = el("#fbDownToast");
-
-/* ===== utils ===== */
-function €cents(c){ return (Number(c||0)/100).toFixed(2).replace(".",",") + " €"; }
-function money(n){ return Number(n||0).toFixed(2).replace(".",",") + " €"; }
-
+/* =========================
+   RENDER (sempre)
+   ========================= */
+function eurCents(c){
+  return (Number(c||0)/100).toFixed(2).replace(".",",") + " €";
+}
+function cartCount(){
+  let c=0;
+  for(const k in state.cart) c += Number(state.cart[k]||0);
+  return c;
+}
+function subtotal(){
+  let s=0;
+  for(const [id,t] of state.tickets.entries()){
+    s += (Number(state.cart[id]||0) * (Number(t.priceCents||0)/100));
+  }
+  return s;
+}
 function ticketSoldOut(t){
   const cap = Number(t.capacity||0);
   const sold = Number(t.sold||0);
@@ -637,117 +528,50 @@ function ticketSoldOut(t){
   return sold >= cap;
 }
 
-function cartCount(){
-  let c=0;
-  for(const v of Object.values(state.cart)) c += Number(v||0);
-  return c;
-}
-
-function computeUnitPriceCents(sku){
-  const t = state.tickets.get(sku);
-  if(!t) return 0;
-
-  let price = Number(t.priceCents||0);
-
-  // Sconto pubblico (code=="")
-  const pd = state.publicDiscount;
-  if(pd && pd.active){
-    const expOk = !pd.validUntil || Date.now() <= pd.validUntil;
-    const skuOk = !pd.appliesSkus.length || pd.appliesSkus.includes(sku);
-    if(expOk && skuOk){
-      if(pd.type==="percent"){
-        price = Math.max(0, Math.round(price * (1 - (pd.amount/100))));
-      }else if(pd.type==="fixed"){
-        price = Math.max(0, price - Math.round(pd.amount*100));
-      }
-    }
-  }
-  return price;
-}
-
-function calcSubtotal(){
-  let sum=0;
-  for(const [sku,qty] of Object.entries(state.cart)){
-    const t = state.tickets.get(sku);
-    if(!t) continue;
-    sum += Number(qty||0) * (computeUnitPriceCents(sku)/100);
-  }
-  return sum;
-}
-
-function calcDiscountAmount(){
-  const d = state.discountApplied;
-  if(!d || !d.active) return 0;
-
-  // base SOLO sui prodotti applicabili
-  let base=0;
-  for(const [sku,qty] of Object.entries(state.cart)){
-    if(d.appliesSkus.length && !d.appliesSkus.includes(sku)) continue;
-    base += Number(qty||0) * (computeUnitPriceCents(sku)/100);
-  }
-  if(d.type==="percent") return Math.max(0, +(base*(d.amount/100)).toFixed(2));
-  if(d.type==="fixed") return Math.max(0, Math.min(base, d.amount));
-  return 0;
-}
-
-function calcTotal(){
-  return Math.max(0, calcSubtotal() - calcDiscountAmount());
-}
-
-/* ===== render ===== */
 function renderHero(){
-  el("#cityTap").textContent = state.event.cityName || "BIELLA";
-  el("#genreLabel").textContent = state.event.genreLabel || "TRAP & REGGAETON";
-  el("#eventTitle").textContent = state.event.eventTitle || "TRAPPERREO";
-  el("#dateLabel").textContent = state.event.dateLabel || "";
-  el("#entryBanner").textContent = state.event.entryBanner || "";
-  el("#privateLabel").textContent = state.event.privateLabel || "";
-  el("#lastLabel").textContent = state.event.lastLabel || "";
+  $("#cityTap").textContent = state.event.cityName || "BIELLA";
+  $("#genreLabel").textContent = state.event.genreLabel || "TRAP & REGGAETON";
+  $("#eventTitle").textContent = state.event.eventTitle || "TRAPPERREO";
+  $("#dateLabel").textContent = state.event.dateLabel || "";
+  $("#entryBanner").textContent = state.event.entryBanner || "";
+  $("#privateLabel").textContent = state.event.privateLabel || "";
+  $("#lastLabel").textContent = state.event.lastLabel || "";
 }
 
 function tagForTicket(t){
   if(t.id==="earlybird"){
     const remaining = Math.max(0, Number(t.capacity||0) - Number(t.sold||0));
-    return { text:`SOLO ${remaining} DISPONIBILI`, cls:"" };
+    return { text:"SOLO " + remaining + " DISPONIBILI", cls:"" };
   }
-
-  const early = state.tickets.get("earlybird");
-  const s1 = state.tickets.get("standard1");
-  const s2 = state.tickets.get("standard2");
-  const earlyOut = early ? ticketSoldOut(early) : false;
-  const s1Out = s1 ? ticketSoldOut(s1) : false;
-
-  if(earlyOut && !s1Out && t.id==="standard1") return { text:"IL PIÙ VENDUTO", cls:"best" };
-  if(earlyOut && s1Out && t.id==="standard2") return { text:"IL PIÙ VENDUTO", cls:"best" };
-
   if(t.includesNameChange || t.id==="fast" || t.id==="vip"){
     return { text:"CAMBIO NOME INCLUSO", cls:"" };
   }
+  // "il piu venduto" semplice: se earlybird soldout -> standard1 best, se anche standard1 soldout -> standard2 best
+  const eb = state.tickets.get("earlybird");
+  const s1 = state.tickets.get("standard1");
+  const s2 = state.tickets.get("standard2");
+  const ebOut = eb ? ticketSoldOut(eb) : false;
+  const s1Out = s1 ? ticketSoldOut(s1) : false;
+  if(ebOut && !s1Out && t.id==="standard1") return { text:"IL PIU VENDUTO", cls:"best" };
+  if(ebOut && s1Out && t.id==="standard2") return { text:"IL PIU VENDUTO", cls:"best" };
   return null;
 }
 
-function ensureCartKeys(){
-  for(const t of state.tickets.values()){
-    if(typeof state.cart[t.id] !== "number") state.cart[t.id]=0;
+function ensureCart(){
+  for(const [id,t] of state.tickets.entries()){
+    if(typeof state.cart[id] !== "number") state.cart[id]=0;
   }
 }
 
 function renderTickets(){
-  ensureCartKeys();
-
-  const arr = [...state.tickets.values()]
+  ensureCart();
+  const arr = Array.from(state.tickets.values())
     .filter(t=>t && t.active!==false)
     .sort((a,b)=>Number(a.sort||0)-Number(b.sort||0));
 
-  ticketsList.innerHTML="";
-  for(const t0 of arr){
-    const t = {...t0, id: t0.id};
+  ticketsList.innerHTML = "";
+  for(const t of arr){
     const soldOut = ticketSoldOut(t);
-    const qty = state.cart[t.id]||0;
-
-    const original = Number(t.priceCents||0);
-    const unit = computeUnitPriceCents(t.id);
-    const showStrike = (unit !== original) && (state.publicDiscount && state.publicDiscount.active);
 
     const row = document.createElement("div");
     row.className = "card ticket";
@@ -765,17 +589,16 @@ function renderTickets(){
     h3.textContent = t.name || t.id;
     titleLine.appendChild(h3);
 
-    // INFO "i" solo su fast/vip
+    // i info solo fast/vip
     if(t.id==="fast" || t.id==="vip"){
       const i = document.createElement("div");
       i.className="infoI";
       i.textContent="i";
-      i.title="Info";
-      i.addEventListener("click", (ev)=>{
+      i.addEventListener("click", function(ev){
         ev.preventDefault(); ev.stopPropagation();
         openInfo(
-          t.id==="fast" ? "Ingresso Saltacoda" : "VIP",
-          state.event.nameChangeProtectionInfo || "Il cambio nome consente di modificare nominativo, email e data di nascita del ticket."
+          (t.id==="fast" ? "Ingresso Saltacoda" : "VIP"),
+          (state.event.nameChangeProtectionInfo || "Info cambio nome non disponibile.")
         );
       });
       titleLine.appendChild(i);
@@ -790,79 +613,54 @@ function renderTickets(){
 
     const tagRow = document.createElement("div");
     tagRow.className="tagRow";
-
-    const tag = tagForTicket(t);
-    if(tag){
+    const tg = tagForTicket(t);
+    if(tg){
       const chip = document.createElement("div");
-      chip.className="tag" + (tag.cls ? " "+tag.cls : "");
-      chip.textContent = tag.text;
+      chip.className = "tag" + (tg.cls ? " "+tg.cls : "");
+      chip.textContent = tg.text;
       tagRow.appendChild(chip);
     }
-
-    // Sconto pubblico: label rossa
-    if(state.publicDiscount && state.publicDiscount.active && state.publicDiscount.code===""){
-      const lbl = (state.publicDiscount.label||"").trim();
-      if(lbl){
-        const chip = document.createElement("div");
-        chip.className="tag discount";
-        chip.textContent = lbl;
-        tagRow.appendChild(chip);
-      }
-    }
-
     left.appendChild(tagRow);
 
     const right = document.createElement("div");
     right.className="tRight";
 
-    const priceWrap = document.createElement("div");
-    priceWrap.className="priceWrap";
-
-    if(showStrike){
-      const oldP = document.createElement("div");
-      oldP.className="oldPrice";
-      oldP.textContent = €cents(original);
-      priceWrap.appendChild(oldP);
-    }
-
     const price = document.createElement("div");
     price.className="price";
-    price.textContent = €cents(unit);
-    priceWrap.appendChild(price);
+    price.textContent = eurCents(t.priceCents);
 
     const qwrap = document.createElement("div");
     qwrap.className="qty";
 
     const minus = document.createElement("button");
     minus.className="qbtn";
-    minus.textContent="−";
+    minus.textContent="-";
     minus.disabled = soldOut;
-    minus.onclick=()=>{
-      state.cart[t.id]=Math.max(0,(state.cart[t.id]||0)-1);
-      // se cambia carrello, ricontrolla sconto applicato (minPurchase / autoset ecc)
-      validateAppliedDiscount(true);
-      renderAll();
+    minus.onclick = function(){
+      state.cart[t.id] = Math.max(0,(state.cart[t.id]||0)-1);
+      renderCart();
+      renderTickets();
     };
 
     const val = document.createElement("div");
     val.className="qval";
-    val.textContent=qty;
+    val.textContent = String(state.cart[t.id]||0);
 
     const plus = document.createElement("button");
     plus.className="qbtn";
     plus.textContent="+";
     plus.disabled = soldOut;
-    plus.onclick=()=>{
-      state.cart[t.id]=Math.min(99,(state.cart[t.id]||0)+1);
-      validateAppliedDiscount(true);
-      renderAll();
+    plus.onclick = function(){
+      state.cart[t.id] = Math.min(99,(state.cart[t.id]||0)+1);
+      renderCart();
+      renderTickets();
     };
 
     qwrap.appendChild(minus);
     qwrap.appendChild(val);
     qwrap.appendChild(plus);
 
-    right.appendChild(priceWrap);
+    right.appendChild(price);
     right.appendChild(qwrap);
 
     row.appendChild(left);
@@ -872,27 +670,33 @@ function renderTickets(){
 }
 
 function renderFaq(){
-  faqList.innerHTML="";
+  faqList.innerHTML = "";
   const faq = Array.isArray(state.faq) ? state.faq : [];
   for(const it of faq){
     const d = document.createElement("details");
     d.className="faqItem";
+
     const s = document.createElement("summary");
-    s.innerHTML = `<span>${it.q||""}</span><span class="chev">+</span>`;
+    s.innerHTML = "<span>"+(it.q||"")+"</span><span class='chev'>+</span>";
+    d.appendChild(s);
+
     const b = document.createElement("div");
     b.className="faqBody";
     b.textContent = it.a || "";
-    d.appendChild(s);
     d.appendChild(b);
-    d.addEventListener("toggle", ()=>{ s.querySelector(".chev").textContent = d.open ? "−" : "+"; });
+
+    d.addEventListener("toggle", function(){
+      s.querySelector(".chev").textContent = d.open ? "-" : "+";
+    });
+
     faqList.appendChild(d);
   }
 }
 
 function renderCart(){
   const cnt = cartCount();
-  const tot = calcTotal();
-  cartTotal.textContent = money(tot);
+  const sub = subtotal();
+  cartTotal.textContent = sub.toFixed(2).replace(".",",") + " €";
 
   if(cnt<=0){
     cartLabel.textContent = "Seleziona i biglietti";
@@ -900,7 +704,7 @@ function renderCart(){
     payBtn.disabled=true;
     payBtn.classList.remove("enabled");
   }else{
-    cartLabel.textContent = `${cnt} bigliett${cnt===1?"o":"i"} nel carrello`;
+    cartLabel.textContent = cnt + " bigliett" + (cnt===1 ? "o" : "i") + " nel carrello";
     clearBtn.style.display="inline-flex";
     payBtn.disabled=false;
     payBtn.classList.add("enabled");
@@ -914,196 +718,30 @@ function renderAll(){
   renderCart();
 }
 
-/* ===== info popup ===== */
-const infoOverlay = document.querySelector("#infoOverlay");
-const infoTitle = document.querySelector("#infoTitle");
-const infoText = document.querySelector("#infoText");
-document.querySelector("#infoClose").onclick = ()=> infoOverlay.style.display="none";
+/* =========================
+   INFO POPUP
+   ========================= */
+const infoOverlay = $("#infoOverlay");
+const infoTitle = $("#infoTitle");
+const infoText = $("#infoText");
+$("#infoClose").onclick = function(){ infoOverlay.style.display="none"; };
+
 function openInfo(title, text){
   infoTitle.textContent = title || "Info";
-  infoText.textContent = text || "";
+  infoText.textContent = text || "-";
   infoOverlay.style.display="flex";
 }
 
-/* ===== Discount: leggere docs da Firestore ===== */
-let discountsIndex = []; // array di docs normalizzati
-
-function normalizeDiscount(docId, d){
-  const applies = Array.isArray(d.appliesSkus) ? d.appliesSkus.filter(Boolean) : [];
-  const vUntil = d.validUntil && d.validUntil.toMillis ? d.validUntil.toMillis() : null;
-
-  return {
-    id: docId,
-    active: !!d.active,
-    code: String(d.code||"").trim().toUpperCase(),
-    type: String(d.type||"").trim(),   // percent | fixed
-    amount: Number(d.amount||0),
-    label: String(d.label||"").trim(),
-    minPurchase: Number(d.minPurchase||0),
-    userEmail: String(d.userEmail||"").trim().toLowerCase(),
-    appliesSkus: applies,
-    validUntil: vUntil,
-    autoFix: d.autoFix && typeof d.autoFix === "object" ? d.autoFix : null
-  };
-}
-
-function showDiscountMsg(kind, text){
-  discountMsg.className = "msg " + (kind==="ok" ? "ok" : "err");
-  discountMsg.textContent = text;
-  discountMsg.style.display = "block";
-}
-
-function clearDiscountMsg(){
-  discountMsg.style.display="none";
-  discountMsg.textContent="";
-}
-
-function hasSkuMin(sku, min){
-  return (state.cart[sku]||0) >= min;
-}
-
-function canApplyDiscount(d){
-  if(!d || !d.active) return { ok:false, reason:"Codice non valido." };
-
-  if(d.validUntil && Date.now() > d.validUntil){
-    return { ok:false, reason:"Codice scaduto." };
-  }
-
-  // minPurchase: numero minimo per ciascuno sku applicabile?
-  // Interpretazione semplice: minPurchase è minimo di quantità totale SU UNO degli appliesSkus (o su qualsiasi sku se appliesSkus vuoto)
-  const min = Number(d.minPurchase||0);
-  if(min>0){
-    if(d.appliesSkus.length){
-      const okAny = d.appliesSkus.some(sku => hasSkuMin(sku, min));
-      if(!okAny){
-        return { ok:false, reason:`Minimo acquisto: ${min} su ${d.appliesSkus.join(", ")}.` };
-      }
-    }else{
-      const total = cartCount();
-      if(total < min){
-        return { ok:false, reason:`Minimo acquisto: ${min} bigliett${min===1?"o":"i"}.` };
-      }
-    }
-  }
-
-  return { ok:true };
-}
-
-// autofix: se non rispetta min, prova ad aggiustare carrello
-function tryAutoFix(d){
-  if(!d || !d.autoFix || !d.autoFix.enabled) return false;
-
-  const addSku = String(d.autoFix.addSku||"").trim();
-  const addQty = Number(d.autoFix.addQty||0);
-  const removeSku = String(d.autoFix.removeSku||"").trim();
-  const removeQty = Number(d.autoFix.removeQty||0);
-
-  let changed=false;
-
-  // prova ad aggiungere (solo se sku esiste e non soldout)
-  if(addSku && addQty>0 && state.tickets.has(addSku)){
-    const t = state.tickets.get(addSku);
-    if(!ticketSoldOut({id:addSku, ...t})){
-      state.cart[addSku] = (state.cart[addSku]||0) + addQty;
-      changed=true;
-    }
-  }
-
-  // prova a rimuovere
-  if(removeSku && removeQty>0){
-    state.cart[removeSku] = Math.max(0, (state.cart[removeSku]||0) - removeQty);
-    changed=true;
-  }
-
-  return changed;
-}
-
-// validazione “silenziosa” (es: quando cambia carrello)
-function validateAppliedDiscount(silent){
-  const d = state.discountApplied;
-  if(!d) return;
-
-  const check = canApplyDiscount(d);
-  if(check.ok) return;
-
-  // prova autofix
-  const fixed = tryAutoFix(d);
-  if(fixed){
-    const recheck = canApplyDiscount(d);
-    if(recheck.ok){
-      if(!silent) showDiscountMsg("ok","Carrello aggiornato: codice applicato.");
-      return;
-    }
-  }
-
-  // se non ok -> rimuovi sconto
-  state.discountApplied = null;
-  if(!silent) showDiscountMsg("err", check.reason || "Codice non applicabile.");
-}
-
-// Applica codice (manual)
-function applyDiscountCode(){
-  clearDiscountMsg();
-
-  const code = String(discountInput.value||"").trim().toUpperCase();
-  if(!code){
-    state.discountApplied = null;
-    showDiscountMsg("err","Inserisci un codice.");
-    renderAll();
-    return;
-  }
-
-  const d = discountsIndex.find(x => x.active && x.code === code);
-  if(!d){
-    state.discountApplied = null;
-    showDiscountMsg("err","Codice non valido.");
-    renderAll();
-    return;
-  }
-
-  // controllo minPurchase + ecc
-  let check = canApplyDiscount(d);
-  if(!check.ok){
-    // prova autofix se abilitato
-    const fixed = tryAutoFix(d);
-    if(fixed){
-      check = canApplyDiscount(d);
-    }
-  }
-
-  if(!check.ok){
-    state.discountApplied = null;
-    showDiscountMsg("err", check.reason || "Codice non applicabile.");
-    renderAll();
-    return;
-  }
-
-  state.discountApplied = d;
-  showDiscountMsg("ok","Codice applicato.");
-  renderAll();
-}
-
-discountApply.addEventListener("click", applyDiscountCode);
-
-/* ===== Cart buttons ===== */
-clearBtn.onclick = ()=>{
-  for(const k in state.cart) state.cart[k]=0;
-  state.discountApplied = null;
-  clearDiscountMsg();
-  renderAll();
-};
-
-payBtn.onclick = ()=>{
-  if(payBtn.disabled) return;
-  alert("Step successivo: qui facciamo la SPA attendees nella stessa pagina (come mi avevi chiesto).");
-};
-
-/* ===== Gate su cityTap (2 click entro 6s) ===== */
-const cityTap = el("#cityTap");
-const gateOverlay = el("#gateOverlay");
-const pinErr = el("#pinErr");
-const pinInputs = [...el("#pinRow").querySelectorAll("input")];
-el("#gateBack").onclick = ()=> gateOverlay.style.display = "none";
+/* =========================
+   GATE BIELLA (doppio tap)
+   - usa adminGateHash da config/events
+   - NON c'e' 160985 nel codice
+   ========================= */
+const cityTap = $("#cityTap");
+const gateOverlay = $("#gateOverlay");
+const pinErr = $("#pinErr");
+const pinInputs = Array.from($("#pinRow").querySelectorAll("input"));
+$("#gateBack").onclick = function(){ gateOverlay.style.display="none"; };
 
 let tapCount = 0;
 let tapTimer = null;
@@ -1112,7 +750,7 @@ let gateAttempts = 0;
 function onCityTap(){
   tapCount++;
   if(tapTimer) clearTimeout(tapTimer);
-  tapTimer = setTimeout(()=>{ tapCount=0; }, 6000);
+  tapTimer = setTimeout(function(){ tapCount=0; }, 6000);
 
   if(tapCount>=2){
     tapCount=0;
@@ -1120,11 +758,11 @@ function onCityTap(){
   }
 }
 cityTap.addEventListener("click", onCityTap);
-cityTap.addEventListener("touchstart", ()=>{ onCityTap(); }, {passive:true});
+cityTap.addEventListener("touchstart", function(){ onCityTap(); }, {passive:true});
 
 function openGate(){
-  gateOverlay.style.display = "flex";
-  pinErr.style.display = "none";
+  gateOverlay.style.display="flex";
+  pinErr.style.display="none";
   pinInputs.forEach(i=>i.value="");
   pinInputs[0].focus();
 }
@@ -1137,22 +775,20 @@ function clearPin(){
 
 async function sha256hex(s){
   const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(s));
-  return [...new Uint8Array(buf)].map(b=>b.toString(16).padStart(2,"0")).join("");
+  const arr = Array.from(new Uint8Array(buf));
+  return arr.map(b=>b.toString(16).padStart(2,"0")).join("");
 }
 
 async function checkPin(){
   const pin = readPin();
-  if(pin.length!==6) return;
+  if(pin.length !== 6) return;
 
-  const hash = await sha256hex(pin);
   const expected = String(state.event.adminGateHash||"").trim().toLowerCase();
+  const hash = await sha256hex(pin);
 
   if(expected && hash === expected){
-    gateOverlay.style.display = "none";
-    state.founderUnlocked = true;
+    gateOverlay.style.display="none";
     sessionStorage.setItem("founderGateUnlocked","1");
-    // se firebase è down, mostra toast founder
-    if(!state.firestoreOk) showFirebaseDownToast(true);
     return;
   }
 
@@ -1169,111 +805,98 @@ async function checkPin(){
 }
 
 pinInputs.forEach((inp, idx)=>{
-  inp.addEventListener("input", ()=>{
+  inp.addEventListener("input", function(){
     inp.value = (inp.value||"").replace(/[^0-9]/g,"").slice(0,1);
     if(inp.value && idx < pinInputs.length-1) pinInputs[idx+1].focus();
     checkPin();
   });
-  inp.addEventListener("keydown", (e)=>{
+  inp.addEventListener("keydown", function(e){
     if(e.key==="Backspace" && !inp.value && idx>0){
       pinInputs[idx-1].focus();
     }
   });
 });
 
-/* ===== founder toast firebase down ===== */
-function showFirebaseDownToast(show){
-  if(!state.founderUnlocked) return;
-  fbDownToast.style.display = show ? "block" : "none";
-}
+/* =========================
+   BOTTONI BARRA
+   ========================= */
+clearBtn.onclick = function(){
+  for(const k in state.cart) state.cart[k]=0;
+  renderAll();
+};
+payBtn.onclick = function(){
+  if(payBtn.disabled) return;
+  alert("Step successivo: attendees nella stessa pagina (lo facciamo dopo).");
+};
 
-/* ===== Firestore live subscribe + cache ===== */
-function applyPayload(payload){
-  if(payload?.event) state.event = {...state.event, ...payload.event};
-  if(payload?.faq) state.faq = Array.isArray(payload.faq) ? payload.faq : state.faq;
-  if(payload?.tickets && Array.isArray(payload.tickets)){
-    state.tickets = new Map(payload.tickets.map(t=>[t.id,t]));
-  }
-  if(payload?.discounts && Array.isArray(payload.discounts)){
-    discountsIndex = payload.discounts;
-    // ricalcolo publicDiscount (code=="")
-    state.publicDiscount = discountsIndex.find(d=>d.active && d.code==="") || null;
-
-    // se avevi già un discountApplied e ora non esiste più / non attivo => rimuovi
-    if(state.discountApplied){
-      const still = discountsIndex.find(d=>d.id===state.discountApplied.id && d.active);
-      if(!still) state.discountApplied = null;
+/* =========================
+   BOOT: cache/fallback subito (cosi si vede SEMPRE)
+   ========================= */
+(function boot(){
+  const cached = loadCache();
+  if(cached){
+    if(cached.event) state.event = Object.assign({}, state.event, cached.event);
+    if(Array.isArray(cached.faq)) state.faq = cached.faq.slice();
+    if(Array.isArray(cached.tickets)){
+      state.tickets = new Map(cached.tickets.map(t=>[t.id,t]));
     }
   }
   renderAll();
+})();
+
+/* =========================
+   FIRESTORE REALTIME
+   ========================= */
+let db = null;
+
+try{
+  firebase.initializeApp(FIREBASE_CONFIG);
+  db = firebase.firestore();
+}catch(e){
+  // se firebase non parte, resta fallback/cache
+  console.log("Firebase init error", e);
 }
 
-async function bootFromCacheOrFallback(){
-  const cached = loadCache();
-  if(cached){
-    applyPayload(cached);
-  }else{
-    applyPayload({
-      event: FALLBACK.event,
-      tickets: FALLBACK.tickets,
-      faq: FALLBACK.faq,
-      discounts: []
+if(db){
+  // config/events (event + faq + adminGateHash + info cambio nome)
+  db.collection("config").doc("events").onSnapshot(function(snap){
+    if(!snap.exists) return;
+    const d = snap.data() || {};
+
+    // tutto da config/events come vuoi tu
+    state.event.cityName = d.cityName || state.event.cityName;
+    state.event.genreLabel = d.genreLabel || state.event.genreLabel;
+    state.event.eventTitle = d.eventTitle || state.event.eventTitle;
+    state.event.dateLabel = d.dateLabel || state.event.dateLabel;
+    state.event.entryBanner = d.entryBanner || state.event.entryBanner;
+    state.event.privateLabel = d.privateLabel || state.event.privateLabel;
+    state.event.lastLabel = d.lastLabel || state.event.lastLabel;
+    state.event.adminGateHash = d.adminGateHash || state.event.adminGateHash;
+    state.event.nameChangeProtectionInfo = d.nameChangeProtectionInfo || state.event.nameChangeProtectionInfo;
+
+    if(Array.isArray(d.faq)) state.faq = d.faq;
+
+    // salva cache
+    saveCache({
+      event: state.event,
+      faq: state.faq,
+      tickets: Array.from(state.tickets.values())
     });
-  }
-}
 
-// setup: prima mostra cache/fallback subito (così “si vede sempre”)
-await bootFromCacheOrFallback();
+    renderHero();
+    renderFaq();
+  }, function(err){
+    console.log("events snapshot error", err);
+  });
 
-// 1) events config
-const unsubEvent = onSnapshot(
-  doc(db,"config","events"),
-  (snap)=>{
-    state.firestoreOk = true;
-    showFirebaseDownToast(false);
-
-    const d = snap.exists() ? (snap.data()||{}) : {};
-    const event = {
-      cityName: d.cityName ?? state.event.cityName,
-      genreLabel: d.genreLabel ?? state.event.genreLabel,
-      eventTitle: d.eventTitle ?? state.event.eventTitle,
-      dateLabel: d.dateLabel ?? state.event.dateLabel,
-      entryBanner: d.entryBanner ?? state.event.entryBanner,
-      privateLabel: d.privateLabel ?? state.event.privateLabel,
-      lastLabel: d.lastLabel ?? state.event.lastLabel,
-      adminGateHash: d.adminGateHash ?? state.event.adminGateHash,
-      nameChangeProtectionInfo: d.nameChangeProtectionInfo ?? state.event.nameChangeProtectionInfo
-    };
-    const faq = Array.isArray(d.faq) ? d.faq : state.faq;
-
-    const payload = {
-      event,
-      faq
-    };
-
-    // salva cache parziale: i tickets arrivano a parte, ma va bene
-    saveCache({ ...loadCache(), ...payload });
-    applyPayload(payload);
-  },
-  (err)=>{
-    state.firestoreOk = false;
-    showFirebaseDownToast(true);
-  }
-);
-
-// 2) tickets collection
-const unsubTickets = onSnapshot(
-  query(collection(db,"tickets")),
-  (qsnap)=>{
-    state.firestoreOk = true;
-    showFirebaseDownToast(false);
-
-    const tickets = [];
-    qsnap.forEach(docu=>{
-      const d = docu.data()||{};
-      tickets.push({
+  // tickets collection
+  db.collection("tickets").onSnapshot(function(qs){
+    const arr = [];
+    qs.forEach(function(docu){
+      const d = docu.data() || {};
+      arr.push({
         id: docu.id,
-        active: d.active!==false,
+        active: d.active !== false,
         capacity: Number(d.capacity||0),
         sold: Number(d.sold||0),
         currency: d.currency || "EUR",
@@ -1286,38 +909,21 @@ const unsubTickets = onSnapshot(
       });
     });
 
-    const payload = { tickets };
-    saveCache({ ...loadCache(), ...payload });
-    applyPayload(payload);
-  },
-  (err)=>{
-    state.firestoreOk = false;
-    showFirebaseDownToast(true);
-  }
-);
+    // aggiorna state
+    state.tickets = new Map(arr.map(t=>[t.id,t]));
 
-// 3) discountcodes collection
-const unsubDiscounts = onSnapshot(
-  query(collection(db,"discountcodes")),
-  (qsnap)=>{
-    state.firestoreOk = true;
-    showFirebaseDownToast(false);
-
-    const discounts = [];
-    qsnap.forEach(docu=>{
-      discounts.push(normalizeDiscount(docu.id, docu.data()||{}));
+    saveCache({
+      event: state.event,
+      faq: state.faq,
+      tickets: arr
     });
 
-    const payload = { discounts };
-    saveCache({ ...loadCache(), ...payload });
-    applyPayload(payload);
-  },
-  (err)=>{
-    state.firestoreOk = false;
-    showFirebaseDownToast(true);
-  }
-);
-
+    renderTickets();
+    renderCart();
+  }, function(err){
+    console.log("tickets snapshot error", err);
+  });
+}
 </script>
 </body>
 </html>
