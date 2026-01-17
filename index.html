@@ -8,7 +8,6 @@
 
 <style>
 :root{
-  --bg:#000;
   --text:#fff;
   --muted:rgba(255,255,255,.72);
   --card:rgba(10,10,10,.62);
@@ -25,7 +24,12 @@
   --yellowBorder:rgba(253,224,71,.30);
 
   --danger:#ef4444;
+  --dangerBg:rgba(239,68,68,.10);
+  --dangerBorder:rgba(239,68,68,.35);
+
   --ok:#22c55e;
+  --okBg:rgba(34,197,94,.10);
+  --okBorder:rgba(34,197,94,.35);
 }
 
 *{box-sizing:border-box}
@@ -38,11 +42,12 @@ body{
   min-height:100vh;
 }
 
+/* SFONDO */
 body::before{
   content:"";
   position:fixed; inset:0;
   background:
-    radial-gradient(80% 70% at 50% 20%, rgba(0,0,0,.25), rgba(0,0,0,.78) 62%, rgba(0,0,0,.92)),
+    radial-gradient(80% 70% at 50% 20%, rgba(0,0,0,.25), rgba(0,0,0,.80) 62%, rgba(0,0,0,.92)),
     url("./assets/bg-poster.png");
   background-size:cover;
   background-position:center;
@@ -57,9 +62,6 @@ body::after{
   z-index:-1;
   pointer-events:none;
 }
-
-a{color:inherit}
-button{font-family:inherit}
 
 header{
   position:sticky; top:0; z-index:60;
@@ -84,23 +86,6 @@ header{
   width:22px;height:22px;background:var(--lime);
   border-radius:4px; transform:skew(-6deg);
 }
-.navRight{
-  display:flex; align-items:center; gap:10px; flex-wrap:wrap; justify-content:flex-end;
-}
-.pillBtn{
-  display:inline-flex;align-items:center;justify-content:center;
-  padding:10px 14px;border-radius:999px;
-  border:1px solid rgba(255,255,255,.16);
-  background:rgba(255,255,255,.06);
-  color:#fff;font-weight:900;cursor:pointer;
-  white-space:nowrap;
-}
-.pillBtn.lime{
-  border-color:var(--limeBorder);
-  background:var(--limeBg);
-  color:#eaffc9;
-}
-.pillBtn:active{transform:scale(.99)}
 
 .wrap{max-width:1100px;margin:0 auto;padding:16px}
 .card{
@@ -120,8 +105,6 @@ header{
   font-size:12px;
 }
 .heroTop .dot{opacity:.45}
-
-/* BIELLA cliccabile (non sembra bottone) */
 #cityTap{
   user-select:none;
   -webkit-tap-highlight-color:transparent;
@@ -180,9 +163,9 @@ header{
   font-weight:800;
 }
 
+/* Tickets */
 #tickets{margin-top:14px}
 .ticketsList{display:grid;gap:12px}
-
 .ticket{
   padding:14px;
   display:grid;
@@ -203,6 +186,7 @@ header{
   font-size:14px;
   line-height:1.3;
 }
+
 .tagRow{margin-top:10px;display:flex;gap:10px;flex-wrap:wrap;align-items:center}
 .tag{
   display:inline-flex;align-items:center;gap:8px;
@@ -219,15 +203,40 @@ header{
   background:var(--yellowBg);
   color:#fff3a6;
 }
+.tag.discount{
+  border-color:var(--dangerBorder);
+  background:var(--dangerBg);
+  color:#ffd1d1;
+}
+
+.infoI{
+  width:18px;height:18px;border-radius:999px;
+  display:inline-grid;place-items:center;
+  border:1px solid rgba(255,255,255,.18);
+  background:rgba(0,0,0,.26);
+  font-size:12px;
+  font-weight:900;
+  cursor:pointer;
+  user-select:none;
+}
+
 .tRight{
   display:flex;align-items:center;justify-content:flex-end;gap:12px;
 }
+.priceWrap{display:flex;flex-direction:column;align-items:flex-end;gap:2px}
 .price{
   font-size:24px;
   font-weight:900;
   letter-spacing:-.4px;
   white-space:nowrap;
 }
+.oldPrice{
+  font-size:14px;
+  font-weight:900;
+  color:rgba(255,255,255,.55);
+  text-decoration:line-through;
+}
+
 .qty{
   display:inline-flex;align-items:center;gap:10px;
   padding:9px 9px;
@@ -247,20 +256,17 @@ header{
 }
 .qval{min-width:22px;text-align:center;font-weight:900;font-size:18px}
 
+/* Mobile compatto */
 @media(max-width:560px){
   .heroTitle{font-size:36px}
   .heroDate{font-size:18px}
   .sectionHead h2{font-size:40px}
-  .ticket{
-    grid-template-columns: 1fr;
-    align-items:stretch;
-    padding:12px;
-  }
+  .ticket{grid-template-columns:1fr; padding:12px;}
   .tRight{justify-content:space-between;margin-top:8px}
   .price{font-size:22px}
 }
 
-/* FAQ accordion */
+/* FAQ */
 #faq{margin-top:18px}
 .faqList{display:grid;gap:10px}
 details.faqItem{
@@ -286,22 +292,8 @@ details.faqItem summary::-webkit-details-marker{display:none}
   line-height:1.45;
 }
 
-/* Legal */
-#legal{margin-top:18px}
-.legalBox{padding:14px}
-.legalLinks{display:flex;gap:12px;flex-wrap:wrap}
-.legalLinks a{
-  display:inline-flex;align-items:center;justify-content:center;
-  padding:10px 14px;border-radius:999px;
-  border:1px solid rgba(255,255,255,.16);
-  background:rgba(255,255,255,.06);
-  text-decoration:none;
-  font-weight:900;
-  color:#fff;
-}
-
-/* Mobile bar (più bassa) */
-.padForBar{padding-bottom:150px}
+/* Mobile bar */
+.padForBar{padding-bottom:168px}
 @media(min-width:900px){ .padForBar{padding-bottom:0} }
 
 .mobileBar{
@@ -317,7 +309,7 @@ details.faqItem summary::-webkit-details-marker{display:none}
 .barTop{display:flex;align-items:flex-end;justify-content:space-between;gap:12px}
 .barLeft{display:flex;flex-direction:column;gap:2px}
 .barLeft .k{font-size:12px;color:rgba(255,255,255,.60);font-weight:800}
-.barLeft .v{font-size:32px;font-weight:900;letter-spacing:-.6px;line-height:1}
+.barLeft .v{font-size:30px;font-weight:900;letter-spacing:-.6px;line-height:1}
 .barBtns{display:flex;gap:10px;align-items:center}
 .barBtn{
   padding:11px 14px;border-radius:999px;
@@ -330,12 +322,15 @@ details.faqItem summary::-webkit-details-marker{display:none}
 .barBtn.pay{
   background:rgba(255,255,255,.10);
   border-color:rgba(255,255,255,.16);
+  opacity:.65;
 }
 .barBtn.pay.enabled{
   background:var(--lime);
   border-color:rgba(0,0,0,.25);
   color:#0a0a0a;
+  opacity:1;
 }
+
 .barRow2{display:flex;gap:10px;align-items:center}
 .discountWrap{
   flex:1;
@@ -346,26 +341,23 @@ details.faqItem summary::-webkit-details-marker{display:none}
   padding:8px 10px;
 }
 .discountWrap input{
-  flex:1;
-  background:transparent;border:none;outline:none;
-  color:#fff;font-weight:900;
-  text-transform:uppercase;
+  flex:1;background:transparent;border:none;outline:none;
+  color:#fff;font-weight:900;text-transform:uppercase;
 }
 .msg{
   display:none;
-  margin-top:8px;
   padding:10px 12px;border-radius:14px;
   border:1px solid rgba(255,255,255,.16);
   background:rgba(0,0,0,.30);
   color:rgba(255,255,255,.88);
   font-weight:900;
 }
-.msg.ok{border-color:rgba(34,197,94,.35); background:rgba(34,197,94,.10); color:#d7ffe6}
-.msg.err{border-color:rgba(239,68,68,.35); background:rgba(239,68,68,.12); color:#ffd1d1}
+.msg.ok{border-color:var(--okBorder); background:var(--okBg); color:#d7ffe6}
+.msg.err{border-color:var(--dangerBorder); background:var(--dangerBg); color:#ffd1d1}
 
 @media(min-width:900px){ .mobileBar{display:none} }
 
-/* Overlays */
+/* Gate overlay */
 .overlay{
   position:fixed; inset:0;
   background:rgba(0,0,0,.72);
@@ -393,8 +385,6 @@ details.faqItem summary::-webkit-details-marker{display:none}
   background:rgba(255,255,255,.08);
   color:#fff;
 }
-.btn.lime{background:var(--lime);color:#0a0a0a;border-color:rgba(0,0,0,.25)}
-.btn:disabled{opacity:.5;cursor:not-allowed}
 .pinRow{display:flex;gap:10px;justify-content:center;margin-top:14px}
 .pinRow input{
   width:44px;height:52px;
@@ -407,85 +397,37 @@ details.faqItem summary::-webkit-details-marker{display:none}
   color:#fff;
   outline:none;
 }
-.bannerErr{
+.pinErr{
   display:none;
   margin-top:10px;
   padding:10px 12px;
   border-radius:14px;
-  border:1px solid rgba(239,68,68,.35);
-  background:rgba(239,68,68,.12);
+  border:1px solid var(--dangerBorder);
+  background:var(--dangerBg);
   color:#ffd1d1;
   font-weight:900;
 }
-.bannerOk{
+
+/* founder-only toast */
+.founderToast{
+  position:fixed;
+  top:72px;
+  left:12px;
+  right:12px;
+  z-index:999;
   display:none;
-  margin-top:10px;
-  padding:10px 12px;
-  border-radius:14px;
-  border:1px solid rgba(34,197,94,.35);
-  background:rgba(34,197,94,.10);
-  color:#d7ffe6;
-  font-weight:900;
-}
-
-/* SPA view */
-.view{display:none}
-.view.active{display:block}
-
-/* Attendees */
-.attWrap{margin-top:14px}
-.attGrid{display:grid;gap:12px}
-.attCard{padding:14px}
-.attTop{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px}
-.attTop h3{margin:0;font-size:18px;font-weight:900}
-.drinkBadge{
-  padding:8px 10px;border-radius:999px;
-  border:1px solid rgba(255,255,255,.16);
-  background:rgba(0,0,0,.22);
-  font-weight:900;
-  font-size:12px;
-}
-.drinkBadge.ok{border-color:rgba(34,197,94,.35); background:rgba(34,197,94,.10); color:#d7ffe6}
-.drinkBadge.warn{border-color:rgba(253,224,71,.35); background:rgba(253,224,71,.10); color:#fff3a6}
-.drinkBadge.err{border-color:rgba(239,68,68,.35); background:rgba(239,68,68,.12); color:#ffd1d1}
-.fieldGrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-@media(max-width:520px){ .fieldGrid{grid-template-columns:1fr} }
-label{display:block;font-size:12px;color:rgba(255,255,255,.72);font-weight:800;margin:0 0 6px 2px}
-.input{
-  width:100%;
-  background:#0f0f10;
-  border:1px solid rgba(255,255,255,.16);
-  border-radius:12px;
-  color:#fff;
-  padding:12px 12px;
-  font-weight:800;
-  outline:none;
-}
-.input:focus{border-color:rgba(183,255,60,.45); box-shadow:0 0 0 3px rgba(183,255,60,.10)}
-.smallNote{margin-top:10px;color:rgba(255,255,255,.70);font-size:13px;line-height:1.4}
-
-/* Cookie banner */
-#cookieBanner{
-  position:fixed;left:12px;right:12px;top:12px;z-index:800;
-  display:none;
-}
-.cookieBox{
-  max-width:1100px;margin:0 auto;
-  background:rgba(0,0,0,.82);
-  border:1px solid rgba(255,255,255,.16);
+  background:rgba(0,0,0,.86);
+  border:1px solid var(--dangerBorder);
   border-radius:16px;
-  padding:12px;
-  box-shadow:0 18px 60px rgba(0,0,0,.55);
+  padding:12px 14px;
+  box-shadow:0 18px 60px rgba(0,0,0,.65);
+  font-weight:900;
+  color:#ffd1d1;
 }
-.cookieRow{display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap}
-.cookieText{color:rgba(255,255,255,.82);font-weight:800}
-.cookieBtns{display:flex;gap:10px;flex-wrap:wrap}
+.founderToast .small{display:block; margin-top:6px; font-weight:800; color:rgba(255,255,255,.72)}
 </style>
 
 <script>
-/* =========================
-   ✅ FIREBASE CONFIG (tuo)
-   ========================= */
 window.FIREBASE_CONFIG = {
   apiKey: "AIzaSyDF6BiYXreDirGnT3RPkGwDNlwj5ploUyo",
   authDomain: "trappereo.firebaseapp.com",
@@ -505,121 +447,57 @@ window.FIREBASE_CONFIG = {
       <div class="brand-badge"></div>
       <div>TRAPPERREO</div>
     </div>
-    <div class="navRight">
-      <button class="pillBtn lime" id="nameChangeBtn">Cambio nome</button>
-      <button class="pillBtn" id="helloBtn" style="display:none">👋 <span id="helloName">Ciao</span></button>
-      <button class="pillBtn" id="accountBtn" style="display:none">Area personale</button>
-      <button class="pillBtn" id="logoutBtn" style="display:none">Logout</button>
-    </div>
   </div>
 </header>
 
-<!-- Cookie banner -->
-<div id="cookieBanner">
-  <div class="cookieBox">
-    <div class="cookieRow">
-      <div>
-        <div style="font-weight:900" id="cookieTitle">Cookie</div>
-        <div class="cookieText" id="cookieText">Usiamo cookie tecnici e, se abiliti, cookie di analisi.</div>
-      </div>
-      <div class="cookieBtns">
-        <button class="btn" id="cookieReject">Rifiuta</button>
-        <button class="btn lime" id="cookieAccept">Accetta</button>
-      </div>
-    </div>
-  </div>
+<div class="founderToast" id="fbDownToast">
+  FIREBASE NON RISPONDE
+  <span class="small">Sto usando l’ultima cache salvata. Controlla regole/firestore o connessione.</span>
 </div>
 
 <main class="wrap padForBar">
+  <section class="card hero">
+    <div class="heroTop">
+      <span id="cityTap">BIELLA</span>
+      <span class="dot">•</span>
+      <span id="genreLabel">TRAP &amp; REGGAETON</span>
+    </div>
 
-  <!-- VIEW: HOME -->
-  <div class="view active" id="viewHome">
-    <section class="card hero">
-      <div class="heroTop">
-        <span id="cityTap">BIELLA</span>
-        <span class="dot">•</span>
-        <span id="genreText">TRAP &amp; REGGAETON</span>
-      </div>
+    <div class="heroTitle" id="eventTitle">TRAPPERREO</div>
+    <div class="heroDate" id="dateLabel">Sab 21 Marzo 2026 · 22:30–04:30</div>
 
-      <div class="heroTitle" id="titleText">TRAPPERREO</div>
-      <div class="heroDate" id="dateText">Sab 21 Marzo 2026 · 22:30–04:30</div>
+    <div class="pillRow">
+      <div class="pill" id="entryBanner">Ingresso 16+ con documento</div>
+      <div class="pill dark" id="privateLabel">Evento privato</div>
+      <div class="pill yellow" id="lastLabel">Vendita solo online fino a esaurimento posti</div>
+    </div>
+  </section>
 
-      <div class="pillRow">
-        <div class="pill" id="agePill">Ingresso 16+ con documento</div>
-        <div class="pill dark" id="privatePill">Evento privato</div>
-        <div class="pill yellow" id="lastPill">Vendita solo online fino a esaurimento posti</div>
-      </div>
-    </section>
+  <section id="tickets">
+    <div class="sectionHead">
+      <h2>Biglietti</h2>
+      <p class="hint">Seleziona quantità e vai al pagamento</p>
+    </div>
+    <div class="ticketsList" id="ticketsList"></div>
+  </section>
 
-    <section id="tickets">
-      <div class="sectionHead">
-        <h2>Biglietti</h2>
-        <p class="hint">Seleziona quantità e vai al pagamento</p>
-      </div>
-      <div class="ticketsList" id="ticketsList"></div>
-    </section>
-
-    <section id="faq">
-      <div class="sectionHead">
-        <h2>FAQ</h2>
-        <p class="hint">Domande frequenti</p>
-      </div>
-      <div class="faqList" id="faqList"></div>
-    </section>
-
-    <section id="legal">
-      <div class="sectionHead">
-        <h2>Info legali</h2>
-        <p class="hint">Documenti</p>
-      </div>
-      <div class="card legalBox">
-        <div class="legalLinks" id="legalLinks"></div>
-      </div>
-    </section>
-  </div>
-
-  <!-- VIEW: ATTENDEES (stessa pagina) -->
-  <div class="view" id="viewAtt">
-    <section class="card hero">
-      <div class="heroTop">
-        <span id="attCity">BIELLA</span>
-        <span class="dot">•</span>
-        <span id="attGenre">TRAP &amp; REGGAETON</span>
-      </div>
-      <div class="heroTitle" id="attTitle">TRAPPERREO</div>
-      <div class="heroDate" id="attDate">Inserisci i dati</div>
-      <div style="color:rgba(255,255,255,.75);font-weight:800" id="attMeta"></div>
-    </section>
-
-    <section class="attWrap">
-      <div class="attGrid" id="attList"></div>
-      <div class="card attCard" style="margin-top:12px">
-        <div style="font-weight:900;margin-bottom:8px">Codice sconto</div>
-        <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
-          <div class="discountWrap" style="max-width:420px">
-            <input id="attDiscountInput" placeholder="CODICE SCONTO" autocomplete="off" />
-          </div>
-          <button class="btn" id="attDiscountApply">Applica</button>
-        </div>
-        <div class="msg" id="attDiscountMsg"></div>
-
-        <div style="margin-top:14px;display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end">
-          <button class="btn" id="attBack">Indietro</button>
-          <button class="btn lime" id="attPay" disabled>Procedi al pagamento</button>
-        </div>
-      </div>
-    </section>
-  </div>
-
+  <section id="faq">
+    <div class="sectionHead">
+      <h2>FAQ</h2>
+      <p class="hint">Domande frequenti</p>
+    </div>
+    <div class="faqList" id="faqList"></div>
+  </section>
 </main>
 
-<!-- MOBILE BAR -->
-<div class="mobileBar" id="mobileBar" aria-live="polite">
+<!-- Mobile bar -->
+<div class="mobileBar" aria-live="polite">
   <div class="barTop">
     <div class="barLeft">
       <div class="k" id="cartLabel">Seleziona i biglietti</div>
       <div class="v" id="cartTotal">0,00 €</div>
     </div>
+
     <div class="barBtns">
       <button class="barBtn" id="clearBtn" style="display:none">Svuota</button>
       <button class="barBtn pay" id="payBtn" disabled>Vai al pagamento</button>
@@ -636,7 +514,7 @@ window.FIREBASE_CONFIG = {
   <div class="msg" id="discountMsg"></div>
 </div>
 
-<!-- GATE PIN -->
+<!-- Gate PIN -->
 <div class="overlay" id="gateOverlay">
   <div class="modal">
     <h3>Codice accesso</h3>
@@ -651,7 +529,7 @@ window.FIREBASE_CONFIG = {
       <input inputmode="numeric" pattern="[0-9]*" maxlength="1" />
     </div>
 
-    <div class="bannerErr" id="pinErr">Codice errato</div>
+    <div class="pinErr" id="pinErr">Codice errato</div>
 
     <div class="row">
       <button class="btn" id="gateBack">Indietro</button>
@@ -659,585 +537,622 @@ window.FIREBASE_CONFIG = {
   </div>
 </div>
 
-<!-- AUTH (dentro index) -->
-<div class="overlay" id="authOverlay">
+<!-- Info popup (FAST/VIP) -->
+<div class="overlay" id="infoOverlay">
   <div class="modal">
-    <h3 id="authTitle">Accedi</h3>
-    <div class="muted" id="authSub">Entra per gestire l’evento.</div>
-
-    <div class="bannerErr" id="authErr"></div>
-    <div class="bannerOk" id="authOk"></div>
-
-    <div id="authForm">
-      <div style="margin-top:12px">
-        <label>Email</label>
-        <input class="input" id="authEmail" type="email" placeholder="tuo@email.it" autocomplete="email">
-      </div>
-      <div style="margin-top:10px">
-        <label>Password</label>
-        <input class="input" id="authPass" type="password" placeholder="Minimo 6 caratteri" autocomplete="current-password">
-      </div>
-
-      <div class="row" style="justify-content:space-between;margin-top:12px">
-        <button class="btn" id="authForgot">Password dimenticata?</button>
-        <button class="btn lime" id="authLogin">Entra</button>
-      </div>
-
-      <div id="resetBox" style="display:none;margin-top:12px">
-        <label>Email per reset</label>
-        <input class="input" id="resetEmail" type="email" placeholder="tuo@email.it">
-        <div class="row">
-          <button class="btn lime" id="resetBtn">Invia reset</button>
-        </div>
-      </div>
-    </div>
-
-    <div id="authAfter" style="display:none;margin-top:12px">
-      <div class="bannerOk" style="display:block">Login OK.</div>
-      <div class="row" style="justify-content:space-between">
-        <button class="btn" id="goAccount">Vai all’area personale</button>
-        <button class="btn lime" id="closeAuth">Continua con l’acquisto</button>
-      </div>
-    </div>
-
+    <h3 id="infoTitle">Info</h3>
+    <div class="muted" id="infoText">—</div>
     <div class="row">
-      <button class="btn" id="authBack">Indietro</button>
+      <button class="btn" id="infoClose">Chiudi</button>
     </div>
   </div>
 </div>
 
-<script>
-/* =========================================================
-   ✅ FALLBACK JS (NON DIPENDE DA FIREBASE) -> rende sempre
-   ========================================================= */
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-app.js";
+import {
+  getFirestore, doc, collection, onSnapshot, getDoc, getDocs, query
+} from "https://www.gstatic.com/firebasejs/12.5.0/firebase-firestore.js";
 
-const $ = (q)=>document.querySelector(q);
+const firebaseConfig = window.FIREBASE_CONFIG;
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
 
-const DEFAULT_CONFIG = {
-  hero:{
-    city:"BIELLA",
-    genre:"TRAP & REGGAETON",
-    title:"TRAPPERREO",
-    dateLine:"Sab 21 Marzo 2026 · 22:30–04:30",
-    ageLine:"Ingresso 16+ con documento",
-    privateLine:"Evento privato",
-    lastLine:"Vendita solo online fino a esaurimento posti",
-    location:"Via Italia 38, Biella",
-    eventDate:"2026-03-21"
+/* ====== CACHE ====== */
+const CACHE_KEY = "trappereo_cache_v1";
+function saveCache(payload){
+  try{
+    localStorage.setItem(CACHE_KEY, JSON.stringify({ at:Date.now(), payload }));
+  }catch{}
+}
+function loadCache(){
+  try{
+    const raw = localStorage.getItem(CACHE_KEY);
+    if(!raw) return null;
+    const j = JSON.parse(raw);
+    return j && j.payload ? j.payload : null;
+  }catch{ return null; }
+}
+
+/* ===== fallback hard ===== */
+const FALLBACK = {
+  event: {
+    cityName:"BIELLA",
+    genreLabel:"TRAP & REGGAETON",
+    eventTitle:"TRAPPERREO",
+    dateLabel:"Sab 21 Marzo 2026 · 22:30–04:30",
+    entryBanner:"Ingresso 16+ con documento",
+    privateLabel:"Evento privato",
+    lastLabel:"Vendita solo online fino a esaurimento posti",
+    adminGateHash:"",
+    nameChangeProtectionInfo:"Il cambio nome consente di modificare nominativo, email e data di nascita del ticket."
   },
-  gate:{enabled:true, code:"160985"},
-  nameChange:{price:3.99, includedSkus:["fast","vip"]},
-  tickets:[
-    { id:"earlybird", title:"Early Bird", desc:"Ingresso con drink incluso", price:12, tag:"SOLO 50 DISPONIBILI" },
-    { id:"standard1", title:"Standard", desc:"Ingresso con drink incluso", price:15, tag:"IL PIÙ VENDUTO", tagType:"best" },
-    { id:"standard2", title:"Standard 2nd Release", desc:"Ingresso con drink incluso", price:16 },
-    { id:"fast", title:"Ingresso Saltacoda", desc:"Ingresso saltacoda con drink incluso", price:22, tag:"CAMBIO NOME INCLUSO" },
-    { id:"vip", title:"VIP", desc:"Ingresso saltacoda con drink incluso + area riservata in console", price:27, tag:"CAMBIO NOME INCLUSO" }
+  tickets: [
+    { id:"earlybird", name:"Early Bird", descriptionShort:"Ingresso con drink incluso", priceCents:1200, sort:10, capacity:50, sold:0, active:true, includesNameChange:false },
+    { id:"standard1", name:"Standard", descriptionShort:"Ingresso con drink incluso", priceCents:1500, sort:20, capacity:999, sold:0, active:true, includesNameChange:false },
+    { id:"standard2", name:"Standard 2nd Release", descriptionShort:"Ingresso con drink incluso", priceCents:1600, sort:30, capacity:999, sold:0, active:true, includesNameChange:false },
+    { id:"fast", name:"Ingresso Saltacoda", descriptionShort:"Ingresso saltacoda con drink incluso", priceCents:2200, sort:40, capacity:999, sold:0, active:true, includesNameChange:true },
+    { id:"vip", name:"VIP", descriptionShort:"Ingresso saltacoda con drink incluso + area riservata in console", priceCents:2700, sort:50, capacity:999, sold:0, active:true, includesNameChange:true }
   ],
-  faq:[
-    { q:"Età minima", a:"Ingresso dai 16+ con documento valido." },
-    { q:"Posso acquistare in cassa?", a:"No. Evento privato: vendita solo online fino a esaurimento posti." },
-    { q:"Come funziona il cambio nome?", a:"Il cambio nome permette di cambiare il nominativo, e-mail e data di nascita presenti sopra il ticket. In questo modo potrai cederlo a chi vuoi tu! Il cambio è permesso per un massimo di 2 volte entro 24 ore dall'evento." },
-    { q:"Quanto costa il cambio nome?", a:"Il cambio nome ha un prezzo di €3,99 ma è incluso con l'acquisto di un Ticket Saltacoda oppure un Ticket VIP." }
+  faq: [
+    { q:"Età minima", a:"Ingresso dai 16+ con documento valido" }
   ],
-  legalLinks:{
-    terms:"./termini.html",
-    privacy:"./privacy.html",
-    cookies:"./cookies.html",
-    refunds:"./rimborsi.html"
-  },
-  cookie:{enabled:true,title:"Cookie",text:"Usiamo cookie tecnici e, se abiliti, cookie di analisi.",analyticsOptional:true}
+  discounts: [] // per fallback
 };
 
-let CONFIG = JSON.parse(JSON.stringify(DEFAULT_CONFIG));
+/* ===== state ===== */
+const state = {
+  firestoreOk: false,
+  event: {...FALLBACK.event},
+  tickets: new Map(FALLBACK.tickets.map(t=>[t.id,t])),
+  faq: [...FALLBACK.faq],
+  cart: {},
+  discountApplied: null,   // dal campo input (codice)
+  publicDiscount: null,    // doc con code=="" (sconto visibile a tutti)
+  founderUnlocked: sessionStorage.getItem("founderGateUnlocked")==="1"
+};
 
-/* state */
-let CART = {}; // sku -> qty
-let DISCOUNT_SNAP = null; // {code,type,amount,appliesSkus[],minPurchase,userEmail,autoFix}
-let CURRENT_USER = null; // firebase user (se auth attiva)
+const el = (q)=>document.querySelector(q);
+const ticketsList = el("#ticketsList");
+const faqList = el("#faqList");
 
-function money(n){
-  const v = Number(n||0);
-  return v.toFixed(2).replace(".",",") + " €";
+const cartLabel = el("#cartLabel");
+const cartTotal = el("#cartTotal");
+const clearBtn = el("#clearBtn");
+const payBtn = el("#payBtn");
+const discountInput = el("#discountInput");
+const discountApply = el("#discountApply");
+const discountMsg = el("#discountMsg");
+
+const fbDownToast = el("#fbDownToast");
+
+/* ===== utils ===== */
+function €cents(c){ return (Number(c||0)/100).toFixed(2).replace(".",",") + " €"; }
+function money(n){ return Number(n||0).toFixed(2).replace(".",",") + " €"; }
+
+function ticketSoldOut(t){
+  const cap = Number(t.capacity||0);
+  const sold = Number(t.sold||0);
+  if(!cap) return false;
+  return sold >= cap;
 }
-function validEmail(v){
-  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(v||"").trim());
+
+function cartCount(){
+  let c=0;
+  for(const v of Object.values(state.cart)) c += Number(v||0);
+  return c;
 }
 
-/* init cart keys */
-function syncCartKeys(){
-  CART = CART || {};
-  for(const t of (CONFIG.tickets||[])){
-    if(typeof CART[t.id] !== "number") CART[t.id]=0;
+function computeUnitPriceCents(sku){
+  const t = state.tickets.get(sku);
+  if(!t) return 0;
+
+  let price = Number(t.priceCents||0);
+
+  // Sconto pubblico (code=="")
+  const pd = state.publicDiscount;
+  if(pd && pd.active){
+    const expOk = !pd.validUntil || Date.now() <= pd.validUntil;
+    const skuOk = !pd.appliesSkus.length || pd.appliesSkus.includes(sku);
+    if(expOk && skuOk){
+      if(pd.type==="percent"){
+        price = Math.max(0, Math.round(price * (1 - (pd.amount/100))));
+      }else if(pd.type==="fixed"){
+        price = Math.max(0, price - Math.round(pd.amount*100));
+      }
+    }
+  }
+  return price;
+}
+
+function calcSubtotal(){
+  let sum=0;
+  for(const [sku,qty] of Object.entries(state.cart)){
+    const t = state.tickets.get(sku);
+    if(!t) continue;
+    sum += Number(qty||0) * (computeUnitPriceCents(sku)/100);
+  }
+  return sum;
+}
+
+function calcDiscountAmount(){
+  const d = state.discountApplied;
+  if(!d || !d.active) return 0;
+
+  // base SOLO sui prodotti applicabili
+  let base=0;
+  for(const [sku,qty] of Object.entries(state.cart)){
+    if(d.appliesSkus.length && !d.appliesSkus.includes(sku)) continue;
+    base += Number(qty||0) * (computeUnitPriceCents(sku)/100);
+  }
+  if(d.type==="percent") return Math.max(0, +(base*(d.amount/100)).toFixed(2));
+  if(d.type==="fixed") return Math.max(0, Math.min(base, d.amount));
+  return 0;
+}
+
+function calcTotal(){
+  return Math.max(0, calcSubtotal() - calcDiscountAmount());
+}
+
+/* ===== render ===== */
+function renderHero(){
+  el("#cityTap").textContent = state.event.cityName || "BIELLA";
+  el("#genreLabel").textContent = state.event.genreLabel || "TRAP & REGGAETON";
+  el("#eventTitle").textContent = state.event.eventTitle || "TRAPPERREO";
+  el("#dateLabel").textContent = state.event.dateLabel || "";
+  el("#entryBanner").textContent = state.event.entryBanner || "";
+  el("#privateLabel").textContent = state.event.privateLabel || "";
+  el("#lastLabel").textContent = state.event.lastLabel || "";
+}
+
+function tagForTicket(t){
+  if(t.id==="earlybird"){
+    const remaining = Math.max(0, Number(t.capacity||0) - Number(t.sold||0));
+    return { text:`SOLO ${remaining} DISPONIBILI`, cls:"" };
+  }
+
+  const early = state.tickets.get("earlybird");
+  const s1 = state.tickets.get("standard1");
+  const s2 = state.tickets.get("standard2");
+  const earlyOut = early ? ticketSoldOut(early) : false;
+  const s1Out = s1 ? ticketSoldOut(s1) : false;
+
+  if(earlyOut && !s1Out && t.id==="standard1") return { text:"IL PIÙ VENDUTO", cls:"best" };
+  if(earlyOut && s1Out && t.id==="standard2") return { text:"IL PIÙ VENDUTO", cls:"best" };
+
+  if(t.includesNameChange || t.id==="fast" || t.id==="vip"){
+    return { text:"CAMBIO NOME INCLUSO", cls:"" };
+  }
+  return null;
+}
+
+function ensureCartKeys(){
+  for(const t of state.tickets.values()){
+    if(typeof state.cart[t.id] !== "number") state.cart[t.id]=0;
   }
 }
-syncCartKeys();
 
-/* render hero */
-function renderHero(){
-  $("#cityTap").textContent = CONFIG.hero.city || "BIELLA";
-  $("#genreText").textContent = CONFIG.hero.genre || "TRAP & REGGAETON";
-  $("#titleText").textContent = CONFIG.hero.title || "TRAPPERREO";
-  $("#dateText").textContent = CONFIG.hero.dateLine || "";
-  $("#agePill").textContent = CONFIG.hero.ageLine || "";
-  $("#privatePill").textContent = CONFIG.hero.privateLine || "";
-  $("#lastPill").textContent = CONFIG.hero.lastLine || "";
-
-  $("#attCity").textContent = CONFIG.hero.city || "";
-  $("#attGenre").textContent = CONFIG.hero.genre || "";
-  $("#attTitle").textContent = CONFIG.hero.title || "";
-  $("#attMeta").textContent = (CONFIG.hero.location||"");
-}
-
-/* tickets render */
 function renderTickets(){
-  const list = $("#ticketsList");
-  list.innerHTML = "";
-  const tickets = CONFIG.tickets || [];
-  for(const t of tickets){
+  ensureCartKeys();
+
+  const arr = [...state.tickets.values()]
+    .filter(t=>t && t.active!==false)
+    .sort((a,b)=>Number(a.sort||0)-Number(b.sort||0));
+
+  ticketsList.innerHTML="";
+  for(const t0 of arr){
+    const t = {...t0, id: t0.id};
+    const soldOut = ticketSoldOut(t);
+    const qty = state.cart[t.id]||0;
+
+    const original = Number(t.priceCents||0);
+    const unit = computeUnitPriceCents(t.id);
+    const showStrike = (unit !== original) && (state.publicDiscount && state.publicDiscount.active);
+
     const row = document.createElement("div");
     row.className = "card ticket";
+    row.style.opacity = soldOut ? ".55" : "1";
 
     const left = document.createElement("div");
     left.className = "tLeft";
-    left.innerHTML = `
-      <h3>${t.title || ""}</h3>
-      <div class="desc">${t.desc || ""}</div>
-    `;
+
+    const titleLine = document.createElement("div");
+    titleLine.style.display="flex";
+    titleLine.style.alignItems="center";
+    titleLine.style.gap="10px";
+
+    const h3 = document.createElement("h3");
+    h3.textContent = t.name || t.id;
+    titleLine.appendChild(h3);
+
+    // INFO "i" solo su fast/vip
+    if(t.id==="fast" || t.id==="vip"){
+      const i = document.createElement("div");
+      i.className="infoI";
+      i.textContent="i";
+      i.title="Info";
+      i.addEventListener("click", (ev)=>{
+        ev.preventDefault(); ev.stopPropagation();
+        openInfo(
+          t.id==="fast" ? "Ingresso Saltacoda" : "VIP",
+          state.event.nameChangeProtectionInfo || "Il cambio nome consente di modificare nominativo, email e data di nascita del ticket."
+        );
+      });
+      titleLine.appendChild(i);
+    }
+
+    left.appendChild(titleLine);
+
+    const desc = document.createElement("div");
+    desc.className="desc";
+    desc.textContent = t.descriptionShort || "";
+    left.appendChild(desc);
 
     const tagRow = document.createElement("div");
-    tagRow.className = "tagRow";
-    if(t.tag){
-      const tag = document.createElement("div");
-      tag.className = "tag" + (t.tagType==="best" ? " best" : "");
-      tag.textContent = t.tag;
-      tagRow.appendChild(tag);
+    tagRow.className="tagRow";
+
+    const tag = tagForTicket(t);
+    if(tag){
+      const chip = document.createElement("div");
+      chip.className="tag" + (tag.cls ? " "+tag.cls : "");
+      chip.textContent = tag.text;
+      tagRow.appendChild(chip);
     }
+
+    // Sconto pubblico: label rossa
+    if(state.publicDiscount && state.publicDiscount.active && state.publicDiscount.code===""){
+      const lbl = (state.publicDiscount.label||"").trim();
+      if(lbl){
+        const chip = document.createElement("div");
+        chip.className="tag discount";
+        chip.textContent = lbl;
+        tagRow.appendChild(chip);
+      }
+    }
+
     left.appendChild(tagRow);
 
     const right = document.createElement("div");
-    right.className = "tRight";
+    right.className="tRight";
+
+    const priceWrap = document.createElement("div");
+    priceWrap.className="priceWrap";
+
+    if(showStrike){
+      const oldP = document.createElement("div");
+      oldP.className="oldPrice";
+      oldP.textContent = €cents(original);
+      priceWrap.appendChild(oldP);
+    }
 
     const price = document.createElement("div");
-    price.className = "price";
-    price.textContent = money(t.price||0);
+    price.className="price";
+    price.textContent = €cents(unit);
+    priceWrap.appendChild(price);
 
     const qwrap = document.createElement("div");
-    qwrap.className = "qty";
+    qwrap.className="qty";
 
     const minus = document.createElement("button");
-    minus.className = "qbtn";
-    minus.textContent = "−";
-    minus.onclick = ()=>{ CART[t.id]=Math.max(0,(CART[t.id]||0)-1); renderCart(); };
+    minus.className="qbtn";
+    minus.textContent="−";
+    minus.disabled = soldOut;
+    minus.onclick=()=>{
+      state.cart[t.id]=Math.max(0,(state.cart[t.id]||0)-1);
+      // se cambia carrello, ricontrolla sconto applicato (minPurchase / autoset ecc)
+      validateAppliedDiscount(true);
+      renderAll();
+    };
 
     const val = document.createElement("div");
-    val.className = "qval";
-    val.textContent = CART[t.id]||0;
+    val.className="qval";
+    val.textContent=qty;
 
     const plus = document.createElement("button");
-    plus.className = "qbtn";
-    plus.textContent = "+";
-    plus.onclick = ()=>{ CART[t.id]=Math.min(99,(CART[t.id]||0)+1); renderCart(); };
+    plus.className="qbtn";
+    plus.textContent="+";
+    plus.disabled = soldOut;
+    plus.onclick=()=>{
+      state.cart[t.id]=Math.min(99,(state.cart[t.id]||0)+1);
+      validateAppliedDiscount(true);
+      renderAll();
+    };
 
     qwrap.appendChild(minus);
     qwrap.appendChild(val);
     qwrap.appendChild(plus);
 
-    right.appendChild(price);
+    right.appendChild(priceWrap);
     right.appendChild(qwrap);
 
     row.appendChild(left);
     row.appendChild(right);
-
-    list.appendChild(row);
+    ticketsList.appendChild(row);
   }
 }
 
-/* FAQ render */
 function renderFaq(){
-  const list = $("#faqList");
-  list.innerHTML = "";
-  const faq = CONFIG.faq || [];
+  faqList.innerHTML="";
+  const faq = Array.isArray(state.faq) ? state.faq : [];
   for(const it of faq){
     const d = document.createElement("details");
-    d.className = "faqItem";
+    d.className="faqItem";
     const s = document.createElement("summary");
     s.innerHTML = `<span>${it.q||""}</span><span class="chev">+</span>`;
     const b = document.createElement("div");
-    b.className = "faqBody";
+    b.className="faqBody";
     b.textContent = it.a || "";
     d.appendChild(s);
     d.appendChild(b);
     d.addEventListener("toggle", ()=>{ s.querySelector(".chev").textContent = d.open ? "−" : "+"; });
-    list.appendChild(d);
+    faqList.appendChild(d);
   }
 }
 
-/* Legal links render */
-function renderLegal(){
-  const box = $("#legalLinks");
-  const L = CONFIG.legalLinks || {};
-  const items = [
-    ["Termini e condizioni", L.terms || "./termini.html"],
-    ["Privacy Policy", L.privacy || "./privacy.html"],
-    ["Cookie Policy", L.cookies || "./cookies.html"],
-    ["Rimborsi", L.refunds || "./rimborsi.html"]
-  ];
-  box.innerHTML = "";
-  for(const [label, href] of items){
-    const a = document.createElement("a");
-    a.href = href;
-    a.textContent = label;
-    box.appendChild(a);
-  }
-}
-
-/* cookie banner */
-function renderCookie(){
-  const c = CONFIG.cookie || {};
-  const key="tr_cookie_choice_v1";
-  const saved = localStorage.getItem(key);
-  if(!c.enabled || saved) { $("#cookieBanner").style.display="none"; return; }
-  $("#cookieTitle").textContent = c.title || "Cookie";
-  $("#cookieText").textContent = c.text || "";
-  $("#cookieBanner").style.display="block";
-  $("#cookieReject").onclick = ()=>{ localStorage.setItem(key,"rejected"); $("#cookieBanner").style.display="none"; };
-  $("#cookieAccept").onclick = ()=>{ localStorage.setItem(key,"accepted"); $("#cookieBanner").style.display="none"; };
-}
-
-/* cart math */
-function cartCount(){
-  let c=0; for(const k in CART) c += (CART[k]||0);
-  return c;
-}
-function cartSubtotal(){
-  let s=0;
-  for(const t of (CONFIG.tickets||[])){
-    s += (CART[t.id]||0) * (Number(t.price)||0);
-  }
-  return s;
-}
-function isNameChangeIncludedForSku(sku){
-  const inc = (CONFIG.nameChange && Array.isArray(CONFIG.nameChange.includedSkus)) ? CONFIG.nameChange.includedSkus : ["fast","vip"];
-  return inc.includes(sku);
-}
-function nameChangeTotal(){
-  // se hai selezionato protezione extra (non implementata come switch: tu ora vuoi incluso su fast/vip)
-  // qui metti 0 (il costo lo gestiamo lato policy, non per ticket singolo)
-  return 0;
-}
-function discountAmountForCart(){
-  if(!DISCOUNT_SNAP) return 0;
-
-  // sconto applicabile solo su appliesSkus
-  const applies = DISCOUNT_SNAP.appliesSkus && DISCOUNT_SNAP.appliesSkus.length
-    ? DISCOUNT_SNAP.appliesSkus
-    : (CONFIG.tickets||[]).map(t=>t.id);
-
-  let base=0;
-  for(const t of (CONFIG.tickets||[])){
-    if(!applies.includes(t.id)) continue;
-    base += (CART[t.id]||0) * (Number(t.price)||0);
-  }
-
-  if(DISCOUNT_SNAP.type==="percent"){
-    return Math.max(0, +(base*(Number(DISCOUNT_SNAP.amount||0)/100)).toFixed(2));
-  }
-  if(DISCOUNT_SNAP.type==="fixed"){
-    return Math.max(0, Math.min(base, Number(DISCOUNT_SNAP.amount||0)));
-  }
-  return 0;
-}
-function cartTotal(){
-  const sub = cartSubtotal();
-  const disc = discountAmountForCart();
-  return Math.max(0, sub - disc) + nameChangeTotal();
-}
-
-/* discount UI messages */
-function setDiscountMsg(kind, text, where="home"){
-  const el = where==="att" ? $("#attDiscountMsg") : $("#discountMsg");
-  if(!text){ el.style.display="none"; el.textContent=""; el.className="msg"; return; }
-  el.style.display="block";
-  el.textContent = text;
-  el.className = "msg" + (kind==="ok" ? " ok" : kind==="err" ? " err" : "");
-}
-
-/* render mobile bar */
 function renderCart(){
-  renderTickets(); // update quantities
-
   const cnt = cartCount();
-  const sub = cartTotal();
-
-  $("#cartTotal").textContent = money(sub);
+  const tot = calcTotal();
+  cartTotal.textContent = money(tot);
 
   if(cnt<=0){
-    $("#cartLabel").textContent = "Seleziona i biglietti";
-    $("#clearBtn").style.display = "none";
-    $("#payBtn").classList.remove("enabled");
-    $("#payBtn").disabled = true;
+    cartLabel.textContent = "Seleziona i biglietti";
+    clearBtn.style.display="none";
+    payBtn.disabled=true;
+    payBtn.classList.remove("enabled");
   }else{
-    $("#cartLabel").textContent = `${cnt} bigliett${cnt===1?"o":"i"} nel carrello`;
-    $("#clearBtn").style.display = "inline-flex";
-    $("#payBtn").disabled = false;
-    $("#payBtn").classList.add("enabled");
+    cartLabel.textContent = `${cnt} bigliett${cnt===1?"o":"i"} nel carrello`;
+    clearBtn.style.display="inline-flex";
+    payBtn.disabled=false;
+    payBtn.classList.add("enabled");
+  }
+}
+
+function renderAll(){
+  renderHero();
+  renderTickets();
+  renderFaq();
+  renderCart();
+}
+
+/* ===== info popup ===== */
+const infoOverlay = document.querySelector("#infoOverlay");
+const infoTitle = document.querySelector("#infoTitle");
+const infoText = document.querySelector("#infoText");
+document.querySelector("#infoClose").onclick = ()=> infoOverlay.style.display="none";
+function openInfo(title, text){
+  infoTitle.textContent = title || "Info";
+  infoText.textContent = text || "";
+  infoOverlay.style.display="flex";
+}
+
+/* ===== Discount: leggere docs da Firestore ===== */
+let discountsIndex = []; // array di docs normalizzati
+
+function normalizeDiscount(docId, d){
+  const applies = Array.isArray(d.appliesSkus) ? d.appliesSkus.filter(Boolean) : [];
+  const vUntil = d.validUntil && d.validUntil.toMillis ? d.validUntil.toMillis() : null;
+
+  return {
+    id: docId,
+    active: !!d.active,
+    code: String(d.code||"").trim().toUpperCase(),
+    type: String(d.type||"").trim(),   // percent | fixed
+    amount: Number(d.amount||0),
+    label: String(d.label||"").trim(),
+    minPurchase: Number(d.minPurchase||0),
+    userEmail: String(d.userEmail||"").trim().toLowerCase(),
+    appliesSkus: applies,
+    validUntil: vUntil,
+    autoFix: d.autoFix && typeof d.autoFix === "object" ? d.autoFix : null
+  };
+}
+
+function showDiscountMsg(kind, text){
+  discountMsg.className = "msg " + (kind==="ok" ? "ok" : "err");
+  discountMsg.textContent = text;
+  discountMsg.style.display = "block";
+}
+
+function clearDiscountMsg(){
+  discountMsg.style.display="none";
+  discountMsg.textContent="";
+}
+
+function hasSkuMin(sku, min){
+  return (state.cart[sku]||0) >= min;
+}
+
+function canApplyDiscount(d){
+  if(!d || !d.active) return { ok:false, reason:"Codice non valido." };
+
+  if(d.validUntil && Date.now() > d.validUntil){
+    return { ok:false, reason:"Codice scaduto." };
   }
 
-  // keep input from storage
-  const code = (localStorage.getItem("tr_discount_code")||"").toUpperCase();
-  if(code && !$("#discountInput").value) $("#discountInput").value = code;
-  if(code && !$("#attDiscountInput").value) $("#attDiscountInput").value = code;
-}
-
-/* SPA switch */
-function showView(id){
-  $("#viewHome").classList.remove("active");
-  $("#viewAtt").classList.remove("active");
-  $(id).classList.add("active");
-  // hide bar on legal: gestiamo con IntersectionObserver più sotto
-}
-
-/* attendees builder */
-function buildAttendees(){
-  const list = $("#attList");
-  list.innerHTML = "";
-
-  const tickets = [];
-  for(const t of (CONFIG.tickets||[])){
-    const q = CART[t.id]||0;
-    for(let i=0;i<q;i++){
-      tickets.push({ sku:t.id, title:t.title, idx:i+1, price:Number(t.price)||0 });
+  // minPurchase: numero minimo per ciascuno sku applicabile?
+  // Interpretazione semplice: minPurchase è minimo di quantità totale SU UNO degli appliesSkus (o su qualsiasi sku se appliesSkus vuoto)
+  const min = Number(d.minPurchase||0);
+  if(min>0){
+    if(d.appliesSkus.length){
+      const okAny = d.appliesSkus.some(sku => hasSkuMin(sku, min));
+      if(!okAny){
+        return { ok:false, reason:`Minimo acquisto: ${min} su ${d.appliesSkus.join(", ")}.` };
+      }
+    }else{
+      const total = cartCount();
+      if(total < min){
+        return { ok:false, reason:`Minimo acquisto: ${min} bigliett${min===1?"o":"i"}.` };
+      }
     }
   }
 
-  if(!tickets.length){
-    list.innerHTML = `<div class="card attCard">Nessun biglietto selezionato.</div>`;
-    $("#attPay").disabled = true;
+  return { ok:true };
+}
+
+// autofix: se non rispetta min, prova ad aggiustare carrello
+function tryAutoFix(d){
+  if(!d || !d.autoFix || !d.autoFix.enabled) return false;
+
+  const addSku = String(d.autoFix.addSku||"").trim();
+  const addQty = Number(d.autoFix.addQty||0);
+  const removeSku = String(d.autoFix.removeSku||"").trim();
+  const removeQty = Number(d.autoFix.removeQty||0);
+
+  let changed=false;
+
+  // prova ad aggiungere (solo se sku esiste e non soldout)
+  if(addSku && addQty>0 && state.tickets.has(addSku)){
+    const t = state.tickets.get(addSku);
+    if(!ticketSoldOut({id:addSku, ...t})){
+      state.cart[addSku] = (state.cart[addSku]||0) + addQty;
+      changed=true;
+    }
+  }
+
+  // prova a rimuovere
+  if(removeSku && removeQty>0){
+    state.cart[removeSku] = Math.max(0, (state.cart[removeSku]||0) - removeQty);
+    changed=true;
+  }
+
+  return changed;
+}
+
+// validazione “silenziosa” (es: quando cambia carrello)
+function validateAppliedDiscount(silent){
+  const d = state.discountApplied;
+  if(!d) return;
+
+  const check = canApplyDiscount(d);
+  if(check.ok) return;
+
+  // prova autofix
+  const fixed = tryAutoFix(d);
+  if(fixed){
+    const recheck = canApplyDiscount(d);
+    if(recheck.ok){
+      if(!silent) showDiscountMsg("ok","Carrello aggiornato: codice applicato.");
+      return;
+    }
+  }
+
+  // se non ok -> rimuovi sconto
+  state.discountApplied = null;
+  if(!silent) showDiscountMsg("err", check.reason || "Codice non applicabile.");
+}
+
+// Applica codice (manual)
+function applyDiscountCode(){
+  clearDiscountMsg();
+
+  const code = String(discountInput.value||"").trim().toUpperCase();
+  if(!code){
+    state.discountApplied = null;
+    showDiscountMsg("err","Inserisci un codice.");
+    renderAll();
     return;
   }
 
-  $("#attDate").textContent = "Inserisci i dati";
-  $("#attMeta").textContent = `${CONFIG.hero.dateLine || ""} · ${CONFIG.hero.location || ""}`;
+  const d = discountsIndex.find(x => x.active && x.code === code);
+  if(!d){
+    state.discountApplied = null;
+    showDiscountMsg("err","Codice non valido.");
+    renderAll();
+    return;
+  }
 
-  tickets.forEach((tk, i)=>{
-    const card = document.createElement("div");
-    card.className = "card attCard";
-    card.dataset.index = String(i);
-
-    card.innerHTML = `
-      <div class="attTop">
-        <h3>${tk.title} — Biglietto ${tk.idx}</h3>
-        <div class="drinkBadge" data-drink>Drink: —</div>
-      </div>
-
-      <div class="fieldGrid">
-        <div>
-          <label>Nome</label>
-          <input class="input" data-first autocomplete="given-name" placeholder="Es. Marco">
-        </div>
-        <div>
-          <label>Cognome</label>
-          <input class="input" data-last autocomplete="family-name" placeholder="Es. Rossi">
-        </div>
-      </div>
-
-      <div class="fieldGrid" style="margin-top:10px">
-        <div>
-          <label>Email</label>
-          <input class="input" data-email inputmode="email" autocomplete="email" placeholder="email@email.it">
-        </div>
-        <div>
-          <label>Data di nascita</label>
-          <input class="input" data-dob type="date">
-        </div>
-      </div>
-
-      <div class="smallNote" style="margin-top:10px">
-        ${isNameChangeIncludedForSku(tk.sku) ? "✅ Cambio nome incluso su questo ticket." : "Cambio nome: acquistabile/gestibile secondo policy."}
-      </div>
-    `;
-
-    // listeners
-    const first = card.querySelector("[data-first]");
-    const last  = card.querySelector("[data-last]");
-    const email = card.querySelector("[data-email]");
-    const dob   = card.querySelector("[data-dob]");
-    const drink = card.querySelector("[data-drink]");
-
-    function updateDrink(){
-      const dobVal = dob.value;
-      const msg = computeDrinkMessage(dobVal);
-      drink.textContent = msg.text;
-      drink.classList.remove("ok","warn","err");
-      drink.classList.add(msg.kind);
+  // controllo minPurchase + ecc
+  let check = canApplyDiscount(d);
+  if(!check.ok){
+    // prova autofix se abilitato
+    const fixed = tryAutoFix(d);
+    if(fixed){
+      check = canApplyDiscount(d);
     }
-
-    [first,last,email,dob].forEach(el=>{
-      el.addEventListener("input", ()=>{
-        updateDrink();
-        validateAttendees();
-      });
-      el.addEventListener("change", ()=>{
-        updateDrink();
-        validateAttendees();
-      });
-    });
-
-    updateDrink();
-    list.appendChild(card);
-  });
-
-  // preload discount code
-  const code = (localStorage.getItem("tr_discount_code")||"").toUpperCase();
-  if(code) $("#attDiscountInput").value = code;
-
-  validateAttendees();
-}
-
-/* drink rules */
-function parseYMD(s){
-  if(!s) return null;
-  const [y,m,d] = s.split("-").map(n=>parseInt(n,10));
-  if(!y||!m||!d) return null;
-  return new Date(y, m-1, d, 0, 0, 0, 0);
-}
-function addYears(date, years){
-  const d = new Date(date.getTime());
-  d.setFullYear(d.getFullYear()+years);
-  return d;
-}
-function addDays(date, days){
-  const d = new Date(date.getTime());
-  d.setDate(d.getDate()+days);
-  return d;
-}
-function computeDrinkMessage(dobStr){
-  const eventDate = parseYMD(CONFIG.hero.eventDate || "2026-03-21"); // 00:00
-  const dob = parseYMD(dobStr);
-  if(!dob || !eventDate){
-    return { kind:"warn", text:"Drink: inserisci DOB" };
   }
 
-  const turn18 = addYears(dob, 18); // 00:00 del compleanno
-  const eventPlus1 = addDays(eventDate, 1);
+  if(!check.ok){
+    state.discountApplied = null;
+    showDiscountMsg("err", check.reason || "Codice non applicabile.");
+    renderAll();
+    return;
+  }
 
-  if(turn18 <= eventDate){
-    return { kind:"ok", text:"Drink: alcolico" };
-  }
-  if(turn18 > eventDate && turn18 <= eventPlus1){
-    // compie 18 tra 21 00:00 e 22 00:00 -> nel tuo caso specifico:
-    // se turn18 == 22 00:00 => analcolico e diventa alcolico alle 00:00
-    return { kind:"warn", text:"Drink: analcolico (diventa alcolico alle 00:00)" };
-  }
-  return { kind:"err", text:"Drink: analcolico" };
+  state.discountApplied = d;
+  showDiscountMsg("ok","Codice applicato.");
+  renderAll();
 }
 
-/* validate attendees */
-function validateAttendees(){
-  const cards = [...document.querySelectorAll("#attList .attCard")];
-  if(!cards.length){ $("#attPay").disabled = true; return; }
+discountApply.addEventListener("click", applyDiscountCode);
 
-  let ok=true;
-  for(const c of cards){
-    const first = c.querySelector("[data-first]").value.trim();
-    const last  = c.querySelector("[data-last]").value.trim();
-    const email = c.querySelector("[data-email]").value.trim();
-    const dob   = c.querySelector("[data-dob]").value;
-    if(first.length<2 || last.length<2 || !validEmail(email) || !dob) { ok=false; break; }
-  }
-
-  $("#attPay").disabled = !ok;
-}
-
-/* actions */
-$("#clearBtn").onclick = ()=>{
-  for(const k in CART) CART[k]=0;
-  DISCOUNT_SNAP = null;
-  setDiscountMsg("", "");
-  localStorage.removeItem("tr_discount_snap");
-  renderCart();
-};
-$("#payBtn").onclick = ()=>{
-  if($("#payBtn").disabled) return;
-  // vai a attendees dentro index
-  showView("#viewAtt");
-  buildAttendees();
-};
-$("#attBack").onclick = ()=>{
-  showView("#viewHome");
-};
-$("#attPay").onclick = ()=>{
-  if($("#attPay").disabled) return;
-  alert("Pagamento: qui agganciamo checkout/stripe. (Step successivo)");
+/* ===== Cart buttons ===== */
+clearBtn.onclick = ()=>{
+  for(const k in state.cart) state.cart[k]=0;
+  state.discountApplied = null;
+  clearDiscountMsg();
+  renderAll();
 };
 
-/* Legal: nascondi mobile bar quando entri nella sezione legal (come mi hai chiesto) */
-(function(){
-  const bar = $("#mobileBar");
-  const legal = $("#legal");
-  if(!("IntersectionObserver" in window) || !legal) return;
-  const obs = new IntersectionObserver((entries)=>{
-    const e = entries[0];
-    if(e.isIntersecting){
-      bar.style.display="none";
-    }else{
-      bar.style.display="";
-    }
-  }, { threshold: 0.05 });
-  obs.observe(legal);
-})();
+payBtn.onclick = ()=>{
+  if(payBtn.disabled) return;
+  alert("Step successivo: qui facciamo la SPA attendees nella stessa pagina (come mi avevi chiesto).");
+};
 
-/* Gate: 2 tap su BIELLA (solo quello) */
+/* ===== Gate su cityTap (2 click entro 6s) ===== */
+const cityTap = el("#cityTap");
+const gateOverlay = el("#gateOverlay");
+const pinErr = el("#pinErr");
+const pinInputs = [...el("#pinRow").querySelectorAll("input")];
+el("#gateBack").onclick = ()=> gateOverlay.style.display = "none";
+
 let tapCount = 0;
 let tapTimer = null;
+let gateAttempts = 0;
+
 function onCityTap(){
-  if(!(CONFIG.gate && CONFIG.gate.enabled)) return;
   tapCount++;
   if(tapTimer) clearTimeout(tapTimer);
   tapTimer = setTimeout(()=>{ tapCount=0; }, 6000);
+
   if(tapCount>=2){
     tapCount=0;
     openGate();
   }
 }
-$("#cityTap").addEventListener("click", onCityTap);
-$("#cityTap").addEventListener("touchstart", ()=>onCityTap(), {passive:true});
-
-const gateOverlay = $("#gateOverlay");
-const pinErr = $("#pinErr");
-const pinInputs = [...$("#pinRow").querySelectorAll("input")];
-let gateAttempts=0;
-
-$("#gateBack").onclick = ()=>{ gateOverlay.style.display="none"; };
+cityTap.addEventListener("click", onCityTap);
+cityTap.addEventListener("touchstart", ()=>{ onCityTap(); }, {passive:true});
 
 function openGate(){
-  gateOverlay.style.display="flex";
-  pinErr.style.display="none";
+  gateOverlay.style.display = "flex";
+  pinErr.style.display = "none";
   pinInputs.forEach(i=>i.value="");
   pinInputs[0].focus();
 }
+
 function readPin(){ return pinInputs.map(i=>i.value).join(""); }
 function clearPin(){
   pinInputs.forEach(i=>i.value="");
   pinInputs[0].focus();
 }
+
 async function sha256hex(s){
   const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(s));
   return [...new Uint8Array(buf)].map(b=>b.toString(16).padStart(2,"0")).join("");
 }
+
 async function checkPin(){
   const pin = readPin();
   if(pin.length!==6) return;
 
-  const gate = CONFIG.gate || {};
-  const okPlain = gate.code && pin === String(gate.code);
-  const okHash  = gate.hash ? ((await sha256hex(pin)) === String(gate.hash).toLowerCase()) : false;
+  const hash = await sha256hex(pin);
+  const expected = String(state.event.adminGateHash||"").trim().toLowerCase();
 
-  if(okPlain || okHash){
-    gateOverlay.style.display="none";
-    // entra direttamente in login overlay
-    openAuth();
+  if(expected && hash === expected){
+    gateOverlay.style.display = "none";
+    state.founderUnlocked = true;
+    sessionStorage.setItem("founderGateUnlocked","1");
+    // se firebase è down, mostra toast founder
+    if(!state.firestoreOk) showFirebaseDownToast(true);
     return;
   }
 
@@ -1252,295 +1167,157 @@ async function checkPin(){
     location.reload();
   }
 }
+
 pinInputs.forEach((inp, idx)=>{
   inp.addEventListener("input", ()=>{
     inp.value = (inp.value||"").replace(/[^0-9]/g,"").slice(0,1);
-    if(inp.value && idx<pinInputs.length-1) pinInputs[idx+1].focus();
+    if(inp.value && idx < pinInputs.length-1) pinInputs[idx+1].focus();
     checkPin();
   });
   inp.addEventListener("keydown", (e)=>{
-    if(e.key==="Backspace" && !inp.value && idx>0) pinInputs[idx-1].focus();
+    if(e.key==="Backspace" && !inp.value && idx>0){
+      pinInputs[idx-1].focus();
+    }
   });
 });
 
-/* Auth overlay (ui, firebase logic lo agganciamo nel modulo) */
-const authOverlay = $("#authOverlay");
-function openAuth(){
-  $("#authErr").style.display="none";
-  $("#authOk").style.display="none";
-  $("#authForm").style.display="block";
-  $("#authAfter").style.display="none";
-  authOverlay.style.display="flex";
-  $("#authEmail").focus();
+/* ===== founder toast firebase down ===== */
+function showFirebaseDownToast(show){
+  if(!state.founderUnlocked) return;
+  fbDownToast.style.display = show ? "block" : "none";
 }
-$("#authBack").onclick = ()=>{ authOverlay.style.display="none"; };
-$("#closeAuth").onclick = ()=>{ authOverlay.style.display="none"; };
-$("#goAccount").onclick = ()=>{ location.assign("./account-2.html"); };
-$("#authForgot").onclick = ()=>{
-  const b = $("#resetBox");
-  b.style.display = (b.style.display==="none" || !b.style.display) ? "block" : "none";
-};
 
-/* name change button */
-$("#nameChangeBtn").onclick = ()=>{
-  alert("Cambio nome: qui link/pagina dedicata (lo facciamo dopo).");
-};
-
-/* discount input remember */
-["discountInput","attDiscountInput"].forEach(id=>{
-  const el = $("#"+id);
-  el.addEventListener("input", ()=>{
-    localStorage.setItem("tr_discount_code", (el.value||"").toUpperCase());
-  });
-});
-
-/* boot initial render */
-renderHero();
-renderTickets();
-renderFaq();
-renderLegal();
-renderCookie();
-renderCart();
-
-/* debug: se per qualsiasi motivo render non parte, almeno vedi errori in console */
-</script>
-
-<!-- =========================================================
-     ✅ FIREBASE REAL-TIME (se carica) -> aggiorna dal Firestore
-     ========================================================= -->
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-app.js";
-import { getFirestore, doc, onSnapshot, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-firestore.js";
-import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, sendPasswordResetEmail, signOut } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-auth.js";
-
-const app = initializeApp(window.FIREBASE_CONFIG);
-const db = getFirestore(app);
-const auth = getAuth(app);
-
-const $ = (q)=>document.querySelector(q);
-
-/* ====== realtime config/site ====== */
-onSnapshot(doc(db,"config","site"), (snap)=>{
-  if(!snap.exists()) return;
-  const data = snap.data() || {};
-
-  // aggiorna oggetto globale usato dal fallback
-  window.CONFIG = window.CONFIG || {};
-  // merge “soft”
-  window.CONFIG.hero = Object.assign({}, window.CONFIG.hero||{}, data.hero||{});
-  window.CONFIG.gate = Object.assign({}, window.CONFIG.gate||{}, data.gate||{});
-  window.CONFIG.nameChange = Object.assign({}, window.CONFIG.nameChange||{}, data.nameChange||{});
-  window.CONFIG.tickets = Array.isArray(data.tickets) ? data.tickets : (window.CONFIG.tickets||[]);
-  window.CONFIG.faq = Array.isArray(data.faq) ? data.faq : (window.CONFIG.faq||[]);
-  window.CONFIG.legalLinks = Object.assign({}, window.CONFIG.legalLinks||{}, data.legalLinks||{});
-  window.CONFIG.cookie = Object.assign({}, window.CONFIG.cookie||{}, data.cookie||{});
-
-  // Copia dentro la variabile globale del fallback
-  // (nel fallback è "CONFIG", ma JS globale può leggerla via window)
-  // quindi: window.CONFIG -> CONFIG (se esiste)
-  if(window.CONFIG){
-    // eslint-disable-next-line no-undef
-    CONFIG = window.CONFIG;
+/* ===== Firestore live subscribe + cache ===== */
+function applyPayload(payload){
+  if(payload?.event) state.event = {...state.event, ...payload.event};
+  if(payload?.faq) state.faq = Array.isArray(payload.faq) ? payload.faq : state.faq;
+  if(payload?.tickets && Array.isArray(payload.tickets)){
+    state.tickets = new Map(payload.tickets.map(t=>[t.id,t]));
   }
+  if(payload?.discounts && Array.isArray(payload.discounts)){
+    discountsIndex = payload.discounts;
+    // ricalcolo publicDiscount (code=="")
+    state.publicDiscount = discountsIndex.find(d=>d.active && d.code==="") || null;
 
-  // forza rerender
-  // eslint-disable-next-line no-undef
-  syncCartKeys();
-  // eslint-disable-next-line no-undef
-  renderHero();
-  // eslint-disable-next-line no-undef
-  renderTickets();
-  // eslint-disable-next-line no-undef
-  renderFaq();
-  // eslint-disable-next-line no-undef
-  renderLegal();
-  // eslint-disable-next-line no-undef
-  renderCookie();
-  // eslint-disable-next-line no-undef
-  renderCart();
-}, (err)=>{
-  console.warn("Firestore config/site error:", err);
-});
-
-/* ====== discount apply from Firestore ====== */
-async function fetchDiscount(code){
-  const qy = query(collection(db,"discountcodes"), where("code","==", code));
-  const res = await getDocs(qy);
-  if(res.empty) return null;
-  const d = res.docs[0].data() || {};
-  return d;
-}
-function parseAppliesSkus(v){
-  if(!v) return [];
-  if(Array.isArray(v)) return v.map(s=>String(s).trim()).filter(Boolean);
-  return String(v).split(",").map(s=>s.trim()).filter(Boolean);
-}
-function hasMinPurchase(cart, appliesSkus, minPurchase){
-  const m = Number(minPurchase||0);
-  if(!m) return true;
-  if(!appliesSkus.length) return true;
-  let c=0;
-  for(const s of appliesSkus) c += (cart[s]||0);
-  return c >= m;
-}
-
-async function applyDiscountFromUI(where){
-  const input = where==="att" ? $("#attDiscountInput") : $("#discountInput");
-  const msgFn = (kind,text)=>{
-    // eslint-disable-next-line no-undef
-    setDiscountMsg(kind,text, where==="att" ? "att":"home");
-  };
-
-  const code = (input.value||"").trim().toUpperCase();
-  if(!code){ msgFn("err","Inserisci un codice."); return; }
-
-  let d=null;
-  try{
-    d = await fetchDiscount(code);
-  }catch(e){
-    msgFn("err","Errore nel caricare lo sconto.");
-    return;
-  }
-  if(!d || !d.active){
-    msgFn("err","Codice sconto non valido.");
-    return;
-  }
-
-  const appliesSkus = parseAppliesSkus(d.appliesSkus);
-  const minPurchase = Number(d.minPurchase||0);
-
-  // eslint-disable-next-line no-undef
-  if(!hasMinPurchase(CART, appliesSkus, minPurchase)){
-    // autofix se attivo
-    const af = (d.autoFix && d.autoFix.enabled) ? d.autoFix : null;
-    if(af){
-      const addSku = String(af.addSku||"").trim();
-      const addQty = Number(af.addQty||0);
-      const remSku = String(af.removeSku||"").trim();
-      const remQty = Number(af.removeQty||0);
-
-      // eslint-disable-next-line no-undef
-      if(addSku && addQty>0 && typeof CART[addSku]==="number"){
-        CART[addSku] = (CART[addSku]||0) + addQty;
-      }
-      // eslint-disable-next-line no-undef
-      if(remSku && remQty>0 && typeof CART[remSku]==="number"){
-        CART[remSku] = Math.max(0,(CART[remSku]||0) - remQty);
-      }
-    }
-
-    // eslint-disable-next-line no-undef
-    if(!hasMinPurchase(CART, appliesSkus, minPurchase)){
-      msgFn("err","Codice non applicabile: requisiti minimi non rispettati.");
-      // eslint-disable-next-line no-undef
-      renderCart();
-      return;
+    // se avevi già un discountApplied e ora non esiste più / non attivo => rimuovi
+    if(state.discountApplied){
+      const still = discountsIndex.find(d=>d.id===state.discountApplied.id && d.active);
+      if(!still) state.discountApplied = null;
     }
   }
-
-  // salva snap
-  const snap = {
-    code,
-    type: d.type,
-    amount: Number(d.amount||0),
-    appliesSkus,
-    minPurchase,
-    userEmail: (d.userEmail||"").trim(),
-    autoFix: d.autoFix || null
-  };
-  localStorage.setItem("tr_discount_snap", JSON.stringify(snap));
-  localStorage.setItem("tr_discount_code", code);
-
-  // eslint-disable-next-line no-undef
-  DISCOUNT_SNAP = snap;
-  msgFn("ok","Sconto applicato.");
-  // eslint-disable-next-line no-undef
-  renderCart();
+  renderAll();
 }
 
-/* hook buttons */
-$("#discountApply").addEventListener("click", ()=>applyDiscountFromUI("home"));
-$("#attDiscountApply").addEventListener("click", ()=>applyDiscountFromUI("att"));
-
-/* restore discount snap */
-try{
-  const s = JSON.parse(localStorage.getItem("tr_discount_snap")||"null");
-  if(s && s.code){
-    // eslint-disable-next-line no-undef
-    DISCOUNT_SNAP = s;
+async function bootFromCacheOrFallback(){
+  const cached = loadCache();
+  if(cached){
+    applyPayload(cached);
+  }else{
+    applyPayload({
+      event: FALLBACK.event,
+      tickets: FALLBACK.tickets,
+      faq: FALLBACK.faq,
+      discounts: []
+    });
   }
-}catch{}
-
-/* ====== Auth inside index ====== */
-function showAuthError(text){
-  const b = $("#authErr"); b.style.display="block"; b.textContent=text;
-  $("#authOk").style.display="none";
-}
-function showAuthOk(text){
-  const b = $("#authOk"); b.style.display="block"; b.textContent=text;
-  $("#authErr").style.display="none";
 }
 
-$("#authLogin").addEventListener("click", async ()=>{
-  const email = ($("#authEmail").value||"").trim();
-  const pass  = ($("#authPass").value||"");
-  if(!email || !pass){ showAuthError("Inserisci email e password."); return; }
-  try{
-    await signInWithEmailAndPassword(auth, email, pass);
-    showAuthOk("Login OK.");
-    $("#authForm").style.display="none";
-    $("#authAfter").style.display="block";
-  }catch(e){
-    showAuthError(e.message || "Errore login");
+// setup: prima mostra cache/fallback subito (così “si vede sempre”)
+await bootFromCacheOrFallback();
+
+// 1) events config
+const unsubEvent = onSnapshot(
+  doc(db,"config","events"),
+  (snap)=>{
+    state.firestoreOk = true;
+    showFirebaseDownToast(false);
+
+    const d = snap.exists() ? (snap.data()||{}) : {};
+    const event = {
+      cityName: d.cityName ?? state.event.cityName,
+      genreLabel: d.genreLabel ?? state.event.genreLabel,
+      eventTitle: d.eventTitle ?? state.event.eventTitle,
+      dateLabel: d.dateLabel ?? state.event.dateLabel,
+      entryBanner: d.entryBanner ?? state.event.entryBanner,
+      privateLabel: d.privateLabel ?? state.event.privateLabel,
+      lastLabel: d.lastLabel ?? state.event.lastLabel,
+      adminGateHash: d.adminGateHash ?? state.event.adminGateHash,
+      nameChangeProtectionInfo: d.nameChangeProtectionInfo ?? state.event.nameChangeProtectionInfo
+    };
+    const faq = Array.isArray(d.faq) ? d.faq : state.faq;
+
+    const payload = {
+      event,
+      faq
+    };
+
+    // salva cache parziale: i tickets arrivano a parte, ma va bene
+    saveCache({ ...loadCache(), ...payload });
+    applyPayload(payload);
+  },
+  (err)=>{
+    state.firestoreOk = false;
+    showFirebaseDownToast(true);
   }
-});
+);
 
-$("#resetBtn").addEventListener("click", async ()=>{
-  const em = ($("#resetEmail").value||"").trim();
-  if(!em){ showAuthError("Inserisci l'email per il reset."); return; }
-  try{
-    await sendPasswordResetEmail(auth, em);
-    showAuthOk("Email di reset inviata.");
-  }catch(e){
-    showAuthError(e.message || "Errore reset");
+// 2) tickets collection
+const unsubTickets = onSnapshot(
+  query(collection(db,"tickets")),
+  (qsnap)=>{
+    state.firestoreOk = true;
+    showFirebaseDownToast(false);
+
+    const tickets = [];
+    qsnap.forEach(docu=>{
+      const d = docu.data()||{};
+      tickets.push({
+        id: docu.id,
+        active: d.active!==false,
+        capacity: Number(d.capacity||0),
+        sold: Number(d.sold||0),
+        currency: d.currency || "EUR",
+        descriptionShort: d.descriptionShort || "",
+        includesNameChange: !!d.includesNameChange,
+        name: d.name || docu.id,
+        priceCents: Number(d.priceCents||0),
+        sort: Number(d.sort||0),
+        maxPerOrder: Number(d.maxPerOrder||0)
+      });
+    });
+
+    const payload = { tickets };
+    saveCache({ ...loadCache(), ...payload });
+    applyPayload(payload);
+  },
+  (err)=>{
+    state.firestoreOk = false;
+    showFirebaseDownToast(true);
   }
-});
+);
 
-$("#logoutBtn").addEventListener("click", async ()=>{
-  try{ await signOut(auth); }catch{}
-});
+// 3) discountcodes collection
+const unsubDiscounts = onSnapshot(
+  query(collection(db,"discountcodes")),
+  (qsnap)=>{
+    state.firestoreOk = true;
+    showFirebaseDownToast(false);
 
-/* show header user */
-onAuthStateChanged(auth, (u)=>{
-  // eslint-disable-next-line no-undef
-  CURRENT_USER = u || null;
-  const logged = !!u;
-  $("#helloBtn").style.display = logged ? "inline-flex" : "none";
-  $("#accountBtn").style.display = logged ? "inline-flex" : "none";
-  $("#logoutBtn").style.display = logged ? "inline-flex" : "none";
-  $("#helloName").textContent = logged ? (u.displayName || (u.email||"").split("@")[0] || "Ciao") : "Ciao";
-});
-$("#accountBtn").addEventListener("click", ()=>location.assign("./account-2.html"));
+    const discounts = [];
+    qsnap.forEach(docu=>{
+      discounts.push(normalizeDiscount(docu.id, docu.data()||{}));
+    });
 
-/* expose openAuth for gate success */
-window.openAuth = ()=>{
-  $("#authErr").style.display="none";
-  $("#authOk").style.display="none";
-  $("#authForm").style.display="block";
-  $("#authAfter").style.display="none";
-  $("#authOverlay").style.display="flex";
-  $("#authEmail").focus();
-};
+    const payload = { discounts };
+    saveCache({ ...loadCache(), ...payload });
+    applyPayload(payload);
+  },
+  (err)=>{
+    state.firestoreOk = false;
+    showFirebaseDownToast(true);
+  }
+);
+
 </script>
-
-<script>
-/* small glue: openAuth from module */
-function openAuth(){
-  if(window.openAuth) return window.openAuth();
-  // fallback (se firebase non carica)
-  document.querySelector("#authOverlay").style.display="flex";
-}
-</script>
-
 </body>
 </html>
