@@ -37,13 +37,20 @@ body{
   min-height:100vh;
 }
 
-/* ====== SFONDO: assets/bg-poster.png (quello tuo) ====== */
+/* ====== SFONDO ======
+   1) Consigliato: RAW GitHub (non "blob")
+   2) Se vuoi locale: cambia BG_URL in "./assets/bg-poster.png"
+*/
+:root{
+  --BG_URL: url("https://raw.githubusercontent.com/nonameparty/altavibeparty/main/assets/bg-poster.png");
+}
+
 body::before{
   content:"";
   position:fixed; inset:0;
   background:
     radial-gradient(80% 70% at 50% 20%, rgba(0,0,0,.25), rgba(0,0,0,.75) 62%, rgba(0,0,0,.92)),
-    url("./assets/bg-poster.png");
+    var(--BG_URL);
   background-size:cover;
   background-position:center;
   z-index:-2;
@@ -52,7 +59,7 @@ body::after{
   content:"";
   position:fixed; inset:0;
   background:
-    radial-gradient(60% 60% at 50% 40%, rgba(183,255,60,.09), transparent 62%),
+    radial-gradient(60% 60% at 50% 40%, rgba(183,255,60,.10), transparent 62%),
     linear-gradient(180deg, rgba(0,0,0,.10), rgba(0,0,0,.65));
   z-index:-1;
   pointer-events:none;
@@ -110,7 +117,7 @@ header{
 #cityTap{
   user-select:none;
   -webkit-tap-highlight-color:transparent;
-  cursor:default; /* non sembra bottone */
+  cursor:default;
   pointer-events:auto;
 }
 
@@ -169,7 +176,7 @@ header{
   font-weight:800;
 }
 
-/* ===== Tickets ===== */
+/* ===== Tickets (più piccoli su mobile) ===== */
 #tickets{margin-top:14px}
 .ticketsList{display:grid;gap:12px}
 
@@ -182,7 +189,7 @@ header{
 }
 .tLeft h3{
   margin:0;
-  font-size:22px;
+  font-size:20px;
   font-weight:900;
   letter-spacing:-.35px;
 }
@@ -190,13 +197,13 @@ header{
   margin-top:6px;
   color:rgba(255,255,255,.72);
   font-weight:700;
-  font-size:14px;
+  font-size:13px;
   line-height:1.3;
 }
 .tagRow{margin-top:10px;display:flex;gap:10px;flex-wrap:wrap;align-items:center}
 .tag{
   display:inline-flex;align-items:center;gap:8px;
-  padding:8px 10px;border-radius:999px;
+  padding:7px 10px;border-radius:999px;
   border:1px solid var(--limeBorder);
   background:var(--limeBg);
   color:#eaffc9;
@@ -220,20 +227,20 @@ header{
   display:flex;align-items:center;justify-content:flex-end;gap:12px;
 }
 .price{
-  font-size:24px;
+  font-size:22px;
   font-weight:900;
   letter-spacing:-.4px;
   white-space:nowrap;
 }
 .qty{
   display:inline-flex;align-items:center;gap:10px;
-  padding:10px 10px;
+  padding:9px 9px;
   border-radius:999px;
   border:1px solid rgba(255,255,255,.14);
   background:rgba(0,0,0,.22);
 }
 .qbtn{
-  width:38px;height:38px;border-radius:999px;
+  width:34px;height:34px;border-radius:999px;
   border:1px solid rgba(255,255,255,.14);
   background:rgba(0,0,0,.22);
   color:#fff;
@@ -242,22 +249,23 @@ header{
   display:grid;place-items:center;
   font-size:18px;
 }
-.qval{min-width:22px;text-align:center;font-weight:900;font-size:18px}
+.qval{min-width:20px;text-align:center;font-weight:900;font-size:16px}
 
-/* Mobile: super compatto così vedi VIP sopra la barra */
+/* Mobile: compattissimo per vedere VIP sopra la barra */
 @media(max-width:560px){
-  .heroTitle{font-size:36px}
+  .heroTitle{font-size:34px}
   .heroDate{font-size:18px}
   .sectionHead h2{font-size:40px}
+
   .ticket{
     grid-template-columns: 1fr;
     align-items:stretch;
     padding:12px;
   }
   .tRight{justify-content:space-between;margin-top:8px}
-  .price{font-size:22px}
-  .qty{padding:9px 9px}
-  .qbtn{width:36px;height:36px}
+  .price{font-size:20px}
+  .qty{padding:8px 8px}
+  .qbtn{width:32px;height:32px}
 }
 
 /* ===== FAQ accordion ===== */
@@ -287,7 +295,7 @@ details.faqItem summary::-webkit-details-marker{display:none}
 }
 
 /* ===== Mobile bar (più piccola) ===== */
-.padForBar{padding-bottom:150px}
+.padForBar{padding-bottom:132px}
 @media(min-width:900px){ .padForBar{padding-bottom:0} }
 
 .mobileBar{
@@ -303,10 +311,10 @@ details.faqItem summary::-webkit-details-marker{display:none}
 .barTop{display:flex;align-items:flex-end;justify-content:space-between;gap:12px}
 .barLeft{display:flex;flex-direction:column;gap:2px}
 .barLeft .k{font-size:12px;color:rgba(255,255,255,.60);font-weight:800}
-.barLeft .v{font-size:34px;font-weight:900;letter-spacing:-.6px;line-height:1}
+.barLeft .v{font-size:30px;font-weight:900;letter-spacing:-.6px;line-height:1}
 .barBtns{display:flex;gap:10px;align-items:center}
 .barBtn{
-  padding:11px 14px;border-radius:999px;
+  padding:10px 12px;border-radius:999px;
   font-weight:900;border:1px solid rgba(255,255,255,.16);
   background:rgba(255,255,255,.06);
   color:#fff;
@@ -392,16 +400,16 @@ details.faqItem summary::-webkit-details-marker{display:none}
     <div class="heroTop">
       <span id="cityTap">BIELLA</span>
       <span class="dot">•</span>
-      <span>TRAP &amp; REGGAETON</span>
+      <span id="genreLine">TRAP &amp; REGGAETON</span>
     </div>
 
-    <div class="heroTitle">TRAPPERREO</div>
-    <div class="heroDate">Sab 21 Marzo 2026 · 22:30–04:30</div>
+    <div class="heroTitle" id="eventTitle">TRAPPERREO</div>
+    <div class="heroDate" id="eventDateLine">Sab 21 Marzo 2026 · 22:30–04:30</div>
 
     <div class="pillRow">
-      <div class="pill">Ingresso 16+ con documento</div>
-      <div class="pill dark">Evento privato</div>
-      <div class="pill yellow">Vendita solo online fino a esaurimento posti</div>
+      <div class="pill" id="pill1">Ingresso 16+ con documento</div>
+      <div class="pill dark" id="pill2">Evento privato</div>
+      <div class="pill yellow" id="pill3">Vendita solo online fino a esaurimento posti</div>
     </div>
   </section>
 
@@ -461,19 +469,41 @@ details.faqItem summary::-webkit-details-marker{display:none}
   </div>
 </div>
 
-<script>
+<script type="module">
 /* ==========================
-   DATI (fallback locale)
+   FIREBASE (TUOI DATI)
    ========================== */
-const TICKETS = [
-  { id:'earlybird', title:'Early Bird', desc:'Ingresso con drink incluso', price:12.00, tag:'SOLO 50 DISPONIBILI' },
-  { id:'standard1', title:'Standard', desc:'Ingresso con drink incluso', price:15.00, tag:'IL PIÙ VENDUTO', tagClass:'best' },
-  { id:'standard2', title:'Standard 2nd Release', desc:'Ingresso con drink incluso', price:16.00, tag:null },
-  { id:'fast', title:'Ingresso Saltacoda', desc:'Ingresso saltacoda con drink incluso', price:22.00, tag:'CAMBIO NOME INCLUSO' },
-  { id:'vip', title:'VIP', desc:'Ingresso saltacoda con drink incluso + area riservata in console', price:27.00, tag:'CAMBIO NOME INCLUSO' }
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-app.js";
+import {
+  getFirestore, doc, collection, query, orderBy,
+  onSnapshot
+} from "https://www.gstatic.com/firebasejs/12.5.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyDF6BiYXreDirGnT3RPkGwDNlwj5ploUyo",
+  authDomain: "trappereo.firebaseapp.com",
+  projectId: "trappereo",
+  storageBucket: "trappereo.firebasestorage.app",
+  messagingSenderId: "767231932063",
+  appId: "1:767231932063:web:b1431de1c04bbe5dc0d4aa",
+  measurementId: "G-BDBRZQ6J8S"
+};
+
+const app = initializeApp(firebaseConfig);
+const db  = getFirestore(app);
+
+/* ==========================
+   FALLBACK LOCALE (se Firestore fallisce)
+   ========================== */
+const FALLBACK_TICKETS = [
+  { id:'earlybird', title:'Early Bird', desc:'Ingresso con drink incluso', price:12.00, tag:'SOLO 50 DISPONIBILI', tagStyle:'lime' },
+  { id:'standard1', title:'Standard', desc:'Ingresso con drink incluso', price:15.00, tag:'IL PIÙ VENDUTO', tagStyle:'best' },
+  { id:'standard2', title:'Standard 2nd Release', desc:'Ingresso con drink incluso', price:16.00, tag:null, tagStyle:'grey' },
+  { id:'fast', title:'Fast (Saltacoda)', desc:'Ingresso saltacoda con drink incluso', price:22.00, tag:'CAMBIO NOME INCLUSO', tagStyle:'lime' },
+  { id:'vip', title:'VIP', desc:'Ingresso saltacoda con drink incluso + area riservata', price:27.00, tag:'CAMBIO NOME INCLUSO', tagStyle:'lime' }
 ];
 
-const FAQ = [
+const FALLBACK_FAQ = [
   { q:'Età minima', a:'Ingresso dai 16+ con documento valido' },
   { q:'Posso acquistare in cassa?', a:'No. Evento privato: vendita solo online fino a esaurimento posti.' },
   { q:'Come funziona il cambio nome?', a:"Il cambio nome permette di cambiare il nominativo, e-mail e data di nascita presenti sopra il ticket. In questo modo potrai cederlo a chi vuoi tu! Il cambio è permesso per un massimo di 2 volte entro 24 ore dall'evento." },
@@ -481,32 +511,45 @@ const FAQ = [
 ];
 
 /* ==========================
-   RENDER
+   UI HELPERS
    ========================== */
 const € = n => Number(n||0).toFixed(2).replace('.',',') + ' €';
 const qs = s => document.querySelector(s);
 
 const ticketsList = qs('#ticketsList');
-const faqList = qs('#faqList');
-const cartLabel = qs('#cartLabel');
-const cartTotal = qs('#cartTotal');
-const clearBtn = qs('#clearBtn');
-const payBtn = qs('#payBtn');
+const faqList     = qs('#faqList');
+const cartLabel   = qs('#cartLabel');
+const cartTotal   = qs('#cartTotal');
+const clearBtn    = qs('#clearBtn');
+const payBtn      = qs('#payBtn');
 
-const qty = Object.fromEntries(TICKETS.map(t=>[t.id,0]));
+let TICKETS = [...FALLBACK_TICKETS];
+let FAQ     = [...FALLBACK_FAQ];
+
+const qty = {}; // { ticketId: number }
+function ensureQty(){
+  for(const t of TICKETS){
+    if(typeof qty[t.id] !== 'number') qty[t.id] = 0;
+  }
+  // elimina qty di ticket rimossi
+  for(const k of Object.keys(qty)){
+    if(!TICKETS.find(t=>t.id===k)) delete qty[k];
+  }
+}
 
 function subtotal(){
   let s=0;
-  for(const t of TICKETS) s += qty[t.id]*t.price;
+  for(const t of TICKETS) s += (qty[t.id]||0)*Number(t.price||0);
   return s;
 }
 function countTickets(){
   let c=0;
-  for(const k in qty) c += qty[k];
+  for(const k in qty) c += (qty[k]||0);
   return c;
 }
 
 function renderTickets(){
+  ensureQty();
   ticketsList.innerHTML = '';
   for(const t of TICKETS){
     const row = document.createElement('div');
@@ -515,15 +558,17 @@ function renderTickets(){
     const left = document.createElement('div');
     left.className = 'tLeft';
     left.innerHTML = `
-      <h3>${t.title}</h3>
-      <div class="desc">${t.desc}</div>
+      <h3>${t.title || ''}</h3>
+      <div class="desc">${t.desc || ''}</div>
     `;
 
     const tagRow = document.createElement('div');
     tagRow.className = 'tagRow';
+
     if(t.tag){
       const tag = document.createElement('div');
-      tag.className = 'tag' + (t.tagClass ? (' '+t.tagClass) : '');
+      const style = (t.tagStyle || '').toLowerCase();
+      tag.className = 'tag' + (style==='best' ? ' best' : style==='grey' ? ' grey' : '');
       tag.textContent = t.tag;
       tagRow.appendChild(tag);
     }
@@ -541,17 +586,19 @@ function renderTickets(){
 
     const minus = document.createElement('button');
     minus.className = 'qbtn';
+    minus.type = 'button';
     minus.textContent = '−';
-    minus.onclick = () => { qty[t.id] = Math.max(0, qty[t.id]-1); renderAll(); };
+    minus.onclick = () => { qty[t.id] = Math.max(0, (qty[t.id]||0)-1); renderCart(); renderTickets(); };
 
     const val = document.createElement('div');
     val.className = 'qval';
-    val.textContent = qty[t.id];
+    val.textContent = (qty[t.id]||0);
 
     const plus = document.createElement('button');
     plus.className = 'qbtn';
+    plus.type = 'button';
     plus.textContent = '+';
-    plus.onclick = () => { qty[t.id] = Math.min(99, qty[t.id]+1); renderAll(); };
+    plus.onclick = () => { qty[t.id] = Math.min(99, (qty[t.id]||0)+1); renderCart(); renderTickets(); };
 
     qwrap.appendChild(minus);
     qwrap.appendChild(val);
@@ -574,12 +621,12 @@ function renderFaq(){
     d.className = 'faqItem';
 
     const s = document.createElement('summary');
-    s.innerHTML = `<span>${it.q}</span><span class="chev">+</span>`;
+    s.innerHTML = `<span>${it.q || ''}</span><span class="chev">+</span>`;
     d.appendChild(s);
 
     const b = document.createElement('div');
     b.className = 'faqBody';
-    b.textContent = it.a;
+    b.textContent = it.a || '';
     d.appendChild(b);
 
     d.addEventListener('toggle', ()=>{
@@ -604,53 +651,36 @@ function renderCart(){
     cartLabel.textContent = `${cnt} bigliett${cnt===1?'o':'i'} nel carrello`;
     clearBtn.style.display = 'inline-flex';
     payBtn.disabled = false;
-    payBtn.classList.add('enabled'); /* lime pieno */
+    payBtn.classList.add('enabled');
   }
 }
 
-function renderAll(){
-  renderTickets();
-  renderFaq();
-  renderCart();
-}
-
-clearBtn.onclick = ()=>{
-  for(const k in qty) qty[k]=0;
-  renderAll();
-};
-
-payBtn.onclick = ()=>{
-  if(payBtn.disabled) return;
-  alert('Qui apri la tua pagina/flow attendees SPA (lo facciamo nel prossimo step).');
-};
-
 /* ==========================
    GATE su BIELLA (solo quello)
+   adminGateHash da Firestore: config/events
    ========================== */
-const GATE_CODE = "160985"; // <-- il tuo codice (per ora hardcoded, così FUNZIONA)
-let gateAttempts = 0;
-
 const cityTap = qs('#cityTap');
 const gateOverlay = qs('#gateOverlay');
 const pinErr = qs('#pinErr');
 const pinInputs = [...qs('#pinRow').querySelectorAll('input')];
 qs('#gateBack').onclick = ()=> gateOverlay.style.display = 'none';
 
+let gateAttempts = 0;
 let tapCount = 0;
 let tapTimer = null;
+let gateHashHex = ""; // preso live da Firestore
 
 function onCityTap(){
   tapCount++;
   if(tapTimer) clearTimeout(tapTimer);
   tapTimer = setTimeout(()=>{ tapCount=0; }, 6000);
-
   if(tapCount>=2){
     tapCount=0;
     openGate();
   }
 }
 cityTap.addEventListener('click', onCityTap);
-cityTap.addEventListener('touchstart', (e)=>{ onCityTap(); }, {passive:true});
+cityTap.addEventListener('touchstart', ()=>{ onCityTap(); }, {passive:true});
 
 function openGate(){
   gateOverlay.style.display = 'flex';
@@ -665,14 +695,21 @@ function clearPin(){
   pinInputs[0].focus();
 }
 
+async function sha256hex(s){
+  const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(s));
+  return [...new Uint8Array(buf)].map(b=>b.toString(16).padStart(2,'0')).join('');
+}
+
 async function checkPin(){
   const pin = readPin();
   if(pin.length!==6) return;
 
-  if(pin === GATE_CODE){
+  const pinHash = await sha256hex(pin);
+
+  if(gateHashHex && pinHash === gateHashHex){
     gateOverlay.style.display = 'none';
-    // qui apri login popup / admin panel (step dopo)
-    alert('OK: codice corretto (qui apriamo login dentro index).');
+    // QUI: aprirai login popup dentro index (step successivo)
+    alert('OK: accesso admin sbloccato (qui mettiamo login dentro index).');
     return;
   }
 
@@ -702,8 +739,98 @@ pinInputs.forEach((inp, idx)=>{
   });
 });
 
+/* ==========================
+   FIRESTORE LIVE (onSnapshot)
+   ========================== */
+
+// 1) hero + gate hash
+onSnapshot(doc(db, "config", "events"), (snap)=>{
+  if(!snap.exists()) return;
+  const d = snap.data() || {};
+
+  if(d.city) qs('#cityTap').textContent = String(d.city).toUpperCase();
+  if(d.genre) qs('#genreLine').innerHTML = String(d.genre).replace(/&/g,'&amp;');
+  if(d.eventTitle) qs('#eventTitle').textContent = String(d.eventTitle);
+  if(d.eventDateLine) qs('#eventDateLine').textContent = String(d.eventDateLine);
+
+  if(d.pill1) qs('#pill1').textContent = String(d.pill1);
+  if(d.pill2) qs('#pill2').textContent = String(d.pill2);
+  if(d.pill3) qs('#pill3').textContent = String(d.pill3);
+
+  if(d.adminGateHash) gateHashHex = String(d.adminGateHash).trim().toLowerCase();
+});
+
+// 2) tickets
+onSnapshot(collection(db, "config", "events", "tickets"), (snap)=>{
+  const arr = [];
+  snap.forEach((docu)=>{
+    const id = docu.id;
+    const d = docu.data() || {};
+    arr.push({
+      id,
+      title: d.title || id,
+      desc: d.desc || '',
+      price: Number(d.price || 0),
+      tag: d.tag || null,
+      tagStyle: d.tagStyle || 'lime',
+      order: Number(d.order ?? 999)
+    });
+  });
+  // se la collezione è vuota, non rompere: usa fallback
+  if(arr.length){
+    arr.sort((a,b)=>a.order-b.order);
+    TICKETS = arr;
+  }else{
+    TICKETS = [...FALLBACK_TICKETS];
+  }
+  renderTickets();
+  renderCart();
+}, (err)=>{
+  console.warn("tickets snapshot error", err);
+  TICKETS = [...FALLBACK_TICKETS];
+  renderTickets();
+  renderCart();
+});
+
+// 3) faq
+onSnapshot(query(collection(db, "config", "events", "faq"), orderBy("order","asc")), (snap)=>{
+  const arr = [];
+  snap.forEach((docu)=>{
+    const d = docu.data() || {};
+    arr.push({ q: d.q || '', a: d.a || '' });
+  });
+  FAQ = arr.length ? arr : [...FALLBACK_FAQ];
+  renderFaq();
+}, (err)=>{
+  console.warn("faq snapshot error", err);
+  FAQ = [...FALLBACK_FAQ];
+  renderFaq();
+});
+
+/* ==========================
+   CARRELLO
+   ========================== */
+clearBtn.onclick = ()=>{
+  for(const k in qty) qty[k]=0;
+  renderTickets();
+  renderCart();
+};
+
+payBtn.onclick = ()=>{
+  if(payBtn.disabled) return;
+
+  // per ora: stampo cosa hai selezionato (così vedi che funziona)
+  const selected = Object.entries(qty).filter(([k,v])=>v>0);
+  alert("OK carrello: " + JSON.stringify(selected));
+
+  // QUI nel prossimo step: fai SPA attendees dentro index, come volevi.
+};
+
 /* BOOT */
-renderAll();
+renderTickets();
+renderFaq();
+renderCart();
 </script>
+
 </body>
 </html>
